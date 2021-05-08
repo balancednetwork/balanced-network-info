@@ -1,7 +1,8 @@
-# Balanced Network Interface
+# Balanced Network Info
 
-An open source interface for Balanced: a decentralized synthetic asset generator and trading platform on the ICON Network.
+An open source analytics site for Balanced: a decentralized synthetic asset generator and trading platform on the ICON Network.
 
+- Analytics: [stats.balanced.network](https://stats.balanced.network/)
 - Website: [balanced.network](https://balanced.network/)
 - Prototype: [balanced.network/prototype](https://balanced.network/prototype)
 - Interface: [app.balanced.network](https://app.balanced.network/)
