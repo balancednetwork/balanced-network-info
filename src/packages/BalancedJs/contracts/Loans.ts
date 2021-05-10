@@ -68,4 +68,20 @@ export default class Loans extends Contract {
 
     return this.call(callParams);
   }
+
+  getTotalCollateral() {
+    const callParams = this.paramsBuilder({
+      method: 'getTotalCollateral',
+    });
+
+    return this.call(callParams);
+  }
+
+  getNonzeroPositionCount() {
+    const callParams = this.paramsBuilder({
+      method: 'getNonzeroPositionCount',
+    });
+
+    return this.call(callParams);
+  }
 }

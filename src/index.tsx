@@ -13,8 +13,9 @@ import * as serviceWorker from 'serviceWorker';
 import 'sanitize.css/sanitize.css';
 
 // Import root app
-import { App } from 'app';
 import store from 'store';
+
+import { App } from './App';
 
 // Initialize languages
 import './locales/i18n';

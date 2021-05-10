@@ -1,12 +1,13 @@
 import BigNumber from 'bignumber.js';
 import IconService, { IconBuilder, IconConverter } from 'icon-sdk-js';
 import { isEmpty } from 'lodash';
-import { ICONEX_RELAY_RESPONSE } from 'packages/iconex';
 
 import { AccountType, ResponseJsonRPCPayload, SettingInjection } from '..';
 import { NetworkId } from '../addresses';
 import ContractSettings from '../contractSettings';
 import { Ledger } from '../ledger';
+
+const ICONEX_RELAY_RESPONSE = 'ICONEX_RELAY_RESPONSE';
 
 export interface TransactionParams {
   jsonrpc: string;

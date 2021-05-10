@@ -73,4 +73,36 @@ export default class BALN extends Contract {
 
     return this.call(callParams);
   }
+
+  totalStakedBalance() {
+    const callParams = this.paramsBuilder({
+      method: 'totalStakedBalance',
+    });
+
+    return this.call(callParams);
+  }
+
+  name() {
+    const callParams = this.paramsBuilder({
+      method: 'name',
+    });
+
+    return this.call(callParams);
+  }
+
+  symbol() {
+    const callParams = this.paramsBuilder({
+      method: 'symbol',
+    });
+
+    return this.call(callParams);
+  }
+
+  totalSupply() {
+    const callParams = this.paramsBuilder({
+      method: 'totalSupply',
+    });
+
+    return this.call(callParams);
+  }
 }

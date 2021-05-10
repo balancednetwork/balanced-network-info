@@ -8,17 +8,9 @@ import { save, load } from 'redux-localstorage-simple';
 import createSagaMiddleware from 'redux-saga';
 
 import application from './application/reducer';
-import collateral from './collateral/reducer';
-import loan from './loan/reducer';
-import mint from './mint/reducer';
-import pool from './pool/reducer';
-import ratio from './ratio/reducer';
 import { createReducer } from './reducers';
-import reward from './reward/reducer';
-import transactions from './transactions/reducer';
-import wallet from './wallet/reducer';
 
-const PERSISTED_KEYS: string[] = ['transactions'];
+const PERSISTED_KEYS: string[] = [];
 
 export function configureAppStore() {
   const reduxSagaMonitorOptions = {};
@@ -37,16 +29,7 @@ export function configureAppStore() {
 
   const store = configureStore({
     reducer: createReducer({
-      // #redux-step-8: add more reducer from 'store/**/reducer.ts'
       application,
-      pool,
-      reward,
-      collateral,
-      loan,
-      ratio,
-      wallet,
-      transactions,
-      mint,
     }),
     middleware: [
       ...getDefaultMiddleware({
