@@ -5,7 +5,6 @@ import { Helmet } from 'react-helmet-async';
 import { Flex, Box } from 'rebass/styled-components';
 import styled from 'styled-components';
 
-import { volumeData } from 'assets/demo';
 import { ReactComponent as ChartIcon } from 'assets/icons/chart.svg';
 import { ReactComponent as DaoIcon } from 'assets/icons/dao.svg';
 import { ReactComponent as DistributionIcon } from 'assets/icons/distribution.svg';
@@ -17,7 +16,7 @@ import { ReactComponent as VaultIcon } from 'assets/icons/vault.svg';
 import { Button } from 'components/Button';
 import Logo from 'components/Logo';
 import { BoxPanel } from 'components/Panel';
-import TradingViewChart, { CHART_TYPES, HEIGHT } from 'components/TradingViewChart';
+import CollateralAndLoansSection from 'sections/CollateralAndLoansSection';
 import ExchangeSection from 'sections/ExchangeSection';
 import TokenSection from 'sections/TokenSection';
 import { Typography } from 'theme';
@@ -55,30 +54,6 @@ const StatsLayout = styled(Box)`
   row-gap: 50px;
 `;
 
-const ChartSection = styled(Box)`
-  box-sizing: border-box;
-  margin: 0px;
-  min-width: 0px;
-  width: 100%;
-  display: flex;
-  padding: 0px;
-  align-items: center;
-  justify-content: space-between;
-
-  @media (max-width: 720px) {
-    flex-direction: column;
-    row-gap: 50px;
-  }
-`;
-
-const ChartPanel = styled(BoxPanel)`
-  width: 48%;
-
-  @media (max-width: 720px) {
-    width: 100%;
-  }
-`;
-
 const Stats = styled(Flex)`
   display: flex;
 `;
@@ -103,24 +78,9 @@ const StatsItemData = styled(Box)`
   margin: 8px 8px;
 `;
 
-const ChartContainer = styled(Box)`
-  position: relative;
-  height: ${HEIGHT}px;
-`;
-
 export function StatsPage() {
   const overviewInfo = useOverviewInfo();
   const governanceInfo = useGovernanceInfo();
-  // update the width on a window resize
-  const ref = React.useRef<HTMLDivElement>();
-  const [width, setWidth] = React.useState(ref?.current?.clientWidth);
-  React.useEffect(() => {
-    function handleResize() {
-      setWidth(ref?.current?.clientWidth ?? width);
-    }
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [width]);
 
   return (
     <Container>
@@ -193,23 +153,7 @@ export function StatsPage() {
           </Stats>
         </BoxPanel>
 
-        <ChartSection>
-          <ChartPanel bg="bg2">
-            <Typography variant="h2" mb={1}>
-              Collateral
-            </Typography>
-            <ChartContainer ref={ref}>
-              <TradingViewChart data={volumeData} width={width} type={CHART_TYPES.AREA} />
-            </ChartContainer>
-          </ChartPanel>
-
-          <ChartPanel bg="bg2">
-            <Typography variant="h2" mb={1}>
-              Loans
-            </Typography>
-            <TradingViewChart data={volumeData} width={width} type={CHART_TYPES.AREA} />
-          </ChartPanel>
-        </ChartSection>
+        <CollateralAndLoansSection />
 
         <TokenSection />
 

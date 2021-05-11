@@ -133,3 +133,48 @@ export const useAllTokens = async () => {
 
   return allTokens;
 };
+
+export const useCollateralInfo = () => {
+  const rateQuery = useBnJsContractQuery<string>(bnJs, 'Staking', 'getTodayRate', []);
+  const rate = rateQuery.isSuccess ? BalancedJs.utils.toIcx(rateQuery.data) : null;
+
+  const totalCollateralQuery = useBnJsContractQuery<string>(bnJs, 'Loans', 'getTotalCollateral', []);
+  const totalCollateral = totalCollateralQuery.isSuccess ? BalancedJs.utils.toIcx(totalCollateralQuery.data) : null;
+
+  const rates = useRates();
+
+  // loan TVL
+  const totalCollateralTVL =
+    totalCollateralQuery.isSuccess && rates['sICX']
+      ? BalancedJs.utils.toIcx(totalCollateralQuery.data).times(rates['sICX'])
+      : null;
+
+  return {
+    totalCollateral: totalCollateral?.integerValue(),
+    totalCollateralTVL: totalCollateralTVL?.integerValue(),
+    rate: rate,
+    depositors: null,
+  };
+};
+
+export const useLoansInfo = () => {
+  const totalLoansQuery = useBnJsContractQuery<string>(bnJs, 'bnUSD', 'totalSupply', []);
+  const totalLoans = totalLoansQuery.isSuccess ? BalancedJs.utils.toIcx(totalLoansQuery.data) : null;
+
+  const dailyDistributionQuery = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
+  const dailyRewards = dailyDistributionQuery.isSuccess
+    ? BalancedJs.utils.toIcx(dailyDistributionQuery.data).times(0.25)
+    : null;
+
+  const rates = useRates();
+
+  const loansAPY =
+    dailyRewards && totalLoans && rates['BALN'] ? dailyRewards.times(365).times(rates['BALN']).div(totalLoans) : null;
+
+  return {
+    totalLoans: totalLoans?.integerValue(),
+    loansAPY: loansAPY,
+    dailyRewards: dailyRewards,
+    borrowers: null,
+  };
+};
