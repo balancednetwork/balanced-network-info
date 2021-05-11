@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { useAllPairs } from 'queries';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
@@ -8,6 +9,7 @@ import { BoxPanel } from 'components/Panel';
 import { CurrencyKey } from 'constants/currency';
 import { Typography } from 'theme';
 import { getCurrencyKeyIcon } from 'utils';
+import { getFormattedNumber } from 'utils/formatter';
 
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
@@ -45,7 +47,9 @@ const HeaderText = styled(Flex)`
   align-items: center;
 `;
 
-export default function ExchangeSection() {
+export default function PairSection() {
+  const allPairs = useAllPairs();
+
   return (
     <BoxPanel bg="bg2">
       <Typography variant="h2" mb={5}>
@@ -62,51 +66,26 @@ export default function ExchangeSection() {
           <HeaderText>FEES (24H)</HeaderText>
         </DashGrid>
 
-        <DashGrid my={2}>
-          <DataText>
-            <Flex alignItems="center">
-              <PoolIcon baseCurrencyKey="sICX" quoteCurrencyKey={'bnUSD'} />
-              <Text ml={2}>sICX/bnUSD</Text>
-            </Flex>
-          </DataText>
-          <DataText>285%</DataText>
-          <DataText>846</DataText>
-          <DataText>$1,712,318</DataText>
-          <DataText>$1,712,318</DataText>
-          <DataText>$1,712,318</DataText>
-        </DashGrid>
+        {allPairs &&
+          Object.values(allPairs).map((pair, index, arr) => (
+            <div key={pair.poolId}>
+              <DashGrid my={2}>
+                <DataText>
+                  <Flex alignItems="center">
+                    <PoolIcon baseCurrencyKey={pair.baseCurrencyKey} quoteCurrencyKey={pair.quoteCurrencyKey} />
+                    <Text ml={2}>{`${pair.baseCurrencyKey}/${pair.quoteCurrencyKey}`}</Text>
+                  </Flex>
+                </DataText>
+                <DataText>{getFormattedNumber(pair.apy, 'percent0')}</DataText>
+                <DataText>-</DataText>
+                <DataText>{getFormattedNumber(pair.tvl, 'currency0')}</DataText>
+                <DataText>-</DataText>
+                <DataText>-</DataText>
+              </DashGrid>
 
-        <Divider />
-
-        <DashGrid my={2}>
-          <DataText>
-            <Flex alignItems="center">
-              <PoolIcon baseCurrencyKey="sICX" quoteCurrencyKey={'bnUSD'} />
-              <Text ml={2}>sICX/bnUSD</Text>
-            </Flex>
-          </DataText>
-          <DataText>285%</DataText>
-          <DataText>846</DataText>
-          <DataText>$1,712,318</DataText>
-          <DataText>$1,712,318</DataText>
-          <DataText>$1,712,318</DataText>
-        </DashGrid>
-
-        <Divider />
-
-        <DashGrid my={2}>
-          <DataText>
-            <Flex alignItems="center">
-              <PoolIcon baseCurrencyKey="sICX" quoteCurrencyKey={'bnUSD'} />
-              <Text ml={2}>sICX/bnUSD</Text>
-            </Flex>
-          </DataText>
-          <DataText>285%</DataText>
-          <DataText>846</DataText>
-          <DataText>$1,712,318</DataText>
-          <DataText>$1,712,318</DataText>
-          <DataText>$1,712,318</DataText>
-        </DashGrid>
+              {index !== arr.length - 1 && <Divider />}
+            </div>
+          ))}
       </List>
     </BoxPanel>
   );

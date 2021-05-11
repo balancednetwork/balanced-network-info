@@ -5,7 +5,7 @@ import { BalancedJs } from 'packages/BalancedJs';
 import { useQuery } from 'react-query';
 
 import bnJs from 'bnJs';
-import { CURRENCY_INFO } from 'constants/currency';
+import { CURRENCY_INFO, BASE_SUPPORTED_PAIRS, Pair } from 'constants/currency';
 import { ONE, ZERO } from 'constants/number';
 import QUERY_KEYS from 'constants/queryKeys';
 
@@ -237,4 +237,61 @@ export const useLoansInfo = () => {
     dailyRewards: dailyRewards?.toNumber(),
     borrowers: null,
   };
+};
+
+export const useAllPairsAPYQuery = () => {
+  return useQuery<{ [key: string]: number }>('useAPYs', async () => {
+    const res: Array<string> = await Promise.all(
+      BASE_SUPPORTED_PAIRS.map(pair => bnJs.Rewards.getAPY(`${pair.baseCurrencyKey}/${pair.quoteCurrencyKey}`)),
+    );
+
+    const t = {};
+    BASE_SUPPORTED_PAIRS.forEach((pair, index) => {
+      t[`${pair.baseCurrencyKey}/${pair.quoteCurrencyKey}`] = BalancedJs.utils.toIcx(res[index]).toNumber();
+    });
+
+    return t;
+  });
+};
+
+export const useAllPairsTVL = () => {
+  const pool1Query = useBnJsContractQuery<string>(bnJs, 'Dex', 'totalSupply', [BalancedJs.utils.POOL_IDS.sICXICX]);
+  const pool2Query = useBnJsContractQuery<string>(bnJs, 'Dex', 'getPoolTotal', [
+    BalancedJs.utils.POOL_IDS.sICXbnUSD,
+    'cx88fd7df7ddff82f7cc735c871dc519838cb235bb',
+  ]);
+  const pool3Query = useBnJsContractQuery<string>(bnJs, 'Dex', 'getPoolTotal', [
+    BalancedJs.utils.POOL_IDS.BALNbnUSD,
+    'cx88fd7df7ddff82f7cc735c871dc519838cb235bb',
+  ]);
+
+  const rates = useRates();
+  const pool1TVL =
+    pool1Query.isSuccess && rates['ICX'] ? BalancedJs.utils.toIcx(pool1Query.data).times(rates['ICX']) : null;
+  const pool2TVL = pool2Query.isSuccess ? BalancedJs.utils.toIcx(pool2Query.data).times(2) : null;
+  const pool3TVL = pool3Query.isSuccess ? BalancedJs.utils.toIcx(pool3Query.data).times(2) : null;
+
+  return {
+    'sICX/ICX': pool1TVL?.toNumber(),
+    'sICX/bnUSD': pool2TVL?.toNumber(),
+    'BALN/bnUSD': pool3TVL?.toNumber(),
+  };
+};
+
+export const useAllPairs = () => {
+  const apysQuery = useAllPairsAPYQuery();
+  const tvls = useAllPairsTVL();
+
+  const t: { [key: string]: Pair & { tvl: number; apy: number } } = {};
+  if (apysQuery.isSuccess) {
+    const apys = apysQuery.data;
+    BASE_SUPPORTED_PAIRS.forEach(pair => {
+      t[`${pair.baseCurrencyKey}/${pair.quoteCurrencyKey}`] = {
+        ...pair,
+        tvl: tvls[`${pair.baseCurrencyKey}/${pair.quoteCurrencyKey}`],
+        apy: apys[`${pair.baseCurrencyKey}/${pair.quoteCurrencyKey}`],
+      };
+    });
+    return t;
+  } else return null;
 };

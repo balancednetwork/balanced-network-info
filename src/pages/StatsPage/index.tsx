@@ -17,7 +17,7 @@ import { Button } from 'components/Button';
 import Logo from 'components/Logo';
 import { BoxPanel } from 'components/Panel';
 import CollateralAndLoansSection from 'sections/CollateralAndLoansSection';
-import ExchangeSection from 'sections/ExchangeSection';
+import PairSection from 'sections/PairSection';
 import TokenSection from 'sections/TokenSection';
 import { Typography } from 'theme';
 
@@ -157,7 +157,7 @@ export function StatsPage() {
 
         <TokenSection />
 
-        <ExchangeSection />
+        <PairSection />
 
         <BoxPanel bg="bg2" mb={10}>
           <Typography variant="h2" mb={5}>
