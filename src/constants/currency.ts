@@ -13,6 +13,30 @@ export const CURRENCY_LIST = {
   baln: { symbol: 'BALN', decimals: 3, name: 'Balanced Token' },
 };
 
+export const CURRENCY_INFO: {
+  [key: string]: {
+    name: string;
+    symbol: string;
+  };
+} = {
+  BALN: {
+    name: 'Balance Tokens',
+    symbol: 'BALN',
+  },
+  bnUSD: {
+    name: 'Balanced Dollars',
+    symbol: 'bnUSD',
+  },
+  ICX: {
+    name: 'ICON',
+    symbol: 'ICX',
+  },
+  sICX: {
+    name: 'Staked ICX',
+    symbol: 'sICX',
+  },
+};
+
 export const CURRENCY = ['ICX', 'sICX', 'bnUSD', 'BALN'];
 
 export const CURRENCY_MAP = keyBy(CURRENCY);

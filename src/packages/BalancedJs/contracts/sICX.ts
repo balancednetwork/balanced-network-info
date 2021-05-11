@@ -74,4 +74,12 @@ export default class sICX extends Contract {
       JSON.stringify({ method: 'unstake' }),
     );
   }
+
+  totalSupply() {
+    const callParams = this.paramsBuilder({
+      method: 'totalSupply',
+    });
+
+    return this.call(callParams);
+  }
 }

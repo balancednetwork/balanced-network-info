@@ -1,8 +1,11 @@
+import React from 'react';
+
 import BigNumber from 'bignumber.js';
 import { BalancedJs } from 'packages/BalancedJs';
 import { useQuery } from 'react-query';
 
 import bnJs from 'bnJs';
+import { CURRENCY_INFO } from 'constants/currency';
 import { ONE, ZERO } from 'constants/number';
 import QUERY_KEYS from 'constants/queryKeys';
 
@@ -116,22 +119,79 @@ export const useGovernanceInfo = () => {
   };
 };
 
-export const useAllTokens = async () => {
-  const allTokens = {};
+export const usePrices = () => {
+  const ICXPriceQuery = useBnJsContractQuery<{ rate: string }>(bnJs, 'Band', 'getReferenceData', [
+    { _base: 'ICX', _quote: 'USD' },
+  ]);
+  const sICXICXPriceQuery = useBnJsContractQuery<string>(bnJs, 'Staking', 'getTodayRate', []);
+  // const sICXPriceQuery = useBnJsContractQuery<string>(bnJs, 'Dex', 'getPrice', [BalancedJs.utils.POOL_IDS.sICXbnUSD]);
+  const BALNPriceQuery = useBnJsContractQuery<string>(bnJs, 'Dex', 'getPrice', [BalancedJs.utils.POOL_IDS.BALNbnUSD]);
 
-  ['sICX', 'bnUSD', 'BALN', 'ICX'].forEach(async currencyKey => {
-    const [name, symbol, totalSupply] = await Promise.all[
-      (bnJs[currencyKey].name(), bnJs[currencyKey].symbol(), bnJs[currencyKey].totalSupply())
-    ];
+  return {
+    ICX: ICXPriceQuery.isSuccess ? BalancedJs.utils.toIcx(ICXPriceQuery.data.rate) : null,
+    sICX:
+      sICXICXPriceQuery.isSuccess && ICXPriceQuery.isSuccess
+        ? BalancedJs.utils.toIcx(sICXICXPriceQuery.data).times(BalancedJs.utils.toIcx(ICXPriceQuery.data.rate))
+        : null,
+    BALN: BALNPriceQuery.isSuccess ? BalancedJs.utils.toIcx(BALNPriceQuery.data) : null,
+    bnUSD: ONE,
+  };
+};
 
-    allTokens[currencyKey] = {
-      name: name,
-      symbol: symbol,
-      totalSupply: BalancedJs.utils.toIcx(totalSupply),
+export const useTotalSupplies = () => {
+  const [totalSupplies, setTotalSupplies] = React.useState<{ [key: string]: BigNumber }>();
+
+  React.useEffect(() => {
+    const fetch = async () => {
+      const data: Array<string> = await Promise.all(
+        Object.keys(CURRENCY_INFO).map(currencyKey => bnJs[currencyKey].totalSupply()),
+      );
+
+      const t: { [key: string]: BigNumber } = {};
+      Object.keys(CURRENCY_INFO).forEach((currencyKey, index) => {
+        t[currencyKey] = BalancedJs.utils.toIcx(data[index]).integerValue();
+      });
+
+      setTotalSupplies(t);
     };
-  });
 
-  return allTokens;
+    fetch();
+  }, []);
+
+  return totalSupplies;
+};
+
+type Token = {
+  name: string;
+  symbol: string;
+  price: number;
+  totalSupply: number;
+  marketCap: number | null;
+};
+
+export const useAllTokens = () => {
+  const allTokens: { [key: string]: Token } = {};
+
+  const prices = usePrices();
+
+  const totalSupplies = useTotalSupplies();
+
+  if (prices && totalSupplies) {
+    Object.keys(CURRENCY_INFO).forEach(currencyKey => {
+      allTokens[currencyKey] = {
+        ...CURRENCY_INFO[currencyKey],
+        price: prices[currencyKey] ? prices[currencyKey].toNumber() : null,
+        totalSupply: totalSupplies[currencyKey].toNumber(),
+        marketCap:
+          prices[currencyKey] && totalSupplies[currencyKey]
+            ? totalSupplies[currencyKey].times(prices[currencyKey]).toNumber()
+            : null,
+      };
+    });
+    return allTokens;
+  }
+
+  return null;
 };
 
 export const useCollateralInfo = () => {
@@ -150,9 +210,9 @@ export const useCollateralInfo = () => {
       : null;
 
   return {
-    totalCollateral: totalCollateral?.integerValue(),
-    totalCollateralTVL: totalCollateralTVL?.integerValue(),
-    rate: rate,
+    totalCollateral: totalCollateral?.toNumber(),
+    totalCollateralTVL: totalCollateralTVL?.toNumber(),
+    rate: rate?.toNumber(),
     depositors: null,
   };
 };
@@ -172,9 +232,9 @@ export const useLoansInfo = () => {
     dailyRewards && totalLoans && rates['BALN'] ? dailyRewards.times(365).times(rates['BALN']).div(totalLoans) : null;
 
   return {
-    totalLoans: totalLoans?.integerValue(),
-    loansAPY: loansAPY,
-    dailyRewards: dailyRewards,
+    totalLoans: totalLoans?.toNumber(),
+    loansAPY: loansAPY?.times(100).toNumber(),
+    dailyRewards: dailyRewards?.toNumber(),
     borrowers: null,
   };
 };

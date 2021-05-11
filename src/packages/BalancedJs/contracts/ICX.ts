@@ -27,4 +27,8 @@ export default class ICX extends Contract {
 
     return this.callICONPlugins(callParams);
   }
+
+  totalSupply() {
+    return this.provider.getTotalSupply().execute();
+  }
 }

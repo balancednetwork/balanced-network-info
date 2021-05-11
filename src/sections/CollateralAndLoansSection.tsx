@@ -8,6 +8,7 @@ import { volumeData } from 'assets/demo';
 import { BoxPanel } from 'components/Panel';
 import TradingViewChart, { CHART_TYPES, HEIGHT } from 'components/TradingViewChart';
 import { Typography } from 'theme';
+import { getFormattedNumber } from 'utils/formatter';
 
 const ChartSection = styled(Box)`
   box-sizing: border-box;
@@ -60,9 +61,10 @@ export default function CollateralAndLoansSection() {
           Collateral
         </Typography>
         <Typography variant="h3" mb={1}>
-          {collateralInfo.totalCollateral ? collateralInfo.totalCollateral.toFormat() : '-'} sICX{' '}
+          {collateralInfo.totalCollateral ? getFormattedNumber(collateralInfo.totalCollateral, 'number') : '-'} sICX{' '}
           <Typography variant="p" as="span" color="text1">
-            (${collateralInfo.totalCollateralTVL ? collateralInfo.totalCollateralTVL.toFormat() : '-'})
+            ($
+            {collateralInfo.totalCollateralTVL ? getFormattedNumber(collateralInfo.totalCollateralTVL, 'number') : '-'})
           </Typography>
         </Typography>
         <ChartContainer ref={ref}>
@@ -77,7 +79,7 @@ export default function CollateralAndLoansSection() {
           </Flex>
           <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
             <Typography variant="p" fontSize="18px">
-              {collateralInfo.rate ? collateralInfo.rate.dp(4).toFormat() : '-'}
+              {collateralInfo.rate ? getFormattedNumber(collateralInfo.rate, 'number4') : '-'}
             </Typography>
             <Typography>sICX / ICX price</Typography>
           </Flex>
@@ -95,19 +97,19 @@ export default function CollateralAndLoansSection() {
           Loans
         </Typography>
         <Typography variant="h3" mb={1}>
-          {loansInfo.totalLoans ? loansInfo.totalLoans.toFormat() : '-'} bnUSD
+          {loansInfo.totalLoans ? getFormattedNumber(loansInfo.totalLoans, 'number') : '-'} bnUSD
         </Typography>
         <TradingViewChart data={volumeData} width={width} type={CHART_TYPES.AREA} />
         <Flex my={3}>
           <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
             <Typography variant="p" fontSize="18px">
-              {loansInfo.loansAPY ? loansInfo.loansAPY.times(100).dp(0).toFormat() : '-'}%
+              {loansInfo.loansAPY ? getFormattedNumber(loansInfo.loansAPY, 'percent0') : '-'}
             </Typography>
             <Typography>Borrow APY</Typography>
           </Flex>
           <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
             <Typography variant="p" fontSize="18px">
-              {loansInfo.dailyRewards ? loansInfo.dailyRewards.toFormat() : '-'} BALN
+              {loansInfo.dailyRewards ? getFormattedNumber(loansInfo.dailyRewards, 'number') : '-'} BALN
             </Typography>
             <Typography>Daily rewards</Typography>
           </Flex>

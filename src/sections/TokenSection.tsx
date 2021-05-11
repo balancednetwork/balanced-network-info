@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { useAllTokens } from 'queries';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
@@ -8,6 +9,7 @@ import { BoxPanel } from 'components/Panel';
 import { CurrencyKey } from 'constants/currency';
 import { Typography } from 'theme';
 import { getCurrencyKeyIcon } from 'utils';
+import { getFormattedNumber } from 'utils/formatter';
 
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
@@ -45,31 +47,9 @@ const HeaderText = styled(Flex)`
   align-items: center;
 `;
 
-const tokensInfo: {
-  [key: string]: {
-    name: string;
-    symbol: string;
-  };
-} = {
-  BALN: {
-    name: 'Balance Tokens',
-    symbol: 'BALN',
-  },
-  bnUSD: {
-    name: 'Balanced Dollars',
-    symbol: 'bnUSD',
-  },
-  ICX: {
-    name: 'ICON',
-    symbol: 'ICX',
-  },
-  sICX: {
-    name: 'Staked ICX',
-    symbol: 'sICX',
-  },
-};
-
 export default function TokenSection() {
+  const allTokens = useAllTokens();
+
   return (
     <BoxPanel bg="bg2">
       <Typography variant="h2" mb={5}>
@@ -84,26 +64,35 @@ export default function TokenSection() {
           <HeaderText>MARKETCAP</HeaderText>
         </DashGrid>
 
-        {Object.values(tokensInfo).map((token, index, arr) => (
-          <div key={token.symbol}>
-            <DashGrid my={4}>
-              <DataText>
-                <Flex alignItems="center">
-                  <CurrencyIcon currencyKey={token.symbol} />
-                  <Box ml={2}>
-                    <Text>{token.name}</Text>
-                    <Text>{token.symbol}</Text>
-                  </Box>
-                </Flex>
-              </DataText>
-              <DataText>-</DataText>
-              <DataText>-</DataText>
-              <DataText>-</DataText>
-            </DashGrid>
+        {allTokens &&
+          Object.values(allTokens).map((token, index, arr) => (
+            <div key={token.symbol}>
+              <DashGrid my={4}>
+                <DataText>
+                  <Flex alignItems="center">
+                    <CurrencyIcon currencyKey={token.symbol} />
+                    <Box ml={2}>
+                      <Text>{token.name}</Text>
+                      <Text>{token.symbol}</Text>
+                    </Box>
+                  </Flex>
+                </DataText>
+                <DataText>-</DataText>
+                <DataText>{getFormattedNumber(token.price, 'currency2')}</DataText>
+                <DataText>
+                  <Flex alignItems="flex-end" flexDirection="column">
+                    <Typography variant="p">{getFormattedNumber(token.marketCap, 'currency0')}</Typography>
 
-            {index !== arr.length - 1 && <Divider />}
-          </div>
-        ))}
+                    <Typography variant="p" color="text1">
+                      {getFormattedNumber(token.totalSupply, 'number')} {token.symbol}
+                    </Typography>
+                  </Flex>
+                </DataText>
+              </DashGrid>
+
+              {index !== arr.length - 1 && <Divider />}
+            </div>
+          ))}
       </List>
     </BoxPanel>
   );
