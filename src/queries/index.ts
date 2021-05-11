@@ -233,7 +233,7 @@ export const useLoansInfo = () => {
 
   return {
     totalLoans: totalLoans?.toNumber(),
-    loansAPY: loansAPY?.times(100).toNumber(),
+    loansAPY: loansAPY?.toNumber(),
     dailyRewards: dailyRewards?.toNumber(),
     borrowers: null,
   };
