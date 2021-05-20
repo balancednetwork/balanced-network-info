@@ -98,6 +98,7 @@
     "prettify": "prettier --write",
     "extract-messages": "i18next-scanner --config=internals/extractMessages/i18next-scanner.config.js"
   },
+  "proxy": "http://35.81.2.122/",
   "browserslist": {
     "production": [
       ">0.2%",

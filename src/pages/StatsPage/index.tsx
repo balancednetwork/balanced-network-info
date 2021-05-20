@@ -20,6 +20,7 @@ import CollateralAndLoansSection from 'sections/CollateralAndLoansSection';
 import PairSection from 'sections/PairSection';
 import TokenSection from 'sections/TokenSection';
 import { Typography } from 'theme';
+import { getFormattedNumber } from 'utils/formatter';
 
 const Container = styled(Box)`
   /* disable margin collapse */
@@ -146,7 +147,11 @@ export function StatsPage() {
               </StatsItemIcon>
 
               <StatsItemData>
-                <Typography variant="h3">-</Typography>
+                <Typography variant="h3">
+                  {overviewInfo.transactions
+                    ? getFormattedNumber(overviewInfo.transactions['total_transactions'], 'number')
+                    : '-'}
+                </Typography>
                 <Typography>Transactions</Typography>
               </StatsItemData>
             </StatsItem>

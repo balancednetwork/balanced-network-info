@@ -1,5 +1,6 @@
 import React from 'react';
 
+import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { BalancedJs } from 'packages/BalancedJs';
 import { useQuery } from 'react-query';
@@ -32,6 +33,15 @@ export const useRates = () => {
     BALN: BALNPriceQuery.isSuccess ? BalancedJs.utils.toIcx(BALNPriceQuery.data) : null,
     bnUSD: ONE,
   };
+};
+
+const API_ENDPOINT = '/api/v1';
+
+export const useStatsTotalTransactionsQuery = () => {
+  return useQuery<{ [key: string]: number }>('stats/total-transactions', async () => {
+    const { data } = await axios.get(`${API_ENDPOINT}/stats/total-transactions`);
+    return data;
+  });
 };
 
 export const useOverviewInfo = () => {
@@ -83,11 +93,15 @@ export const useOverviewInfo = () => {
       ? BalancedJs.utils.toIcx(totalSupplyQuery.data).times(rates['BALN'])
       : null;
 
+  // transactions
+  const statsTotalTransactionsQuery = useStatsTotalTransactionsQuery();
+  const statsTotalTransactions = statsTotalTransactionsQuery.isSuccess ? statsTotalTransactionsQuery.data : null;
+
   return {
     TVL: TVL?.integerValue(),
     BALNMarketCap: BALNMarketCap?.integerValue(),
     fees: fees?.integerValue(),
-    transactions: null,
+    transactions: statsTotalTransactions,
   };
 };
 
