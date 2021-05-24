@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js';
 import { isEoaAddress } from 'icon-sdk-js/lib/data/Validator.js';
 
 import { currencyKeyToIconMap, CurrencyKey } from 'constants/currency';
@@ -58,38 +57,6 @@ export function getTrackerLink(
 
 export function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
-}
-
-export function formatBigNumber(value: BigNumber | undefined, type: 'currency' | 'ratio' | 'input') {
-  if (value === undefined || value.isNaN() || value.isEqualTo(0)) {
-    return '0';
-  } else {
-    switch (type) {
-      case 'currency': {
-        if (value.isLessThan(new BigNumber(1))) {
-          return value.precision(2, BigNumber.ROUND_DOWN).toString();
-        } else {
-          return value.dp(2).toFormat();
-        }
-      }
-      case 'input': {
-        if (value.decimalPlaces() === 0) {
-          return value.toFixed(0, BigNumber.ROUND_UP);
-        } else if (value.isLessThan(new BigNumber(1))) {
-          return value.precision(2, BigNumber.ROUND_DOWN).toString();
-        } else {
-          return value.toFixed(2, BigNumber.ROUND_DOWN);
-        }
-      }
-      case 'ratio': {
-        if (value.decimalPlaces() === 0) {
-          return value.toFormat(0, BigNumber.ROUND_UP);
-        } else {
-          return value.toFixed(4, 1);
-        }
-      }
-    }
-  }
 }
 
 export const getCurrencyKeyIcon = (currencyKey: CurrencyKey) => currencyKeyToIconMap[currencyKey];

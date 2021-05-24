@@ -35,7 +35,7 @@ export const useRates = () => {
   };
 };
 
-const API_ENDPOINT = '/api/v1';
+const API_ENDPOINT = process.env.NODE_ENV === 'production' ? 'https://balanced.geometry.io/api/v1' : '/api/v1';
 
 export const useStatsTotalTransactionsQuery = () => {
   return useQuery<{ [key: string]: number }>('stats/total-transactions', async () => {
@@ -127,8 +127,8 @@ export const useGovernanceInfo = () => {
     : null;
 
   return {
-    dailyDistribution: dailyDistribution?.integerValue(),
-    totalStakedBALN: totalStakedBALN?.integerValue(),
+    dailyDistribution: dailyDistribution?.integerValue().toNumber(),
+    totalStakedBALN: totalStakedBALN?.integerValue().toNumber(),
     daofund: daofund?.integerValue(),
   };
 };

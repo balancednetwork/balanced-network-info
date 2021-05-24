@@ -170,7 +170,6 @@ export function StatsPage() {
           </Typography>
 
           <Stats>
-            {/* TVL */}
             <StatsItem className="border-right">
               <StatsItemIcon>
                 <DaoIcon width={53} height={55} />
@@ -183,7 +182,7 @@ export function StatsPage() {
                 <Typography>DAO fund</Typography>
               </StatsItemData>
             </StatsItem>
-            {/* number of Borrowers */}
+
             <StatsItem className="border-right">
               <StatsItemIcon>
                 <StakersIcon width={53} height={55} />
@@ -193,7 +192,7 @@ export function StatsPage() {
                 <Typography>BALN stakers</Typography>
               </StatsItemData>
             </StatsItem>
-            {/* fees */}
+
             <StatsItem className="border-right">
               <StatsItemIcon>
                 <ChartIcon width={53} height={55} />
@@ -201,7 +200,7 @@ export function StatsPage() {
 
               <StatsItemData>
                 <Typography variant="h3">
-                  {governanceInfo.totalStakedBALN ? governanceInfo.totalStakedBALN.toFormat() : '-'}{' '}
+                  {governanceInfo.totalStakedBALN ? getFormattedNumber(governanceInfo.totalStakedBALN, 'number') : '-'}{' '}
                   <Typography as="span" fontWeight="normal" color="text1">
                     BALN
                   </Typography>
@@ -209,7 +208,7 @@ export function StatsPage() {
                 <Typography>BALN staked</Typography>
               </StatsItemData>
             </StatsItem>
-            {/* number of transactions */}
+
             <StatsItem>
               <StatsItemIcon>
                 <DistributionIcon width={53} height={55} />
@@ -217,12 +216,14 @@ export function StatsPage() {
 
               <StatsItemData>
                 <Typography variant="h3">
-                  {governanceInfo.dailyDistribution ? governanceInfo.dailyDistribution.toFormat() : '-'}{' '}
+                  {governanceInfo.dailyDistribution
+                    ? getFormattedNumber(governanceInfo.dailyDistribution, 'number')
+                    : '-'}{' '}
                   <Typography as="span" fontWeight="normal" color="text1">
                     BALN
                   </Typography>
                 </Typography>
-                <Typography>Daily distribution</Typography>
+                <Typography>Today's distribution</Typography>
               </StatsItemData>
             </StatsItem>
           </Stats>
