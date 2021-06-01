@@ -1,10 +1,9 @@
 import React from 'react';
 
-import { useCollateralInfo, useLoansInfo } from 'queries/index';
+import { useCollateralChartDataQuery, useCollateralInfo, useLoanChartDataQuery, useLoansInfo } from 'queries/index';
 import { Flex, Box } from 'rebass/styled-components';
 import styled from 'styled-components';
 
-import { volumeData } from 'assets/demo';
 import { BoxPanel } from 'components/Panel';
 import TradingViewChart, { CHART_TYPES, HEIGHT } from 'components/TradingViewChart';
 import { Typography } from 'theme';
@@ -53,6 +52,8 @@ export default function CollateralAndLoansSection() {
 
   const collateralInfo = useCollateralInfo();
   const loansInfo = useLoansInfo();
+  const collateralChartDataQuery = useCollateralChartDataQuery();
+  const loanChartDataQuery = useLoanChartDataQuery();
 
   return (
     <ChartSection>
@@ -68,7 +69,7 @@ export default function CollateralAndLoansSection() {
           </Typography>
         </Typography>
         <ChartContainer ref={ref}>
-          <TradingViewChart data={volumeData} width={width} type={CHART_TYPES.AREA} />
+          <TradingViewChart data={collateralChartDataQuery.data} width={width} type={CHART_TYPES.AREA} />
         </ChartContainer>
         <Flex my={3}>
           <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
@@ -99,7 +100,9 @@ export default function CollateralAndLoansSection() {
         <Typography variant="h3" mb={1}>
           {loansInfo.totalLoans ? getFormattedNumber(loansInfo.totalLoans, 'number') : '-'} bnUSD
         </Typography>
-        <TradingViewChart data={volumeData} width={width} type={CHART_TYPES.AREA} />
+        <ChartContainer ref={ref}>
+          <TradingViewChart data={loanChartDataQuery.data} width={width} type={CHART_TYPES.AREA} />
+        </ChartContainer>
         <Flex my={3}>
           <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
             <Typography variant="p" fontSize="18px">
