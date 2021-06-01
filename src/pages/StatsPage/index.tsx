@@ -6,12 +6,12 @@ import { Flex, Box } from 'rebass/styled-components';
 import styled from 'styled-components';
 
 import { ReactComponent as ChartIcon } from 'assets/icons/chart.svg';
+import { ReactComponent as CoinsIcon } from 'assets/icons/coins.svg';
 import { ReactComponent as DaoIcon } from 'assets/icons/dao.svg';
 import { ReactComponent as DistributionIcon } from 'assets/icons/distribution.svg';
 import { ReactComponent as FeesIcon } from 'assets/icons/fees.svg';
 import { ReactComponent as StakersIcon } from 'assets/icons/staking2.svg';
 import { ReactComponent as TransactionsIcon } from 'assets/icons/transactions.svg';
-import { ReactComponent as UsersIcon } from 'assets/icons/users.svg';
 import { ReactComponent as VaultIcon } from 'assets/icons/vault.svg';
 import { Button } from 'components/Button';
 import Logo from 'components/Logo';
@@ -120,7 +120,7 @@ export function StatsPage() {
             {/* number of Borrowers */}
             <StatsItem className="border-right">
               <StatsItemIcon>
-                <UsersIcon width={53} height={55} />
+                <CoinsIcon width={53} height={55} />
               </StatsItemIcon>
               <StatsItemData>
                 <Typography variant="h3">
@@ -201,9 +201,6 @@ export function StatsPage() {
               <StatsItemData>
                 <Typography variant="h3">
                   {governanceInfo.totalStakedBALN ? getFormattedNumber(governanceInfo.totalStakedBALN, 'number') : '-'}{' '}
-                  <Typography as="span" fontWeight="normal" color="text1">
-                    BALN
-                  </Typography>
                 </Typography>
                 <Typography>BALN staked</Typography>
               </StatsItemData>

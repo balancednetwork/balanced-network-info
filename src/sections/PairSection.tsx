@@ -73,7 +73,7 @@ export default function PairSection() {
                 <DataText>
                   <Flex alignItems="center">
                     <PoolIcon baseCurrencyKey={pair.baseCurrencyKey} quoteCurrencyKey={pair.quoteCurrencyKey} />
-                    <Text ml={2}>{`${pair.baseCurrencyKey}/${pair.quoteCurrencyKey}`}</Text>
+                    <Text ml={2}>{`${pair.baseCurrencyKey} / ${pair.quoteCurrencyKey}`}</Text>
                   </Flex>
                 </DataText>
                 <DataText>{getFormattedNumber(pair.apy, 'percent0')}</DataText>
@@ -119,10 +119,10 @@ function PoolIcon({
   return (
     <PoolIconWrapper>
       <IconWrapper>
-        <BaseIcon width={30} height={30} />
+        <BaseIcon width={25} height={25} />
       </IconWrapper>
       <IconWrapper ml={-2}>
-        <QuoteIcon width={30} height={30} />
+        <QuoteIcon width={25} height={25} />
       </IconWrapper>
     </PoolIconWrapper>
   );

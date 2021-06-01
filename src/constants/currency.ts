@@ -5,14 +5,6 @@ import { ReactComponent as bnUSDIcon } from 'assets/tokens/bnUSD.svg';
 import { ReactComponent as ICXIcon } from 'assets/tokens/ICX.svg';
 import { ReactComponent as sICXIcon } from 'assets/tokens/sICX.svg';
 
-export const CURRENCY_LIST = {
-  empty: { symbol: '', decimals: 0, name: 'empty' },
-  icx: { symbol: 'ICX', decimals: 3, name: 'ICON' },
-  sicx: { symbol: 'sICX', decimals: 3, name: 'Staked ICX' },
-  bnusd: { symbol: 'bnUSD', decimals: 3, name: 'ICON Dollar' },
-  baln: { symbol: 'BALN', decimals: 3, name: 'Balanced Token' },
-};
-
 export const CURRENCY_INFO: {
   [key: string]: {
     name: string;
