@@ -78,17 +78,11 @@ export default function CollateralAndLoansSection() {
             </Typography>
             <Typography>Staking APY</Typography>
           </Flex>
-          <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
+          <Flex flex={1} flexDirection="column" alignItems="center">
             <Typography variant="p" fontSize="18px">
               {collateralInfo.rate ? getFormattedNumber(collateralInfo.rate, 'number4') : '-'}
             </Typography>
             <Typography>sICX / ICX price</Typography>
-          </Flex>
-          <Flex flex={1} flexDirection="column" alignItems="center">
-            <Typography variant="p" fontSize="18px">
-              {'-'}
-            </Typography>
-            <Typography>Depositors</Typography>
           </Flex>
         </Flex>
       </ChartPanel>
@@ -118,7 +112,7 @@ export default function CollateralAndLoansSection() {
           </Flex>
           <Flex flex={1} flexDirection="column" alignItems="center">
             <Typography variant="p" fontSize="18px">
-              {'-'}
+              {loansInfo.borrowers ? getFormattedNumber(loansInfo.borrowers, 'number') : '-'}
             </Typography>
             <Typography>Borrowers</Typography>
           </Flex>
