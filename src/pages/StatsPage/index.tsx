@@ -93,8 +93,8 @@ export function StatsPage() {
         <Flex alignItems="center" justifyContent="space-between">
           <Logo />
 
-          <Button as="a" href="/">
-            Go to{' '}
+          <Button as="a" target="_blank" href="https://app.balanced.network">
+            Go to app
           </Button>
         </Flex>
       </StyledHeader>
