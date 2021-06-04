@@ -6,7 +6,7 @@ import { BalancedJs } from 'packages/BalancedJs';
 import { useQuery } from 'react-query';
 
 import bnJs from 'bnJs';
-import { CURRENCY_INFO, BASE_SUPPORTED_PAIRS, Pair } from 'constants/currency';
+import { CURRENCY_INFO, SUPPORTED_PAIRS, Pair } from 'constants/currency';
 import { ONE, ZERO } from 'constants/number';
 import QUERY_KEYS from 'constants/queryKeys';
 
@@ -296,11 +296,11 @@ export const useLoansInfo = () => {
 export const useAllPairsAPYQuery = () => {
   return useQuery<{ [key: string]: number }>('useAPYs', async () => {
     const res: Array<string> = await Promise.all(
-      BASE_SUPPORTED_PAIRS.map(pair => bnJs.Rewards.getAPY(`${pair.baseCurrencyKey}/${pair.quoteCurrencyKey}`)),
+      SUPPORTED_PAIRS.map(pair => bnJs.Rewards.getAPY(`${pair.baseCurrencyKey}/${pair.quoteCurrencyKey}`)),
     );
 
     const t = {};
-    BASE_SUPPORTED_PAIRS.forEach((pair, index) => {
+    SUPPORTED_PAIRS.forEach((pair, index) => {
       t[`${pair.baseCurrencyKey}/${pair.quoteCurrencyKey}`] = BalancedJs.utils.toIcx(res[index]).toNumber();
     });
 
@@ -339,7 +339,7 @@ export const useAllPairs = () => {
   const t: { [key: string]: Pair & { tvl: number; apy: number } } = {};
   if (apysQuery.isSuccess) {
     const apys = apysQuery.data;
-    BASE_SUPPORTED_PAIRS.forEach(pair => {
+    SUPPORTED_PAIRS.forEach(pair => {
       t[`${pair.baseCurrencyKey}/${pair.quoteCurrencyKey}`] = {
         ...pair,
         tvl: tvls[`${pair.baseCurrencyKey}/${pair.quoteCurrencyKey}`],
