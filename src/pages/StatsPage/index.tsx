@@ -16,7 +16,7 @@ import { ReactComponent as VaultIcon } from 'assets/icons/vault.svg';
 import { Button } from 'components/Button';
 import Logo from 'components/Logo';
 import { BoxPanel } from 'components/Panel';
-import CollateralAndLoansSection from 'sections/CollateralAndLoansSection';
+import CollateralAndLoanSection from 'sections/CollateralAndLoanSection';
 import PairSection from 'sections/PairSection';
 import TokenSection from 'sections/TokenSection';
 import { Typography } from 'theme';
@@ -158,7 +158,7 @@ export function StatsPage() {
           </Stats>
         </BoxPanel>
 
-        <CollateralAndLoansSection />
+        <CollateralAndLoanSection />
 
         <TokenSection />
 

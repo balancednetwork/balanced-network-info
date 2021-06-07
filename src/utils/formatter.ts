@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import numbro from 'numbro';
 
 import { TimeSeries } from 'types/data';
@@ -71,11 +71,28 @@ export type TimeSeriesType = '15m' | '1d';
 
 export const formatTime = (created: string | number, type: TimeSeriesType) => {
   if (type === '15m') {
-    return format(new Date(created), 'HH:00');
+    return dayjs().format('HH:00');
   } else if (type === '1d') {
-    return format(new Date(created), 'MM/dd');
+    return dayjs().format('MM/dd');
   }
   throw new Error('unrecognized time to format');
 };
 
-export const formatDate = (created: string) => format(new Date(created), 'PPpp');
+export const formatDate = (created: string) => dayjs().format('PPpp');
+
+export const formatYAxisNumber = (num: number | undefined, digits = 2, round = true) => {
+  if (num === 0) return '0';
+  if (!num) return '-';
+  if (num < 0.001 && digits <= 3) {
+    return '<0.001';
+  }
+
+  return numbro(num).format({
+    average: round,
+    mantissa: digits,
+    abbreviations: {
+      million: 'M',
+      billion: 'B',
+    },
+  });
+};

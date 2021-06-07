@@ -51,7 +51,7 @@ export const useCollateralChartDataQuery = (
     );
 
     return data.map(item => ({
-      time: item.time / 1_000_000,
+      time: item.time / 1_000,
       value: BalancedJs.utils.toIcx(item.value).integerValue().toNumber(),
     }));
   });
@@ -68,7 +68,7 @@ export const useLoanChartDataQuery = (
     );
 
     return data.map(item => ({
-      time: item.time / 1_000_000,
+      time: item.time / 1_000,
       value: BalancedJs.utils.toIcx(item.value).integerValue().toNumber(),
     }));
   });
@@ -268,7 +268,7 @@ export const useCollateralInfo = () => {
   };
 };
 
-export const useLoansInfo = () => {
+export const useLoanInfo = () => {
   const totalLoansQuery = useBnJsContractQuery<string>(bnJs, 'bnUSD', 'totalSupply', []);
   const totalLoans = totalLoansQuery.isSuccess ? BalancedJs.utils.toIcx(totalLoansQuery.data) : null;
 
