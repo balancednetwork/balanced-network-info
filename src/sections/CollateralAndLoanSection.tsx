@@ -7,7 +7,7 @@ import {
   useCollateralInfo,
   useLoanChartDataQuery,
   useLoanInfo,
-  useRates,
+  useRatesQuery,
 } from 'queries/index';
 import { Flex, Box } from 'rebass/styled-components';
 import styled from 'styled-components';
@@ -53,7 +53,8 @@ export default function CollateralAndLoanSection() {
   const collateralChartDataQuery = useCollateralChartDataQuery();
   const loanInfo = useLoanInfo();
   const loanChartDataQuery = useLoanChartDataQuery();
-  const rates = useRates();
+  const ratesQuery = useRatesQuery();
+  const rates = ratesQuery.data || {};
   const theme = useTheme();
 
   const [loanTVLHover, setLoansTVLHover] = React.useState<number | undefined>();

@@ -77,7 +77,7 @@ export default function PairSection() {
                   </Flex>
                 </DataText>
                 <DataText>{getFormattedNumber(pair.apy, 'percent0')}</DataText>
-                <DataText>-</DataText>
+                <DataText>{getFormattedNumber(pair.participant, 'number')}</DataText>
                 <DataText>{getFormattedNumber(pair.tvl, 'currency0')}</DataText>
                 <DataText>-</DataText>
                 <DataText>-</DataText>

@@ -1,12 +1,10 @@
-import React from 'react';
-
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { BalancedJs } from 'packages/BalancedJs';
 import { useQuery } from 'react-query';
 
 import bnJs from 'bnJs';
-import { CURRENCY_INFO, SUPPORTED_PAIRS, Pair } from 'constants/currency';
+import { CURRENCY_INFO, SUPPORTED_PAIRS, Pair, CurrencyKey, CURRENCY } from 'constants/currency';
 import { ONE, ZERO } from 'constants/number';
 import QUERY_KEYS from 'constants/queryKeys';
 
@@ -16,23 +14,26 @@ export const useBnJsContractQuery = <T>(bnJs: BalancedJs, contract: string, meth
   });
 };
 
-export const useRates = () => {
-  const ICXPriceQuery = useBnJsContractQuery<{ rate: string }>(bnJs, 'Band', 'getReferenceData', [
-    { _base: 'ICX', _quote: 'USD' },
-  ]);
-  const sICXICXPriceQuery = useBnJsContractQuery<string>(bnJs, 'Staking', 'getTodayRate', []);
-  // const sICXPriceQuery = useBnJsContractQuery<string>(bnJs, 'Dex', 'getPrice', [BalancedJs.utils.POOL_IDS.sICXbnUSD]);
-  const BALNPriceQuery = useBnJsContractQuery<string>(bnJs, 'Dex', 'getPrice', [BalancedJs.utils.POOL_IDS.BALNbnUSD]);
+export const useRatesQuery = () => {
+  return useQuery<{ [key in CurrencyKey]: BigNumber }>('useRatesQuery', async () => {
+    const ICXPricePromise: Promise<any> = bnJs.Band.getReferenceData({ _base: 'ICX', _quote: 'USD' }) //
+      .then(res => res.rate);
 
-  return {
-    ICX: ICXPriceQuery.isSuccess ? BalancedJs.utils.toIcx(ICXPriceQuery.data.rate) : null,
-    sICX:
-      sICXICXPriceQuery.isSuccess && ICXPriceQuery.isSuccess
-        ? BalancedJs.utils.toIcx(sICXICXPriceQuery.data).times(BalancedJs.utils.toIcx(ICXPriceQuery.data.rate))
-        : null,
-    BALN: BALNPriceQuery.isSuccess ? BalancedJs.utils.toIcx(BALNPriceQuery.data) : null,
-    bnUSD: ONE,
-  };
+    const [ICXPrice, sICXICXPrice, BALNbnUSDPrice] = (
+      await Promise.all([
+        ICXPricePromise, //
+        bnJs.Staking.getTodayRate(),
+        bnJs.Dex.getPrice(BalancedJs.utils.POOL_IDS.BALNbnUSD),
+      ])
+    ).map(res => BalancedJs.utils.toIcx(res));
+
+    return {
+      ICX: ICXPrice,
+      sICX: sICXICXPrice.times(ICXPrice),
+      BALN: BALNbnUSDPrice,
+      bnUSD: ONE,
+    };
+  });
 };
 
 const API_ENDPOINT = process.env.NODE_ENV === 'production' ? 'https://balanced.geometry.io/api/v1' : '/api/v1';
@@ -81,54 +82,47 @@ export const useStatsTotalTransactionsQuery = () => {
   });
 };
 
+export const useStatsTVLQuery = () => {
+  return useQuery<{ dexInICX: BigNumber; loansInsICX: BigNumber }>('stats/total-value-locked', async () => {
+    const { data } = await axios.get(`${API_ENDPOINT}/stats/total-value-locked`);
+
+    return {
+      dexInICX: BalancedJs.utils.toIcx(data.dex_value_locked_icx),
+      loansInsICX: BalancedJs.utils.toIcx(data.loans_value_locked_sicx),
+    };
+  });
+};
+
 export const useOverviewInfo = () => {
-  // loan
-  const loanTVLQuery = useBnJsContractQuery<string>(bnJs, 'Loans', 'getTotalCollateral', []);
-
-  // dex
-  const pool1Query = useBnJsContractQuery<string>(bnJs, 'Dex', 'totalSupply', [BalancedJs.utils.POOL_IDS.sICXICX]);
-  const pool2Query = useBnJsContractQuery<string>(bnJs, 'Dex', 'getPoolTotal', [
-    BalancedJs.utils.POOL_IDS.sICXbnUSD,
-    'cx88fd7df7ddff82f7cc735c871dc519838cb235bb',
-  ]);
-  const pool3Query = useBnJsContractQuery<string>(bnJs, 'Dex', 'getPoolTotal', [
-    BalancedJs.utils.POOL_IDS.BALNbnUSD,
-    'cx88fd7df7ddff82f7cc735c871dc519838cb235bb',
-  ]);
-
-  const rates = useRates();
-
-  // loan TVL
-  const loanTVL =
-    loanTVLQuery.isSuccess && rates['sICX'] ? BalancedJs.utils.toIcx(loanTVLQuery.data).times(rates['sICX']) : null;
-
-  // dex TVL
-  const poo1TVL =
-    pool1Query.isSuccess && rates['ICX'] ? BalancedJs.utils.toIcx(pool1Query.data).times(rates['ICX']) : null;
-  const pool2TVL = pool2Query.isSuccess ? BalancedJs.utils.toIcx(pool2Query.data).times(2) : null;
-  const pool3TVL = pool3Query.isSuccess ? BalancedJs.utils.toIcx(pool3Query.data).times(2) : null;
-  const dexTVL = poo1TVL && pool2TVL && pool3TVL ? poo1TVL.plus(pool2TVL).plus(pool3TVL) : null;
+  const ratesQuery = useRatesQuery();
+  const rates = ratesQuery.data;
 
   // TVL
-  const TVL = loanTVL && dexTVL ? loanTVL.plus(dexTVL) : null;
+  const tvlQuery = useStatsTVLQuery();
+  let TVL: BigNumber | undefined;
+  if (tvlQuery.isSuccess && ratesQuery.isSuccess && rates) {
+    const tvl = tvlQuery.data;
+    console.log(tvl.dexInICX.toFixed(), tvl.loansInsICX.toFixed());
+    TVL = tvl.dexInICX.times(rates['ICX']).plus(tvl.loansInsICX.times(rates['sICX']));
+  }
 
   // fees
   const feesQuery = useBnJsContractQuery<{ [key: string]: string }>(bnJs, 'Dividends', 'getBalances', []);
+  let totalFees: BigNumber | undefined;
+  if (feesQuery.isSuccess && ratesQuery.isSuccess && rates) {
+    const fees = feesQuery.data;
 
-  const fees = feesQuery.isSuccess
-    ? ['sICX', 'bnUSD', 'BALN', 'ICX'].reduce((sum: BigNumber | null, currencyKey: string) => {
-        if (sum && rates[currencyKey] && feesQuery.data[currencyKey])
-          return sum.plus(BalancedJs.utils.toIcx(feesQuery.data[currencyKey]).times(rates[currencyKey]));
-        else return null;
-      }, ZERO)
-    : null;
+    totalFees = CURRENCY.reduce((sum: BigNumber, currencyKey: string) => {
+      return sum.plus(BalancedJs.utils.toIcx(fees[currencyKey]).times(rates[currencyKey]));
+    }, ZERO);
+  }
 
   // baln marketcap
   const totalSupplyQuery = useBnJsContractQuery<string>(bnJs, 'BALN', 'totalSupply', []);
-  const BALNMarketCap =
-    totalSupplyQuery.isSuccess && rates['BALN']
-      ? BalancedJs.utils.toIcx(totalSupplyQuery.data).times(rates['BALN'])
-      : null;
+  let BALNMarketCap: BigNumber | undefined;
+  if (totalSupplyQuery.isSuccess && ratesQuery.isSuccess && rates) {
+    BALNMarketCap = BalancedJs.utils.toIcx(totalSupplyQuery.data).times(rates['BALN']);
+  }
 
   // transactions
   const statsTotalTransactionsQuery = useStatsTotalTransactionsQuery();
@@ -137,7 +131,7 @@ export const useOverviewInfo = () => {
   return {
     TVL: TVL?.integerValue(),
     BALNMarketCap: BALNMarketCap?.integerValue(),
-    fees: fees?.integerValue(),
+    fees: totalFees?.integerValue(),
     transactions: statsTotalTransactions,
   };
 };
@@ -153,10 +147,11 @@ export const useGovernanceInfo = () => {
 
   const totalStakedBALN = totalStakedBALNQuery.isSuccess ? BalancedJs.utils.toIcx(totalStakedBALNQuery.data) : null;
 
-  const rates = useRates();
+  const ratesQuery = useRatesQuery();
+  const rates = ratesQuery.data || {};
 
   const daofund = daofundQuery.isSuccess
-    ? ['sICX', 'bnUSD', 'BALN', 'ICX'].reduce((sum: BigNumber | null, currencyKey: string) => {
+    ? CURRENCY.reduce((sum: BigNumber | null, currencyKey: string) => {
         if (sum && rates[currencyKey] && daofundQuery.data[currencyKey])
           return sum.plus(BalancedJs.utils.toIcx(daofundQuery.data[currencyKey]).times(rates[currencyKey]));
         else return null;
@@ -170,46 +165,21 @@ export const useGovernanceInfo = () => {
   };
 };
 
-export const usePrices = () => {
-  const ICXPriceQuery = useBnJsContractQuery<{ rate: string }>(bnJs, 'Band', 'getReferenceData', [
-    { _base: 'ICX', _quote: 'USD' },
-  ]);
-  const sICXICXPriceQuery = useBnJsContractQuery<string>(bnJs, 'Staking', 'getTodayRate', []);
-  // const sICXPriceQuery = useBnJsContractQuery<string>(bnJs, 'Dex', 'getPrice', [BalancedJs.utils.POOL_IDS.sICXbnUSD]);
-  const BALNPriceQuery = useBnJsContractQuery<string>(bnJs, 'Dex', 'getPrice', [BalancedJs.utils.POOL_IDS.BALNbnUSD]);
+export const useAllTokensTotalSupplyQuery = () => {
+  const fetch = async () => {
+    const data: Array<string> = await Promise.all(
+      Object.keys(CURRENCY_INFO).map(currencyKey => bnJs[currencyKey].totalSupply()),
+    );
 
-  return {
-    ICX: ICXPriceQuery.isSuccess ? BalancedJs.utils.toIcx(ICXPriceQuery.data.rate) : null,
-    sICX:
-      sICXICXPriceQuery.isSuccess && ICXPriceQuery.isSuccess
-        ? BalancedJs.utils.toIcx(sICXICXPriceQuery.data).times(BalancedJs.utils.toIcx(ICXPriceQuery.data.rate))
-        : null,
-    BALN: BALNPriceQuery.isSuccess ? BalancedJs.utils.toIcx(BALNPriceQuery.data) : null,
-    bnUSD: ONE,
+    const t: { [key: string]: BigNumber } = {};
+    Object.keys(CURRENCY_INFO).forEach((currencyKey, index) => {
+      t[currencyKey] = BalancedJs.utils.toIcx(data[index]).integerValue();
+    });
+
+    return t;
   };
-};
 
-export const useTotalSupplies = () => {
-  const [totalSupplies, setTotalSupplies] = React.useState<{ [key: string]: BigNumber }>();
-
-  React.useEffect(() => {
-    const fetch = async () => {
-      const data: Array<string> = await Promise.all(
-        Object.keys(CURRENCY_INFO).map(currencyKey => bnJs[currencyKey].totalSupply()),
-      );
-
-      const t: { [key: string]: BigNumber } = {};
-      Object.keys(CURRENCY_INFO).forEach((currencyKey, index) => {
-        t[currencyKey] = BalancedJs.utils.toIcx(data[index]).integerValue();
-      });
-
-      setTotalSupplies(t);
-    };
-
-    fetch();
-  }, []);
-
-  return totalSupplies;
+  return useQuery('useAllTokensTotalSupplyQuery', fetch);
 };
 
 type Token = {
@@ -222,21 +192,19 @@ type Token = {
 
 export const useAllTokens = () => {
   const allTokens: { [key: string]: Token } = {};
+  const ratesQuery = useRatesQuery();
+  const totalSuppliesQuery = useAllTokensTotalSupplyQuery();
 
-  const prices = usePrices();
+  if (ratesQuery.isSuccess && totalSuppliesQuery.isSuccess) {
+    const rates = ratesQuery.data || {};
+    const totalSupplies = totalSuppliesQuery.data || {};
 
-  const totalSupplies = useTotalSupplies();
-
-  if (prices && totalSupplies) {
     Object.keys(CURRENCY_INFO).forEach(currencyKey => {
       allTokens[currencyKey] = {
         ...CURRENCY_INFO[currencyKey],
-        price: prices[currencyKey] ? prices[currencyKey].toNumber() : null,
+        price: rates[currencyKey].toNumber(),
         totalSupply: totalSupplies[currencyKey].toNumber(),
-        marketCap:
-          prices[currencyKey] && totalSupplies[currencyKey]
-            ? totalSupplies[currencyKey].times(prices[currencyKey]).toNumber()
-            : null,
+        marketCap: totalSupplies[currencyKey].times(rates[currencyKey]).toNumber(),
       };
     });
     return allTokens;
@@ -252,7 +220,8 @@ export const useCollateralInfo = () => {
   const totalCollateralQuery = useBnJsContractQuery<string>(bnJs, 'Loans', 'getTotalCollateral', []);
   const totalCollateral = totalCollateralQuery.isSuccess ? BalancedJs.utils.toIcx(totalCollateralQuery.data) : null;
 
-  const rates = useRates();
+  const ratesQuery = useRatesQuery();
+  const rates = ratesQuery.data || {};
 
   // loan TVL
   const totalCollateralTVL =
@@ -277,7 +246,8 @@ export const useLoanInfo = () => {
     ? BalancedJs.utils.toIcx(dailyDistributionQuery.data).times(0.25)
     : null;
 
-  const rates = useRates();
+  const ratesQuery = useRatesQuery();
+  const rates = ratesQuery.data || {};
 
   const loansAPY =
     dailyRewards && totalLoans && rates['BALN'] ? dailyRewards.times(365).times(rates['BALN']).div(totalLoans) : null;
@@ -293,57 +263,98 @@ export const useLoanInfo = () => {
   };
 };
 
-export const useAllPairsAPYQuery = () => {
-  return useQuery<{ [key: string]: number }>('useAPYs', async () => {
-    const res: Array<string> = await Promise.all(
-      SUPPORTED_PAIRS.map(pair => bnJs.Rewards.getAPY(`${pair.baseCurrencyKey}/${pair.quoteCurrencyKey}`)),
-    );
+export const useAllPairsAPY = () => {
+  const tvls = useAllPairsTVL();
+  const { data: rates } = useRatesQuery();
+
+  if (tvls && rates) {
+    const t = {};
+    SUPPORTED_PAIRS.forEach(pair => {
+      t[pair.name] = new BigNumber(pair.rewards || 0).times(365).times(rates['BALN']).div(tvls[pair.name]);
+    });
+    return t;
+  }
+
+  return;
+};
+
+export const useAllPairsTVLQuery = () => {
+  return useQuery<{ [key: string]: { base: BigNumber; quote: BigNumber; total_supply: BigNumber } }>(
+    'useAllPairsTVLQuery',
+    async () => {
+      const res: Array<any> = await Promise.all(
+        SUPPORTED_PAIRS.map(async pair => {
+          const { data } = await axios.get(`${API_ENDPOINT}/dex/stats/${pair.poolId}`);
+          return data;
+        }),
+      );
+      console.log(res);
+      const t = {};
+      SUPPORTED_PAIRS.forEach((pair, index) => {
+        const item = res[index];
+        t[pair.name] = {
+          ...item,
+          base: BalancedJs.utils.toIcx(item.base),
+          quote: BalancedJs.utils.toIcx(item.quote),
+          total_supply: BalancedJs.utils.toIcx(item.total_supply),
+        };
+      });
+
+      return t;
+    },
+  );
+};
+
+export const useAllPairsTVL = () => {
+  const tvlQuery = useAllPairsTVLQuery();
+  const ratesQuery = useRatesQuery();
+
+  if (tvlQuery.isSuccess && ratesQuery.isSuccess) {
+    const rates = ratesQuery.data || {};
+    const tvls = tvlQuery.data || {};
+
+    const t = {};
+    SUPPORTED_PAIRS.forEach(pair => {
+      const baseTVL = tvls[pair.name].base.times(rates[pair.baseCurrencyKey]);
+      const quoteTVL = tvls[pair.name].quote.times(rates[pair.quoteCurrencyKey]);
+      t[pair.name] = baseTVL.plus(quoteTVL);
+    });
+
+    return t;
+  }
+
+  return;
+};
+
+export const useAllPairsParticipantQuery = () => {
+  return useQuery<{ [key: string]: number }>('useAllPairsParticipantQuery', async () => {
+    const res: Array<string> = await Promise.all(SUPPORTED_PAIRS.map(pair => bnJs.Dex.totalDexAddresses(pair.poolId)));
 
     const t = {};
     SUPPORTED_PAIRS.forEach((pair, index) => {
-      t[`${pair.baseCurrencyKey}/${pair.quoteCurrencyKey}`] = BalancedJs.utils.toIcx(res[index]).toNumber();
+      t[pair.name] = parseInt(res[index]);
     });
 
     return t;
   });
 };
 
-export const useAllPairsTVL = () => {
-  const pool1Query = useBnJsContractQuery<string>(bnJs, 'Dex', 'totalSupply', [BalancedJs.utils.POOL_IDS.sICXICX]);
-  const pool2Query = useBnJsContractQuery<string>(bnJs, 'Dex', 'getPoolTotal', [
-    BalancedJs.utils.POOL_IDS.sICXbnUSD,
-    'cx88fd7df7ddff82f7cc735c871dc519838cb235bb',
-  ]);
-  const pool3Query = useBnJsContractQuery<string>(bnJs, 'Dex', 'getPoolTotal', [
-    BalancedJs.utils.POOL_IDS.BALNbnUSD,
-    'cx88fd7df7ddff82f7cc735c871dc519838cb235bb',
-  ]);
-
-  const rates = useRates();
-  const pool1TVL =
-    pool1Query.isSuccess && rates['ICX'] ? BalancedJs.utils.toIcx(pool1Query.data).times(rates['ICX']) : null;
-  const pool2TVL = pool2Query.isSuccess ? BalancedJs.utils.toIcx(pool2Query.data).times(2) : null;
-  const pool3TVL = pool3Query.isSuccess ? BalancedJs.utils.toIcx(pool3Query.data).times(2) : null;
-
-  return {
-    'sICX/ICX': pool1TVL?.toNumber(),
-    'sICX/bnUSD': pool2TVL?.toNumber(),
-    'BALN/bnUSD': pool3TVL?.toNumber(),
-  };
-};
-
 export const useAllPairs = () => {
-  const apysQuery = useAllPairsAPYQuery();
+  const apys = useAllPairsAPY();
   const tvls = useAllPairsTVL();
+  const participantQuery = useAllPairsParticipantQuery();
 
-  const t: { [key: string]: Pair & { tvl: number; apy: number } } = {};
-  if (apysQuery.isSuccess) {
-    const apys = apysQuery.data;
+  const t: { [key: string]: Pair & { tvl: number; apy: number; participant: number } } = {};
+
+  if (apys && participantQuery.isSuccess && tvls) {
+    const participants = participantQuery.data;
+
     SUPPORTED_PAIRS.forEach(pair => {
-      t[`${pair.baseCurrencyKey}/${pair.quoteCurrencyKey}`] = {
+      t[pair.name] = {
         ...pair,
-        tvl: tvls[`${pair.baseCurrencyKey}/${pair.quoteCurrencyKey}`],
-        apy: apys[`${pair.baseCurrencyKey}/${pair.quoteCurrencyKey}`],
+        tvl: tvls[pair.name],
+        apy: apys[pair.name],
+        participant: participants[pair.name],
       };
     });
     return t;
