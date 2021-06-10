@@ -81,18 +81,20 @@ export const formatTime = (created: string | number, type: TimeSeriesType) => {
 export const formatDate = (created: string) => dayjs().format('PPpp');
 
 export const formatYAxisNumber = (num: number | undefined, digits = 2, round = true) => {
-  if (num === 0) return '0';
+  if (num === 0) return '';
   if (!num) return '-';
   if (num < 0.001 && digits <= 3) {
     return '<0.001';
   }
 
-  return numbro(num).format({
-    average: round,
-    mantissa: digits,
-    abbreviations: {
-      million: 'M',
-      billion: 'B',
-    },
-  });
+  return numbro(num)
+    .format({
+      average: round,
+      mantissa: digits,
+      abbreviations: {
+        million: 'M',
+        billion: 'B',
+      },
+    })
+    .toUpperCase();
 };

@@ -2,7 +2,6 @@ import React, { Dispatch, SetStateAction, ReactNode } from 'react';
 
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import { darken } from 'polished';
 import { ResponsiveContainer, XAxis, YAxis, Tooltip, AreaChart, Area } from 'recharts';
 import styled from 'styled-components';
 
@@ -83,7 +82,7 @@ const Chart = ({
         >
           <defs>
             <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={darken(0.36, color)} stopOpacity={0.5} />
+              <stop offset="0%" stopColor={color} stopOpacity={0.15} />
               <stop offset="100%" stopColor={color} stopOpacity={0} />
             </linearGradient>
           </defs>
@@ -92,7 +91,7 @@ const Chart = ({
             axisLine={false}
             tickLine={false}
             minTickGap={10}
-            tick={{ stroke: 'white' }}
+            tick={{ stroke: theme.colors.text1, fontSize: '14px' }}
             tickFormatter={time => dayjs(time).format('DD')}
           />
           <YAxis
