@@ -136,6 +136,13 @@ export const useOverviewInfo = () => {
   };
 };
 
+export const useGovernanceNumOfStakersQuery = () => {
+  return useQuery<number>('total-balanced-token-stakers', async () => {
+    const { data } = await axios.get(`${API_ENDPOINT}/stats/total-balanced-token-stakers`);
+    return data.total_balanced_token_stakers;
+  });
+};
+
 export const useGovernanceInfo = () => {
   const dailyDistributionQuery = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
   const totalStakedBALNQuery = useBnJsContractQuery<string>(bnJs, 'BALN', 'totalStakedBalance', []);
@@ -158,10 +165,13 @@ export const useGovernanceInfo = () => {
       }, ZERO)
     : null;
 
+  const numOfStakersQuery = useGovernanceNumOfStakersQuery();
+
   return {
     dailyDistribution: dailyDistribution?.integerValue().toNumber(),
     totalStakedBALN: totalStakedBALN?.integerValue().toNumber(),
     daofund: daofund?.integerValue(),
+    numOfStakers: numOfStakersQuery.data,
   };
 };
 

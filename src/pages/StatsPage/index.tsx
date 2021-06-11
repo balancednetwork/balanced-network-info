@@ -188,7 +188,9 @@ export function StatsPage() {
                 <StakersIcon width={53} height={55} />
               </StatsItemIcon>
               <StatsItemData>
-                <Typography variant="h3">{'-'}</Typography>
+                <Typography variant="h3">
+                  {governanceInfo.numOfStakers ? getFormattedNumber(governanceInfo.numOfStakers, 'number') : '-'}
+                </Typography>
                 <Typography>BALN stakers</Typography>
               </StatsItemData>
             </StatsItem>
