@@ -82,15 +82,13 @@ export const useStatsTotalTransactionsQuery = () => {
   });
 };
 
-export const useStatsTVLQuery = () => {
-  return useQuery<{ dexInICX: BigNumber; loansInsICX: BigNumber }>('stats/total-value-locked', async () => {
-    const { data } = await axios.get(`${API_ENDPOINT}/stats/total-value-locked`);
+export const useStatsTVL = () => {
+  const dexTVL = useDexTVL();
+  const collateralInfo = useCollateralInfo();
 
-    return {
-      dexInICX: BalancedJs.utils.toIcx(data.dex_value_locked_icx),
-      loansInsICX: BalancedJs.utils.toIcx(data.loans_value_locked_sicx),
-    };
-  });
+  if (dexTVL && collateralInfo && collateralInfo.totalCollateralTVL) return dexTVL + collateralInfo.totalCollateralTVL;
+
+  return;
 };
 
 export const useOverviewInfo = () => {
@@ -98,13 +96,7 @@ export const useOverviewInfo = () => {
   const rates = ratesQuery.data;
 
   // TVL
-  const tvlQuery = useStatsTVLQuery();
-  let TVL: BigNumber | undefined;
-  if (tvlQuery.isSuccess && ratesQuery.isSuccess && rates) {
-    const tvl = tvlQuery.data;
-    console.log(tvl.dexInICX.toFixed(), tvl.loansInsICX.toFixed());
-    TVL = tvl.dexInICX.times(rates['ICX']).plus(tvl.loansInsICX.times(rates['sICX']));
-  }
+  const tvl = useStatsTVL();
 
   // fees
   const feesQuery = useBnJsContractQuery<{ [key: string]: string }>(bnJs, 'Dividends', 'getBalances', []);
@@ -129,9 +121,9 @@ export const useOverviewInfo = () => {
   const statsTotalTransactions = statsTotalTransactionsQuery.isSuccess ? statsTotalTransactionsQuery.data : null;
 
   return {
-    TVL: TVL?.integerValue(),
-    BALNMarketCap: BALNMarketCap?.integerValue(),
-    fees: totalFees?.integerValue(),
+    TVL: tvl,
+    BALNMarketCap: BALNMarketCap?.integerValue().toNumber(),
+    fees: totalFees?.integerValue().toNumber(),
     transactions: statsTotalTransactions,
   };
 };
@@ -170,7 +162,7 @@ export const useGovernanceInfo = () => {
   return {
     dailyDistribution: dailyDistribution?.integerValue().toNumber(),
     totalStakedBALN: totalStakedBALN?.integerValue().toNumber(),
-    daofund: daofund?.integerValue(),
+    daofund: daofund?.integerValue().toNumber(),
     numOfStakers: numOfStakersQuery.data,
   };
 };
@@ -240,8 +232,8 @@ export const useCollateralInfo = () => {
       : null;
 
   return {
-    totalCollateral: totalCollateral?.toNumber(),
-    totalCollateralTVL: totalCollateralTVL?.toNumber(),
+    totalCollateral: totalCollateral?.integerValue().toNumber(),
+    totalCollateralTVL: totalCollateralTVL?.integerValue().toNumber(),
     rate: rate?.toNumber(),
     depositors: null,
   };
@@ -298,7 +290,7 @@ export const useAllPairsTVLQuery = () => {
           return data;
         }),
       );
-      console.log(res);
+
       const t = {};
       SUPPORTED_PAIRS.forEach((pair, index) => {
         const item = res[index];
@@ -323,14 +315,26 @@ export const useAllPairsTVL = () => {
     const rates = ratesQuery.data || {};
     const tvls = tvlQuery.data || {};
 
-    const t = {};
+    const t: { [key in string]: number } = {};
     SUPPORTED_PAIRS.forEach(pair => {
       const baseTVL = tvls[pair.name].base.times(rates[pair.baseCurrencyKey]);
       const quoteTVL = tvls[pair.name].quote.times(rates[pair.quoteCurrencyKey]);
-      t[pair.name] = baseTVL.plus(quoteTVL);
+      t[pair.name] = baseTVL.plus(quoteTVL).integerValue().toNumber();
     });
 
     return t;
+  }
+
+  return;
+};
+
+export const useDexTVL = () => {
+  const tvls = useAllPairsTVL();
+
+  if (tvls) {
+    return SUPPORTED_PAIRS.reduce((sum: number, pair) => {
+      return sum + tvls[pair.name];
+    }, 0);
   }
 
   return;

@@ -113,7 +113,9 @@ export function StatsPage() {
               </StatsItemIcon>
 
               <StatsItemData>
-                <Typography variant="h3">${overviewInfo.TVL ? overviewInfo.TVL.toFormat() : '-'}</Typography>
+                <Typography variant="h3">
+                  {overviewInfo.TVL ? getFormattedNumber(overviewInfo.TVL, 'currency0') : '-'}
+                </Typography>
                 <Typography>Total value locked</Typography>
               </StatsItemData>
             </StatsItem>
@@ -124,7 +126,7 @@ export function StatsPage() {
               </StatsItemIcon>
               <StatsItemData>
                 <Typography variant="h3">
-                  ${overviewInfo.BALNMarketCap ? overviewInfo.BALNMarketCap.toFormat() : '-'}
+                  {overviewInfo.BALNMarketCap ? getFormattedNumber(overviewInfo.BALNMarketCap, 'currency0') : '-'}
                 </Typography>
                 <Typography>BALN marketcap</Typography>
               </StatsItemData>
@@ -136,7 +138,9 @@ export function StatsPage() {
               </StatsItemIcon>
 
               <StatsItemData>
-                <Typography variant="h3">${overviewInfo.fees ? overviewInfo.fees.toFormat() : '-'}</Typography>
+                <Typography variant="h3">
+                  {overviewInfo.fees ? getFormattedNumber(overviewInfo.fees, 'currency0') : '-'}
+                </Typography>
                 <Typography>Fees earned</Typography>
               </StatsItemData>
             </StatsItem>
@@ -177,7 +181,7 @@ export function StatsPage() {
 
               <StatsItemData>
                 <Typography variant="h3">
-                  ${governanceInfo.daofund ? governanceInfo.daofund.toFormat() : '-'}
+                  {governanceInfo.daofund ? getFormattedNumber(governanceInfo.daofund, 'currency0') : '-'}
                 </Typography>
                 <Typography>DAO fund</Typography>
               </StatsItemData>
