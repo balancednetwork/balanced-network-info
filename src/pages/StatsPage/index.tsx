@@ -13,8 +13,7 @@ import { ReactComponent as FeesIcon } from 'assets/icons/fees.svg';
 import { ReactComponent as StakersIcon } from 'assets/icons/staking2.svg';
 import { ReactComponent as TransactionsIcon } from 'assets/icons/transactions.svg';
 import { ReactComponent as VaultIcon } from 'assets/icons/vault.svg';
-import { Button } from 'components/Button';
-import Logo from 'components/Logo';
+import Header from 'components/Header';
 import { BoxPanel } from 'components/Panel';
 import CollateralAndLoanSection from 'sections/CollateralAndLoanSection';
 import PairSection from 'sections/PairSection';
@@ -36,16 +35,6 @@ const Container = styled(Box)`
   ${({ theme }) => theme.mediaWidth.upToMedium`
     padding-left: 16px;
     padding-right: 16px;
-  `}
-`;
-
-const StyledHeader = styled(Box)`
-  margin-top: 50px;
-  margin-bottom: 50px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    margin-top: 25px;
-    margin-bottom: 25px;
   `}
 `;
 
@@ -89,15 +78,7 @@ export function StatsPage() {
         <title>Stats</title>
       </Helmet>
 
-      <StyledHeader>
-        <Flex alignItems="center" justifyContent="space-between">
-          <Logo />
-
-          <Button as="a" target="_blank" href="https://app.balanced.network">
-            Go to app
-          </Button>
-        </Flex>
-      </StyledHeader>
+      <Header />
 
       <StatsLayout>
         <BoxPanel bg="bg2">
