@@ -13,6 +13,7 @@ import { ReactComponent as FeesIcon } from 'assets/icons/fees.svg';
 import { ReactComponent as StakersIcon } from 'assets/icons/staking2.svg';
 import { ReactComponent as TransactionsIcon } from 'assets/icons/transactions.svg';
 import { ReactComponent as VaultIcon } from 'assets/icons/vault.svg';
+import Footer from 'components/Footer';
 import Header from 'components/Header';
 import { BoxPanel } from 'components/Panel';
 import CollateralAndLoanSection from 'sections/CollateralAndLoanSection';
@@ -213,6 +214,7 @@ export function StatsPage() {
           </Stats>
         </BoxPanel>
       </StatsLayout>
+      <Footer />
     </Container>
   );
 }
