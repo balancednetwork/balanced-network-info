@@ -7,24 +7,38 @@ import { ReactComponent as Logo } from 'assets/images/logo.svg';
 import { Button } from 'components/Button';
 import AnimatedLink from 'components/uikit/AnimatedLink';
 import OutlineButton from 'components/uikit/OutlineButton';
+import useBoolean from 'hooks/useBoolean';
+
+import BurgerMenu from './Burger';
 
 const DesktopMenu = styled(Flex)`
   display: flex;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     display: none;
   `}
 `;
 
-const BurgerMenu = styled(Flex)`
+const BurgerMenuContainer = styled(Flex)`
   display: none;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  position: relative;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     display: flex;
   `}
 `;
 
+const Grid = styled(Box)`
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  margin: 50px 0;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    margin: 25px 0;
+  `}
+`;
+
 const Header = () => {
+  const { toggle, state } = useBoolean();
   return (
-    <Box as="header" sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', my: ['25px', '50px'] }}>
+    <Grid>
       <Flex>
         <Box width={[80, 85, 120]}>
           <Logo width="100%" />
@@ -47,10 +61,13 @@ const Header = () => {
         </Button>
       </DesktopMenu>
 
-      <BurgerMenu alignItems="center" justifyContent="flex-end">
-        <OutlineButton>menu</OutlineButton>
-      </BurgerMenu>
-    </Box>
+      <BurgerMenuContainer alignItems="center" justifyContent="flex-end">
+        <OutlineButton className={state ? 'active' : ''} onClick={toggle}>
+          Menu
+        </OutlineButton>
+        <BurgerMenu show={state} />
+      </BurgerMenuContainer>
+    </Grid>
   );
 };
 

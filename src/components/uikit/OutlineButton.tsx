@@ -11,7 +11,7 @@ const OutLineButton = styled(Button)`
   border-radius: 5px;
   cursor: pointer;
   transition: border 0.2s ease, background-color 0.3s ease;
-  &:active {
+  &.active {
     background-color: ${({ theme }) => theme.colors.primary};
   }
 `;
