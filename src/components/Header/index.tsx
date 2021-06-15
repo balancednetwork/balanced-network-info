@@ -44,7 +44,7 @@ const Header = () => {
           <Logo width="100%" />
         </Box>
       </Flex>
-      <DesktopMenu alignItems="center" justifyContent="flex-end">
+      <DesktopMenu sx={{ a: { marginLeft: 25 } }} alignItems="center" justifyContent="flex-end">
         <AnimatedLink as="a" target="_blank" href="https://app.balanced.network">
           Why Balanced
         </AnimatedLink>

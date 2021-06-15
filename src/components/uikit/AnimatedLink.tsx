@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 
 const AnimatedLink = styled.a`
-  margin-left: 25px;
   text-decoration: none;
   line-height: 35px;
   position: relative;
@@ -9,6 +8,9 @@ const AnimatedLink = styled.a`
   color: #ffffff;
   padding-bottom: 3px;
   margin-bottom: -9px;
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    font-size: 14px;
+  `}
   &:hover {
     &:after {
       width: 100%;

@@ -34,8 +34,8 @@ const Container = styled(Box)`
   padding-right: 40px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding-left: 16px;
-    padding-right: 16px;
+    padding-left: 5%;
+    padding-right: 5%;
   `}
 `;
 
