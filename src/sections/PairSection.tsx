@@ -8,7 +8,7 @@ import Divider from 'components/Divider';
 import { BoxPanel } from 'components/Panel';
 import { CurrencyKey } from 'constants/currency';
 import { Typography } from 'theme';
-import { getCurrencyKeyIcon } from 'utils';
+import { getCurrencyKeyIcon, calculateFees } from 'utils';
 import { getFormattedNumber } from 'utils/formatter';
 
 const List = styled(Box)`
@@ -79,8 +79,8 @@ export default function PairSection() {
                 <DataText>{getFormattedNumber(pair.apy, 'percent0')}</DataText>
                 <DataText>{getFormattedNumber(pair.participant, 'number')}</DataText>
                 <DataText>{getFormattedNumber(pair.tvl, 'currency0')}</DataText>
-                <DataText>-</DataText>
-                <DataText>-</DataText>
+                <DataText>{getFormattedNumber(pair.volume, 'currency0')}</DataText>
+                <DataText>{getFormattedNumber(calculateFees(pair), 'currency0')}</DataText>
               </DashGrid>
 
               {index !== arr.length - 1 && <Divider />}

@@ -328,6 +328,44 @@ export const useAllPairsTVL = () => {
   return;
 };
 
+export const useAllPairsVolumeQuery = () => {
+  return useQuery<{ [key: string]: { base: BigNumber; quote: BigNumber } }>('useAllPairsVolumeQuery', async () => {
+    const { data } = await axios.get(`${API_ENDPOINT}/stats/exchange-volume-24h`);
+
+    const volumes = {};
+    Object.keys(data).forEach(key => {
+      const _volume = data[key];
+      const volume = {
+        base: BalancedJs.utils.toIcx(_volume.base_volume),
+        quote: BalancedJs.utils.toIcx(_volume.quote_volume),
+      };
+      volumes[key] = volume;
+    });
+    return volumes;
+  });
+};
+
+export const useAllPairsVolume = () => {
+  const volumesQuery = useAllPairsVolumeQuery();
+  const ratesQuery = useRatesQuery();
+
+  if (volumesQuery.isSuccess && ratesQuery.isSuccess) {
+    const rates = ratesQuery.data || {};
+    const volumes = volumesQuery.data || {};
+
+    const t: { [key in string]: number } = {};
+    SUPPORTED_PAIRS.forEach(pair => {
+      const baseVol = volumes[pair.name].base.times(rates[pair.baseCurrencyKey]);
+      const quoteVol = volumes[pair.name].quote.times(rates[pair.quoteCurrencyKey]);
+      t[pair.name] = baseVol.plus(quoteVol).integerValue().toNumber();
+    });
+
+    return t;
+  }
+
+  return;
+};
+
 export const useDexTVL = () => {
   const tvls = useAllPairsTVL();
 
@@ -356,11 +394,12 @@ export const useAllPairsParticipantQuery = () => {
 export const useAllPairs = () => {
   const apys = useAllPairsAPY();
   const tvls = useAllPairsTVL();
+  const volumes = useAllPairsVolume();
   const participantQuery = useAllPairsParticipantQuery();
 
-  const t: { [key: string]: Pair & { tvl: number; apy: number; participant: number } } = {};
+  const t: { [key: string]: Pair & { tvl: number; apy: number; participant: number; volume: number } } = {};
 
-  if (apys && participantQuery.isSuccess && tvls) {
+  if (apys && participantQuery.isSuccess && tvls && volumes) {
     const participants = participantQuery.data;
 
     SUPPORTED_PAIRS.forEach(pair => {
@@ -369,6 +408,7 @@ export const useAllPairs = () => {
         tvl: tvls[pair.name],
         apy: apys[pair.name],
         participant: participants[pair.name],
+        volume: volumes[pair.name],
       };
     });
     return t;
