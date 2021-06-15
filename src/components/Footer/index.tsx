@@ -23,13 +23,6 @@ const Grid = styled(Box)`
   `}
 `;
 
-const Vertical = styled.div`
-  height: 25px;
-  width: 2px;
-  background: #fff;
-  margin: 0 8px;
-`;
-
 const Footer = () => {
   return (
     <>
