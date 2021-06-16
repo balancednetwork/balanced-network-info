@@ -7,6 +7,7 @@ import bnJs from 'bnJs';
 import { CURRENCY_INFO, SUPPORTED_PAIRS, Pair, CurrencyKey, CURRENCY } from 'constants/currency';
 import { ONE, ZERO } from 'constants/number';
 import QUERY_KEYS from 'constants/queryKeys';
+import { calculateFees } from 'utils';
 
 export const useBnJsContractQuery = <T>(bnJs: BalancedJs, contract: string, method: string, args: any[]) => {
   return useQuery<T, string>(QUERY_KEYS.BnJs(contract, method, args), async () => {
@@ -413,4 +414,23 @@ export const useAllPairs = () => {
     });
     return t;
   } else return null;
+};
+
+export const useAllPairsTotal = () => {
+  const allPairs = useAllPairs();
+
+  if (allPairs) {
+    return Object.values(allPairs).reduce(
+      (total, pair) => {
+        total.participant += pair.participant;
+        total.tvl += pair.tvl;
+        total.volume += pair.volume;
+        total.fees += calculateFees(pair);
+        return total;
+      },
+      { participant: 0, tvl: 0, volume: 0, fees: 0 },
+    );
+  }
+
+  return;
 };
