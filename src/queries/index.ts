@@ -186,34 +186,42 @@ export const useAllTokensTotalSupplyQuery = () => {
 };
 
 type Token = {
+  holders: number;
   name: string;
   symbol: string;
   price: number;
+  priceChange: number;
   totalSupply: number;
-  marketCap: number | null;
+  marketCap: number;
 };
 
-export const useAllTokens = () => {
-  const allTokens: { [key: string]: Token } = {};
-  const ratesQuery = useRatesQuery();
-  const totalSuppliesQuery = useAllTokensTotalSupplyQuery();
+export const useAllTokensQuery = () => {
+  const fetch = async () => {
+    const { data } = await axios.get(`${API_ENDPOINT}/stats/token-stats`);
 
-  if (ratesQuery.isSuccess && totalSuppliesQuery.isSuccess) {
-    const rates = ratesQuery.data || {};
-    const totalSupplies = totalSuppliesQuery.data || {};
+    const timestamp = data.timestamp;
 
-    Object.keys(CURRENCY_INFO).forEach(currencyKey => {
-      allTokens[currencyKey] = {
-        ...CURRENCY_INFO[currencyKey],
-        price: rates[currencyKey].toNumber(),
-        totalSupply: totalSupplies[currencyKey].toNumber(),
-        marketCap: totalSupplies[currencyKey].times(rates[currencyKey]).toNumber(),
+    const tokens: { [key in string]: Token } = {};
+    const _tokens = data.tokens;
+    Object.keys(_tokens).forEach(tokenKey => {
+      const _token = _tokens[tokenKey];
+      const token = {
+        ..._token,
+        price: BalancedJs.utils.toIcx(_token.price).toNumber(),
+        totalSupply: BalancedJs.utils.toIcx(_token.total_supply).toNumber(),
+        marketCap: BalancedJs.utils.toIcx(_token.total_supply).times(BalancedJs.utils.toIcx(_token.price)).toNumber(),
+        priceChange: _token.price_change,
       };
+      tokens[tokenKey] = token;
     });
-    return allTokens;
-  }
 
-  return null;
+    return {
+      timestamp: timestamp,
+      tokens: tokens,
+    };
+  };
+
+  return useQuery<{ timestamp: number; tokens: { [key in string]: Token } }>('useAllTokensQuery', fetch);
 };
 
 export const useCollateralInfo = () => {

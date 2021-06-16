@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useAllTokens } from 'queries';
+import { useAllTokensQuery } from 'queries';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
@@ -9,7 +9,7 @@ import { BoxPanel } from 'components/Panel';
 import { CurrencyKey } from 'constants/currency';
 import { Typography } from 'theme';
 import { getCurrencyKeyIcon } from 'utils';
-import { getFormattedNumber } from 'utils/formatter';
+import { formatPriceChange, getFormattedNumber } from 'utils/formatter';
 
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
@@ -48,7 +48,8 @@ const HeaderText = styled(Flex)`
 `;
 
 export default function TokenSection() {
-  const allTokens = useAllTokens();
+  const allTokensQuery = useAllTokensQuery();
+  const allTokens = allTokensQuery.data?.tokens;
 
   return (
     <BoxPanel bg="bg2">
@@ -77,12 +78,18 @@ export default function TokenSection() {
                     </Box>
                   </Flex>
                 </DataText>
-                <DataText>-</DataText>
-                <DataText>{getFormattedNumber(token.price, 'currency2')}</DataText>
+                <DataText>{getFormattedNumber(token.holders, 'number')}</DataText>
+                <DataText>
+                  <Flex alignItems="flex-end" flexDirection="column">
+                    <Typography variant="p">{getFormattedNumber(token.price, 'currency2')}</Typography>
+                    <Typography variant="p" color={token.priceChange >= 0 ? 'primary' : 'alert'}>
+                      {formatPriceChange(token.priceChange)}
+                    </Typography>
+                  </Flex>
+                </DataText>
                 <DataText>
                   <Flex alignItems="flex-end" flexDirection="column">
                     <Typography variant="p">{getFormattedNumber(token.marketCap, 'currency0')}</Typography>
-
                     <Typography variant="p" color="text1">
                       {getFormattedNumber(token.totalSupply, 'number')} {token.symbol}
                     </Typography>
