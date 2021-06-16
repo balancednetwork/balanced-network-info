@@ -152,20 +152,12 @@ function PoolIcon({
 function TotalIcon() {
   return (
     <PoolIconWrapper>
-      <IconWrapper>
-        <SigmaIcon width={25} height={25} />
-      </IconWrapper>
+      <IconWrapper></IconWrapper>
+      <IconWrapper ml="-38px"></IconWrapper>
+      <IconWrapper ml="-38px"></IconWrapper>
+      <IconWrapper ml="-38px"></IconWrapper>
       <IconWrapper ml="-38px">
-        <SigmaIcon width={25} height={25} />
-      </IconWrapper>
-      <IconWrapper ml="-38px">
-        <SigmaIcon width={25} height={25} />
-      </IconWrapper>
-      <IconWrapper ml="-38px">
-        <SigmaIcon width={25} height={25} />
-      </IconWrapper>
-      <IconWrapper ml="-38px">
-        <SigmaIcon width={25} height={25} />
+        <SigmaIcon width={20} height={20} />
       </IconWrapper>
     </PoolIconWrapper>
   );
