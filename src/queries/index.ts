@@ -4,7 +4,7 @@ import { BalancedJs } from 'packages/BalancedJs';
 import { useQuery } from 'react-query';
 
 import bnJs from 'bnJs';
-import { CURRENCY_INFO, SUPPORTED_PAIRS, Pair, CurrencyKey, CURRENCY } from 'constants/currency';
+import { SUPPORTED_PAIRS, Pair, CurrencyKey, CURRENCY } from 'constants/currency';
 import { ONE, ZERO } from 'constants/number';
 import QUERY_KEYS from 'constants/queryKeys';
 import { calculateFees } from 'utils';
@@ -168,23 +168,6 @@ export const useGovernanceInfo = () => {
   };
 };
 
-export const useAllTokensTotalSupplyQuery = () => {
-  const fetch = async () => {
-    const data: Array<string> = await Promise.all(
-      Object.keys(CURRENCY_INFO).map(currencyKey => bnJs[currencyKey].totalSupply()),
-    );
-
-    const t: { [key: string]: BigNumber } = {};
-    Object.keys(CURRENCY_INFO).forEach((currencyKey, index) => {
-      t[currencyKey] = BalancedJs.utils.toIcx(data[index]).integerValue();
-    });
-
-    return t;
-  };
-
-  return useQuery('useAllTokensTotalSupplyQuery', fetch);
-};
-
 type Token = {
   holders: number;
   name: string;
@@ -193,6 +176,27 @@ type Token = {
   priceChange: number;
   totalSupply: number;
   marketCap: number;
+};
+
+export const useAllTokensHoldersQuery = () => {
+  const endpoint = `https://tracker.icon.foundation/v3/token/holders?contractAddr=`;
+
+  const fetch = async () => {
+    const data: any[] = await Promise.all(
+      CURRENCY.filter(currencyKey => currencyKey !== 'ICX') //
+        .map(currencyKey => axios.get(`${endpoint}${bnJs[currencyKey].address}`).then(res => res.data)),
+    );
+
+    const t = {};
+    CURRENCY.filter(currencyKey => currencyKey !== 'ICX') //
+      .forEach((currencyKey, index) => {
+        t[currencyKey] = data[index].totalSize;
+      });
+
+    return t;
+  };
+
+  return useQuery('useAllTokensHoldersQuery', fetch);
 };
 
 export const useAllTokensQuery = () => {
@@ -222,6 +226,18 @@ export const useAllTokensQuery = () => {
   };
 
   return useQuery<{ timestamp: number; tokens: { [key in string]: Token } }>('useAllTokensQuery', fetch);
+};
+
+export const useAllTokens = () => {
+  const holdersQuery = useAllTokensHoldersQuery();
+  const allTokensQuery = useAllTokensQuery();
+
+  if (allTokensQuery.isSuccess && holdersQuery.isSuccess) {
+    const holders = holdersQuery.data;
+    const allTokens = allTokensQuery.data.tokens;
+    Object.keys(allTokens).forEach(tokenKey => (allTokens[tokenKey].holders = holders[tokenKey]));
+    return allTokens;
+  }
 };
 
 export const useCollateralInfo = () => {

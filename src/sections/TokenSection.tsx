@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useAllTokensQuery } from 'queries';
+import { useAllTokens } from 'queries';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
@@ -48,8 +48,7 @@ const HeaderText = styled(Flex)`
 `;
 
 export default function TokenSection() {
-  const allTokensQuery = useAllTokensQuery();
-  const allTokens = allTokensQuery.data?.tokens;
+  const allTokens = useAllTokens();
 
   return (
     <BoxPanel bg="bg2">
