@@ -3,15 +3,15 @@ import React from 'react';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
-import { ReactComponent as Logo } from 'assets/images/logo.svg';
-import { ReactComponent as Medium } from 'assets/images/medium.svg';
-import { ReactComponent as Reddit } from 'assets/images/reddit.svg';
-import Revue from 'assets/images/revue.png';
-import { ReactComponent as Telegram } from 'assets/images/telegram.svg';
-import { ReactComponent as Twitter } from 'assets/images/twitter.svg';
+import { ReactComponent as Logo } from 'assets/icons/logo.svg';
+import { ReactComponent as Medium } from 'assets/icons/medium.svg';
+import { ReactComponent as Reddit } from 'assets/icons/reddit.svg';
+import Revue from 'assets/icons/revue.png';
+import { ReactComponent as Telegram } from 'assets/icons/telegram.svg';
+import { ReactComponent as Twitter } from 'assets/icons/twitter.svg';
 import { Button } from 'components/Button';
-import AnimatedLink from 'components/uikit/AnimatedLink';
-import SocialButton from 'components/uikit/SocialButton';
+import AnimatedLink from 'components/Button/AnimatedLink';
+import SocialButton from 'components/Button/SocialButton';
 import { LINKS, SOCIAL_LINKS } from 'constants/links';
 
 const Grid = styled(Box)`
@@ -61,32 +61,32 @@ const Footer = () => {
           justifyContent="center"
         >
           <Flex flexDirection={['column', 'row']} mb="16px" alignItems="center">
-            <AnimatedLink as="a" target="_blank" href="https://app.balanced.network">
+            <AnimatedLink as="a" target="_blank" href={LINKS.why}>
               Why Balanced
             </AnimatedLink>
-            <AnimatedLink as="a" target="_blank" href="https://app.balanced.network">
+            <AnimatedLink as="a" target="_blank" href={LINKS.howitworks}>
               How it works
             </AnimatedLink>
             <Button
               style={{ fontSize: 18, padding: '3px 20px', lineHeight: '35px' }}
               as="a"
               target="_blank"
-              href="https://app.balanced.network"
+              href={LINKS.app}
             >
               Go to app
             </Button>
           </Flex>
           <Flex flexDirection={['column', 'row']} alignItems="center">
-            <AnimatedLink as="a" target="_blank" href="https://app.balanced.network">
+            <AnimatedLink as="a" target="_blank" href={LINKS.airdrip}>
               Airdrip
             </AnimatedLink>
-            <AnimatedLink as="a" target="_blank" href="https://app.balanced.network">
+            <AnimatedLink as="a" target="_blank" href={LINKS.brand}>
               Brand
             </AnimatedLink>
-            <AnimatedLink as="a" target="_blank" href="https://app.balanced.network">
+            <AnimatedLink as="a" target="_blank" href={LINKS.demo}>
               Demo
             </AnimatedLink>
-            <AnimatedLink as="a" target="_blank" href="https://app.balanced.network">
+            <AnimatedLink as="a" target="_blank" href={LINKS.docs}>
               Docs
             </AnimatedLink>
           </Flex>

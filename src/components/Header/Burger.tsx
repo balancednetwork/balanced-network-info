@@ -4,7 +4,8 @@ import { Box } from 'rebass/styled-components';
 import styled from 'styled-components';
 
 import { Button } from 'components/Button';
-import AnimatedLink from 'components/uikit/AnimatedLink';
+import AnimatedLink from 'components/Button/AnimatedLink';
+import { LINKS } from 'constants/links';
 
 const Container = styled(Box)<{ show: boolean }>`
   position: absolute;
@@ -63,17 +64,17 @@ const AnimatedLinkMobile = styled(AnimatedLink)`
 const BurgerMenu = ({ show }: { show: boolean }) => {
   return (
     <Container show={show}>
-      <AnimatedLinkMobile as="a" target="_blank" href="https://app.balanced.network">
+      <AnimatedLinkMobile as="a" target="_blank" href={LINKS.why}>
         Why Balanced
       </AnimatedLinkMobile>
-      <AnimatedLinkMobile as="a" target="_blank" href="https://app.balanced.network">
+      <AnimatedLinkMobile as="a" target="_blank" href={LINKS.howitworks}>
         How it works
       </AnimatedLinkMobile>
       <Button
         style={{ textAlign: 'center', width: '100%', padding: '3px 20px', lineHeight: '35px' }}
         as="a"
         target="_blank"
-        href="https://app.balanced.network"
+        href={LINKS.app}
       >
         Go to app
       </Button>

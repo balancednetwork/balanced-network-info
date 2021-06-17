@@ -3,10 +3,11 @@ import React from 'react';
 import { Flex, Box } from 'rebass/styled-components';
 import styled from 'styled-components';
 
-import { ReactComponent as Logo } from 'assets/images/logo.svg';
+import { ReactComponent as Logo } from 'assets/icons/logo.svg';
 import { Button } from 'components/Button';
-import AnimatedLink from 'components/uikit/AnimatedLink';
-import OutlineButton from 'components/uikit/OutlineButton';
+import AnimatedLink from 'components/Button/AnimatedLink';
+import OutlineButton from 'components/Button/OutlineButton';
+import { LINKS } from 'constants/links';
 import useBoolean from 'hooks/useBoolean';
 
 import BurgerMenu from './Burger';
@@ -45,17 +46,17 @@ const Header = () => {
         </Box>
       </Flex>
       <DesktopMenu sx={{ a: { marginLeft: 25 } }} alignItems="center" justifyContent="flex-end">
-        <AnimatedLink as="a" target="_blank" href="https://app.balanced.network">
+        <AnimatedLink as="a" target="_blank" href={LINKS.why}>
           Why Balanced
         </AnimatedLink>
-        <AnimatedLink as="a" target="_blank" href="https://app.balanced.network">
+        <AnimatedLink as="a" target="_blank" href={LINKS.howitworks}>
           How it works
         </AnimatedLink>
         <Button
           style={{ marginLeft: 25, fontSize: 18, padding: '3px 20px', lineHeight: '35px' }}
           as="a"
           target="_blank"
-          href="https://app.balanced.network"
+          href={LINKS.app}
         >
           Go to app
         </Button>

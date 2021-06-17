@@ -9,4 +9,12 @@ export const SOCIAL_LINKS = {
 export const LINKS = {
   bugBounty: 'https://immunefi.com/bounty/balanced/',
   disclamer: 'https://balanced.network/disclaimer/',
+
+  why: 'https://balanced.network/why/',
+  howitworks: 'https://balanced.network/how/',
+  app: 'https://app.balanced.network/',
+  airdrip: 'https://balanced.network/airdrip/',
+  brand: 'https://balanced.network/brand/',
+  demo: 'https://balanced.network/demo/',
+  docs: 'https://docs.balanced.network/',
 };
