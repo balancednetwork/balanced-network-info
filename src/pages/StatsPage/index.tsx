@@ -69,6 +69,14 @@ const StatsItemData = styled(Box)`
   margin: 8px 8px;
 `;
 
+const Divider = styled(Box)`
+  width: 100%;
+  height: 1px;
+  background-color: ${({ theme }) => theme.colors.divider};
+  margin-bottom: 20px;
+  margin-top: 80px;
+`;
+
 export function StatsPage() {
   const overviewInfo = useOverviewInfo();
   const governanceInfo = useGovernanceInfo();
@@ -214,6 +222,8 @@ export function StatsPage() {
           </Stats>
         </BoxPanel>
       </StatsLayout>
+
+      <Divider />
       <Footer />
     </Container>
   );
