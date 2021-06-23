@@ -4,7 +4,7 @@ const AnimatedLink = styled.a`
   text-decoration: none;
   line-height: 35px;
   position: relative;
-  font-size: 18px;
+  font-size: 16px;
   color: #ffffff;
   padding-bottom: 3px;
   margin-bottom: -9px;

@@ -41,7 +41,7 @@ const Header = () => {
   return (
     <Grid>
       <Flex>
-        <Box width={[80, 85, 120]}>
+        <Box width={[80, 85, 100]}>
           <Logo width="100%" />
         </Box>
       </Flex>
@@ -53,7 +53,7 @@ const Header = () => {
           How it works
         </AnimatedLink>
         <Button
-          style={{ marginLeft: 25, fontSize: 18, padding: '3px 20px', lineHeight: '35px' }}
+          style={{ marginLeft: 25, fontSize: 16, padding: '3px 20px', lineHeight: '35px' }}
           as="a"
           target="_blank"
           href={LINKS.app}

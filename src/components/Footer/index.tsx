@@ -50,7 +50,7 @@ const Footer = () => {
     <>
       <Grid>
         <Flex marginBottom={[15, 0]} alignItems="center" justifyContent={['center', 'flex-start']}>
-          <Box width={[80, 85, 120]}>
+          <Box width={[80, 85, 100]}>
             <Logo width="100%" />
           </Box>
         </Flex>
@@ -68,7 +68,7 @@ const Footer = () => {
               How it works
             </AnimatedLink>
             <Button
-              style={{ fontSize: 18, padding: '3px 20px', lineHeight: '35px' }}
+              style={{ fontSize: 16, padding: '3px 20px', lineHeight: '35px' }}
               as="a"
               target="_blank"
               href={LINKS.app}
