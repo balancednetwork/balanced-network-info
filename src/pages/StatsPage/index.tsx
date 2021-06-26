@@ -46,7 +46,13 @@ const StatsLayout = styled(Box)`
 `;
 
 const Stats = styled(Flex)`
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: none;
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+  `}
 `;
 
 const StatsItem = styled(Flex)`
@@ -54,6 +60,10 @@ const StatsItem = styled(Flex)`
   position: relative;
   display: flex;
   justify-content: center;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    border-right: 0;
+  `}
 
   @media (max-width: 1000px) {
     flex-direction: column;

@@ -32,7 +32,6 @@ const Grid = styled(Box)`
       margin: 0;
       margin-left: 25px;
       ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-        margin: 8px 0;
         margin-left: 0;
       `}
     }
@@ -50,7 +49,7 @@ const Footer = () => {
     <>
       <Grid>
         <Flex marginBottom={[15, 0]} alignItems="center" justifyContent={['center', 'flex-start']}>
-          <Box width={[80, 85, 100]}>
+          <Box width="100px">
             <Logo width="100%" />
           </Box>
         </Flex>

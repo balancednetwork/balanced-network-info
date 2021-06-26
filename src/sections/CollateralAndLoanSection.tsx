@@ -28,19 +28,16 @@ const ChartSection = styled(Box)`
   padding: 0px;
   align-items: center;
   justify-content: space-between;
-
-  @media (max-width: 720px) {
+  flex-direction: row;
+  column-gap: 50px;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
     flex-direction: column;
     row-gap: 50px;
-  }
+  `}
 `;
 
 const ChartPanel = styled(BoxPanel)`
-  width: 48%;
-
-  @media (max-width: 720px) {
-    width: 100%;
-  }
+  width: 100%;
 `;
 
 const ChartContainer = styled(Box)`
@@ -151,19 +148,19 @@ export default function CollateralAndLoanSection() {
         </ChartContainer>
         <Flex my={3}>
           <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
-            <Typography variant="p" fontSize="18px">
+            <Typography variant="p" fontSize={[16, '18px']}>
               {loanInfo.loansAPY ? getFormattedNumber(loanInfo.loansAPY, 'percent0') : '-'}
             </Typography>
             <Typography>Borrow APY</Typography>
           </Flex>
           <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
-            <Typography variant="p" fontSize="18px">
+            <Typography variant="p" fontSize={[16, '18px']}>
               {loanInfo.dailyRewards ? getFormattedNumber(loanInfo.dailyRewards, 'number') : '-'} BALN
             </Typography>
             <Typography>Daily rewards</Typography>
           </Flex>
           <Flex flex={1} flexDirection="column" alignItems="center">
-            <Typography variant="p" fontSize="18px">
+            <Typography variant="p" fontSize={[16, '18px']}>
               {loanInfo.borrowers ? getFormattedNumber(loanInfo.borrowers, 'number') : '-'}
             </Typography>
             <Typography>Borrowers</Typography>

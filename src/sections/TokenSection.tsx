@@ -13,6 +13,8 @@ import { getFormattedNumber } from 'utils/formatter';
 
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
+  min-width: 550px;
+  overflow: auto;
 `;
 
 const DashGrid = styled(Box)`
@@ -20,6 +22,9 @@ const DashGrid = styled(Box)`
   gap: 1em;
   align-items: center;
   grid-template-columns: 2fr repeat(3, 1fr);
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    grid-template-columns: repeat(4, 1fr);
+  `}
 
   > * {
     justify-content: flex-end;
@@ -55,45 +60,46 @@ export default function TokenSection() {
       <Typography variant="h2" mb={5}>
         Token
       </Typography>
+      <Box sx={{ overflow: 'scroll' }}>
+        <List>
+          <DashGrid>
+            <HeaderText>ASSET</HeaderText>
+            <HeaderText>HOLDERS</HeaderText>
+            <HeaderText>PRICE (24H)</HeaderText>
+            <HeaderText>MARKETCAP</HeaderText>
+          </DashGrid>
 
-      <List>
-        <DashGrid>
-          <HeaderText>ASSET</HeaderText>
-          <HeaderText>HOLDERS</HeaderText>
-          <HeaderText>PRICE (24H)</HeaderText>
-          <HeaderText>MARKETCAP</HeaderText>
-        </DashGrid>
+          {allTokens &&
+            Object.values(allTokens).map((token, index, arr) => (
+              <div key={token.symbol}>
+                <DashGrid my={4}>
+                  <DataText>
+                    <Flex alignItems={['flex-start', 'center']}>
+                      <CurrencyIcon currencyKey={token.symbol} />
+                      <Box ml={2}>
+                        <Text>{token.name}</Text>
+                        <Text color="text1">{token.symbol}</Text>
+                      </Box>
+                    </Flex>
+                  </DataText>
+                  <DataText>-</DataText>
+                  <DataText>{getFormattedNumber(token.price, 'currency2')}</DataText>
+                  <DataText>
+                    <Flex alignItems="flex-end" flexDirection="column">
+                      <Typography variant="p">{getFormattedNumber(token.marketCap, 'currency0')}</Typography>
 
-        {allTokens &&
-          Object.values(allTokens).map((token, index, arr) => (
-            <div key={token.symbol}>
-              <DashGrid my={4}>
-                <DataText>
-                  <Flex alignItems="center">
-                    <CurrencyIcon currencyKey={token.symbol} />
-                    <Box ml={2}>
-                      <Text>{token.name}</Text>
-                      <Text color="text1">{token.symbol}</Text>
-                    </Box>
-                  </Flex>
-                </DataText>
-                <DataText>-</DataText>
-                <DataText>{getFormattedNumber(token.price, 'currency2')}</DataText>
-                <DataText>
-                  <Flex alignItems="flex-end" flexDirection="column">
-                    <Typography variant="p">{getFormattedNumber(token.marketCap, 'currency0')}</Typography>
+                      <Typography variant="p" color="text1">
+                        {getFormattedNumber(token.totalSupply, 'number')} {token.symbol}
+                      </Typography>
+                    </Flex>
+                  </DataText>
+                </DashGrid>
 
-                    <Typography variant="p" color="text1">
-                      {getFormattedNumber(token.totalSupply, 'number')} {token.symbol}
-                    </Typography>
-                  </Flex>
-                </DataText>
-              </DashGrid>
-
-              {index !== arr.length - 1 && <Divider />}
-            </div>
-          ))}
-      </List>
+                {index !== arr.length - 1 && <Divider />}
+              </div>
+            ))}
+        </List>
+      </Box>
     </BoxPanel>
   );
 }

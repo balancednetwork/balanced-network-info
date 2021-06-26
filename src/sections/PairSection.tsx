@@ -13,6 +13,7 @@ import { getFormattedNumber } from 'utils/formatter';
 
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
+  min-width: 900px;
 `;
 
 const DashGrid = styled(Box)`
@@ -20,7 +21,9 @@ const DashGrid = styled(Box)`
   gap: 1em;
   align-items: center;
   grid-template-columns: 2fr repeat(5, 1fr);
-
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    grid-template-columns: 1.2fr 0.5fr repeat(4, 1fr);
+  `}
   > * {
     justify-content: flex-end;
     &:first-child {
@@ -55,38 +58,39 @@ export default function PairSection() {
       <Typography variant="h2" mb={5}>
         Exchange
       </Typography>
+      <Box overflow="scroll">
+        <List>
+          <DashGrid>
+            <HeaderText>POOL</HeaderText>
+            <HeaderText>APY</HeaderText>
+            <HeaderText>PARTICIPANTS</HeaderText>
+            <HeaderText>LIQUIDITY</HeaderText>
+            <HeaderText>VOLUME (24H)</HeaderText>
+            <HeaderText>FEES (24H)</HeaderText>
+          </DashGrid>
 
-      <List>
-        <DashGrid>
-          <HeaderText>POOL</HeaderText>
-          <HeaderText>APY</HeaderText>
-          <HeaderText>PARTICIPANTS</HeaderText>
-          <HeaderText>LIQUIDITY</HeaderText>
-          <HeaderText>VOLUME (24H)</HeaderText>
-          <HeaderText>FEES (24H)</HeaderText>
-        </DashGrid>
+          {allPairs &&
+            Object.values(allPairs).map((pair, index, arr) => (
+              <div key={pair.poolId}>
+                <DashGrid my={2}>
+                  <DataText>
+                    <Flex alignItems="center">
+                      <PoolIcon baseCurrencyKey={pair.baseCurrencyKey} quoteCurrencyKey={pair.quoteCurrencyKey} />
+                      <Text ml={2}>{`${pair.baseCurrencyKey} / ${pair.quoteCurrencyKey}`}</Text>
+                    </Flex>
+                  </DataText>
+                  <DataText>{getFormattedNumber(pair.apy, 'percent0')}</DataText>
+                  <DataText>{getFormattedNumber(pair.participant, 'number')}</DataText>
+                  <DataText>{getFormattedNumber(pair.tvl, 'currency0')}</DataText>
+                  <DataText>-</DataText>
+                  <DataText>-</DataText>
+                </DashGrid>
 
-        {allPairs &&
-          Object.values(allPairs).map((pair, index, arr) => (
-            <div key={pair.poolId}>
-              <DashGrid my={2}>
-                <DataText>
-                  <Flex alignItems="center">
-                    <PoolIcon baseCurrencyKey={pair.baseCurrencyKey} quoteCurrencyKey={pair.quoteCurrencyKey} />
-                    <Text ml={2}>{`${pair.baseCurrencyKey} / ${pair.quoteCurrencyKey}`}</Text>
-                  </Flex>
-                </DataText>
-                <DataText>{getFormattedNumber(pair.apy, 'percent0')}</DataText>
-                <DataText>{getFormattedNumber(pair.participant, 'number')}</DataText>
-                <DataText>{getFormattedNumber(pair.tvl, 'currency0')}</DataText>
-                <DataText>-</DataText>
-                <DataText>-</DataText>
-              </DashGrid>
-
-              {index !== arr.length - 1 && <Divider />}
-            </div>
-          ))}
-      </List>
+                {index !== arr.length - 1 && <Divider />}
+              </div>
+            ))}
+        </List>
+      </Box>
     </BoxPanel>
   );
 }
@@ -104,6 +108,7 @@ const IconWrapper = styled(Box)`
 
 const PoolIconWrapper = styled(Box)`
   display: flex;
+  min-width: 80px;
 `;
 
 function PoolIcon({
