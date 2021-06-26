@@ -12,7 +12,7 @@ import { ReactComponent as DistributionIcon } from 'assets/icons/distribution.sv
 import { ReactComponent as FeesIcon } from 'assets/icons/fees.svg';
 import { ReactComponent as StakersIcon } from 'assets/icons/staking2.svg';
 import { ReactComponent as TransactionsIcon } from 'assets/icons/transactions.svg';
-import { ReactComponent as VaultIcon } from 'assets/icons/vault.svg';
+import vault from 'assets/icons/vault.svg';
 import Footer from 'components/Footer';
 import Header from 'components/Header';
 import { BoxPanel } from 'components/Panel';
@@ -90,20 +90,19 @@ export function StatsPage() {
       <Header />
 
       <StatsLayout>
+        <Typography fontWeight="bold" fontSize={[45, 45, 60]} color="#fff">
+          Statistics
+        </Typography>
         <BoxPanel bg="bg2">
-          <Typography variant="h2" mb={5}>
-            Overview
-          </Typography>
-
           <Stats>
             {/* TVL */}
             <StatsItem className="border-right">
               <StatsItemIcon>
-                <VaultIcon width={53} height={55} />
+                {/* svg has issue with linear gradient, so use img here for this icon */}
+                <img src={vault} alt="value" width={53} height={55} />
               </StatsItemIcon>
-
               <StatsItemData>
-                <Typography variant="h3">
+                <Typography fontWeight="normal" variant="h3">
                   {overviewInfo.TVL ? getFormattedNumber(overviewInfo.TVL, 'currency0') : '-'}
                 </Typography>
                 <Typography>Total value locked</Typography>
@@ -115,7 +114,7 @@ export function StatsPage() {
                 <CoinsIcon width={53} height={55} />
               </StatsItemIcon>
               <StatsItemData>
-                <Typography variant="h3">
+                <Typography fontWeight="normal" variant="h3">
                   {overviewInfo.BALNMarketCap ? getFormattedNumber(overviewInfo.BALNMarketCap, 'currency0') : '-'}
                 </Typography>
                 <Typography>BALN marketcap</Typography>
@@ -128,7 +127,7 @@ export function StatsPage() {
               </StatsItemIcon>
 
               <StatsItemData>
-                <Typography variant="h3">
+                <Typography fontWeight="normal" variant="h3">
                   {overviewInfo.fees ? getFormattedNumber(overviewInfo.fees, 'currency0') : '-'}
                 </Typography>
                 <Typography>Fees earned</Typography>
@@ -141,7 +140,7 @@ export function StatsPage() {
               </StatsItemIcon>
 
               <StatsItemData>
-                <Typography variant="h3">
+                <Typography fontWeight="normal" variant="h3">
                   {overviewInfo.transactions
                     ? getFormattedNumber(overviewInfo.transactions['total_transactions'], 'number')
                     : '-'}
@@ -170,7 +169,7 @@ export function StatsPage() {
               </StatsItemIcon>
 
               <StatsItemData>
-                <Typography variant="h3">
+                <Typography fontWeight="normal" variant="h3">
                   {governanceInfo.daofund ? getFormattedNumber(governanceInfo.daofund, 'currency0') : '-'}
                 </Typography>
                 <Typography>DAO fund</Typography>
@@ -182,7 +181,7 @@ export function StatsPage() {
                 <StakersIcon width={53} height={55} />
               </StatsItemIcon>
               <StatsItemData>
-                <Typography variant="h3">
+                <Typography fontWeight="normal" variant="h3">
                   {governanceInfo.numOfStakers ? getFormattedNumber(governanceInfo.numOfStakers, 'number') : '-'}
                 </Typography>
                 <Typography>BALN stakers</Typography>
@@ -195,7 +194,7 @@ export function StatsPage() {
               </StatsItemIcon>
 
               <StatsItemData>
-                <Typography variant="h3">
+                <Typography fontWeight="normal" variant="h3">
                   {governanceInfo.totalStakedBALN ? getFormattedNumber(governanceInfo.totalStakedBALN, 'number') : '-'}{' '}
                 </Typography>
                 <Typography>BALN staked</Typography>
@@ -208,7 +207,7 @@ export function StatsPage() {
               </StatsItemIcon>
 
               <StatsItemData>
-                <Typography variant="h3">
+                <Typography fontWeight="normal" variant="h3">
                   {governanceInfo.dailyDistribution
                     ? getFormattedNumber(governanceInfo.dailyDistribution, 'number')
                     : '-'}{' '}

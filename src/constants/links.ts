@@ -17,4 +17,5 @@ export const LINKS = {
   brand: 'https://balanced.network/brand/',
   demo: 'https://balanced.network/demo/',
   docs: 'https://docs.balanced.network/',
+  stats: 'https://stats.balanced.network/',
 };

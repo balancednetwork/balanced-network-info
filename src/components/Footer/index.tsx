@@ -89,6 +89,9 @@ const Footer = () => {
             <AnimatedLink as="a" target="_blank" href={LINKS.docs}>
               Docs
             </AnimatedLink>
+            <AnimatedLink as="a" target="_blank" href={LINKS.stats}>
+              Stats
+            </AnimatedLink>
           </Flex>
         </Flex>
       </Grid>
