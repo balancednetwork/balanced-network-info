@@ -1,14 +1,15 @@
 import React from 'react';
 
-import { useAllPairs } from 'queries';
+import { useAllPairs, useAllPairsTotal } from 'queries';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
+import { ReactComponent as SigmaIcon } from 'assets/icons/sigma.svg';
 import Divider from 'components/Divider';
 import { BoxPanel } from 'components/Panel';
 import { CurrencyKey } from 'constants/currency';
 import { Typography } from 'theme';
-import { getCurrencyKeyIcon } from 'utils';
+import { getCurrencyKeyIcon, calculateFees } from 'utils';
 import { getFormattedNumber } from 'utils/formatter';
 
 const List = styled(Box)`
@@ -41,6 +42,10 @@ const DataText = styled(Flex)`
   line-height: 1.4;
 `;
 
+const FooterText = styled(DataText)`
+  font-weight: bold;
+`;
+
 const HeaderText = styled(Flex)`
   display: flex;
   font-size: 14px;
@@ -52,6 +57,7 @@ const HeaderText = styled(Flex)`
 
 export default function PairSection() {
   const allPairs = useAllPairs();
+  const total = useAllPairsTotal();
 
   return (
     <BoxPanel bg="bg2">
@@ -70,7 +76,7 @@ export default function PairSection() {
           </DashGrid>
 
           {allPairs &&
-            Object.values(allPairs).map((pair, index, arr) => (
+            Object.values(allPairs).map(pair => (
               <div key={pair.poolId}>
                 <DashGrid my={2}>
                   <DataText>
@@ -82,13 +88,28 @@ export default function PairSection() {
                   <DataText>{getFormattedNumber(pair.apy, 'percent0')}</DataText>
                   <DataText>{getFormattedNumber(pair.participant, 'number')}</DataText>
                   <DataText>{getFormattedNumber(pair.tvl, 'currency0')}</DataText>
-                  <DataText>-</DataText>
-                  <DataText>-</DataText>
+                  <DataText>{getFormattedNumber(pair.volume, 'currency0')}</DataText>
+                  <DataText>{getFormattedNumber(calculateFees(pair), 'currency0')}</DataText>
                 </DashGrid>
-
-                {index !== arr.length - 1 && <Divider />}
+                <Divider />
               </div>
             ))}
+
+          {total && (
+            <DashGrid my={2}>
+              <FooterText>
+                <Flex alignItems="center">
+                  <TotalIcon />
+                  <Text ml={2}>Total</Text>
+                </Flex>
+              </FooterText>
+              <FooterText>-</FooterText>
+              <FooterText>{getFormattedNumber(total.participant, 'number')}</FooterText>
+              <FooterText>{getFormattedNumber(total.tvl, 'currency0')}</FooterText>
+              <FooterText>{getFormattedNumber(total.volume, 'currency0')}</FooterText>
+              <FooterText>{getFormattedNumber(total.fees, 'currency0')}</FooterText>
+            </DashGrid>
+          )}
         </List>
       </Box>
     </BoxPanel>
@@ -128,6 +149,20 @@ function PoolIcon({
       </IconWrapper>
       <IconWrapper ml={-2}>
         <QuoteIcon width={25} height={25} />
+      </IconWrapper>
+    </PoolIconWrapper>
+  );
+}
+
+function TotalIcon() {
+  return (
+    <PoolIconWrapper>
+      <IconWrapper></IconWrapper>
+      <IconWrapper ml="-38px"></IconWrapper>
+      <IconWrapper ml="-38px"></IconWrapper>
+      <IconWrapper ml="-38px"></IconWrapper>
+      <IconWrapper ml="-38px">
+        <SigmaIcon width={20} height={20} />
       </IconWrapper>
     </PoolIconWrapper>
   );

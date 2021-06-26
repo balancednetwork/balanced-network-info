@@ -1,6 +1,6 @@
 import { isEoaAddress } from 'icon-sdk-js/lib/data/Validator.js';
 
-import { currencyKeyToIconMap, CurrencyKey } from 'constants/currency';
+import { currencyKeyToIconMap, CurrencyKey, Pair } from 'constants/currency';
 
 export enum NetworkId {
   MAINNET = 1,
@@ -60,3 +60,7 @@ export function escapeRegExp(string: string): string {
 }
 
 export const getCurrencyKeyIcon = (currencyKey: CurrencyKey) => currencyKeyToIconMap[currencyKey];
+
+export const calculateFees = (pair: Pair & { tvl: number; apy: number; participant: number; volume: number }) => {
+  return (pair.volume * 3) / 1000;
+};

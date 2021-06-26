@@ -4,9 +4,10 @@ import { BalancedJs } from 'packages/BalancedJs';
 import { useQuery } from 'react-query';
 
 import bnJs from 'bnJs';
-import { CURRENCY_INFO, SUPPORTED_PAIRS, Pair, CurrencyKey, CURRENCY } from 'constants/currency';
+import { SUPPORTED_PAIRS, Pair, CurrencyKey, CURRENCY } from 'constants/currency';
 import { ONE, ZERO } from 'constants/number';
 import QUERY_KEYS from 'constants/queryKeys';
+import { calculateFees } from 'utils';
 
 export const useBnJsContractQuery = <T>(bnJs: BalancedJs, contract: string, method: string, args: any[]) => {
   return useQuery<T, string>(QUERY_KEYS.BnJs(contract, method, args), async () => {
@@ -167,52 +168,76 @@ export const useGovernanceInfo = () => {
   };
 };
 
-export const useAllTokensTotalSupplyQuery = () => {
+type Token = {
+  holders: number;
+  name: string;
+  symbol: string;
+  price: number;
+  priceChange: number;
+  totalSupply: number;
+  marketCap: number;
+};
+
+export const useAllTokensHoldersQuery = () => {
+  const endpoint = `https://tracker.icon.foundation/v3/token/holders?contractAddr=`;
+
   const fetch = async () => {
-    const data: Array<string> = await Promise.all(
-      Object.keys(CURRENCY_INFO).map(currencyKey => bnJs[currencyKey].totalSupply()),
+    const data: any[] = await Promise.all(
+      CURRENCY.filter(currencyKey => currencyKey !== 'ICX') //
+        .map(currencyKey => axios.get(`${endpoint}${bnJs[currencyKey].address}`).then(res => res.data)),
     );
 
-    const t: { [key: string]: BigNumber } = {};
-    Object.keys(CURRENCY_INFO).forEach((currencyKey, index) => {
-      t[currencyKey] = BalancedJs.utils.toIcx(data[index]).integerValue();
-    });
+    const t = {};
+    CURRENCY.filter(currencyKey => currencyKey !== 'ICX') //
+      .forEach((currencyKey, index) => {
+        t[currencyKey] = data[index].totalSize;
+      });
 
     return t;
   };
 
-  return useQuery('useAllTokensTotalSupplyQuery', fetch);
+  return useQuery('useAllTokensHoldersQuery', fetch);
 };
 
-type Token = {
-  name: string;
-  symbol: string;
-  price: number;
-  totalSupply: number;
-  marketCap: number | null;
+export const useAllTokensQuery = () => {
+  const fetch = async () => {
+    const { data } = await axios.get(`${API_ENDPOINT}/stats/token-stats`);
+
+    const timestamp = data.timestamp;
+
+    const tokens: { [key in string]: Token } = {};
+    const _tokens = data.tokens;
+    Object.keys(_tokens).forEach(tokenKey => {
+      const _token = _tokens[tokenKey];
+      const token = {
+        ..._token,
+        price: BalancedJs.utils.toIcx(_token.price).toNumber(),
+        totalSupply: BalancedJs.utils.toIcx(_token.total_supply).toNumber(),
+        marketCap: BalancedJs.utils.toIcx(_token.total_supply).times(BalancedJs.utils.toIcx(_token.price)).toNumber(),
+        priceChange: _token.price_change,
+      };
+      tokens[tokenKey] = token;
+    });
+
+    return {
+      timestamp: timestamp,
+      tokens: tokens,
+    };
+  };
+
+  return useQuery<{ timestamp: number; tokens: { [key in string]: Token } }>('useAllTokensQuery', fetch);
 };
 
 export const useAllTokens = () => {
-  const allTokens: { [key: string]: Token } = {};
-  const ratesQuery = useRatesQuery();
-  const totalSuppliesQuery = useAllTokensTotalSupplyQuery();
+  const holdersQuery = useAllTokensHoldersQuery();
+  const allTokensQuery = useAllTokensQuery();
 
-  if (ratesQuery.isSuccess && totalSuppliesQuery.isSuccess) {
-    const rates = ratesQuery.data || {};
-    const totalSupplies = totalSuppliesQuery.data || {};
-
-    Object.keys(CURRENCY_INFO).forEach(currencyKey => {
-      allTokens[currencyKey] = {
-        ...CURRENCY_INFO[currencyKey],
-        price: rates[currencyKey].toNumber(),
-        totalSupply: totalSupplies[currencyKey].toNumber(),
-        marketCap: totalSupplies[currencyKey].times(rates[currencyKey]).toNumber(),
-      };
-    });
+  if (allTokensQuery.isSuccess && holdersQuery.isSuccess) {
+    const holders = holdersQuery.data;
+    const allTokens = allTokensQuery.data.tokens;
+    Object.keys(allTokens).forEach(tokenKey => (allTokens[tokenKey].holders = holders[tokenKey]));
     return allTokens;
   }
-
-  return null;
 };
 
 export const useCollateralInfo = () => {
@@ -328,6 +353,44 @@ export const useAllPairsTVL = () => {
   return;
 };
 
+export const useAllPairsVolumeQuery = () => {
+  return useQuery<{ [key: string]: { base: BigNumber; quote: BigNumber } }>('useAllPairsVolumeQuery', async () => {
+    const { data } = await axios.get(`${API_ENDPOINT}/stats/exchange-volume-24h`);
+
+    const volumes = {};
+    Object.keys(data).forEach(key => {
+      const _volume = data[key];
+      const volume = {
+        base: BalancedJs.utils.toIcx(_volume.base_volume),
+        quote: BalancedJs.utils.toIcx(_volume.quote_volume),
+      };
+      volumes[key] = volume;
+    });
+    return volumes;
+  });
+};
+
+export const useAllPairsVolume = () => {
+  const volumesQuery = useAllPairsVolumeQuery();
+  const ratesQuery = useRatesQuery();
+
+  if (volumesQuery.isSuccess && ratesQuery.isSuccess) {
+    const rates = ratesQuery.data || {};
+    const volumes = volumesQuery.data || {};
+
+    const t: { [key in string]: number } = {};
+    SUPPORTED_PAIRS.forEach(pair => {
+      const baseVol = volumes[pair.name].base.times(rates[pair.baseCurrencyKey]);
+      const quoteVol = volumes[pair.name].quote.times(rates[pair.quoteCurrencyKey]);
+      t[pair.name] = baseVol.plus(quoteVol).integerValue().toNumber();
+    });
+
+    return t;
+  }
+
+  return;
+};
+
 export const useDexTVL = () => {
   const tvls = useAllPairsTVL();
 
@@ -356,11 +419,12 @@ export const useAllPairsParticipantQuery = () => {
 export const useAllPairs = () => {
   const apys = useAllPairsAPY();
   const tvls = useAllPairsTVL();
+  const volumes = useAllPairsVolume();
   const participantQuery = useAllPairsParticipantQuery();
 
-  const t: { [key: string]: Pair & { tvl: number; apy: number; participant: number } } = {};
+  const t: { [key: string]: Pair & { tvl: number; apy: number; participant: number; volume: number } } = {};
 
-  if (apys && participantQuery.isSuccess && tvls) {
+  if (apys && participantQuery.isSuccess && tvls && volumes) {
     const participants = participantQuery.data;
 
     SUPPORTED_PAIRS.forEach(pair => {
@@ -369,8 +433,28 @@ export const useAllPairs = () => {
         tvl: tvls[pair.name],
         apy: apys[pair.name],
         participant: participants[pair.name],
+        volume: volumes[pair.name],
       };
     });
     return t;
   } else return null;
+};
+
+export const useAllPairsTotal = () => {
+  const allPairs = useAllPairs();
+
+  if (allPairs) {
+    return Object.values(allPairs).reduce(
+      (total, pair) => {
+        total.participant += pair.participant;
+        total.tvl += pair.tvl;
+        total.volume += pair.volume;
+        total.fees += calculateFees(pair);
+        return total;
+      },
+      { participant: 0, tvl: 0, volume: 0, fees: 0 },
+    );
+  }
+
+  return;
 };

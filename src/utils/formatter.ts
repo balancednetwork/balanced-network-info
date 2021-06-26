@@ -98,3 +98,8 @@ export const formatYAxisNumber = (num: number | undefined, digits = 2, round = t
     })
     .toUpperCase();
 };
+
+export const formatPriceChange = (percent: number) => {
+  if (percent === 0) return '0%';
+  return `${percent >= 0 ? '+' : '-'}${getFormattedNumber(Math.abs(percent) / 100, 'percent2')}`;
+};
