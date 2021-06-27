@@ -60,7 +60,7 @@ export default function TokenSection() {
       <Typography variant="h2" mb={5}>
         Token
       </Typography>
-      <Box sx={{ overflow: 'scroll' }}>
+      <Box overflow="auto">
         <List>
           <DashGrid>
             <HeaderText>ASSET</HeaderText>

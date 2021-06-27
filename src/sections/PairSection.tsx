@@ -64,7 +64,7 @@ export default function PairSection() {
       <Typography variant="h2" mb={5}>
         Exchange
       </Typography>
-      <Box overflow="scroll">
+      <Box overflow="auto">
         <List>
           <DashGrid>
             <HeaderText>POOL</HeaderText>
