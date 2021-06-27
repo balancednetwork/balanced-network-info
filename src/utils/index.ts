@@ -62,5 +62,6 @@ export function escapeRegExp(string: string): string {
 export const getCurrencyKeyIcon = (currencyKey: CurrencyKey) => currencyKeyToIconMap[currencyKey];
 
 export const calculateFees = (pair: Pair & { tvl: number; apy: number; participant: number; volume: number }) => {
+  if (pair.baseCurrencyKey === 'sICX' && pair.quoteCurrencyKey === 'ICX') return (pair.volume * 10) / 1000;
   return (pair.volume * 3) / 1000;
 };
