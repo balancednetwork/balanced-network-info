@@ -4,8 +4,8 @@ import { BalancedJs } from 'packages/BalancedJs';
 import { useQuery } from 'react-query';
 
 import bnJs from 'bnJs';
-import { SUPPORTED_PAIRS, Pair, CurrencyKey, CURRENCY } from 'constants/currency';
-import { ONE, ZERO } from 'constants/number';
+import { SUPPORTED_PAIRS, Pair, CURRENCY, addressToCurrencyKeyMap, NetworkId } from 'constants/currency';
+import { ZERO } from 'constants/number';
 import QUERY_KEYS from 'constants/queryKeys';
 import { calculateFees } from 'utils';
 
@@ -16,25 +16,19 @@ export const useBnJsContractQuery = <T>(bnJs: BalancedJs, contract: string, meth
 };
 
 export const useRatesQuery = () => {
-  return useQuery<{ [key in CurrencyKey]: BigNumber }>('useRatesQuery', async () => {
-    const ICXPricePromise: Promise<any> = bnJs.Band.getReferenceData({ _base: 'ICX', _quote: 'USD' }) //
-      .then(res => res.rate);
+  const fetch = async () => {
+    const { data } = await axios.get(`${API_ENDPOINT}/stats/token-stats`);
 
-    const [ICXPrice, sICXICXPrice, BALNbnUSDPrice] = (
-      await Promise.all([
-        ICXPricePromise, //
-        bnJs.Staking.getTodayRate(),
-        bnJs.Dex.getPrice(BalancedJs.utils.POOL_IDS.BALNbnUSD),
-      ])
-    ).map(res => BalancedJs.utils.toIcx(res));
+    const rates: { [key in string]: BigNumber } = {};
+    const _tokens = data.tokens;
+    Object.keys(_tokens).forEach(tokenKey => {
+      rates[tokenKey] = BalancedJs.utils.toIcx(_tokens[tokenKey].price);
+    });
 
-    return {
-      ICX: ICXPrice,
-      sICX: sICXICXPrice.times(ICXPrice),
-      BALN: BALNbnUSDPrice,
-      bnUSD: ONE,
-    };
-  });
+    return rates;
+  };
+
+  return useQuery<{ [key in string]: BigNumber }>('useRatesQuery', fetch);
 };
 
 const API_ENDPOINT = process.env.NODE_ENV === 'production' ? 'https://balanced.geometry.io/api/v1' : '/api/v1';
@@ -92,6 +86,19 @@ export const useStatsTVL = () => {
   return;
 };
 
+const useEarnedFeesQuery = () => {
+  return useQuery<{ [key in string]: BigNumber }>('stats/dividends-fees', async () => {
+    const { data }: { data: { [key in string]: string } } = await axios.get(`${API_ENDPOINT}/stats/dividends-fees`);
+
+    const t: { [key in string]: BigNumber } = {};
+    Object.keys(data).forEach(address => {
+      t[addressToCurrencyKeyMap[NetworkId.MAINNET][address]] = BalancedJs.utils.toIcx(data[address]);
+    });
+
+    return t;
+  });
+};
+
 export const useOverviewInfo = () => {
   const ratesQuery = useRatesQuery();
   const rates = ratesQuery.data;
@@ -100,13 +107,12 @@ export const useOverviewInfo = () => {
   const tvl = useStatsTVL();
 
   // fees
-  const feesQuery = useBnJsContractQuery<{ [key: string]: string }>(bnJs, 'Dividends', 'getBalances', []);
+  const feesQuery = useEarnedFeesQuery();
   let totalFees: BigNumber | undefined;
   if (feesQuery.isSuccess && ratesQuery.isSuccess && rates) {
     const fees = feesQuery.data;
-
     totalFees = CURRENCY.reduce((sum: BigNumber, currencyKey: string) => {
-      return sum.plus(BalancedJs.utils.toIcx(fees[currencyKey]).times(rates[currencyKey]));
+      return fees[currencyKey] ? sum.plus(fees[currencyKey].times(rates[currencyKey])) : sum;
     }, ZERO);
   }
 
