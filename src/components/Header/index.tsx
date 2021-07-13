@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Flex, Box } from 'rebass/styled-components';
+import { Flex, Box, Link } from 'rebass/styled-components';
 import styled from 'styled-components';
 
 import { ReactComponent as Logo } from 'assets/icons/logo.svg';
@@ -42,7 +42,9 @@ const Header = () => {
     <Grid>
       <Flex>
         <Box width={[80, 85, 100]}>
-          <Logo width="100%" />
+          <Link href="https://balanced.network/">
+            <Logo width="100%" />
+          </Link>
         </Box>
       </Flex>
       <DesktopMenu sx={{ a: { marginLeft: 25 } }} alignItems="center" justifyContent="flex-end">
