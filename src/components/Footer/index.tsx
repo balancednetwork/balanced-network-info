@@ -60,35 +60,30 @@ const Footer = () => {
           justifyContent="center"
         >
           <Flex flexDirection={['column', 'row']} mb="16px" alignItems="center">
-            <AnimatedLink as="a" target="_blank" href={LINKS.why}>
+            <AnimatedLink as="a" href={LINKS.why}>
               Why Balanced
             </AnimatedLink>
-            <AnimatedLink as="a" target="_blank" href={LINKS.howitworks}>
+            <AnimatedLink as="a" href={LINKS.howitworks}>
               How it works
             </AnimatedLink>
-            <Button
-              style={{ fontSize: 16, padding: '3px 20px', lineHeight: '35px' }}
-              as="a"
-              target="_blank"
-              href={LINKS.app}
-            >
+            <Button style={{ fontSize: 16, padding: '3px 20px', lineHeight: '35px' }} as="a" href={LINKS.app}>
               Go to app
             </Button>
           </Flex>
           <Flex flexDirection={['column', 'row']} alignItems="center">
-            <AnimatedLink as="a" target="_blank" href={LINKS.airdrip}>
+            <AnimatedLink as="a" href={LINKS.airdrip}>
               Airdrip
             </AnimatedLink>
-            <AnimatedLink as="a" target="_blank" href={LINKS.brand}>
+            <AnimatedLink as="a" href={LINKS.brand}>
               Brand
             </AnimatedLink>
-            <AnimatedLink as="a" target="_blank" href={LINKS.demo}>
+            <AnimatedLink as="a" href={LINKS.demo}>
               Demo
             </AnimatedLink>
-            <AnimatedLink as="a" target="_blank" href={LINKS.docs}>
+            <AnimatedLink as="a" href={LINKS.docs}>
               Docs
             </AnimatedLink>
-            <AnimatedLink as="a" target="_blank" href={LINKS.stats}>
+            <AnimatedLink as="a" href={LINKS.stats}>
               Stats
             </AnimatedLink>
           </Flex>
@@ -124,19 +119,19 @@ const Footer = () => {
           alignItems="center"
           justifyContent={['center', 'flex-end']}
         >
-          <SocialButton as="a" target="_blank" href={SOCIAL_LINKS.twitter}>
+          <SocialButton as="a" href={SOCIAL_LINKS.twitter}>
             <Twitter height={16} />
           </SocialButton>
-          <SocialButton as="a" target="_blank" href={SOCIAL_LINKS.telegram}>
+          <SocialButton as="a" href={SOCIAL_LINKS.telegram}>
             <Telegram height={16} />
           </SocialButton>
-          <SocialButton as="a" target="_blank" href={SOCIAL_LINKS.reddit}>
+          <SocialButton as="a" href={SOCIAL_LINKS.reddit}>
             <Reddit height={16} />
           </SocialButton>
-          <SocialButton as="a" target="_blank" href={SOCIAL_LINKS.medium}>
+          <SocialButton as="a" href={SOCIAL_LINKS.medium}>
             <Medium height={16} />
           </SocialButton>
-          <SocialButton style={{ marginRight: 0 }} as="a" target="_blank" href={SOCIAL_LINKS.revue}>
+          <SocialButton style={{ marginRight: 0 }} as="a" href={SOCIAL_LINKS.revue}>
             <img alt="revue" src={Revue} height={16} />
           </SocialButton>
         </Flex>
