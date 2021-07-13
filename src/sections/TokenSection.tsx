@@ -58,7 +58,7 @@ export default function TokenSection() {
   return (
     <BoxPanel bg="bg2">
       <Typography variant="h2" mb={5}>
-        Token
+        Tokens
       </Typography>
       <Box overflow="auto">
         <List>
@@ -77,12 +77,15 @@ export default function TokenSection() {
                     <Flex alignItems="center">
                       <CurrencyIcon currencyKey={token.symbol} />
                       <Box ml={2}>
-                        <Text>{token.name}</Text>
+                        <Text>
+                          {token.name}
+                          {token.nameEndsWithPlural ? 's' : ''}
+                        </Text>
                         <Text color="text1">{token.symbol}</Text>
                       </Box>
                     </Flex>
                   </DataText>
-                  <DataText>{getFormattedNumber(token.holders, 'number')}</DataText>
+                  <DataText>{token.symbol === 'ICX' ? '–' : getFormattedNumber(token.holders, 'number')}</DataText>
                   <DataText>
                     <Flex alignItems="flex-end" flexDirection="column">
                       <Typography variant="p">{getFormattedNumber(token.price, 'currency2')}</Typography>
