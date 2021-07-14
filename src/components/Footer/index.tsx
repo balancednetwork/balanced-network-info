@@ -96,21 +96,11 @@ const Footer = () => {
           }}
         >
           <Text>© Balanced 2021, All rights reserved.</Text>
-          <AnimatedLink
-            style={{ marginLeft: 0, display: 'inline-block' }}
-            as="a"
-            target="_blank"
-            href={LINKS.disclamer}
-          >
+          <AnimatedLink style={{ marginLeft: 0, display: 'inline-block' }} as="a" href={LINKS.disclamer}>
             Disclaimer
           </AnimatedLink>
           {' | '}
-          <AnimatedLink
-            style={{ marginLeft: 0, display: 'inline-block' }}
-            as="a"
-            target="_blank"
-            href={LINKS.bugBounty}
-          >
+          <AnimatedLink style={{ marginLeft: 0, display: 'inline-block' }} as="a" href={LINKS.bugBounty}>
             Bug bounty
           </AnimatedLink>
         </Box>
