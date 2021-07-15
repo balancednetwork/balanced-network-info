@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Flex, Box, Text } from 'rebass/styled-components';
+import { Flex, Box, Text, Link } from 'rebass/styled-components';
 import styled from 'styled-components';
 
 import { ReactComponent as Logo } from 'assets/icons/logo.svg';
@@ -50,7 +50,9 @@ const Footer = () => {
       <Grid>
         <Flex marginBottom={[15, 0]} alignItems="center" justifyContent={['center', 'flex-start']}>
           <Box width="100px">
-            <Logo width="100%" />
+            <Link href="https://balanced.network/">
+              <Logo width="100%" />
+            </Link>
           </Box>
         </Flex>
         <Flex
