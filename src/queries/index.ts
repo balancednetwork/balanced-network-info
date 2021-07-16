@@ -177,7 +177,6 @@ export const useGovernanceInfo = () => {
 type Token = {
   holders: number;
   name: string;
-  nameEndsWithPlural?: boolean;
   symbol: string;
   price: number;
   priceChange: number;
@@ -224,8 +223,6 @@ export const useAllTokensQuery = () => {
           totalSupply: BalancedJs.utils.toIcx(_token.total_supply).toNumber(),
           marketCap: BalancedJs.utils.toIcx(_token.total_supply).times(BalancedJs.utils.toIcx(_token.price)).toNumber(),
           priceChange: _token.price_change,
-          nameEndsWithPlural:
-            _token.name.toLowerCase().endsWith('token') || _token.name.toLowerCase().endsWith('dollar'),
         };
         tokens[tokenKey] = token;
       });

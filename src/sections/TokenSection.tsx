@@ -77,10 +77,7 @@ export default function TokenSection() {
                     <Flex alignItems="center">
                       <CurrencyIcon currencyKey={token.symbol} />
                       <Box ml={2}>
-                        <Text>
-                          {token.name}
-                          {token.nameEndsWithPlural ? 's' : ''}
-                        </Text>
+                        <Text>{token.name}</Text>
                         <Text color="text1">{token.symbol}</Text>
                       </Box>
                     </Flex>
