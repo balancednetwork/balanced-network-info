@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { useAllTokens } from 'queries';
+import { Link } from 'react-router-dom';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
@@ -52,6 +53,11 @@ const HeaderText = styled(Flex)`
   align-items: center;
 `;
 
+const StyledLink = styled(Link)`
+  text-decoration: none;
+  color: #fff;
+`;
+
 export default function TokenSection() {
   const allTokens = useAllTokens();
 
@@ -74,13 +80,15 @@ export default function TokenSection() {
               <div key={token.symbol}>
                 <DashGrid my={4}>
                   <DataText>
-                    <Flex alignItems="center">
-                      <CurrencyIcon currencyKey={token.symbol} />
-                      <Box ml={2}>
-                        <Text>{token.name}</Text>
-                        <Text color="text1">{token.symbol}</Text>
-                      </Box>
-                    </Flex>
+                    <StyledLink to={`info-${token.symbol.toLowerCase()}`}>
+                      <Flex alignItems="center">
+                        <CurrencyIcon currencyKey={token.symbol} />
+                        <Box ml={2}>
+                          <Text>{token.name}</Text>
+                          <Text color="text1">{token.symbol}</Text>
+                        </Box>
+                      </Flex>
+                    </StyledLink>
                   </DataText>
                   <DataText>{getFormattedNumber(token.holders, 'number')}</DataText>
                   <DataText>

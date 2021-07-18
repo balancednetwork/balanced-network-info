@@ -9,6 +9,7 @@ import ThemeProvider, { FixedGlobalStyle, ThemedGlobalStyle } from 'theme';
 
 import { NotFoundPage } from './components/NotFoundPage/Loadable';
 import { StatsPage } from './pages/StatsPage/Loadable';
+import { TokenPage } from './pages/TokenPage/Loadable';
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ export function App() {
 
             <Switch>
               <Route exact path="/" component={StatsPage} />
+              <Route exact path="/info-:ticker" component={TokenPage} />
               <Route component={NotFoundPage} />
             </Switch>
           </BrowserRouter>

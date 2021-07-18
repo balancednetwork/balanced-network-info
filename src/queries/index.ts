@@ -174,7 +174,7 @@ export const useGovernanceInfo = () => {
   };
 };
 
-type Token = {
+export type Token = {
   holders: number;
   name: string;
   symbol: string;
