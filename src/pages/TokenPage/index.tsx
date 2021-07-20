@@ -87,6 +87,21 @@ const TokenName = styled(Flex)`
   line-height: 60px;
   position: relative;
   font-weight: 700;
+  align-items: center;
+
+  @keyframes loadup {
+    from {
+      width: 0;
+    }
+    to {
+      width: 125px;
+    }
+  }
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+     font-size: 30px;
+    line-height: 37px;
+  `}
 
   img,
   svg {
@@ -100,10 +115,10 @@ const TokenName = styled(Flex)`
     margin-top: 25px;
     background-image: linear-gradient(120deg, #2ca9b7, #1b648f);
     border-radius: 2px;
-    width: 125px;
     position: absolute;
     left: 0;
     top: 100%;
+    animation: loadup 1s ease forwards;
   }
 `;
 
@@ -126,6 +141,11 @@ const TokenInfo = styled(Text)`
   font-size: 20px;
   color: rgba(255, 255, 255, 0.75);
   line-height: 35px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 18px;
+    line-height: 32px;
+  `}
 `;
 
 const StyledLink = styled(Link)`
@@ -141,9 +161,26 @@ const TokenStats = styled(Box)`
   grid-template-columns: 1fr 1fr;
   grid-column-gap: 50px;
   grid-row-gap: 30px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    margin-top: 40px;
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    display: block;
+    text-align: center;
+  `}
 `;
 
-const TokenStatsItem = styled(Box)``;
+const TokenStatsItem = styled(Box)`
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    margin-bottom: 25px;
+    
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+  `}
+`;
 
 const TokenStatsItemLabel = styled(Box)`
   margin-bottom: 5px;
@@ -188,32 +225,34 @@ export function TokenPage({
             <TokenInfo
               dangerouslySetInnerHTML={{ __html: tokenInfo[token.symbol] && tokenInfo[token.symbol] }}
             ></TokenInfo>
-            <TokenStats>
-              <TokenStatsItem>
-                <TokenStatsItemLabel>Ticker</TokenStatsItemLabel>
-                <TokenStatsItemValue>{token.symbol}</TokenStatsItemValue>
-              </TokenStatsItem>
-              <TokenStatsItem>
-                <TokenStatsItemLabel>Price</TokenStatsItemLabel>
-                <TokenStatsItemValue>{getFormattedNumber(token.price, 'currency2')}</TokenStatsItemValue>
-              </TokenStatsItem>
-              <TokenStatsItem>
-                <TokenStatsItemLabel>Marketcap</TokenStatsItemLabel>
-                <TokenStatsItemValue>{getFormattedNumber(token.marketCap, 'currency0')}</TokenStatsItemValue>
-              </TokenStatsItem>
-              <TokenStatsItem>
-                <TokenStatsItemLabel>Total supply</TokenStatsItemLabel>
-                <TokenStatsItemValue>{getFormattedNumber(token.totalSupply, 'number')}</TokenStatsItemValue>
-              </TokenStatsItem>
-              <TokenStatsItem>
-                <TokenStatsItemLabel>Circulating supply</TokenStatsItemLabel>
-                <TokenStatsItemValue></TokenStatsItemValue>
-              </TokenStatsItem>
-              <TokenStatsItem>
-                <TokenStatsItemLabel>24h volume</TokenStatsItemLabel>
-                <TokenStatsItemValue></TokenStatsItemValue>
-              </TokenStatsItem>
-            </TokenStats>
+            <Box>
+              <TokenStats>
+                <TokenStatsItem>
+                  <TokenStatsItemLabel>Ticker</TokenStatsItemLabel>
+                  <TokenStatsItemValue>{token.symbol}</TokenStatsItemValue>
+                </TokenStatsItem>
+                <TokenStatsItem>
+                  <TokenStatsItemLabel>Price</TokenStatsItemLabel>
+                  <TokenStatsItemValue>{getFormattedNumber(token.price, 'currency2')}</TokenStatsItemValue>
+                </TokenStatsItem>
+                <TokenStatsItem>
+                  <TokenStatsItemLabel>Marketcap</TokenStatsItemLabel>
+                  <TokenStatsItemValue>{getFormattedNumber(token.marketCap, 'currency0')}</TokenStatsItemValue>
+                </TokenStatsItem>
+                <TokenStatsItem>
+                  <TokenStatsItemLabel>Total supply</TokenStatsItemLabel>
+                  <TokenStatsItemValue>{getFormattedNumber(token.totalSupply, 'number')}</TokenStatsItemValue>
+                </TokenStatsItem>
+                <TokenStatsItem>
+                  <TokenStatsItemLabel>Circulating supply</TokenStatsItemLabel>
+                  <TokenStatsItemValue></TokenStatsItemValue>
+                </TokenStatsItem>
+                <TokenStatsItem>
+                  <TokenStatsItemLabel>24h volume</TokenStatsItemLabel>
+                  <TokenStatsItemValue></TokenStatsItemValue>
+                </TokenStatsItem>
+              </TokenStats>
+            </Box>
           </TokenDetails>
         </>
       ) : (

@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
+import arrowIcon from 'assets/icons/arrow.svg';
 import Divider from 'components/Divider';
 import { BoxPanel } from 'components/Panel';
 import { CurrencyKey } from 'constants/currency';
@@ -56,6 +57,39 @@ const HeaderText = styled(Flex)`
 const StyledLink = styled(Link)`
   text-decoration: none;
   color: #fff;
+  position: relative;
+  padding: 0 30px 0 3px;
+
+  &:after {
+    content: '';
+    display: block;
+    position: absolute;
+    background-image: url(${arrowIcon});
+    height: 10px;
+    width: 20px;
+    background-repeat: no-repeat;
+    top: 7px;
+    right: 0;
+    transform: translate3d(5px, 0, 0);
+    transition: transform 0.3s ease;
+  }
+
+  svg,
+  img {
+    transition: transform 0.3s ease;
+    transform: scale(1);
+  }
+
+  &:hover {
+    &:after {
+      transform: translate3d(15px, 0, 0);
+    }
+
+    svg,
+    img {
+      transform: scale(1.07);
+    }
+  }
 `;
 
 export default function TokenSection() {
@@ -83,7 +117,7 @@ export default function TokenSection() {
                     <StyledLink to={`info-${token.symbol.toLowerCase()}`}>
                       <Flex alignItems="center">
                         <CurrencyIcon currencyKey={token.symbol} />
-                        <Box ml={2}>
+                        <Box ml={3}>
                           <Text>{token.name}</Text>
                           <Text color="text1">{token.symbol}</Text>
                         </Box>
