@@ -241,15 +241,15 @@ export function TokenPage({
                 </TokenStatsItem>
                 <TokenStatsItem>
                   <TokenStatsItemLabel>Total supply</TokenStatsItemLabel>
-                  <TokenStatsItemValue>{getFormattedNumber(token.totalSupply, 'number')}</TokenStatsItemValue>
+                  <TokenStatsItemValue>–</TokenStatsItemValue>
                 </TokenStatsItem>
                 <TokenStatsItem>
                   <TokenStatsItemLabel>Circulating supply</TokenStatsItemLabel>
-                  <TokenStatsItemValue></TokenStatsItemValue>
+                  <TokenStatsItemValue>{getFormattedNumber(token.totalSupply, 'number')}</TokenStatsItemValue>
                 </TokenStatsItem>
                 <TokenStatsItem>
                   <TokenStatsItemLabel>24h volume</TokenStatsItemLabel>
-                  <TokenStatsItemValue></TokenStatsItemValue>
+                  <TokenStatsItemValue>–</TokenStatsItemValue>
                 </TokenStatsItem>
               </TokenStats>
             </Box>
