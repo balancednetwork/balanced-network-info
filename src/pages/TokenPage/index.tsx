@@ -138,14 +138,9 @@ const BreadcrumbsCurrent = styled(Text)`
 `;
 
 const TokenInfo = styled(Text)`
-  font-size: 20px;
   color: rgba(255, 255, 255, 0.75);
-  line-height: 35px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 18px;
-    line-height: 32px;
-  `}
+  font-size: 18px;
+  line-height: 32px;
 `;
 
 const StyledLink = styled(Link)`
@@ -240,18 +235,8 @@ export function TokenPage({
                   <TokenStatsItemValue>{getFormattedNumber(token.marketCap, 'currency0')}</TokenStatsItemValue>
                 </TokenStatsItem>
                 <TokenStatsItem>
-                  <TokenStatsItemLabel>Total supply</TokenStatsItemLabel>
-                  <TokenStatsItemValue>{getFormattedNumber(token.totalSupply, 'number')}</TokenStatsItemValue>
-                </TokenStatsItem>
-                <TokenStatsItem>
                   <TokenStatsItemLabel>Circulating supply</TokenStatsItemLabel>
-                  <TokenStatsItemValue>
-                    {token.symbol === 'ICX' ? '–' : getFormattedNumber(token.totalSupply, 'number')}
-                  </TokenStatsItemValue>
-                </TokenStatsItem>
-                <TokenStatsItem>
-                  <TokenStatsItemLabel>24h volume</TokenStatsItemLabel>
-                  <TokenStatsItemValue>–</TokenStatsItemValue>
+                  <TokenStatsItemValue>{getFormattedNumber(token.totalSupply, 'number')}</TokenStatsItemValue>
                 </TokenStatsItem>
               </TokenStats>
             </Box>
