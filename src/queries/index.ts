@@ -92,7 +92,7 @@ const useEarnedFeesQuery = () => {
 
     const t: { [key in string]: BigNumber } = {};
     Object.keys(data).forEach(address => {
-      t[addressToCurrencyKeyMap[NetworkId.MAINNET][address]] = BalancedJs.utils.toIcx(data[address]);
+      t[addressToCurrencyKeyMap[NetworkId.MAINNET][address]] = BalancedJs.utils.toIcx(data[address]['total']);
     });
 
     return t;
