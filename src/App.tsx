@@ -23,11 +23,7 @@ export function App() {
 
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
-            <Helmet
-              titleTemplate="%s - Balanced Network"
-              defaultTitle="Balanced Network"
-              htmlAttributes={{ lang: i18n.language }}
-            >
+            <Helmet htmlAttributes={{ lang: i18n.language }}>
               <meta name="description" content="A Balanced Network interface" />
             </Helmet>
 
