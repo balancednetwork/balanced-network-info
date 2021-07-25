@@ -78,6 +78,7 @@ const StyledLink = styled(Link)`
   img {
     transition: transform 0.3s ease;
     transform: scale(1);
+    min-width: 40px;
   }
 
   &:hover {
@@ -90,6 +91,18 @@ const StyledLink = styled(Link)`
       transform: scale(1.07);
     }
   }
+`;
+
+const TokenName = styled(Box)`
+  margin-left: 15px;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    width: 130px;
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    width: 80px
+  `}
 `;
 
 export default function TokenSection() {
@@ -117,10 +130,10 @@ export default function TokenSection() {
                     <StyledLink to={`info-${token.symbol.toLowerCase()}`}>
                       <Flex alignItems="center">
                         <CurrencyIcon currencyKey={token.symbol} />
-                        <Box ml={3}>
+                        <TokenName>
                           <Text>{token.name}</Text>
                           <Text color="text1">{token.symbol}</Text>
-                        </Box>
+                        </TokenName>
                       </Flex>
                     </StyledLink>
                   </DataText>
