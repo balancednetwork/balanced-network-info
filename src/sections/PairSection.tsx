@@ -103,7 +103,7 @@ export default function PairSection() {
                   <Text ml={2}>Total</Text>
                 </Flex>
               </FooterText>
-              <FooterText>-</FooterText>
+              <FooterText>–</FooterText>
               <FooterText>{getFormattedNumber(total.participant, 'number')}</FooterText>
               <FooterText>{getFormattedNumber(total.tvl, 'currency0')}</FooterText>
               <FooterText>{getFormattedNumber(total.volume, 'currency0')}</FooterText>
