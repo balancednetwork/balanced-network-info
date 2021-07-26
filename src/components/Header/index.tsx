@@ -48,10 +48,10 @@ const Header = () => {
         </Box>
       </Flex>
       <DesktopMenu sx={{ a: { marginLeft: 25 } }} alignItems="center" justifyContent="flex-end">
-        <AnimatedLink as="a" target="_blank" href={LINKS.why}>
+        <AnimatedLink as="a" href={LINKS.why}>
           Why Balanced
         </AnimatedLink>
-        <AnimatedLink as="a" target="_blank" href={LINKS.howitworks}>
+        <AnimatedLink as="a" href={LINKS.howitworks}>
           How it works
         </AnimatedLink>
         <AnimatedLink as="a" target="_blank" href={LINKS.stats} active={true}>
@@ -60,7 +60,6 @@ const Header = () => {
         <Button
           style={{ marginLeft: 25, fontSize: 16, padding: '3px 20px', lineHeight: '35px' }}
           as="a"
-          target="_blank"
           href={LINKS.app}
         >
           Go to app
