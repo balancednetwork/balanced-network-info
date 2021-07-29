@@ -15,14 +15,14 @@
     <meta property="og:description" content="Track Balanced’s usage with key charts and statistics. " />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://stats.balanced.network/" />
-    <meta property="og:image" content="%PUBLIC_URL%/img-preview/stats-preview.jpg" />
+    <meta property="og:image" content="%PUBLIC_URL%/img-preview/stats.png" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@BalancedDAO" />
     <meta name="twitter:title" content="Statistics | Balanced" />
     <meta name="twitter:description" content="Track Balanced’s usage with key charts and statistics. " />
-    <meta name="twitter:image:src" content="%PUBLIC_URL%/img-preview/stats-preview.jpg" />
+    <meta name="twitter:image:src" content="%PUBLIC_URL%/img-preview/stats.png" />
     <meta name="twitter:image:alt" content="Screenshot of the Balanced 'Statistics' page." />
 
     <!--
@@ -42,6 +42,31 @@
     <title>Statistics | Balanced</title>
   </head>
   <body>
+    <!-- Matomo -->
+    <script type="text/javascript">
+      var _paq = (window._paq = window._paq || []);
+      _paq.push(['setDocumentTitle', document.domain + '/' + document.title]);
+      _paq.push(['setCookieDomain', '*.balanced.network']);
+      _paq.push(['setDomains', ['*.balanced.network']]);
+      _paq.push(['trackPageView']);
+      _paq.push(['enableLinkTracking']);
+      _paq.push(['enableHeartBeatTimer']);
+      (function () {
+        var u = 'https://parrot9.matomo.cloud/';
+        _paq.push(['setTrackerUrl', u + 'matomo.php']);
+        _paq.push(['setSiteId', '2']);
+        var d = document,
+          g = d.createElement('script'),
+          s = d.getElementsByTagName('script')[0];
+        g.type = 'text/javascript';
+        g.async = true;
+        g.src = '//cdn.matomo.cloud/parrot9.matomo.cloud/matomo.js';
+        s.parentNode.insertBefore(g, s);
+      })();
+    </script>
+    <noscript
+      ><p><img src="https://parrot9.matomo.cloud/matomo.php?idsite=2&amp;rec=1" style="border: 0" alt="" /></p
+    ></noscript>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
 
