@@ -6,11 +6,10 @@ import { Flex, Box, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
 import arrowIcon from 'assets/icons/arrow.svg';
+import CurrencyIcon from 'components/CurrencyIcon';
 import Divider from 'components/Divider';
 import { BoxPanel } from 'components/Panel';
-import { CurrencyKey } from 'constants/currency';
 import { Typography } from 'theme';
-import { getCurrencyKeyIcon } from 'utils';
 import { formatPriceChange, getFormattedNumber } from 'utils/formatter';
 
 const List = styled(Box)`
@@ -129,7 +128,7 @@ export default function TokenSection() {
                   <DataText>
                     <StyledLink to={`info-${token.symbol.toLowerCase()}`}>
                       <Flex alignItems="center">
-                        <CurrencyIcon currencyKey={token.symbol} />
+                        <CurrencyIcon currencyKey={token.symbol} width={40} height={40} />
                         <TokenName>
                           <Text>{token.name}</Text>
                           <Text color="text1">{token.symbol}</Text>
@@ -163,10 +162,4 @@ export default function TokenSection() {
       </Box>
     </BoxPanel>
   );
-}
-
-function CurrencyIcon({ currencyKey }: { currencyKey: CurrencyKey }) {
-  const Icon = getCurrencyKeyIcon(currencyKey);
-
-  return <Icon width={40} height={40} />;
 }

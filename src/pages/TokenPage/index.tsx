@@ -6,37 +6,12 @@ import { Link } from 'react-router-dom';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
+import CurrencyIcon from 'components/CurrencyIcon';
 import Footer from 'components/Footer';
 import Header from 'components/Header';
-import { CurrencyKey } from 'constants/currency';
 import { tokenInfo } from 'constants/tokenInfo';
-import { getCurrencyKeyIcon } from 'utils';
+import { Container, Divider } from 'pages/StatsPage';
 import { getFormattedNumber } from 'utils/formatter';
-
-const Container = styled(Box)`
-  /* disable margin collapse */
-  display: flex;
-  flex-direction: column;
-  max-width: 1280px;
-  min-height: 100vh;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 40px;
-  padding-right: 40px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding-left: 5%;
-    padding-right: 5%;
-  `}
-`;
-
-const Divider = styled(Box)`
-  width: 100%;
-  height: 1px;
-  background-color: ${({ theme }) => theme.colors.divider};
-  margin-bottom: 20px;
-  margin-top: 80px;
-`;
 
 const Breadcrumbs = styled(Flex)`
   padding: 40px 0 70px;
@@ -213,7 +188,7 @@ export function TokenPage({
       {token ? (
         <>
           <TokenName>
-            <CurrencyIcon currencyKey={token.symbol} />
+            <CurrencyIcon currencyKey={token.symbol} width={75} height={75} />
             <Text>{token.name}</Text>
           </TokenName>
           <TokenDetails>
@@ -251,10 +226,4 @@ export function TokenPage({
       <Footer />
     </Container>
   );
-}
-
-function CurrencyIcon({ currencyKey }: { currencyKey: CurrencyKey }) {
-  const Icon = getCurrencyKeyIcon(currencyKey);
-
-  return <Icon width={75} height={75} />;
 }

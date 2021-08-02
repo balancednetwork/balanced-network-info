@@ -22,7 +22,7 @@ import TokenSection from 'sections/TokenSection';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
 
-const Container = styled(Box)`
+export const Container = styled(Box)`
   /* disable margin collapse */
   display: flex;
   flex-direction: column;
@@ -79,7 +79,7 @@ const StatsItemData = styled(Box)`
   margin: 8px 8px;
 `;
 
-const Divider = styled(Box)`
+export const Divider = styled(Box)`
   width: 100%;
   height: 1px;
   background-color: ${({ theme }) => theme.colors.divider};
