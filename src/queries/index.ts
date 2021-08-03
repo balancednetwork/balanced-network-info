@@ -297,13 +297,19 @@ export const useLoanInfo = () => {
 };
 
 export const useAllPairsAPY = () => {
+  const dailyDistributionQuery = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
   const tvls = useAllPairsTVL();
   const { data: rates } = useRatesQuery();
 
-  if (tvls && rates) {
+  if (tvls && rates && dailyDistributionQuery.isSuccess) {
+    const dailyDistribution = BalancedJs.utils.toIcx(dailyDistributionQuery.data);
     const t = {};
     SUPPORTED_PAIRS.forEach(pair => {
-      t[pair.name] = new BigNumber(pair.rewards || 0).times(365).times(rates['BALN']).div(tvls[pair.name]);
+      t[pair.name] = dailyDistribution
+        .times(pair.rewards || 0)
+        .times(365)
+        .times(rates['BALN'])
+        .div(tvls[pair.name]);
     });
     return t;
   }
