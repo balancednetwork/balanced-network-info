@@ -79,31 +79,31 @@ const Footer = () => {
           justifyContent="center"
         >
           <StyledFlex flexDirection={['column', 'row']}>
-            <AnimatedLink className="top-right-menu-item" as="a" href={LINKS.docs}>
-              Docs
+            <AnimatedLink className="top-right-menu-item" as="a" href={LINKS.why}>
+              Why Balanced
             </AnimatedLink>
-            <AnimatedLink className="top-right-menu-item" as="a" href={LINKS.stats} active={true}>
-              Stats
-            </AnimatedLink>
-            <AnimatedLink className="top-right-menu-item" as="a" href={LINKS.forum}>
-              Forum
+            <AnimatedLink className="top-right-menu-item" as="a" href={LINKS.howitworks}>
+              How it works
             </AnimatedLink>
             <Button style={{ fontSize: 16, padding: '3px 20px', lineHeight: '35px' }} as="a" href={LINKS.app}>
               Go to app
             </Button>
           </StyledFlex>
           <Flex flexDirection={['column', 'row']} alignItems="center">
-            <AnimatedLink as="a" href={LINKS.why}>
-              Why Balanced
-            </AnimatedLink>
-            <AnimatedLink as="a" href={LINKS.howitworks}>
-              How it works
-            </AnimatedLink>
             <AnimatedLink as="a" href={LINKS.airdrip}>
               Airdrip
             </AnimatedLink>
             <AnimatedLink as="a" href={LINKS.demo}>
               Demo
+            </AnimatedLink>
+            <AnimatedLink as="a" href={LINKS.docs}>
+              Docs
+            </AnimatedLink>
+            <AnimatedLink as="a" href={LINKS.forum}>
+              Forum
+            </AnimatedLink>
+            <AnimatedLink as="a" href={LINKS.stats} active={true}>
+              Stats
             </AnimatedLink>
           </Flex>
         </Flex>
