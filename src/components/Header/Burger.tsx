@@ -64,19 +64,18 @@ const AnimatedLinkMobile = styled(AnimatedLink)`
 const BurgerMenu = ({ show }: { show: boolean }) => {
   return (
     <Container show={show}>
-      <AnimatedLinkMobile as="a" target="_blank" href={LINKS.why}>
+      <AnimatedLinkMobile as="a" href={LINKS.why}>
         Why Balanced
       </AnimatedLinkMobile>
-      <AnimatedLinkMobile as="a" target="_blank" href={LINKS.howitworks}>
+      <AnimatedLinkMobile as="a" href={LINKS.howitworks}>
         How it works
       </AnimatedLinkMobile>
-      <AnimatedLinkMobile as="a" target="_blank" href={LINKS.stats}>
-        Stats
+      <AnimatedLinkMobile as="a" href={LINKS.stats}>
+        stats
       </AnimatedLinkMobile>
       <Button
         style={{ textAlign: 'center', width: '100%', padding: '3px 20px', lineHeight: '35px' }}
         as="a"
-        target="_blank"
         href={LINKS.app}
       >
         Go to app

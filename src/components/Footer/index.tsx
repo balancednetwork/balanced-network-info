@@ -19,7 +19,7 @@ const Grid = styled(Box)`
   grid-template-columns: auto 1fr;
   margin: 50px 0;
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    margin: 25px 0;
+    margin: 25px 0 ;
     grid-template-columns: none;
     grid-template-rows: auto 1fr;
     justify-content: center;
@@ -27,12 +27,13 @@ const Grid = styled(Box)`
   `}
 
   .footer-right-menu {
-    a,
+    a:not(.top-right-menu-item),
     button {
       margin: 0;
       margin-left: 25px;
       ${({ theme }) => theme.mediaWidth.upToExtraSmall`
         margin-left: 0;
+        margin-bottom: 3px;
       `}
     }
   }
@@ -42,6 +43,22 @@ const Grid = styled(Box)`
       flex-direction: column-reverse;
     `}
   }
+`;
+
+const StyledFlex = styled(Flex)`
+  margin-bottom: 20px;
+  align-items: center;
+
+  a {
+    margin: 0 0 -9px 25px;
+  }
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    margin-bottom: 10px;
+    a {
+      margin: 0 0 3px 0;
+    }
+  `}
 `;
 
 const Footer = () => {
@@ -61,23 +78,20 @@ const Footer = () => {
           alignItems={['center', 'flex-end']}
           justifyContent="center"
         >
-          <Flex flexDirection={['column', 'row']} mb="16px" alignItems="center">
-            <AnimatedLink as="a" href={LINKS.why}>
+          <StyledFlex flexDirection={['column', 'row']}>
+            <AnimatedLink className="top-right-menu-item" as="a" href={LINKS.why}>
               Why Balanced
             </AnimatedLink>
-            <AnimatedLink as="a" href={LINKS.howitworks}>
+            <AnimatedLink className="top-right-menu-item" as="a" href={LINKS.howitworks}>
               How it works
             </AnimatedLink>
             <Button style={{ fontSize: 16, padding: '3px 20px', lineHeight: '35px' }} as="a" href={LINKS.app}>
               Go to app
             </Button>
-          </Flex>
+          </StyledFlex>
           <Flex flexDirection={['column', 'row']} alignItems="center">
             <AnimatedLink as="a" href={LINKS.airdrip}>
               Airdrip
-            </AnimatedLink>
-            <AnimatedLink as="a" href={LINKS.brand}>
-              Brand
             </AnimatedLink>
             <AnimatedLink as="a" href={LINKS.demo}>
               Demo
@@ -85,7 +99,10 @@ const Footer = () => {
             <AnimatedLink as="a" href={LINKS.docs}>
               Docs
             </AnimatedLink>
-            <AnimatedLink as="a" target="_blank" href={LINKS.stats} active={true}>
+            <AnimatedLink as="a" href={LINKS.forum}>
+              Forum
+            </AnimatedLink>
+            <AnimatedLink as="a" href={LINKS.stats} active={true}>
               Stats
             </AnimatedLink>
           </Flex>
@@ -104,6 +121,10 @@ const Footer = () => {
           {' | '}
           <AnimatedLink style={{ marginLeft: 0, display: 'inline-block' }} as="a" href={LINKS.bugBounty}>
             Bug bounty
+          </AnimatedLink>
+          {' | '}
+          <AnimatedLink style={{ marginLeft: 0, display: 'inline-block' }} as="a" href={LINKS.brand}>
+            Brand
           </AnimatedLink>
         </Box>
         <Flex

@@ -54,7 +54,7 @@ const Header = () => {
         <AnimatedLink as="a" href={LINKS.howitworks}>
           How it works
         </AnimatedLink>
-        <AnimatedLink as="a" target="_blank" href={LINKS.stats} active={true}>
+        <AnimatedLink as="a" href={LINKS.stats} active={true}>
           Stats
         </AnimatedLink>
         <Button

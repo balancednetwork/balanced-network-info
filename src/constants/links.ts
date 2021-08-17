@@ -18,4 +18,5 @@ export const LINKS = {
   demo: 'https://balanced.network/demo/',
   docs: 'https://docs.balanced.network/',
   stats: 'https://stats.balanced.network/',
+  forum: 'https://gov.balanced.network/',
 };
