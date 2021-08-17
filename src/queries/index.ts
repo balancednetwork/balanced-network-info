@@ -264,11 +264,15 @@ export const useCollateralInfo = () => {
       ? BalancedJs.utils.toIcx(totalCollateralQuery.data).times(rates['sICX'])
       : null;
 
+  //
+  const { data: IISSInfo } = useBnJsContractQuery<any>(bnJs, 'IISS', 'getIISSInfo', []);
+  const stakingAPY = IISSInfo ? new BigNumber(IISSInfo?.variable.rrep).times(3).div(10_000).toNumber() : undefined;
+
   return {
     totalCollateral: totalCollateral?.integerValue().toNumber(),
     totalCollateralTVL: totalCollateralTVL?.integerValue().toNumber(),
     rate: rate?.toNumber(),
-    depositors: null,
+    stakingAPY: stakingAPY,
   };
 };
 

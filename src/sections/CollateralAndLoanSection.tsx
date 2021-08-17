@@ -111,7 +111,7 @@ export default function CollateralAndLoanSection() {
         <Flex my={3}>
           <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
             <Typography variant="p" fontSize="18px">
-              11.38%
+              {collateralInfo.stakingAPY ? getFormattedNumber(collateralInfo.stakingAPY, 'percent2') : '-'}
             </Typography>
             <Typography>Staking APY</Typography>
           </Flex>
