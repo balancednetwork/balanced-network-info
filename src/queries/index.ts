@@ -289,7 +289,9 @@ export const useLoanInfo = () => {
   const rates = ratesQuery.data || {};
 
   const loansAPY =
-    dailyRewards && totalLoans && rates['BALN'] ? dailyRewards.times(365).times(rates['BALN']).div(totalLoans) : null;
+    dailyRewards && totalLoans && rates['BALN']
+      ? dailyRewards.times(365).times(rates['BALN']).div(totalLoans.times(rates['bnUSD']))
+      : null;
 
   const borrowersQuery = useBnJsContractQuery<string>(bnJs, 'Loans', 'getNonzeroPositionCount', []);
   const borrowers = borrowersQuery.isSuccess ? new BigNumber(borrowersQuery.data) : null;
