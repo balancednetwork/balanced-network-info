@@ -3,15 +3,23 @@ import React from 'react';
 import { useAllTokens, Token } from 'queries';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { Box, Flex, Text } from 'rebass/styled-components';
+import { Flex, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
-import CurrencyIcon from 'components/CurrencyIcon';
 import Footer from 'components/Footer';
 import Header from 'components/Header';
-import { tokenInfo } from 'constants/tokenInfo';
+import BALNDetail from 'components/TokenDetails/BALNDetail';
+import BnUSDDetail from 'components/TokenDetails/BnUSDDetail';
+import ICXDetail from 'components/TokenDetails/ICXDetail';
+import SICXDetail from 'components/TokenDetails/SICXDetail';
 import { Container, Divider } from 'pages/StatsPage';
-import { getFormattedNumber } from 'utils/formatter';
+
+const TokenDetails = {
+  ICX: ICXDetail,
+  sICX: SICXDetail,
+  bnUSD: BnUSDDetail,
+  BALN: BALNDetail,
+};
 
 const Breadcrumbs = styled(Flex)`
   padding: 40px 0 70px;
@@ -56,109 +64,13 @@ const BreadcrumbsSeparator = styled(Text)`
   `}
 `;
 
-const TokenName = styled(Flex)`
-  font-size: 60px;
-  color: #fff;
-  line-height: 60px;
-  position: relative;
-  font-weight: 700;
-  align-items: center;
-
-  @keyframes loadup {
-    from {
-      width: 0;
-    }
-    to {
-      width: 125px;
-    }
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-     font-size: 30px;
-    line-height: 37px;
-  `}
-
-  img,
-  svg {
-    margin-right: 20px;
-  }
-
-  &:after {
-    content: '';
-    display: block;
-    height: 5px;
-    margin-top: 25px;
-    background-image: linear-gradient(120deg, #2ca9b7, #1b648f);
-    border-radius: 2px;
-    position: absolute;
-    left: 0;
-    top: 100%;
-    animation: loadup 1s ease forwards;
-  }
-`;
-
-const TokenDetails = styled(Box)`
-  display: grid;
-  grid-template-columns: [info] auto [stats] 400px;
-  grid-gap: 50px;
-  padding-top: 60px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    display: block;
-  `}
-`;
-
 const BreadcrumbsCurrent = styled(Text)`
   color: #fff;
-`;
-
-const TokenInfo = styled(Text)`
-  color: rgba(255, 255, 255, 0.75);
-  font-size: 18px;
-  line-height: 32px;
 `;
 
 const StyledLink = styled(Link)`
   color: #2fccdc;
   text-decoration: none;
-`;
-
-const TokenStats = styled(Box)`
-  background: #144a68;
-  padding: 35px;
-  border-radius: 10px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-column-gap: 50px;
-  grid-row-gap: 30px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    margin-top: 40px;
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    display: block;
-    text-align: center;
-  `}
-`;
-
-const TokenStatsItem = styled(Box)`
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    margin-bottom: 25px;
-    
-    &:last-of-type {
-      margin-bottom: 0;
-    }
-  `}
-`;
-
-const TokenStatsItemLabel = styled(Box)`
-  margin-bottom: 5px;
-`;
-
-const TokenStatsItemValue = styled(Box)`
-  font-size: 20px;
-  color: #fff;
 `;
 
 export function TokenPage({
@@ -169,6 +81,7 @@ export function TokenPage({
   const allTokens = useAllTokens();
   const symbol: string[] | undefined = allTokens && Object.keys(allTokens).filter(key => key.toLowerCase() === ticker);
   const token: Token | undefined = allTokens && symbol && allTokens[symbol[0]];
+  const TokenDetail = TokenDetails[token ? token.symbol : ''];
 
   return (
     <Container>
@@ -186,37 +99,7 @@ export function TokenPage({
         )}
       </Breadcrumbs>
       {token ? (
-        <>
-          <TokenName>
-            <CurrencyIcon currencyKey={token.symbol} width={75} height={75} />
-            <Text>{token.name}</Text>
-          </TokenName>
-          <TokenDetails>
-            <TokenInfo
-              dangerouslySetInnerHTML={{ __html: tokenInfo[token.symbol] && tokenInfo[token.symbol] }}
-            ></TokenInfo>
-            <Box>
-              <TokenStats>
-                <TokenStatsItem>
-                  <TokenStatsItemLabel>Ticker</TokenStatsItemLabel>
-                  <TokenStatsItemValue>{token.symbol}</TokenStatsItemValue>
-                </TokenStatsItem>
-                <TokenStatsItem>
-                  <TokenStatsItemLabel>Price</TokenStatsItemLabel>
-                  <TokenStatsItemValue>{getFormattedNumber(token.price, 'currency2')}</TokenStatsItemValue>
-                </TokenStatsItem>
-                <TokenStatsItem>
-                  <TokenStatsItemLabel>Marketcap</TokenStatsItemLabel>
-                  <TokenStatsItemValue>{getFormattedNumber(token.marketCap, 'currency0')}</TokenStatsItemValue>
-                </TokenStatsItem>
-                <TokenStatsItem>
-                  <TokenStatsItemLabel>Circulating supply</TokenStatsItemLabel>
-                  <TokenStatsItemValue>{getFormattedNumber(token.totalSupply, 'number')}</TokenStatsItemValue>
-                </TokenStatsItem>
-              </TokenStats>
-            </Box>
-          </TokenDetails>
-        </>
+        <TokenDetail token={token} />
       ) : (
         <Text fontSize={20}>
           {ticker} is invalid token name, see <StyledLink to="/">stats page</StyledLink> for more info.
