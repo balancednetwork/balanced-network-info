@@ -92,7 +92,7 @@ const useEarnedFeesQuery = () => {
 
     const t: { [key in string]: BigNumber } = {};
     Object.keys(data).forEach(address => {
-      t[addressToCurrencyKeyMap[NetworkId.MAINNET][address]] = BalancedJs.utils.toIcx(data[address]);
+      t[addressToCurrencyKeyMap[NetworkId.MAINNET][address]] = BalancedJs.utils.toIcx(data[address]['total']);
     });
 
     return t;
@@ -213,17 +213,19 @@ export const useAllTokensQuery = () => {
 
     const tokens: { [key in string]: Token } = {};
     const _tokens = data.tokens;
-    Object.keys(_tokens).forEach(tokenKey => {
-      const _token = _tokens[tokenKey];
-      const token = {
-        ..._token,
-        price: BalancedJs.utils.toIcx(_token.price).toNumber(),
-        totalSupply: BalancedJs.utils.toIcx(_token.total_supply).toNumber(),
-        marketCap: BalancedJs.utils.toIcx(_token.total_supply).times(BalancedJs.utils.toIcx(_token.price)).toNumber(),
-        priceChange: _token.price_change,
-      };
-      tokens[tokenKey] = token;
-    });
+    Object.keys(_tokens)
+      .sort((tokenKey1, tokenKey2) => _tokens[tokenKey1].name.localeCompare(_tokens[tokenKey2].name))
+      .forEach(tokenKey => {
+        const _token = _tokens[tokenKey];
+        const token = {
+          ..._token,
+          price: BalancedJs.utils.toIcx(_token.price).toNumber(),
+          totalSupply: BalancedJs.utils.toIcx(_token.total_supply).toNumber(),
+          marketCap: BalancedJs.utils.toIcx(_token.total_supply).times(BalancedJs.utils.toIcx(_token.price)).toNumber(),
+          priceChange: _token.price_change,
+        };
+        tokens[tokenKey] = token;
+      });
 
     return {
       timestamp: timestamp,
@@ -262,11 +264,15 @@ export const useCollateralInfo = () => {
       ? BalancedJs.utils.toIcx(totalCollateralQuery.data).times(rates['sICX'])
       : null;
 
+  //
+  const { data: IISSInfo } = useBnJsContractQuery<any>(bnJs, 'IISS', 'getIISSInfo', []);
+  const stakingAPY = IISSInfo ? new BigNumber(IISSInfo?.variable.rrep).times(3).div(10_000).toNumber() : undefined;
+
   return {
     totalCollateral: totalCollateral?.integerValue().toNumber(),
     totalCollateralTVL: totalCollateralTVL?.integerValue().toNumber(),
     rate: rate?.toNumber(),
-    depositors: null,
+    stakingAPY: stakingAPY,
   };
 };
 
@@ -276,14 +282,16 @@ export const useLoanInfo = () => {
 
   const dailyDistributionQuery = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
   const dailyRewards = dailyDistributionQuery.isSuccess
-    ? BalancedJs.utils.toIcx(dailyDistributionQuery.data).times(0.25)
+    ? BalancedJs.utils.toIcx(dailyDistributionQuery.data).times(0.2)
     : null;
 
   const ratesQuery = useRatesQuery();
   const rates = ratesQuery.data || {};
 
   const loansAPY =
-    dailyRewards && totalLoans && rates['BALN'] ? dailyRewards.times(365).times(rates['BALN']).div(totalLoans) : null;
+    dailyRewards && totalLoans && rates['BALN']
+      ? dailyRewards.times(365).times(rates['BALN']).div(totalLoans.times(rates['bnUSD']))
+      : null;
 
   const borrowersQuery = useBnJsContractQuery<string>(bnJs, 'Loans', 'getNonzeroPositionCount', []);
   const borrowers = borrowersQuery.isSuccess ? new BigNumber(borrowersQuery.data) : null;
@@ -297,13 +305,19 @@ export const useLoanInfo = () => {
 };
 
 export const useAllPairsAPY = () => {
+  const dailyDistributionQuery = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
   const tvls = useAllPairsTVL();
   const { data: rates } = useRatesQuery();
 
-  if (tvls && rates) {
+  if (tvls && rates && dailyDistributionQuery.isSuccess) {
+    const dailyDistribution = BalancedJs.utils.toIcx(dailyDistributionQuery.data);
     const t = {};
     SUPPORTED_PAIRS.forEach(pair => {
-      t[pair.name] = new BigNumber(pair.rewards || 0).times(365).times(rates['BALN']).div(tvls[pair.name]);
+      t[pair.name] = dailyDistribution
+        .times(pair.rewards || 0)
+        .times(365)
+        .times(rates['BALN'])
+        .div(tvls[pair.name]);
     });
     return t;
   }

@@ -11,6 +11,7 @@ import Daofund from './contracts/Daofund';
 import Dex from './contracts/Dex';
 import Dividends from './contracts/Dividends';
 import ICX from './contracts/ICX';
+import IISS from './contracts/IISS';
 import Loans from './contracts/Loans';
 import Rewards from './contracts/Rewards';
 import sICX from './contracts/sICX';
@@ -49,6 +50,7 @@ export class BalancedJs {
   Airdrip: Airdrip;
   Dividends: Dividends;
   Daofund: Daofund;
+  IISS: IISS;
 
   static utils = {
     toLoop(value: BigNumber | number | string): BigNumber {
@@ -97,6 +99,7 @@ export class BalancedJs {
     this.Airdrip = new Airdrip(this.contractSettings);
     this.Dividends = new Dividends(this.contractSettings);
     this.Daofund = new Daofund(this.contractSettings);
+    this.IISS = new IISS(this.contractSettings);
   }
 
   inject({ account, legerSettings }: SettingInjection) {

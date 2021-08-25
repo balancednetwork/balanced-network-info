@@ -94,7 +94,7 @@ export function StatsPage() {
   return (
     <Container>
       <Helmet>
-        <title>Stats</title>
+        <title>Statistics | Balanced</title>
       </Helmet>
 
       <Header />
