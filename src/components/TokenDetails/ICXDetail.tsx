@@ -1,12 +1,12 @@
 import React from 'react';
 
 import { Token } from 'queries';
-// import { collateralInfo } from 'queries/index';
+import { useCollateralInfo } from 'queries/index';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
 import CurrencyIcon from 'components/CurrencyIcon';
-// import { getFormattedNumber } from 'utils/formatter';
+import { getFormattedNumber } from 'utils/formatter';
 
 import TokenMetrics from './TokenMetrics';
 
@@ -73,6 +73,8 @@ export interface TokenDetailProps {
 }
 
 const ICXDetail = ({ token }: TokenDetailProps) => {
+  const collateralInfo = useCollateralInfo();
+
   return (
     <>
       <TokenName>
@@ -81,10 +83,11 @@ const ICXDetail = ({ token }: TokenDetailProps) => {
       </TokenName>
       <TokenDetails>
         <TokenInfo>
-          {`ICON is a decentralized blockchain network focused on interoperability, and ICX is the native cryptocurrency. If you stake ICX in a supported wallet, you'll earn regular staking rewards, based on ICON's variable reward rate (currently 10.41% per year).`}
+          {`ICON is a decentralized blockchain network focused on interoperability, and ICX is the native cryptocurrency. If you stake ICX in a supported wallet, you'll earn regular staking rewards, based on ICON's variable reward rate (currently ${
+            collateralInfo.stakingAPY ? getFormattedNumber(collateralInfo.stakingAPY, 'percent2') : '-'
+          } per year).`}
           <LineBreak />
           {`On Balanced, you can use ICX as collateral to borrow synthetic assets, like Balanced Dollars.`}
-          {/* {collateralInfo.stakingAPY ? getFormattedNumber(collateralInfo.stakingAPY, 'percent2') : '-'} */}
         </TokenInfo>
         <TokenMetrics token={token} />
       </TokenDetails>
