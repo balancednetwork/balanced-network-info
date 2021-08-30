@@ -19,4 +19,5 @@ export const LINKS = {
   docs: 'https://docs.balanced.network/',
   stats: 'https://stats.balanced.network/',
   forum: 'https://gov.balanced.network/',
+  statements: '/financial-statements',
 };
