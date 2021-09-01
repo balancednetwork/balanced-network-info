@@ -7,11 +7,12 @@ import styled from 'styled-components';
 
 import Footer from 'components/Footer';
 import Header from 'components/Header';
+import { BoxPanel } from 'components/Panel';
 import { Container, Divider } from 'pages/StatsPage';
 import { Typography } from 'theme';
 
 const Breadcrumbs = styled(Flex)`
-  padding: 40px 0 70px;
+  padding: 40px 0 50px;
   font-size: 20px;
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     font-size: 14px;
@@ -57,6 +58,12 @@ const BreadcrumbsCurrent = styled(Text)`
   color: #fff;
 `;
 
+const Perex = styled(Text)`
+  font-size: 18px;
+  line-height: 32px;
+  max-width: 600px;
+`;
+
 export function FinancialStatements() {
   return (
     <Container>
@@ -75,6 +82,20 @@ export function FinancialStatements() {
       <Typography fontWeight="bold" fontSize={[45, 45, 60]} color="#fff">
         Financial statements
       </Typography>
+      <Perex>
+        Track Balanced's finances over time. All $ values are in USD, based on the current price of each asset.
+      </Perex>
+
+      <BoxPanel bg="bg2" mt={10} mb={10}>
+        <Flex alignItems={'center'} justifyContent={'space-between'}>
+          <Typography variant="h2">Income statement</Typography>
+          <Text>Income earned</Text>
+        </Flex>
+      </BoxPanel>
+
+      <BoxPanel bg="bg2" mb={10}>
+        <Typography variant="h2">Balance sheets</Typography>
+      </BoxPanel>
 
       <Divider />
       <Footer />
