@@ -52,7 +52,7 @@ const HeaderText = styled(Flex)`
   align-items: center;
 `;
 
-export default function TokenSection() {
+export default React.memo(function TokenSection() {
   const allTokens = useAllTokens();
 
   return (
@@ -108,7 +108,7 @@ export default function TokenSection() {
       </Box>
     </BoxPanel>
   );
-}
+});
 
 function CurrencyIcon({ currencyKey }: { currencyKey: CurrencyKey }) {
   const Icon = getCurrencyKeyIcon(currencyKey);

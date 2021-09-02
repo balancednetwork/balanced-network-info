@@ -4,7 +4,15 @@ import { BalancedJs } from 'packages/BalancedJs';
 import { useQuery } from 'react-query';
 
 import bnJs from 'bnJs';
-import { SUPPORTED_PAIRS, Pair, CURRENCY, addressToCurrencyKeyMap, NetworkId } from 'constants/currency';
+import {
+  SUPPORTED_PAIRS,
+  Pair,
+  CURRENCY,
+  addressToCurrencyKeyMap,
+  NetworkId,
+  currencyKeyToAddressMap,
+  toMarketName,
+} from 'constants/currency';
 import { ZERO } from 'constants/number';
 import QUERY_KEYS from 'constants/queryKeys';
 import { calculateFees } from 'utils';
@@ -92,7 +100,10 @@ const useEarnedFeesQuery = () => {
 
     const t: { [key in string]: BigNumber } = {};
     Object.keys(data).forEach(address => {
-      t[addressToCurrencyKeyMap[NetworkId.MAINNET][address]] = BalancedJs.utils.toIcx(data[address]['total']);
+      t[addressToCurrencyKeyMap[NetworkId.MAINNET][address]] = BalancedJs.utils.toIcx(
+        data[address]['total'],
+        addressToCurrencyKeyMap[NetworkId.MAINNET][address],
+      );
     });
 
     return t;
@@ -145,7 +156,7 @@ export const useGovernanceNumOfStakersQuery = () => {
 export const useGovernanceInfo = () => {
   const dailyDistributionQuery = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
   const totalStakedBALNQuery = useBnJsContractQuery<string>(bnJs, 'BALN', 'totalStakedBalance', []);
-  const daofundQuery = useBnJsContractQuery<string>(bnJs, 'Daofund', 'getBalances', []);
+  const daofundQuery = useBnJsContractQuery<any>(bnJs, 'Daofund', 'getBalances', []);
 
   const dailyDistribution = dailyDistributionQuery.isSuccess
     ? BalancedJs.utils.toIcx(dailyDistributionQuery.data)
@@ -155,14 +166,16 @@ export const useGovernanceInfo = () => {
 
   const ratesQuery = useRatesQuery();
   const rates = ratesQuery.data || {};
-
-  const daofund = daofundQuery.isSuccess
-    ? CURRENCY.reduce((sum: BigNumber | null, currencyKey: string) => {
-        if (sum && rates[currencyKey] && daofundQuery.data[currencyKey])
-          return sum.plus(BalancedJs.utils.toIcx(daofundQuery.data[currencyKey]).times(rates[currencyKey]));
-        else return null;
-      }, ZERO)
-    : null;
+  const daofund =
+    daofundQuery.isSuccess && ratesQuery.isSuccess
+      ? CURRENCY.reduce((sum: BigNumber, currencyKey: string) => {
+          return sum.plus(
+            BalancedJs.utils
+              .toIcx(daofundQuery.data[currencyKey] || '0', currencyKey)
+              .times(rates[currencyKey] || ZERO),
+          );
+        }, ZERO)
+      : null;
 
   const numOfStakersQuery = useGovernanceNumOfStakersQuery();
 
@@ -190,7 +203,9 @@ export const useAllTokensHoldersQuery = () => {
   const fetch = async () => {
     const data: any[] = await Promise.all(
       CURRENCY.filter(currencyKey => currencyKey !== 'ICX') //
-        .map(currencyKey => axios.get(`${endpoint}${bnJs[currencyKey].address}`).then(res => res.data)),
+        .map(currencyKey =>
+          axios.get(`${endpoint}${currencyKeyToAddressMap[NetworkId.MAINNET][currencyKey]}`).then(res => res.data),
+        ),
     );
 
     const t = {};
@@ -208,7 +223,6 @@ export const useAllTokensHoldersQuery = () => {
 export const useAllTokensQuery = () => {
   const fetch = async () => {
     const { data } = await axios.get(`${API_ENDPOINT}/stats/token-stats`);
-
     const timestamp = data.timestamp;
 
     const tokens: { [key in string]: Token } = {};
@@ -219,8 +233,11 @@ export const useAllTokensQuery = () => {
         const token = {
           ..._token,
           price: BalancedJs.utils.toIcx(_token.price).toNumber(),
-          totalSupply: BalancedJs.utils.toIcx(_token.total_supply).toNumber(),
-          marketCap: BalancedJs.utils.toIcx(_token.total_supply).times(BalancedJs.utils.toIcx(_token.price)).toNumber(),
+          totalSupply: BalancedJs.utils.toIcx(_token.total_supply, tokenKey).toNumber(),
+          marketCap: BalancedJs.utils
+            .toIcx(_token.total_supply, tokenKey)
+            .times(BalancedJs.utils.toIcx(_token.price))
+            .toNumber(),
           priceChange: _token.price_change,
         };
         tokens[tokenKey] = token;
@@ -313,11 +330,8 @@ export const useAllPairsAPY = () => {
     const dailyDistribution = BalancedJs.utils.toIcx(dailyDistributionQuery.data);
     const t = {};
     SUPPORTED_PAIRS.forEach(pair => {
-      t[pair.name] = dailyDistribution
-        .times(pair.rewards || 0)
-        .times(365)
-        .times(rates['BALN'])
-        .div(tvls[pair.name]);
+      t[pair.name] =
+        pair.rewards && dailyDistribution.times(pair.rewards).times(365).times(rates['BALN']).div(tvls[pair.name]);
     });
     return t;
   }
@@ -329,7 +343,7 @@ export const useAllPairsTVLQuery = () => {
   return useQuery<{ [key: string]: { base: BigNumber; quote: BigNumber; total_supply: BigNumber } }>(
     'useAllPairsTVLQuery',
     async () => {
-      const res: Array<any> = await Promise.all(
+      const res = await Promise.all(
         SUPPORTED_PAIRS.map(async pair => {
           const { data } = await axios.get(`${API_ENDPOINT}/dex/stats/${pair.poolId}`);
           return data;
@@ -341,8 +355,8 @@ export const useAllPairsTVLQuery = () => {
         const item = res[index];
         t[pair.name] = {
           ...item,
-          base: BalancedJs.utils.toIcx(item.base),
-          quote: BalancedJs.utils.toIcx(item.quote),
+          base: BalancedJs.utils.toIcx(item.base, pair.baseCurrencyKey),
+          quote: BalancedJs.utils.toIcx(item.quote, pair.quoteCurrencyKey),
           total_supply: BalancedJs.utils.toIcx(item.total_supply),
         };
       });
@@ -378,14 +392,16 @@ export const useAllPairsVolumeQuery = () => {
     const { data } = await axios.get(`${API_ENDPOINT}/stats/exchange-volume-24h`);
 
     const volumes = {};
-    Object.keys(data).forEach(key => {
+    SUPPORTED_PAIRS.forEach(pair => {
+      const key = toMarketName(pair.baseCurrencyKey, pair.quoteCurrencyKey);
       const _volume = data[key];
       const volume = {
-        base: BalancedJs.utils.toIcx(_volume.base_volume),
-        quote: BalancedJs.utils.toIcx(_volume.quote_volume),
+        base: BalancedJs.utils.toIcx(_volume.base_volume, pair.baseCurrencyKey),
+        quote: BalancedJs.utils.toIcx(_volume.quote_volume, pair.quoteCurrencyKey),
       };
       volumes[key] = volume;
     });
+
     return volumes;
   });
 };
@@ -399,7 +415,7 @@ export const useAllPairsVolume = () => {
     const volumes = volumesQuery.data || {};
 
     const t: { [key in string]: number } = {};
-    SUPPORTED_PAIRS.forEach(pair => {
+    SUPPORTED_PAIRS.filter(pair => volumes[pair.name]).forEach(pair => {
       const baseVol = volumes[pair.name].base.times(rates[pair.baseCurrencyKey]);
       const quoteVol = volumes[pair.name].quote.times(rates[pair.quoteCurrencyKey]);
       t[pair.name] = baseVol.plus(quoteVol).integerValue().toNumber();
