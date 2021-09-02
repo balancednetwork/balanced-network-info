@@ -213,9 +213,8 @@ export const useAllTokensQuery = () => {
 
     const tokens: { [key in string]: Token } = {};
     const _tokens = data.tokens;
-    Object.keys(_tokens)
-      .sort((tokenKey1, tokenKey2) => _tokens[tokenKey1].name.localeCompare(_tokens[tokenKey2].name))
-      .forEach(tokenKey => {
+    CURRENCY.sort((tokenKey1, tokenKey2) => _tokens[tokenKey1].name.localeCompare(_tokens[tokenKey2].name)).forEach(
+      tokenKey => {
         const _token = _tokens[tokenKey];
         const token = {
           ..._token,
@@ -225,7 +224,8 @@ export const useAllTokensQuery = () => {
           priceChange: _token.price_change,
         };
         tokens[tokenKey] = token;
-      });
+      },
+    );
 
     return {
       timestamp: timestamp,
@@ -243,7 +243,7 @@ export const useAllTokens = () => {
   if (allTokensQuery.isSuccess && holdersQuery.isSuccess) {
     const holders = holdersQuery.data;
     const allTokens = allTokensQuery.data.tokens;
-    Object.keys(allTokens).forEach(tokenKey => (allTokens[tokenKey].holders = holders[tokenKey]));
+    CURRENCY.forEach(tokenKey => (allTokens[tokenKey].holders = holders[tokenKey]));
     return allTokens;
   }
 };
