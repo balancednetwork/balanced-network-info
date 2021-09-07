@@ -1,6 +1,6 @@
 import { isEoaAddress } from 'icon-sdk-js/lib/data/Validator.js';
 
-import { currencyKeyToIconMap, CurrencyKey, Pair } from 'constants/currency';
+import { currencyKeyToIconMap, CurrencyKey } from 'constants/currency';
 
 export enum NetworkId {
   MAINNET = 1,
@@ -18,13 +18,6 @@ export function shortenAddress(address: string, chars = 7): string {
   }
   return `${address.substring(0, chars + 2)}...${address.substring(42 - chars)}`;
 }
-
-const API_ENDPOINTS = {
-  [NetworkId.MAINNET]: 'https://balnmainnet.techiast.com:8069',
-  [NetworkId.YEOUIDO]: 'https://balanced.techiast.com:8069',
-};
-
-export const getAPIEnpoint = () => API_ENDPOINTS[NETWORK_ID];
 
 const Trackers = {
   [NetworkId.MAINNET]: 'https://tracker.icon.foundation',
@@ -60,8 +53,3 @@ export function escapeRegExp(string: string): string {
 }
 
 export const getCurrencyKeyIcon = (currencyKey: CurrencyKey) => currencyKeyToIconMap[currencyKey];
-
-export const calculateFees = (pair: Pair & { tvl: number; apy: number; participant: number; volume: number }) => {
-  if (pair.baseCurrencyKey === 'sICX' && pair.quoteCurrencyKey === 'ICX') return (pair.volume * 10) / 1000;
-  return (pair.volume * 3) / 1000;
-};

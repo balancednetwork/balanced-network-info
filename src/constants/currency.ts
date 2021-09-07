@@ -8,7 +8,7 @@ import { ReactComponent as OMMIcon } from 'assets/tokens/OMM.svg';
 import { ReactComponent as sICXIcon } from 'assets/tokens/sICX.svg';
 import { ReactComponent as USDSIcon } from 'assets/tokens/USDS.svg';
 
-export const CURRENCY = ['ICX', 'sICX', 'bnUSD', 'BALN', 'IUSDC'];
+export const CURRENCY = ['ICX', 'sICX', 'bnUSD', 'BALN', 'IUSDC', 'OMM'];
 
 export const CURRENCY_MAP = keyBy(CURRENCY);
 
@@ -79,20 +79,20 @@ export const SUPPORTED_PAIRS: Array<Pair> = [
     name: toMarketName(CURRENCY_MAP['IUSDC'], CURRENCY_MAP['bnUSD']),
     poolId: 5,
   },
-  // {
-  //   baseCurrencyKey: CURRENCY_MAP['OMM'],
-  //   quoteCurrencyKey: CURRENCY_MAP['IUSDC'],
-  //   pair: toMarketPair(CURRENCY_MAP['OMM'], CURRENCY_MAP['IUSDC']),
-  //   name: toMarketName(CURRENCY_MAP['OMM'], CURRENCY_MAP['IUSDC']),
-  //   poolId: 6,
-  // },
-  // {
-  //   baseCurrencyKey: CURRENCY_MAP['OMM'],
-  //   quoteCurrencyKey: CURRENCY_MAP['sICX'],
-  //   pair: toMarketPair(CURRENCY_MAP['OMM'], CURRENCY_MAP['sICX']),
-  //   name: toMarketName(CURRENCY_MAP['OMM'], CURRENCY_MAP['sICX']),
-  //   poolId: 7,
-  // },
+  {
+    baseCurrencyKey: CURRENCY_MAP['OMM'],
+    quoteCurrencyKey: CURRENCY_MAP['IUSDC'],
+    pair: toMarketPair(CURRENCY_MAP['OMM'], CURRENCY_MAP['IUSDC']),
+    name: toMarketName(CURRENCY_MAP['OMM'], CURRENCY_MAP['IUSDC']),
+    poolId: 6,
+  },
+  {
+    baseCurrencyKey: CURRENCY_MAP['OMM'],
+    quoteCurrencyKey: CURRENCY_MAP['sICX'],
+    pair: toMarketPair(CURRENCY_MAP['OMM'], CURRENCY_MAP['sICX']),
+    name: toMarketName(CURRENCY_MAP['OMM'], CURRENCY_MAP['sICX']),
+    poolId: 7,
+  },
   // {
   //   baseCurrencyKey: CURRENCY_MAP['OMM'],
   //   quoteCurrencyKey: CURRENCY_MAP['USDS'],

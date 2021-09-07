@@ -11,11 +11,9 @@ import {
   addressToCurrencyKeyMap,
   NetworkId,
   currencyKeyToAddressMap,
-  toMarketName,
 } from 'constants/currency';
 import { ZERO } from 'constants/number';
 import QUERY_KEYS from 'constants/queryKeys';
-import { calculateFees } from 'utils';
 
 export const useBnJsContractQuery = <T>(bnJs: BalancedJs, contract: string, method: string, args: any[]) => {
   return useQuery<T, string>(QUERY_KEYS.BnJs(contract, method, args), async () => {
@@ -224,7 +222,6 @@ export const useAllTokensQuery = () => {
   const fetch = async () => {
     const { data } = await axios.get(`${API_ENDPOINT}/stats/token-stats`);
     const timestamp = data.timestamp;
-
     const tokens: { [key in string]: Token } = {};
     const _tokens = data.tokens;
     CURRENCY.sort((tokenKey1, tokenKey2) => _tokens[tokenKey1].name.localeCompare(_tokens[tokenKey2].name)).forEach(
@@ -387,38 +384,71 @@ export const useAllPairsTVL = () => {
   return;
 };
 
-export const useAllPairsVolumeQuery = () => {
-  return useQuery<{ [key: string]: { base: BigNumber; quote: BigNumber } }>('useAllPairsVolumeQuery', async () => {
-    const { data } = await axios.get(`${API_ENDPOINT}/stats/exchange-volume-24h`);
-
-    const volumes = {};
+export const useAllPairsDataQuery = () => {
+  return useQuery<{ [key: string]: { base: BigNumber; quote: BigNumber } }>('useAllPairsDataQuery', async () => {
+    const { data } = await axios.get(`${API_ENDPOINT}/stats/dex-pool-stats-24h`);
+    const t = {};
     SUPPORTED_PAIRS.forEach(pair => {
-      const key = toMarketName(pair.baseCurrencyKey, pair.quoteCurrencyKey);
-      const _volume = data[key];
-      const volume = {
-        base: BalancedJs.utils.toIcx(_volume.base_volume, pair.baseCurrencyKey),
-        quote: BalancedJs.utils.toIcx(_volume.quote_volume, pair.quoteCurrencyKey),
+      const key = `0x${pair.poolId.toString(16)}`;
+
+      const baseAddress = currencyKeyToAddressMap[NetworkId.MAINNET][pair.baseCurrencyKey];
+      const quoteAddress = currencyKeyToAddressMap[NetworkId.MAINNET][pair.quoteCurrencyKey];
+
+      t[pair.name] = {};
+
+      // volume
+      const _volume = data[key]['volume'];
+
+      t[pair.name]['volume'] = {
+        [pair.baseCurrencyKey]: BalancedJs.utils.toIcx(_volume[baseAddress], pair.baseCurrencyKey),
+        [pair.quoteCurrencyKey]: BalancedJs.utils.toIcx(_volume[quoteAddress], pair.quoteCurrencyKey),
       };
-      volumes[key] = volume;
+
+      // fees
+      const _fees = data[key]['fees'];
+      t[pair.name]['fees'] = {
+        [pair.baseCurrencyKey]: {
+          lp_fees: BalancedJs.utils.toIcx(_fees[baseAddress]['lp_fees'], pair.baseCurrencyKey),
+          baln_fees: BalancedJs.utils.toIcx(_fees[baseAddress]['baln_fees'], pair.baseCurrencyKey),
+        },
+        [pair.quoteCurrencyKey]: {
+          lp_fees: BalancedJs.utils.toIcx(_fees[quoteAddress]['lp_fees'], pair.quoteCurrencyKey),
+          baln_fees: BalancedJs.utils.toIcx(_fees[quoteAddress]['baln_fees'], pair.quoteCurrencyKey),
+        },
+      };
     });
 
-    return volumes;
+    return t;
   });
 };
 
-export const useAllPairsVolume = () => {
-  const volumesQuery = useAllPairsVolumeQuery();
+export const useAllPairsData = (): { [key in string]: { volume: number; fees: number } } | undefined => {
+  const dataQuery = useAllPairsDataQuery();
   const ratesQuery = useRatesQuery();
 
-  if (volumesQuery.isSuccess && ratesQuery.isSuccess) {
+  if (dataQuery.isSuccess && ratesQuery.isSuccess) {
     const rates = ratesQuery.data || {};
-    const volumes = volumesQuery.data || {};
+    const data = dataQuery.data || {};
 
-    const t: { [key in string]: number } = {};
-    SUPPORTED_PAIRS.filter(pair => volumes[pair.name]).forEach(pair => {
-      const baseVol = volumes[pair.name].base.times(rates[pair.baseCurrencyKey]);
-      const quoteVol = volumes[pair.name].quote.times(rates[pair.quoteCurrencyKey]);
-      t[pair.name] = baseVol.plus(quoteVol).integerValue().toNumber();
+    const t: { [key in string]: { volume: number; fees: number } } = {};
+
+    SUPPORTED_PAIRS.filter(pair => data[pair.name]).forEach(pair => {
+      // volume
+      const baseVol = data[pair.name]['volume'][pair.baseCurrencyKey].times(rates[pair.baseCurrencyKey]);
+      const quoteVol = data[pair.name]['volume'][pair.quoteCurrencyKey].times(rates[pair.quoteCurrencyKey]);
+      const volume = baseVol.plus(quoteVol).integerValue().toNumber();
+
+      // fees
+      const baseFees = data[pair.name]['fees'][pair.baseCurrencyKey]['lp_fees']
+        .plus(data[pair.name]['fees'][pair.baseCurrencyKey]['baln_fees'])
+        .times(rates[pair.baseCurrencyKey]);
+
+      const quoteFees = data[pair.name]['fees'][pair.quoteCurrencyKey]['lp_fees']
+        .plus(data[pair.name]['fees'][pair.quoteCurrencyKey]['baln_fees'])
+        .times(rates[pair.quoteCurrencyKey]);
+      const fees = baseFees.plus(quoteFees).integerValue().toNumber();
+
+      t[pair.name] = { volume, fees };
     });
 
     return t;
@@ -455,12 +485,14 @@ export const useAllPairsParticipantQuery = () => {
 export const useAllPairs = () => {
   const apys = useAllPairsAPY();
   const tvls = useAllPairsTVL();
-  const volumes = useAllPairsVolume();
+  const data = useAllPairsData();
   const participantQuery = useAllPairsParticipantQuery();
 
-  const t: { [key: string]: Pair & { tvl: number; apy: number; participant: number; volume: number } } = {};
+  const t: {
+    [key: string]: Pair & { tvl: number; apy: number; participant: number; volume: number; fees: number };
+  } = {};
 
-  if (apys && participantQuery.isSuccess && tvls && volumes) {
+  if (apys && participantQuery.isSuccess && tvls && data) {
     const participants = participantQuery.data;
 
     SUPPORTED_PAIRS.forEach(pair => {
@@ -469,7 +501,8 @@ export const useAllPairs = () => {
         tvl: tvls[pair.name],
         apy: apys[pair.name],
         participant: participants[pair.name],
-        volume: volumes[pair.name],
+        volume: data[pair.name]['volume'],
+        fees: data[pair.name]['fees'],
       };
     });
     return t;
@@ -485,7 +518,7 @@ export const useAllPairsTotal = () => {
         total.participant += pair.participant;
         total.tvl += pair.tvl;
         total.volume += pair.volume;
-        total.fees += calculateFees(pair);
+        total.fees += pair.fees;
         return total;
       },
       { participant: 0, tvl: 0, volume: 0, fees: 0 },
