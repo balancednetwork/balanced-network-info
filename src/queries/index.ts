@@ -222,7 +222,6 @@ export const useAllTokensQuery = () => {
   const fetch = async () => {
     const { data } = await axios.get(`${API_ENDPOINT}/stats/token-stats`);
     const timestamp = data.timestamp;
-
     const tokens: { [key in string]: Token } = {};
     const _tokens = data.tokens;
     CURRENCY.sort((tokenKey1, tokenKey2) => _tokens[tokenKey1].name.localeCompare(_tokens[tokenKey2].name)).forEach(
@@ -388,7 +387,6 @@ export const useAllPairsTVL = () => {
 export const useAllPairsDataQuery = () => {
   return useQuery<{ [key: string]: { base: BigNumber; quote: BigNumber } }>('useAllPairsDataQuery', async () => {
     const { data } = await axios.get(`${API_ENDPOINT}/stats/dex-pool-stats-24h`);
-    console.log(data);
     const t = {};
     SUPPORTED_PAIRS.forEach(pair => {
       const key = `0x${pair.poolId.toString(16)}`;
@@ -408,7 +406,6 @@ export const useAllPairsDataQuery = () => {
 
       // fees
       const _fees = data[key]['fees'];
-      console.log(_fees, baseAddress, quoteAddress);
       t[pair.name]['fees'] = {
         [pair.baseCurrencyKey]: {
           lp_fees: BalancedJs.utils.toIcx(_fees[baseAddress]['lp_fees'], pair.baseCurrencyKey),
