@@ -71,7 +71,10 @@ const BurgerMenu = ({ show }: { show: boolean }) => {
         How it works
       </AnimatedLinkMobile>
       <AnimatedLinkMobile as="a" href={LINKS.stats}>
-        stats
+        Stats
+      </AnimatedLinkMobile>
+      <AnimatedLinkMobile as="a" href={LINKS.blog}>
+        Blog
       </AnimatedLinkMobile>
       <Button
         style={{ textAlign: 'center', width: '100%', padding: '3px 20px', lineHeight: '35px' }}
