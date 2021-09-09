@@ -8,7 +8,7 @@ import { ReactComponent as OMMIcon } from 'assets/tokens/OMM.svg';
 import { ReactComponent as sICXIcon } from 'assets/tokens/sICX.svg';
 import { ReactComponent as USDSIcon } from 'assets/tokens/USDS.svg';
 
-export const CURRENCY = ['ICX', 'sICX', 'bnUSD', 'BALN', 'IUSDC', 'OMM'];
+export const CURRENCY = ['ICX', 'sICX', 'bnUSD', 'BALN', 'IUSDC', 'OMM', 'USDS'];
 
 export const CURRENCY_MAP = keyBy(CURRENCY);
 
@@ -94,13 +94,13 @@ export const SUPPORTED_PAIRS: Array<Pair> = [
     name: toMarketName(CURRENCY_MAP['OMM'], CURRENCY_MAP['sICX']),
     poolId: 7,
   },
-  // {
-  //   baseCurrencyKey: CURRENCY_MAP['OMM'],
-  //   quoteCurrencyKey: CURRENCY_MAP['USDS'],
-  //   pair: toMarketPair(CURRENCY_MAP['OMM'], CURRENCY_MAP['USDS']),
-  //   name: toMarketName(CURRENCY_MAP['OMM'], CURRENCY_MAP['USDS']),
-  //   poolId: 8,
-  // },
+  {
+    baseCurrencyKey: CURRENCY_MAP['OMM'],
+    quoteCurrencyKey: CURRENCY_MAP['USDS'],
+    pair: toMarketPair(CURRENCY_MAP['OMM'], CURRENCY_MAP['USDS']),
+    name: toMarketName(CURRENCY_MAP['OMM'], CURRENCY_MAP['USDS']),
+    poolId: 8,
+  },
 ];
 
 export enum NetworkId {
