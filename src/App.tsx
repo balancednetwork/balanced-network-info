@@ -7,7 +7,6 @@ import { Switch, Route, BrowserRouter } from 'react-router-dom';
 
 import ThemeProvider, { FixedGlobalStyle, ThemedGlobalStyle } from 'theme';
 
-import { NotFoundPage } from './components/NotFoundPage/Loadable';
 import { FinancialStatementsPage } from './pages/FinancialStatements/Loadable';
 import { StatsPage } from './pages/StatsPage/Loadable';
 
@@ -31,7 +30,12 @@ export function App() {
             <Switch>
               <Route exact path="/" component={StatsPage} />
               <Route exact path="/financial-statements" component={FinancialStatementsPage} />
-              <Route component={NotFoundPage} />
+              <Route
+                component={() => {
+                  window.location.href = 'https://balanced.network/404';
+                  return null;
+                }}
+              />
             </Switch>
           </BrowserRouter>
         </QueryClientProvider>
