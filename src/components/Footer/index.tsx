@@ -85,6 +85,12 @@ const Footer = () => {
             <AnimatedLink className="top-right-menu-item" as="a" href={LINKS.howitworks}>
               How it works
             </AnimatedLink>
+            <AnimatedLink className="top-right-menu-item" as="a" href={LINKS.stats} active={true}>
+              Stats
+            </AnimatedLink>
+            <AnimatedLink className="top-right-menu-item" as="a" href={LINKS.blog}>
+              Blog
+            </AnimatedLink>
             <Button style={{ fontSize: 16, padding: '3px 20px', lineHeight: '35px' }} as="a" href={LINKS.app}>
               Go to app
             </Button>
@@ -101,9 +107,6 @@ const Footer = () => {
             </AnimatedLink>
             <AnimatedLink as="a" href={LINKS.forum}>
               Forum
-            </AnimatedLink>
-            <AnimatedLink as="a" href={LINKS.stats} active={true}>
-              Stats
             </AnimatedLink>
           </Flex>
         </Flex>
