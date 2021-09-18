@@ -199,19 +199,18 @@ export const useAllTokensHoldersQuery = () => {
   const endpoint = `https://tracker.icon.foundation/v3/token/holders?contractAddr=`;
 
   const fetch = async () => {
+    const tokens = CURRENCY.filter(key => key !== 'ICX');
+
     const data: any[] = await Promise.all(
-      CURRENCY.filter(currencyKey => currencyKey !== 'ICX') //
-        .map(currencyKey =>
-          axios.get(`${endpoint}${currencyKeyToAddressMap[NetworkId.MAINNET][currencyKey]}`).then(res => res.data),
-        ),
+      tokens.map(currencyKey =>
+        axios.get(`${endpoint}${currencyKeyToAddressMap[NetworkId.MAINNET][currencyKey]}`).then(res => res.data),
+      ),
     );
 
     const t = {};
-    CURRENCY.filter(currencyKey => currencyKey !== 'ICX') //
-      .forEach((currencyKey, index) => {
-        t[currencyKey] = data[index].totalSize;
-      });
-
+    tokens.forEach((currencyKey, index) => {
+      t[currencyKey] = data[index].totalSize;
+    });
     return t;
   };
 
