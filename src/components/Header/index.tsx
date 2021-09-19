@@ -57,6 +57,9 @@ const Header = () => {
         <AnimatedLink as="a" href={LINKS.stats} active={true}>
           Stats
         </AnimatedLink>
+        <AnimatedLink as="a" href={LINKS.blog}>
+          Blog
+        </AnimatedLink>
         <Button
           style={{ marginLeft: 25, fontSize: 16, padding: '3px 20px', lineHeight: '35px' }}
           as="a"
