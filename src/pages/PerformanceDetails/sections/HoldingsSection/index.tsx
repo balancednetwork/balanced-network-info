@@ -7,7 +7,6 @@ import styled from 'styled-components';
 import CurrencyIcon from 'components/CurrencyIcon';
 import { BoxPanel } from 'components/Panel';
 import { Typography } from 'theme';
-import { getFormattedNumber } from 'utils/formatter';
 
 import { GridItemToken, GridItemAssetTotal, GridItemHeader, ScrollHelper } from '../../index';
 
@@ -24,18 +23,17 @@ const Change = styled.span<{ percentage: Number }>`
 `;
 
 const HoldingsSection = () => {
-  //new Date().valueOf() * 1_000
   const holdingsDataQuery = useHoldingsDataQuery();
   const { data: holdings } = holdingsDataQuery;
-
-  if (holdings) {
-    holdings.map(value => {
-      console.log('=========');
-      console.log('symbol: ', value.symbol);
-      console.log('tokens: ', value.tokens.integerValue().toNumber());
-      console.log('value: ', getFormattedNumber(value.value.integerValue().toNumber(), 'currency0'));
-    });
-  }
+  console.log(holdings);
+  // if (holdings) {
+  //   holdings.map(value => {
+  //     console.log('=========');
+  //     console.log('symbol: ', value.symbol);
+  //     console.log('tokens: ', value.tokens.integerValue().toNumber());
+  //     console.log('value: ', getFormattedNumber(value.value.integerValue().toNumber(), 'currency0'));
+  //   });
+  // }
 
   return (
     <BoxPanel bg="bg2" mb={10}>
