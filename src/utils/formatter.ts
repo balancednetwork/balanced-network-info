@@ -6,7 +6,7 @@ import { TimeSeries } from 'types/data';
 
 const DEFAULT_CURRENCY_DECIMALS = 2;
 
-type NumberStyle = 'percent0' | 'percent2' | 'number' | 'number4' | 'currency0' | 'currency2';
+export type NumberStyle = 'percent0' | 'percent2' | 'number' | 'number4' | 'currency0' | 'currency2';
 
 export const toBigNumber = (value: number | string): BigNumber => new BigNumber(value);
 

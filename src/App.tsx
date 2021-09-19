@@ -7,7 +7,7 @@ import { Switch, Route, BrowserRouter } from 'react-router-dom';
 
 import ThemeProvider, { FixedGlobalStyle, ThemedGlobalStyle } from 'theme';
 
-import { FinancialStatementsPage } from './pages/FinancialStatements/Loadable';
+import { PerformanceDetailsPage } from './pages/PerformanceDetails/Loadable';
 import { StatsPage } from './pages/StatsPage/Loadable';
 
 const queryClient = new QueryClient();
@@ -29,7 +29,7 @@ export function App() {
 
             <Switch>
               <Route exact path="/" component={StatsPage} />
-              <Route exact path="/financial-statements" component={FinancialStatementsPage} />
+              <Route exact path="/performance-details" component={PerformanceDetailsPage} />
               <Route
                 component={() => {
                   window.location.href = 'https://balanced.network/404';

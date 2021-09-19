@@ -4,7 +4,7 @@
 
 import { lazyLoad } from 'utils/loadable';
 
-export const FinancialStatementsPage = lazyLoad(
+export const PerformanceDetailsPage = lazyLoad(
   () => import('./index'),
-  module => module.FinancialStatements,
+  module => module.PerformanceDetails,
 );

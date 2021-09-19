@@ -4,6 +4,8 @@
   "private": true,
   "dependencies": {
     "@ledgerhq/hw-app-icx": "file:src/packages/hw-app-icx",
+    "@material-ui/core": "4.12.3",
+    "@material-ui/lab": "4.0.0-alpha.60",
     "@popperjs/core": "2.8.4",
     "@reach/dialog": "0.12.1",
     "@reach/portal": "0.12.1",
