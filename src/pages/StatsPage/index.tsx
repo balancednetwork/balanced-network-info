@@ -180,7 +180,7 @@ export function StatsPage() {
             <Typography variant="h2" mb={5} mr={3}>
               Governance
             </Typography>
-            <StyledLink to={LINKS.performanceDetails}>Performance Details</StyledLink>
+            <StyledLink to={LINKS.performanceDetails}>Performance details</StyledLink>
           </Flex>
 
           <Stats>

@@ -45,27 +45,24 @@ const StyledSkeleton = styled(Skeleton)`
 
 const EarningsSection = () => {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
-  const [timePeriod, setTimePeriod] = useState<TimePeriod>(earningPeriods.week);
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>(earningPeriods.day);
 
   const arrowRef = useRef(null);
 
   const formattedDates: FormattedPeriods = {
     current: {
-      dateStart: new Date(new Date().setDate(new Date().getDate() - timePeriod.days)).toLocaleDateString(
-        'en-US',
-        dateOptionShort,
-      ),
-      dateEnd: new Date().toLocaleDateString('en-US', dateOptionLong),
+      dateStart: new Date(new Date().setDate(new Date().getDate() - timePeriod.days))
+        .toLocaleDateString('en-US', dateOptionShort)
+        .replace(',', ''),
+      dateEnd: new Date().toLocaleDateString('en-US', dateOptionLong).replace(',', ''),
     },
     past: {
-      dateStart: new Date(new Date().setDate(new Date().getDate() - timePeriod.days * 2 - 1)).toLocaleDateString(
-        'en-US',
-        dateOptionShort,
-      ),
-      dateEnd: new Date(new Date().setDate(new Date().getDate() - timePeriod.days - 1)).toLocaleDateString(
-        'en-US',
-        dateOptionLong,
-      ),
+      dateStart: new Date(new Date().setDate(new Date().getDate() - timePeriod.days * 2 - 1))
+        .toLocaleDateString('en-US', dateOptionShort)
+        .replace(',', ''),
+      dateEnd: new Date(new Date().setDate(new Date().getDate() - timePeriod.days - 1))
+        .toLocaleDateString('en-US', dateOptionLong)
+        .replace(',', ''),
     },
   };
 
@@ -136,34 +133,30 @@ const EarningsSection = () => {
             {earningsCurrentPeriod ? (
               displayValueOrLoader(earningsCurrentPeriod?.income.loans_fees_USD)
             ) : (
-              <StyledSkeleton animation="wave" width={120} />
+              <StyledSkeleton animation="wave" width={100} />
             )}
           </GridItemStrong>
           <GridItemStrong>
             {earningsPastPeriod ? (
               displayValueOrLoader(earningsPastPeriod?.income.loans_fees_USD)
             ) : (
-              <StyledSkeleton animation="wave" width={120} />
+              <StyledSkeleton animation="wave" width={100} />
             )}
           </GridItemStrong>
 
           <GridItemLight>Balanced Dollars (bnUSD)</GridItemLight>
           <GridItemLight>
             {earningsCurrentPeriod ? (
-              `${displayValueOrLoader(earningsCurrentPeriod?.income.loans_fees, 'number')} (${displayValueOrLoader(
-                earningsCurrentPeriod?.income.loans_fees_USD,
-              )})`
+              `${displayValueOrLoader(earningsCurrentPeriod?.income.loans_fees, 'number')}`
             ) : (
-              <StyledSkeleton animation="wave" width={200} />
+              <StyledSkeleton animation="wave" width={100} />
             )}
           </GridItemLight>
           <GridItemLight>
             {earningsPastPeriod ? (
-              `${displayValueOrLoader(earningsPastPeriod?.income.loans_fees, 'number')} (${displayValueOrLoader(
-                earningsPastPeriod?.income.loans_fees_USD,
-              )})`
+              `${displayValueOrLoader(earningsPastPeriod?.income.loans_fees, 'number')}`
             ) : (
-              <StyledSkeleton animation="wave" width={200} />
+              <StyledSkeleton animation="wave" width={100} />
             )}
           </GridItemLight>
 

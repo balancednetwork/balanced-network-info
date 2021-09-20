@@ -55,7 +55,7 @@ export const useRatesLazyQuery = () => {
 
 const API_ENDPOINT = process.env.NODE_ENV === 'production' ? 'https://balanced.geometry.io/api/v1' : '/api/v1';
 
-const LAUNCH_DAY = 1619398800000000;
+export const LAUNCH_DAY = 1619398800000000;
 const ONE_DAY = 86400000000;
 
 const contractToSymbolMap = {

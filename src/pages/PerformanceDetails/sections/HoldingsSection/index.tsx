@@ -1,14 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-import { useHoldingsDataQuery } from 'queries';
+import { useHoldingsDataQuery, LAUNCH_DAY } from 'queries';
+import DatePicker from 'react-datepicker';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
 import CurrencyIcon from 'components/CurrencyIcon';
 import { BoxPanel } from 'components/Panel';
+import { DatePickerWrap } from 'pages/PerformanceDetails/utils';
 import { Typography } from 'theme';
 
 import { GridItemToken, GridItemAssetTotal, GridItemHeader, ScrollHelper } from '../../index';
+
+import 'react-datepicker/dist/react-datepicker.css';
 
 const BalanceGrid = styled.div`
   display: grid;
@@ -23,8 +27,10 @@ const Change = styled.span<{ percentage: Number }>`
 `;
 
 const HoldingsSection = () => {
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() - 1)));
   const holdingsDataQuery = useHoldingsDataQuery();
   const { data: holdings } = holdingsDataQuery;
+
   console.log(holdings);
   // if (holdings) {
   //   holdings.map(value => {
@@ -41,8 +47,39 @@ const HoldingsSection = () => {
       <ScrollHelper>
         <BalanceGrid>
           <GridItemHeader>Asset</GridItemHeader>
-          <GridItemHeader>4 MAY 2021</GridItemHeader>
-          <GridItemHeader>27 APRIL 2021</GridItemHeader>
+          <GridItemHeader>
+            {new Date().toLocaleDateString('en-US', {
+              day: '2-digit',
+            })}{' '}
+            {new Date().toLocaleDateString('en-US', {
+              month: 'short',
+              year: 'numeric',
+            })}
+          </GridItemHeader>
+          <GridItemHeader>
+            <DatePickerWrap>
+              <DatePicker
+                selected={selectedDate}
+                onChange={date => setSelectedDate(date)}
+                dateFormat="dd MMM yyyy"
+                popperClassName="datepicker-popper-wrap"
+                popperPlacement="bottom-end"
+                minDate={new Date(LAUNCH_DAY / 1000)}
+                maxDate={new Date().setDate(new Date().getDate() - 1)}
+                popperModifiers={[
+                  { name: 'offset', options: { offset: [20, -3] } },
+                  {
+                    name: 'preventOverflow',
+                    options: {
+                      rootBoundary: 'body',
+                      tether: false,
+                      altAxis: true,
+                    },
+                  },
+                ]}
+              />
+            </DatePickerWrap>
+          </GridItemHeader>
 
           <GridItemToken>
             <Flex alignItems="center">
