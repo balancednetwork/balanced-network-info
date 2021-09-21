@@ -14,6 +14,7 @@ import {
 } from 'constants/currency';
 import { ZERO } from 'constants/number';
 import QUERY_KEYS from 'constants/queryKeys';
+import { contractToInfoMap } from 'pages/PerformanceDetails/utils';
 
 export const useBnJsContractQuery = <T>(bnJs: BalancedJs, contract: string, method: string, args: any[]) => {
   return useQuery<T, string>(QUERY_KEYS.BnJs(contract, method, args), async () => {
@@ -37,32 +38,10 @@ export const useRatesQuery = () => {
   return useQuery<{ [key in string]: BigNumber }>('useRatesQuery', fetch);
 };
 
-export const useRatesLazyQuery = () => {
-  const fetch = async () => {
-    const { data } = await axios.get(`${API_ENDPOINT}/stats/token-stats`);
-
-    const rates: { [key in string]: BigNumber } = {};
-    const _tokens = data.tokens;
-    Object.keys(_tokens).forEach(tokenKey => {
-      rates[tokenKey] = BalancedJs.utils.toIcx(_tokens[tokenKey].price);
-    });
-
-    return rates;
-  };
-
-  return useQuery<{ [key in string]: BigNumber }>('useRatesQuery', fetch);
-};
-
 const API_ENDPOINT = process.env.NODE_ENV === 'production' ? 'https://balanced.geometry.io/api/v1' : '/api/v1';
 
 export const LAUNCH_DAY = 1619398800000000;
 const ONE_DAY = 86400000000;
-
-const contractToSymbolMap = {
-  cx88fd7df7ddff82f7cc735c871dc519838cb235bb: 'bnUSD',
-  cx2609b924e33ef00b648a409245c7ea394c467824: 'sICX',
-  cxf61cd5a45dc9f91c15aa65831a30a90d59a09619: 'BALN',
-};
 
 export const useCollateralChartDataQuery = (
   start: number = LAUNCH_DAY,
@@ -81,45 +60,32 @@ export const useCollateralChartDataQuery = (
   });
 };
 
-export const useHoldingsDataQuery = (timestamp: number = -1) => {
-  const ratesQuery = useRatesQuery();
-  const { data: rates } = ratesQuery;
-
-  return useQuery('balance-sheet-data', async () => {
-    const { data } = await axios.get(`${API_ENDPOINT}/stats/daofund-balance-sheet?timestamp=${timestamp}`);
-
-    const mappedData = Object.keys(data).map(contract => {
-      const tokenCount = BalancedJs.utils.toIcx(data[contract], contractToSymbolMap[contract]);
-      return {
-        symbol: contractToSymbolMap[contract],
-        tokens: tokenCount,
-        value: tokenCount.times((rates && rates[contractToSymbolMap[contract]]) || 0),
-      };
-    });
-
-    return mappedData;
-  });
-};
-
 export const useEarningsDataQuery = (
   start: number = LAUNCH_DAY,
   end: number = new Date().valueOf() * 1_000,
   cacheItem: string = 'earnings-data',
 ) => {
-  const ratesQuery = useRatesQuery();
-  const { data: rates } = ratesQuery;
-
   return useQuery(cacheItem, async () => {
     const { data } = await axios.get(
       `${API_ENDPOINT}/stats/income-statement?start_timestamp=${start}&end_timestamp=${end}`,
     );
-
     const tokenCount = BalancedJs.utils.toIcx(data.income.loans_fees, 'bnUSD');
-
     data.income.loans_fees = tokenCount;
-    data.income.loans_fees_USD = tokenCount.times((rates && rates['bnUSD']) || 0);
-
     return data;
+  });
+};
+
+export const useHoldingsDataQuery = (timestamp: number = -1, cacheItem: string = 'holdings-data') => {
+  return useQuery(cacheItem, async () => {
+    const { data } = await axios.get(`${API_ENDPOINT}/stats/daofund-balance-sheet?timestamp=${timestamp}`);
+    const mappedData = Object.keys(data).map(contract => {
+      const tokenCount = BalancedJs.utils.toIcx(data[contract], contractToInfoMap[contract]);
+      return {
+        info: contractToInfoMap[contract],
+        tokens: tokenCount,
+      };
+    });
+    return mappedData;
   });
 };
 

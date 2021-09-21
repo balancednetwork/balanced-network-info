@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 
-import { useHoldingsDataQuery, LAUNCH_DAY } from 'queries';
+import { useHoldingsDataQuery, useRatesQuery, LAUNCH_DAY } from 'queries';
 import DatePicker from 'react-datepicker';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
 import CurrencyIcon from 'components/CurrencyIcon';
 import { BoxPanel } from 'components/Panel';
-import { DatePickerWrap } from 'pages/PerformanceDetails/utils';
+import { DatePickerWrap, displayValueOrLoader, getTotalHoldings } from 'pages/PerformanceDetails/utils';
 import { Typography } from 'theme';
 
 import { GridItemToken, GridItemAssetTotal, GridItemHeader, ScrollHelper } from '../../index';
+import { StyledSkeleton } from '../EarningSection';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -28,18 +29,17 @@ const Change = styled.span<{ percentage: Number }>`
 
 const HoldingsSection = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() - 1)));
-  const holdingsDataQuery = useHoldingsDataQuery();
-  const { data: holdings } = holdingsDataQuery;
 
-  console.log(holdings);
-  // if (holdings) {
-  //   holdings.map(value => {
-  //     console.log('=========');
-  //     console.log('symbol: ', value.symbol);
-  //     console.log('tokens: ', value.tokens.integerValue().toNumber());
-  //     console.log('value: ', getFormattedNumber(value.value.integerValue().toNumber(), 'currency0'));
-  //   });
-  // }
+  const holdingsDataQueryCurrent = useHoldingsDataQuery();
+  const holdingsDataQueryPast = useHoldingsDataQuery(
+    selectedDate.valueOf() * 1000,
+    `holdings-data-${selectedDate.valueOf()}`,
+  );
+  const { data: holdingsCurrent } = holdingsDataQueryCurrent;
+  const { data: holdingsPast } = holdingsDataQueryPast;
+
+  const ratesQuery = useRatesQuery();
+  const { data: rates } = ratesQuery;
 
   return (
     <BoxPanel bg="bg2" mb={10}>
@@ -80,88 +80,66 @@ const HoldingsSection = () => {
               />
             </DatePickerWrap>
           </GridItemHeader>
+        </BalanceGrid>
 
-          <GridItemToken>
-            <Flex alignItems="center">
-              <CurrencyIcon currencyKey={'BALN'} width={40} height={40} />
-              <Box ml={2}>
-                <Text color="text">Balance Tokens</Text>
-                <Text color="text" opacity={0.75}>
-                  BALN
-                </Text>
-              </Box>
-            </Flex>
-          </GridItemToken>
-          <GridItemToken>
-            <Text color="text">
-              $300,000 <Change percentage={2}>(+2%)</Change>
-            </Text>
-            <Text color="text" opacity={0.75}>
-              300,000 BALN
-            </Text>
-          </GridItemToken>
-          <GridItemToken>
-            <Text color="text">$250,000</Text>
-            <Text color="text" opacity={0.75}>
-              250,000 BALN
-            </Text>
-          </GridItemToken>
+        {holdingsCurrent &&
+          Object.keys(holdingsCurrent).map(contract => {
+            const contractInfo = holdingsCurrent[contract].info;
+            const contractTokensCount = holdingsCurrent[contract].tokens.integerValue().toNumber();
+            const contractTokensCountPast = holdingsPast && holdingsPast[contract]?.tokens.integerValue().toNumber();
 
-          <GridItemToken>
-            <Flex alignItems="center">
-              <CurrencyIcon currencyKey={'bnUSD'} width={40} height={40} />
-              <Box ml={2}>
-                <Text color="text">Balanced Dollars</Text>
-                <Text color="text" opacity={0.75}>
-                  bnUSD
-                </Text>
-              </Box>
-            </Flex>
-          </GridItemToken>
-          <GridItemToken>
-            <Text color="text">
-              $250,000 <Change percentage={2}>(+12%)</Change>
-            </Text>
-            <Text color="text" opacity={0.75}>
-              250,000 bnUSD
-            </Text>
-          </GridItemToken>
-          <GridItemToken>
-            <Text color="text">$1,000,000</Text>
-            <Text color="text" opacity={0.75}>
-              1,000,000 bnUSD
-            </Text>
-          </GridItemToken>
+            return (
+              <BalanceGrid key={contract}>
+                <GridItemToken>
+                  <Flex alignItems="center">
+                    <CurrencyIcon currencyKey={contractInfo.symbol} width={40} height={40} />
+                    <Box ml={2}>
+                      <Text color="text">{contractInfo.displayName}</Text>
+                      <Text color="text" opacity={0.75}>
+                        {contractInfo.symbol}
+                      </Text>
+                    </Box>
+                  </Flex>
+                </GridItemToken>
+                <GridItemToken>
+                  <Text color="text">
+                    {displayValueOrLoader(contractTokensCount, rates && rates[contractInfo.symbol].toNumber())}
+                    <Change percentage={2}>(**+2%)</Change>
+                  </Text>
+                  <Text color="text" opacity={0.75}>
+                    {displayValueOrLoader(contractTokensCount, 1, 'number')}
+                    {` ${contractInfo.symbol}`}
+                  </Text>
+                </GridItemToken>
+                <GridItemToken>
+                  <Text color="text">
+                    {holdingsPast ? (
+                      holdingsPast[contract] ? (
+                        displayValueOrLoader(contractTokensCountPast, rates && rates[contractInfo.symbol].toNumber())
+                      ) : (
+                        '-'
+                      )
+                    ) : (
+                      <StyledSkeleton width={120} />
+                    )}
+                  </Text>
+                  <Text color="text" opacity={0.75}>
+                    {holdingsPast ? (
+                      holdingsPast[contract] &&
+                      displayValueOrLoader(contractTokensCountPast, 1, 'number') + ' ' + contractInfo.symbol
+                    ) : (
+                      <StyledSkeleton width={120} />
+                    )}
+                  </Text>
+                </GridItemToken>
+              </BalanceGrid>
+            );
+          })}
 
-          <GridItemToken>
-            <Flex alignItems="center">
-              <CurrencyIcon currencyKey={'sICX'} width={40} height={40} />
-              <Box ml={2}>
-                <Text color="text">Staked ICX</Text>
-                <Text color="text" opacity={0.75}>
-                  sICX
-                </Text>
-              </Box>
-            </Flex>
-          </GridItemToken>
-          <GridItemToken>
-            <Text color="text">
-              $200,000 <Change percentage={2}>(+5%)</Change>
-            </Text>
-            <Text color="text" opacity={0.75}>
-              200,000 sICX
-            </Text>
-          </GridItemToken>
-          <GridItemToken>
-            <Text color="text">$500,000</Text>
-            <Text color="text" opacity={0.75}>
-              500,000 sICX
-            </Text>
-          </GridItemToken>
-
+        <BalanceGrid>
           <GridItemAssetTotal>Total</GridItemAssetTotal>
-          <GridItemAssetTotal>$800,000.00 </GridItemAssetTotal>
-          <GridItemAssetTotal>$650,000.00</GridItemAssetTotal>
+          <GridItemAssetTotal>{getTotalHoldings(holdingsCurrent)}</GridItemAssetTotal>
+          <GridItemAssetTotal>{getTotalHoldings(holdingsCurrent)}</GridItemAssetTotal>
         </BalanceGrid>
       </ScrollHelper>
     </BoxPanel>

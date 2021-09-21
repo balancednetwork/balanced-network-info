@@ -27,6 +27,33 @@ export interface FormattedPeriods {
   };
 }
 
+export const contractToInfoMap = {
+  cx88fd7df7ddff82f7cc735c871dc519838cb235bb: {
+    symbol: 'bnUSD',
+    displayName: 'Balanced Dollar',
+  },
+  cx2609b924e33ef00b648a409245c7ea394c467824: {
+    symbol: 'sICX',
+    displayName: 'Staked ICX',
+  },
+  cxf61cd5a45dc9f91c15aa65831a30a90d59a09619: {
+    symbol: 'BALN',
+    displayName: 'Balance Token',
+  },
+  cx1a29259a59f463a67bb2ef84398b30ca56b5830a: {
+    symbol: 'OMM',
+    displayName: 'Omm Token',
+  },
+  cxae3034235540b924dfcc1b45836c293dcc82bfb7: {
+    symbol: 'IUSDC',
+    displayName: 'ICON USD Coin',
+  },
+  cxbb2871f468a3008f80b08fdde5b8b951583acf06: {
+    symbol: 'USDS',
+    displayName: 'Stably USD',
+  },
+};
+
 export const dateOptionShort: DateOptions = {
   month: 'short',
   day: '2-digit',
@@ -99,11 +126,15 @@ export const getTimestampFrom = (from: number = 0): number => {
   return date.setDate(date.getDate() - from) * 1_000;
 };
 
-export const displayValueOrLoader = (value: number | BigNumber | undefined, format: NumberStyle = 'currency2') => {
-  if (value !== undefined) {
+export const displayValueOrLoader = (
+  value: number | BigNumber | undefined,
+  currencyRate,
+  format: NumberStyle = 'currency2',
+) => {
+  if (value !== undefined && typeof currencyRate === 'number') {
     return typeof value === 'number'
-      ? getFormattedNumber(value, 'currency0')
-      : getFormattedNumber(value.integerValue().toNumber(), format);
+      ? getFormattedNumber(value * currencyRate, format)
+      : getFormattedNumber(value.integerValue().toNumber() * currencyRate, format);
   } else {
     return (
       <Loader>
@@ -221,3 +252,7 @@ export const DatePickerWrap = styled.div`
     }
   }
 `;
+
+export const getTotalHoldings = holdings => {
+  return '**$800,000,000';
+};

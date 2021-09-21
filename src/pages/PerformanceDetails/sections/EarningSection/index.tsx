@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 
 import Skeleton from '@material-ui/lab/Skeleton';
-import { useEarningsDataQuery } from 'queries';
+import { useEarningsDataQuery, useRatesQuery } from 'queries';
 import ClickAwayListener from 'react-click-away-listener';
 import { Flex, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
@@ -37,7 +37,7 @@ const IncomeGrid = styled.div`
   min-width: 700px;
 `;
 
-const StyledSkeleton = styled(Skeleton)`
+export const StyledSkeleton = styled(Skeleton)`
   background-color: rgba(44, 169, 183, 0.2) !important;
   height: 32px;
   margin-left: auto;
@@ -48,6 +48,9 @@ const EarningsSection = () => {
   const [timePeriod, setTimePeriod] = useState<TimePeriod>(earningPeriods.day);
 
   const arrowRef = useRef(null);
+
+  const ratesQuery = useRatesQuery();
+  const { data: rates } = ratesQuery;
 
   const formattedDates: FormattedPeriods = {
     current: {
@@ -131,14 +134,14 @@ const EarningsSection = () => {
           <GridItemStrong>Loan fees</GridItemStrong>
           <GridItemStrong>
             {earningsCurrentPeriod ? (
-              displayValueOrLoader(earningsCurrentPeriod?.income.loans_fees_USD)
+              displayValueOrLoader(earningsCurrentPeriod?.income.loans_fees, rates && rates['bnUSD'].toNumber())
             ) : (
               <StyledSkeleton animation="wave" width={100} />
             )}
           </GridItemStrong>
           <GridItemStrong>
             {earningsPastPeriod ? (
-              displayValueOrLoader(earningsPastPeriod?.income.loans_fees_USD)
+              displayValueOrLoader(earningsPastPeriod?.income.loans_fees, rates && rates['bnUSD'].toNumber())
             ) : (
               <StyledSkeleton animation="wave" width={100} />
             )}
@@ -147,14 +150,14 @@ const EarningsSection = () => {
           <GridItemLight>Balanced Dollars (bnUSD)</GridItemLight>
           <GridItemLight>
             {earningsCurrentPeriod ? (
-              `${displayValueOrLoader(earningsCurrentPeriod?.income.loans_fees, 'number')}`
+              `${displayValueOrLoader(earningsCurrentPeriod?.income.loans_fees, 1, 'number')}`
             ) : (
               <StyledSkeleton animation="wave" width={100} />
             )}
           </GridItemLight>
           <GridItemLight>
             {earningsPastPeriod ? (
-              `${displayValueOrLoader(earningsPastPeriod?.income.loans_fees, 'number')}`
+              `${displayValueOrLoader(earningsPastPeriod?.income.loans_fees, 1, 'number')}`
             ) : (
               <StyledSkeleton animation="wave" width={100} />
             )}
@@ -177,8 +180,12 @@ const EarningsSection = () => {
           <GridItemLight>**50,000</GridItemLight>
 
           <GridItemSubtotal>Subtotal</GridItemSubtotal>
-          <GridItemSubtotal>{displayValueOrLoader(earningsCurrentPeriod?.income.loans_fees_USD)}</GridItemSubtotal>
-          <GridItemSubtotal>{displayValueOrLoader(earningsPastPeriod?.income.loans_fees_USD)}</GridItemSubtotal>
+          <GridItemSubtotal>
+            {displayValueOrLoader(earningsCurrentPeriod?.income.loans_fees, rates && rates['bnUSD'].toNumber())}
+          </GridItemSubtotal>
+          <GridItemSubtotal>
+            {displayValueOrLoader(earningsPastPeriod?.income.loans_fees, rates && rates['bnUSD'].toNumber())}
+          </GridItemSubtotal>
 
           <GridItemHeader>Expenses</GridItemHeader>
           <GridItemHeader></GridItemHeader>
@@ -201,8 +208,12 @@ const EarningsSection = () => {
           <GridItemLight>**240,000</GridItemLight>
 
           <GridItemTotal>Total</GridItemTotal>
-          <GridItemTotal>{displayValueOrLoader(earningsCurrentPeriod?.income.loans_fees_USD)}</GridItemTotal>
-          <GridItemTotal>{displayValueOrLoader(earningsPastPeriod?.income.loans_fees_USD)}</GridItemTotal>
+          <GridItemTotal>
+            {displayValueOrLoader(earningsCurrentPeriod?.income.loans_fees, rates && rates['bnUSD'].toNumber())}
+          </GridItemTotal>
+          <GridItemTotal>
+            {displayValueOrLoader(earningsPastPeriod?.income.loans_fees, rates && rates['bnUSD'].toNumber())}
+          </GridItemTotal>
         </IncomeGrid>
       </ScrollHelper>
     </BoxPanel>
