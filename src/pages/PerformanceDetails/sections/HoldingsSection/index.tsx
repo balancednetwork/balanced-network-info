@@ -7,7 +7,12 @@ import styled from 'styled-components';
 
 import CurrencyIcon from 'components/CurrencyIcon';
 import { BoxPanel } from 'components/Panel';
-import { DatePickerWrap, displayValueOrLoader, getTotalHoldings } from 'pages/PerformanceDetails/utils';
+import {
+  DatePickerWrap,
+  displayValueOrLoader,
+  getTotalHoldings,
+  formatPercantage,
+} from 'pages/PerformanceDetails/utils';
 import { Typography } from 'theme';
 
 import { GridItemToken, GridItemAssetTotal, GridItemHeader, ScrollHelper } from '../../index';
@@ -40,6 +45,9 @@ const HoldingsSection = () => {
 
   const ratesQuery = useRatesQuery();
   const { data: rates } = ratesQuery;
+
+  let totalCurrent = 0;
+  let totalPast = 0;
 
   return (
     <BoxPanel bg="bg2" mb={10}>
@@ -87,59 +95,71 @@ const HoldingsSection = () => {
             const contractInfo = holdingsCurrent[contract].info;
             const contractTokensCount = holdingsCurrent[contract].tokens.integerValue().toNumber();
             const contractTokensCountPast = holdingsPast && holdingsPast[contract]?.tokens.integerValue().toNumber();
+            const percentageChange = 100 - (contractTokensCountPast * 100) / contractTokensCount;
+
+            if (rates && contractTokensCount) {
+              totalCurrent += contractTokensCount * rates[contractInfo.symbol].toNumber();
+            }
+            if (rates && contractTokensCountPast) {
+              totalPast += contractTokensCountPast * rates[contractInfo.symbol].toNumber();
+            }
 
             return (
-              <BalanceGrid key={contract}>
-                <GridItemToken>
-                  <Flex alignItems="center">
-                    <CurrencyIcon currencyKey={contractInfo.symbol} width={40} height={40} />
-                    <Box ml={2}>
-                      <Text color="text">{contractInfo.displayName}</Text>
-                      <Text color="text" opacity={0.75}>
-                        {contractInfo.symbol}
-                      </Text>
-                    </Box>
-                  </Flex>
-                </GridItemToken>
-                <GridItemToken>
-                  <Text color="text">
-                    {displayValueOrLoader(contractTokensCount, rates && rates[contractInfo.symbol].toNumber())}
-                    <Change percentage={2}>(**+2%)</Change>
-                  </Text>
-                  <Text color="text" opacity={0.75}>
-                    {displayValueOrLoader(contractTokensCount, 1, 'number')}
-                    {` ${contractInfo.symbol}`}
-                  </Text>
-                </GridItemToken>
-                <GridItemToken>
-                  <Text color="text">
-                    {holdingsPast ? (
-                      holdingsPast[contract] ? (
-                        displayValueOrLoader(contractTokensCountPast, rates && rates[contractInfo.symbol].toNumber())
+              contractTokensCount > 0 && (
+                <BalanceGrid key={contract}>
+                  <GridItemToken>
+                    <Flex alignItems="center">
+                      <CurrencyIcon currencyKey={contractInfo.symbol} width={40} height={40} />
+                      <Box ml={2}>
+                        <Text color="text">{contractInfo.displayName}</Text>
+                        <Text color="text" opacity={0.75}>
+                          {contractInfo.symbol}
+                        </Text>
+                      </Box>
+                    </Flex>
+                  </GridItemToken>
+                  <GridItemToken>
+                    <Text color="text">
+                      {displayValueOrLoader(contractTokensCount, rates && rates[contractInfo.symbol].toNumber())}
+                      <Change percentage={percentageChange}>{formatPercantage(percentageChange)}</Change>
+                    </Text>
+                    <Text color="text" opacity={0.75}>
+                      {displayValueOrLoader(contractTokensCount, 1, 'number')}
+                      {` ${contractInfo.symbol}`}
+                    </Text>
+                  </GridItemToken>
+                  <GridItemToken>
+                    <Text color="text">
+                      {holdingsPast ? (
+                        holdingsPast[contract] ? (
+                          displayValueOrLoader(contractTokensCountPast, rates && rates[contractInfo.symbol].toNumber())
+                        ) : (
+                          '-'
+                        )
                       ) : (
-                        '-'
-                      )
-                    ) : (
-                      <StyledSkeleton width={120} />
-                    )}
-                  </Text>
-                  <Text color="text" opacity={0.75}>
-                    {holdingsPast ? (
-                      holdingsPast[contract] &&
-                      displayValueOrLoader(contractTokensCountPast, 1, 'number') + ' ' + contractInfo.symbol
-                    ) : (
-                      <StyledSkeleton width={120} />
-                    )}
-                  </Text>
-                </GridItemToken>
-              </BalanceGrid>
+                        <StyledSkeleton width={120} />
+                      )}
+                    </Text>
+                    <Text color="text" opacity={0.75}>
+                      {holdingsPast ? (
+                        holdingsPast[contract] &&
+                        displayValueOrLoader(contractTokensCountPast, 1, 'number') + ' ' + contractInfo.symbol
+                      ) : (
+                        <StyledSkeleton width={120} />
+                      )}
+                    </Text>
+                  </GridItemToken>
+                </BalanceGrid>
+              )
             );
           })}
 
         <BalanceGrid>
           <GridItemAssetTotal>Total</GridItemAssetTotal>
-          <GridItemAssetTotal>{getTotalHoldings(holdingsCurrent)}</GridItemAssetTotal>
-          <GridItemAssetTotal>{getTotalHoldings(holdingsCurrent)}</GridItemAssetTotal>
+          <GridItemAssetTotal>
+            {displayValueOrLoader(totalCurrent === 0 ? undefined : totalCurrent, 1)}
+          </GridItemAssetTotal>
+          <GridItemAssetTotal>{displayValueOrLoader(totalPast === 0 ? undefined : totalPast, 1)}</GridItemAssetTotal>
         </BalanceGrid>
       </ScrollHelper>
     </BoxPanel>

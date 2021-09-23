@@ -129,7 +129,7 @@ export const getTimestampFrom = (from: number = 0): number => {
 export const displayValueOrLoader = (
   value: number | BigNumber | undefined,
   currencyRate,
-  format: NumberStyle = 'currency2',
+  format: NumberStyle = 'currency0',
 ) => {
   if (value !== undefined && typeof currencyRate === 'number') {
     return typeof value === 'number'
@@ -252,6 +252,15 @@ export const DatePickerWrap = styled.div`
     }
   }
 `;
+
+export const formatPercantage = percentage => {
+  if (typeof percentage === 'number' && !isNaN(percentage) && percentage !== 0) {
+    const plusMinus = percentage > 0 ? '+' : percentage < 0 ? '-' : '';
+    return ` (${plusMinus}${displayValueOrLoader(percentage / 100, 1, 'percent2')})`;
+  } else {
+    return null;
+  }
+};
 
 export const getTotalHoldings = holdings => {
   return '**$800,000,000';
