@@ -261,7 +261,3 @@ export const formatPercantage = percentage => {
     return null;
   }
 };
-
-export const getTotalHoldings = holdings => {
-  return '**$800,000,000';
-};

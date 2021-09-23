@@ -7,12 +7,7 @@ import styled from 'styled-components';
 
 import CurrencyIcon from 'components/CurrencyIcon';
 import { BoxPanel } from 'components/Panel';
-import {
-  DatePickerWrap,
-  displayValueOrLoader,
-  getTotalHoldings,
-  formatPercantage,
-} from 'pages/PerformanceDetails/utils';
+import { DatePickerWrap, displayValueOrLoader, formatPercantage } from 'pages/PerformanceDetails/utils';
 import { Typography } from 'theme';
 
 import { GridItemToken, GridItemAssetTotal, GridItemHeader, ScrollHelper } from '../../index';
