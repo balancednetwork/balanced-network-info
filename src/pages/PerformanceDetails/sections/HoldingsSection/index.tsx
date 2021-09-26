@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { useHoldingsDataQuery, useRatesQuery, LAUNCH_DAY } from 'queries';
+import { useHoldingsDataQuery, useRatesQuery, LAUNCH_DAY, ONE_DAY } from 'queries';
 import DatePicker from 'react-datepicker';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
@@ -67,7 +67,7 @@ const HoldingsSection = () => {
                 dateFormat="dd MMM yyyy"
                 popperClassName="datepicker-popper-wrap"
                 popperPlacement="bottom-end"
-                minDate={new Date(LAUNCH_DAY / 1000)}
+                minDate={new Date((LAUNCH_DAY + ONE_DAY) / 1000)}
                 maxDate={new Date().setDate(new Date().getDate() - 1)}
                 popperModifiers={[
                   { name: 'offset', options: { offset: [20, -3] } },

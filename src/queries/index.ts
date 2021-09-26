@@ -41,7 +41,7 @@ export const useRatesQuery = () => {
 const API_ENDPOINT = process.env.NODE_ENV === 'production' ? 'https://balanced.geometry.io/api/v1' : '/api/v1';
 
 export const LAUNCH_DAY = 1619398800000000;
-const ONE_DAY = 86400000000;
+export const ONE_DAY = 86400000000;
 
 export const useCollateralChartDataQuery = (
   start: number = LAUNCH_DAY,
@@ -79,7 +79,7 @@ export const useHoldingsDataQuery = (timestamp: number = -1, cacheItem: string =
   return useQuery(cacheItem, async () => {
     const { data } = await axios.get(`${API_ENDPOINT}/stats/daofund-balance-sheet?timestamp=${timestamp}`);
     const mappedData = Object.keys(data).map(contract => {
-      const tokenCount = BalancedJs.utils.toIcx(data[contract], contractToInfoMap[contract]);
+      const tokenCount = BalancedJs.utils.toIcx(data[contract], contractToInfoMap[contract].symbol);
       return {
         info: contractToInfoMap[contract],
         tokens: tokenCount,
