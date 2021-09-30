@@ -69,8 +69,29 @@ export const useEarningsDataQuery = (
     const { data } = await axios.get(
       `${API_ENDPOINT}/stats/income-statement?start_timestamp=${start}&end_timestamp=${end}`,
     );
-    const tokenCount = BalancedJs.utils.toIcx(data.income.loans_fees, 'bnUSD');
-    data.income.loans_fees = tokenCount;
+    const loanIncometokenCount = BalancedJs.utils.toIcx(data.income.loans_fees, 'bnUSD');
+    data.income.loans_fees = loanIncometokenCount;
+
+    data.income.swap_fees = Object.keys(data.income.swap_fees).map(contract => {
+      const contractInfo = contractToInfoMap[contract];
+      const contractFeeTokenCount = BalancedJs.utils.toIcx(data.income.swap_fees[contract], contractInfo.symbol);
+
+      return {
+        info: contractToInfoMap[contract],
+        tokens: contractFeeTokenCount,
+      };
+    });
+
+    data.expenses = Object.keys(data.expenses).map(contract => {
+      const contractInfo = contractToInfoMap[contract];
+      const contractExpenseTokenCount = BalancedJs.utils.toIcx(data.expenses[contract], contractInfo.symbol);
+
+      return {
+        info: contractToInfoMap[contract],
+        tokens: contractExpenseTokenCount,
+      };
+    });
+
     return data;
   });
 };

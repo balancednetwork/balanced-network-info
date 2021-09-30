@@ -5,6 +5,9 @@ import styled from 'styled-components';
 
 import { getFormattedNumber, NumberStyle } from 'utils/formatter';
 
+import { GridItemLight } from '../index';
+import { IncomeGrid, StyledSkeleton } from '../sections/EarningSection';
+
 export interface TimePeriod {
   displayText: string;
   days: number;
@@ -146,6 +149,32 @@ export const displayValueOrLoader = (
   }
 };
 
+export const displayValueOrLoaderDebug = (
+  value: number | BigNumber | undefined,
+  currencyRate,
+  format: NumberStyle = 'currency0',
+) => {
+  console.log(value, currencyRate, format);
+
+  if (value !== undefined && typeof currencyRate === 'number') {
+    return typeof value === 'number'
+      ? getFormattedNumber(value * currencyRate, format)
+      : getFormattedNumber(value.integerValue().toNumber() * currencyRate, format);
+  } else {
+    return <LoaderComponent />;
+  }
+};
+
+export const LoaderComponent = () => {
+  return (
+    <Loader>
+      <span></span>
+      <span></span>
+      <span></span>
+    </Loader>
+  );
+};
+
 export const DatePickerWrap = styled.div`
   display: inline-flex;
   margin-left: auto;
@@ -255,9 +284,70 @@ export const DatePickerWrap = styled.div`
 
 export const formatPercantage = percentage => {
   if (typeof percentage === 'number' && !isNaN(percentage) && percentage !== 0) {
-    const plusMinus = percentage > 0 ? '+' : percentage < 0 ? '-' : '';
+    const plusMinus = percentage > 0 ? '+' : '';
     return ` (${plusMinus}${displayValueOrLoader(percentage / 100, 1, 'percent2')})`;
   } else {
     return null;
   }
+};
+
+export const SkeletonPlaceholder = () => {
+  return (
+    <IncomeGrid>
+      <GridItemLight>
+        <StyledSkeleton animation="wave" />
+      </GridItemLight>
+      <GridItemLight>
+        <StyledSkeleton animation="wave" width={100} />
+      </GridItemLight>
+      <GridItemLight>
+        <StyledSkeleton animation="wave" width={100} />
+      </GridItemLight>
+      <GridItemLight>
+        <StyledSkeleton animation="wave" />
+      </GridItemLight>
+      <GridItemLight>
+        <StyledSkeleton animation="wave" width={100} />
+      </GridItemLight>
+      <GridItemLight>
+        <StyledSkeleton animation="wave" width={100} />
+      </GridItemLight>
+      <GridItemLight>
+        <StyledSkeleton animation="wave" />
+      </GridItemLight>
+      <GridItemLight>
+        <StyledSkeleton animation="wave" width={100} />
+      </GridItemLight>
+      <GridItemLight>
+        <StyledSkeleton animation="wave" width={100} />
+      </GridItemLight>
+      <GridItemLight>
+        <StyledSkeleton animation="wave" />
+      </GridItemLight>
+      <GridItemLight>
+        <StyledSkeleton animation="wave" width={100} />
+      </GridItemLight>
+      <GridItemLight>
+        <StyledSkeleton animation="wave" width={100} />
+      </GridItemLight>
+      <GridItemLight>
+        <StyledSkeleton animation="wave" />
+      </GridItemLight>
+      <GridItemLight>
+        <StyledSkeleton animation="wave" width={100} />
+      </GridItemLight>
+      <GridItemLight>
+        <StyledSkeleton animation="wave" width={100} />
+      </GridItemLight>
+      <GridItemLight>
+        <StyledSkeleton animation="wave" />
+      </GridItemLight>
+      <GridItemLight>
+        <StyledSkeleton animation="wave" width={100} />
+      </GridItemLight>
+      <GridItemLight>
+        <StyledSkeleton animation="wave" width={100} />
+      </GridItemLight>
+    </IncomeGrid>
+  );
 };

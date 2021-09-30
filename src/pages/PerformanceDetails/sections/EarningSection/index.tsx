@@ -18,6 +18,8 @@ import {
   dateOptionShort,
   dateOptionLong,
   FormattedPeriods,
+  SkeletonPlaceholder,
+  LoaderComponent,
 } from 'pages/PerformanceDetails/utils';
 import { Typography } from 'theme';
 
@@ -30,7 +32,7 @@ import {
   GridItemSubtotal,
 } from '../../index';
 
-const IncomeGrid = styled.div`
+export const IncomeGrid = styled.div`
   display: grid;
   grid-template-columns: 4fr 3fr 3fr;
   align-items: stretch;
@@ -94,6 +96,42 @@ const EarningsSection = () => {
     setTimePeriod(earningPeriods[period]);
   };
 
+  let swapFeesTotalCurrent = 0;
+  let swapFeesTotalPast = 0;
+
+  earningsCurrentPeriod?.income?.swap_fees.map(swapFee => {
+    const correspondingPastSwapFee = earningsPastPeriod?.income.swap_fees.filter(
+      pastSwapFee => pastSwapFee.info.symbol === swapFee.info.symbol,
+    )[0];
+
+    if (rates) {
+      swapFeesTotalCurrent += swapFee.tokens * rates[swapFee.info.symbol].toNumber();
+    }
+    if (rates && correspondingPastSwapFee) {
+      swapFeesTotalPast += correspondingPastSwapFee.tokens * rates[swapFee.info.symbol].toNumber();
+    }
+
+    return true;
+  });
+
+  let expensesTotalCurrent = 0;
+  let expensesTotalPast = 0;
+
+  earningsCurrentPeriod?.expenses.map(expense => {
+    const correspondingPastExpense = earningsPastPeriod?.income.swap_fees.filter(
+      pastExpense => pastExpense.info.symbol === expense.info.symbol,
+    )[0];
+
+    if (rates) {
+      expensesTotalCurrent += expense.tokens * rates[expense.info.symbol].toNumber();
+    }
+    if (rates && correspondingPastExpense) {
+      expensesTotalPast += correspondingPastExpense.tokens * rates[expense.info.symbol].toNumber();
+    }
+
+    return true;
+  });
+
   return (
     <BoxPanel bg="bg2" mt={10} mb={10}>
       <Flex alignItems={'center'} justifyContent={'space-between'}>
@@ -130,7 +168,9 @@ const EarningsSection = () => {
           <GridItemHeader>
             {formattedDates.past.dateStart} - {formattedDates.past.dateEnd}
           </GridItemHeader>
+        </IncomeGrid>
 
+        <IncomeGrid>
           <GridItemStrong>Loan fees</GridItemStrong>
           <GridItemStrong>
             {earningsCurrentPeriod ? (
@@ -146,7 +186,9 @@ const EarningsSection = () => {
               <StyledSkeleton animation="wave" width={100} />
             )}
           </GridItemStrong>
+        </IncomeGrid>
 
+        <IncomeGrid>
           <GridItemLight>Balanced Dollars (bnUSD)</GridItemLight>
           <GridItemLight>
             {earningsCurrentPeriod ? (
@@ -162,57 +204,133 @@ const EarningsSection = () => {
               <StyledSkeleton animation="wave" width={100} />
             )}
           </GridItemLight>
+        </IncomeGrid>
 
+        <IncomeGrid>
           <GridItemStrong>Swap fees</GridItemStrong>
-          <GridItemStrong>**$200,000.00</GridItemStrong>
-          <GridItemStrong>**$500,000.00</GridItemStrong>
+          <GridItemStrong>
+            {displayValueOrLoader(swapFeesTotalCurrent === 0 ? undefined : swapFeesTotalCurrent, 1)}
+          </GridItemStrong>
+          <GridItemStrong>
+            {displayValueOrLoader(swapFeesTotalPast === 0 ? undefined : swapFeesTotalPast, 1)}
+          </GridItemStrong>
+        </IncomeGrid>
 
-          <GridItemLight>Balance Tokens (BALN)</GridItemLight>
-          <GridItemLight>**75,000</GridItemLight>
-          <GridItemLight>**90,000</GridItemLight>
+        {earningsCurrentPeriod ? (
+          earningsCurrentPeriod.income?.swap_fees.map(swapFee => {
+            const correspondingPastSwapFee = earningsPastPeriod?.income.swap_fees.filter(
+              pastSwapFee => pastSwapFee.info.symbol === swapFee.info.symbol,
+            )[0];
 
-          <GridItemLight>Balanced Dollars (bnUSD)</GridItemLight>
-          <GridItemLight>**50,000</GridItemLight>
-          <GridItemLight>**200,000</GridItemLight>
+            return (
+              <IncomeGrid key={swapFee.info.symbol}>
+                <GridItemLight>{`${swapFee.info.displayName} (${swapFee.info.symbol})`}</GridItemLight>
+                <GridItemLight>{`${displayValueOrLoader(swapFee.tokens, 1, 'number')} ${
+                  swapFee.info.symbol
+                }`}</GridItemLight>
+                <GridItemLight>
+                  {correspondingPastSwapFee && correspondingPastSwapFee.tokens > 1
+                    ? `${displayValueOrLoader(correspondingPastSwapFee.tokens || 0, 1, 'number')} ${
+                        swapFee.info.symbol
+                      }`
+                    : `-`}
+                </GridItemLight>
+              </IncomeGrid>
+            );
+          })
+        ) : (
+          <SkeletonPlaceholder />
+        )}
 
-          <GridItemLight>Staked ICX (sICX)</GridItemLight>
-          <GridItemLight>**75,000</GridItemLight>
-          <GridItemLight>**50,000</GridItemLight>
-
+        <IncomeGrid>
           <GridItemSubtotal>Subtotal</GridItemSubtotal>
           <GridItemSubtotal>
-            {displayValueOrLoader(earningsCurrentPeriod?.income.loans_fees, rates && rates['bnUSD'].toNumber())}
+            {rates && earningsCurrentPeriod ? (
+              displayValueOrLoader(
+                earningsCurrentPeriod?.income.loans_fees * rates['bnUSD'].toNumber() + swapFeesTotalCurrent,
+                1,
+              )
+            ) : (
+              <LoaderComponent />
+            )}
           </GridItemSubtotal>
           <GridItemSubtotal>
-            {displayValueOrLoader(earningsPastPeriod?.income.loans_fees, rates && rates['bnUSD'].toNumber())}
+            {rates && earningsPastPeriod ? (
+              displayValueOrLoader(
+                earningsPastPeriod?.income.loans_fees * rates['bnUSD'].toNumber() + swapFeesTotalPast,
+                1,
+              )
+            ) : (
+              <LoaderComponent />
+            )}
           </GridItemSubtotal>
+        </IncomeGrid>
 
+        <IncomeGrid>
           <GridItemHeader>Expenses</GridItemHeader>
           <GridItemHeader></GridItemHeader>
           <GridItemHeader></GridItemHeader>
 
           <GridItemStrong>Network fee payout</GridItemStrong>
-          <GridItemStrong>**$300,000.00</GridItemStrong>
-          <GridItemStrong>**$900,000.00</GridItemStrong>
+          <GridItemStrong>
+            {displayValueOrLoader(expensesTotalCurrent === 0 ? undefined : expensesTotalCurrent, 1)}
+          </GridItemStrong>
+          <GridItemStrong>
+            {displayValueOrLoader(expensesTotalPast === 0 ? undefined : expensesTotalPast, 1)}
+          </GridItemStrong>
+        </IncomeGrid>
 
-          <GridItemLight>Balance Tokens (BALN)</GridItemLight>
-          <GridItemLight>**60,000</GridItemLight>
-          <GridItemLight>**1,000,000</GridItemLight>
+        {earningsCurrentPeriod ? (
+          earningsCurrentPeriod.expenses.map(expense => {
+            const correspondingPastExpense = earningsPastPeriod?.expenses.filter(
+              pastExpense => pastExpense.info.symbol === expense.info.symbol,
+            )[0];
 
-          <GridItemLight>Balanced Dollars (bnUSD)</GridItemLight>
-          <GridItemLight>**120,000</GridItemLight>
-          <GridItemLight>**360,000</GridItemLight>
+            return (
+              <IncomeGrid key={expense.info.symbol}>
+                <GridItemLight>{`${expense.info.displayName} (${expense.info.symbol})`}</GridItemLight>
+                <GridItemLight>{`${displayValueOrLoader(expense.tokens, 1, 'number')} ${
+                  expense.info.symbol
+                }`}</GridItemLight>
+                <GridItemLight>
+                  {correspondingPastExpense && correspondingPastExpense.tokens > 1
+                    ? `${displayValueOrLoader(correspondingPastExpense.tokens || 0, 1, 'number')} ${
+                        expense.info.symbol
+                      }`
+                    : `-`}
+                </GridItemLight>
+              </IncomeGrid>
+            );
+          })
+        ) : (
+          <SkeletonPlaceholder />
+        )}
 
-          <GridItemLight>Staked ICX (sICX)</GridItemLight>
-          <GridItemLight>**80,000</GridItemLight>
-          <GridItemLight>**240,000</GridItemLight>
-
+        <IncomeGrid>
           <GridItemTotal>Total</GridItemTotal>
           <GridItemTotal>
-            {displayValueOrLoader(earningsCurrentPeriod?.income.loans_fees, rates && rates['bnUSD'].toNumber())}
+            {rates && earningsCurrentPeriod ? (
+              displayValueOrLoader(
+                earningsCurrentPeriod?.income.loans_fees * rates['bnUSD'].toNumber() +
+                  swapFeesTotalCurrent -
+                  expensesTotalCurrent,
+                1,
+              )
+            ) : (
+              <LoaderComponent />
+            )}
           </GridItemTotal>
           <GridItemTotal>
-            {displayValueOrLoader(earningsPastPeriod?.income.loans_fees, rates && rates['bnUSD'].toNumber())}
+            {rates && earningsPastPeriod ? (
+              displayValueOrLoader(
+                earningsPastPeriod?.income.loans_fees * rates['bnUSD'].toNumber() +
+                  swapFeesTotalPast -
+                  expensesTotalPast,
+                1,
+              )
+            ) : (
+              <LoaderComponent />
+            )}
           </GridItemTotal>
         </IncomeGrid>
       </ScrollHelper>
