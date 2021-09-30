@@ -118,7 +118,7 @@ const EarningsSection = () => {
   let expensesTotalPast = 0;
 
   earningsCurrentPeriod?.expenses.map(expense => {
-    const correspondingPastExpense = earningsPastPeriod?.income.swap_fees.filter(
+    const correspondingPastExpense = earningsPastPeriod?.expenses.filter(
       pastExpense => pastExpense.info.symbol === expense.info.symbol,
     )[0];
 
