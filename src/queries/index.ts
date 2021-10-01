@@ -103,13 +103,15 @@ export const useEarningsDataQuery = (
 export const useHoldingsDataQuery = (timestamp: number = -1, cacheItem: string = 'holdings-data') => {
   return useQuery(cacheItem, async () => {
     const { data } = await axios.get(`${API_ENDPOINT}/stats/daofund-balance-sheet?timestamp=${timestamp}`);
-    const mappedData = Object.keys(data).map(contract => {
-      const tokenCount = BalancedJs.utils.toIcx(data[contract], contractToInfoMap[contract].symbol);
-      return {
-        info: contractToInfoMap[contract],
-        tokens: tokenCount,
-      };
-    });
+    const mappedData = Object.keys(data)
+      .filter(contract => Object.keys(contractToInfoMap).indexOf(contract) >= 0)
+      .map(contract => {
+        const tokenCount = BalancedJs.utils.toIcx(data[contract], contractToInfoMap[contract].symbol);
+        return {
+          info: contractToInfoMap[contract],
+          tokens: tokenCount,
+        };
+      });
     return mappedData;
   });
 };
