@@ -72,25 +72,29 @@ export const useEarningsDataQuery = (
     const loanIncometokenCount = BalancedJs.utils.toIcx(data.income.loans_fees, 'bnUSD');
     data.income.loans_fees = loanIncometokenCount;
 
-    data.income.swap_fees = Object.keys(data.income.swap_fees).map(contract => {
-      const contractInfo = contractToInfoMap[contract];
-      const contractFeeTokenCount = BalancedJs.utils.toIcx(data.income.swap_fees[contract], contractInfo.symbol);
+    data.income.swap_fees = Object.keys(data.income.swap_fees)
+      .filter(contract => Object.keys(contractToInfoMap).indexOf(contract) >= 0)
+      .map(contract => {
+        const contractInfo = contractToInfoMap[contract];
+        const contractFeeTokenCount = BalancedJs.utils.toIcx(data.income.swap_fees[contract], contractInfo.symbol);
 
-      return {
-        info: contractToInfoMap[contract],
-        tokens: contractFeeTokenCount,
-      };
-    });
+        return {
+          info: contractToInfoMap[contract],
+          tokens: contractFeeTokenCount,
+        };
+      });
 
-    data.expenses = Object.keys(data.expenses).map(contract => {
-      const contractInfo = contractToInfoMap[contract];
-      const contractExpenseTokenCount = BalancedJs.utils.toIcx(data.expenses[contract], contractInfo.symbol);
+    data.expenses = Object.keys(data.expenses)
+      .filter(contract => Object.keys(contractToInfoMap).indexOf(contract) >= 0)
+      .map(contract => {
+        const contractInfo = contractToInfoMap[contract];
+        const contractExpenseTokenCount = BalancedJs.utils.toIcx(data.expenses[contract], contractInfo.symbol);
 
-      return {
-        info: contractToInfoMap[contract],
-        tokens: contractExpenseTokenCount,
-      };
-    });
+        return {
+          info: contractToInfoMap[contract],
+          tokens: contractExpenseTokenCount,
+        };
+      });
 
     return data;
   });
