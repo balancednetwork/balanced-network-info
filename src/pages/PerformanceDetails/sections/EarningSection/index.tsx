@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 
 import Skeleton from '@material-ui/lab/Skeleton';
+import BigNumber from 'bignumber.js';
 import { useEarningsDataQuery, useRatesQuery } from 'queries';
 import ClickAwayListener from 'react-click-away-listener';
 import { Flex, Text } from 'rebass/styled-components';
@@ -96,8 +97,11 @@ const EarningsSection = () => {
     setTimePeriod(earningPeriods[period]);
   };
 
-  let swapFeesTotalCurrent = 0;
-  let swapFeesTotalPast = 0;
+  const loanFees = rates && earningsCurrentPeriod?.income.loans_fees.times(rates['bnUSD'].toNumber());
+  const loanFeesPast = rates && earningsPastPeriod?.income.loans_fees.times(rates['bnUSD'].toNumber());
+
+  let swapFeesTotalCurrent = new BigNumber(0);
+  let swapFeesTotalPast = new BigNumber(0);
 
   earningsCurrentPeriod?.income?.swap_fees.map(swapFee => {
     const correspondingPastSwapFee = earningsPastPeriod?.income.swap_fees.filter(
@@ -105,17 +109,19 @@ const EarningsSection = () => {
     )[0];
 
     if (rates) {
-      swapFeesTotalCurrent += swapFee.tokens * rates[swapFee.info.symbol].toNumber();
+      swapFeesTotalCurrent = swapFeesTotalCurrent.plus(swapFee.tokens.times(rates[swapFee.info.symbol].toNumber()));
     }
     if (rates && correspondingPastSwapFee) {
-      swapFeesTotalPast += correspondingPastSwapFee.tokens * rates[swapFee.info.symbol].toNumber();
+      swapFeesTotalPast = swapFeesTotalPast.plus(
+        correspondingPastSwapFee.tokens.times(rates[swapFee.info.symbol].toNumber()),
+      );
     }
 
     return true;
   });
 
-  let expensesTotalCurrent = 0;
-  let expensesTotalPast = 0;
+  let expensesTotalCurrent = new BigNumber(0);
+  let expensesTotalPast = new BigNumber(0);
 
   earningsCurrentPeriod?.expenses.map(expense => {
     const correspondingPastExpense = earningsPastPeriod?.expenses.filter(
@@ -123,10 +129,12 @@ const EarningsSection = () => {
     )[0];
 
     if (rates) {
-      expensesTotalCurrent += expense.tokens * rates[expense.info.symbol].toNumber();
+      expensesTotalCurrent = expensesTotalCurrent.plus(expense.tokens.times(rates[expense.info.symbol].toNumber()));
     }
     if (rates && correspondingPastExpense) {
-      expensesTotalPast += correspondingPastExpense.tokens * rates[expense.info.symbol].toNumber();
+      expensesTotalPast = expensesTotalPast.plus(
+        correspondingPastExpense.tokens.times(rates[expense.info.symbol].toNumber()),
+      );
     }
 
     return true;
@@ -174,14 +182,14 @@ const EarningsSection = () => {
           <GridItemStrong>Loan fees</GridItemStrong>
           <GridItemStrong>
             {earningsCurrentPeriod ? (
-              displayValueOrLoader(earningsCurrentPeriod?.income.loans_fees, rates && rates['bnUSD'].toNumber())
+              displayValueOrLoader(loanFees, 1)
             ) : (
               <StyledSkeleton animation="wave" width={100} />
             )}
           </GridItemStrong>
           <GridItemStrong>
             {earningsPastPeriod ? (
-              displayValueOrLoader(earningsPastPeriod?.income.loans_fees, rates && rates['bnUSD'].toNumber())
+              displayValueOrLoader(loanFeesPast, 1)
             ) : (
               <StyledSkeleton animation="wave" width={100} />
             )}
@@ -209,10 +217,10 @@ const EarningsSection = () => {
         <IncomeGrid>
           <GridItemStrong>Swap fees</GridItemStrong>
           <GridItemStrong>
-            {displayValueOrLoader(swapFeesTotalCurrent === 0 ? undefined : swapFeesTotalCurrent, 1)}
+            {displayValueOrLoader(swapFeesTotalCurrent.eq(0) ? undefined : swapFeesTotalCurrent, 1)}
           </GridItemStrong>
           <GridItemStrong>
-            {displayValueOrLoader(swapFeesTotalPast === 0 ? undefined : swapFeesTotalPast, 1)}
+            {displayValueOrLoader(swapFeesTotalPast.eq(0) ? undefined : swapFeesTotalPast, 1)}
           </GridItemStrong>
         </IncomeGrid>
 
@@ -229,7 +237,7 @@ const EarningsSection = () => {
                   swapFee.info.symbol
                 }`}</GridItemLight>
                 <GridItemLight>
-                  {correspondingPastSwapFee && correspondingPastSwapFee.tokens > 1
+                  {correspondingPastSwapFee
                     ? `${displayValueOrLoader(correspondingPastSwapFee.tokens || 0, 1, 'number')} ${
                         swapFee.info.symbol
                       }`
@@ -246,20 +254,14 @@ const EarningsSection = () => {
           <GridItemSubtotal>Subtotal</GridItemSubtotal>
           <GridItemSubtotal>
             {rates && earningsCurrentPeriod ? (
-              displayValueOrLoader(
-                earningsCurrentPeriod?.income.loans_fees * rates['bnUSD'].toNumber() + swapFeesTotalCurrent,
-                1,
-              )
+              displayValueOrLoader(loanFees && loanFees.plus(swapFeesTotalCurrent), 1)
             ) : (
               <LoaderComponent />
             )}
           </GridItemSubtotal>
           <GridItemSubtotal>
             {rates && earningsPastPeriod ? (
-              displayValueOrLoader(
-                earningsPastPeriod?.income.loans_fees * rates['bnUSD'].toNumber() + swapFeesTotalPast,
-                1,
-              )
+              displayValueOrLoader(loanFeesPast && loanFeesPast.plus(swapFeesTotalPast), 1)
             ) : (
               <LoaderComponent />
             )}
@@ -273,10 +275,10 @@ const EarningsSection = () => {
 
           <GridItemStrong>Network fee payout</GridItemStrong>
           <GridItemStrong>
-            {displayValueOrLoader(expensesTotalCurrent === 0 ? undefined : expensesTotalCurrent, 1)}
+            {displayValueOrLoader(expensesTotalCurrent.eq(0) ? undefined : expensesTotalCurrent, 1)}
           </GridItemStrong>
           <GridItemStrong>
-            {displayValueOrLoader(expensesTotalPast === 0 ? undefined : expensesTotalPast, 1)}
+            {displayValueOrLoader(expensesTotalPast.eq(0) ? undefined : expensesTotalPast, 1)}
           </GridItemStrong>
         </IncomeGrid>
 
@@ -293,7 +295,7 @@ const EarningsSection = () => {
                   expense.info.symbol
                 }`}</GridItemLight>
                 <GridItemLight>
-                  {correspondingPastExpense && correspondingPastExpense.tokens > 1
+                  {correspondingPastExpense
                     ? `${displayValueOrLoader(correspondingPastExpense.tokens || 0, 1, 'number')} ${
                         expense.info.symbol
                       }`
@@ -310,24 +312,14 @@ const EarningsSection = () => {
           <GridItemTotal>Total</GridItemTotal>
           <GridItemTotal>
             {rates && earningsCurrentPeriod ? (
-              displayValueOrLoader(
-                earningsCurrentPeriod?.income.loans_fees * rates['bnUSD'].toNumber() +
-                  swapFeesTotalCurrent -
-                  expensesTotalCurrent,
-                1,
-              )
+              displayValueOrLoader(loanFees && loanFees.plus(swapFeesTotalCurrent).minus(expensesTotalCurrent), 1)
             ) : (
               <LoaderComponent />
             )}
           </GridItemTotal>
           <GridItemTotal>
             {rates && earningsPastPeriod ? (
-              displayValueOrLoader(
-                earningsPastPeriod?.income.loans_fees * rates['bnUSD'].toNumber() +
-                  swapFeesTotalPast -
-                  expensesTotalPast,
-                1,
-              )
+              displayValueOrLoader(loanFeesPast && loanFeesPast.plus(swapFeesTotalPast).minus(expensesTotalPast), 1)
             ) : (
               <LoaderComponent />
             )}

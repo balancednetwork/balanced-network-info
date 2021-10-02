@@ -149,22 +149,6 @@ export const displayValueOrLoader = (
   }
 };
 
-export const displayValueOrLoaderDebug = (
-  value: number | BigNumber | undefined,
-  currencyRate,
-  format: NumberStyle = 'currency0',
-) => {
-  console.log(value, currencyRate, format);
-
-  if (value !== undefined && typeof currencyRate === 'number') {
-    return typeof value === 'number'
-      ? getFormattedNumber(value * currencyRate, format)
-      : getFormattedNumber(value.integerValue().toNumber() * currencyRate, format);
-  } else {
-    return <LoaderComponent />;
-  }
-};
-
 export const LoaderComponent = () => {
   return (
     <Loader>

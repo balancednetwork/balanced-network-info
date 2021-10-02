@@ -16,6 +16,8 @@ import { ZERO } from 'constants/number';
 import QUERY_KEYS from 'constants/queryKeys';
 import { contractToInfoMap } from 'pages/PerformanceDetails/utils';
 
+import { ContractData, PerformaceData } from '../pages/PerformanceDetails/types';
+
 export const useBnJsContractQuery = <T>(bnJs: BalancedJs, contract: string, method: string, args: any[]) => {
   return useQuery<T, string>(QUERY_KEYS.BnJs(contract, method, args), async () => {
     return bnJs[contract][method](...args);
@@ -65,7 +67,7 @@ export const useEarningsDataQuery = (
   end: number = new Date().valueOf() * 1_000,
   cacheItem: string = 'earnings-data',
 ) => {
-  return useQuery(cacheItem, async () => {
+  return useQuery<PerformaceData>(cacheItem, async () => {
     const { data } = await axios.get(
       `${API_ENDPOINT}/stats/income-statement?start_timestamp=${start}&end_timestamp=${end}`,
     );
@@ -101,7 +103,7 @@ export const useEarningsDataQuery = (
 };
 
 export const useHoldingsDataQuery = (timestamp: number = -1, cacheItem: string = 'holdings-data') => {
-  return useQuery(cacheItem, async () => {
+  return useQuery<ContractData[]>(cacheItem, async () => {
     const { data } = await axios.get(`${API_ENDPOINT}/stats/daofund-balance-sheet?timestamp=${timestamp}`);
     const mappedData = Object.keys(data)
       .filter(contract => Object.keys(contractToInfoMap).indexOf(contract) >= 0)
