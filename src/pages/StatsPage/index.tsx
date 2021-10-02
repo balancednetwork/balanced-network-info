@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { Flex, Box } from 'rebass/styled-components';
 import styled from 'styled-components';
 
+import arrowIcon from 'assets/icons/arrow.svg';
 import { ReactComponent as ChartIcon } from 'assets/icons/chart.svg';
 import { ReactComponent as CoinsIcon } from 'assets/icons/coins.svg';
 import { ReactComponent as DaoIcon } from 'assets/icons/dao.svg';
@@ -89,10 +90,32 @@ export const Divider = styled(Box)`
   margin-top: 80px;
 `;
 
-const StyledLink = styled(Link)`
+const StyledArrowLink = styled(Link)`
   color: #2fccdc;
   text-decoration: none;
   line-height: 40px;
+  position: relative;
+  padding: 0 30px 0 3px;
+
+  &:after {
+    content: '';
+    display: block;
+    position: absolute;
+    background-image: url(${arrowIcon});
+    height: 10px;
+    width: 20px;
+    background-repeat: no-repeat;
+    top: 16px;
+    right: 0;
+    transform: translate3d(5px, 0, 0);
+    transition: transform 0.3s ease;
+  }
+
+  &:hover {
+    &:after {
+      transform: translate3d(15px, 0, 0);
+    }
+  }
 `;
 
 export function StatsPage() {
@@ -180,7 +203,7 @@ export function StatsPage() {
             <Typography variant="h2" mb={5} mr={3}>
               Governance
             </Typography>
-            <StyledLink to={LINKS.performanceDetails}>Performance details</StyledLink>
+            <StyledArrowLink to={LINKS.performanceDetails}>Performance details</StyledArrowLink>
           </Flex>
 
           <Stats>
