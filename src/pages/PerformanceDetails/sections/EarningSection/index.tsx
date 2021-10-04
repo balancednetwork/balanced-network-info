@@ -197,7 +197,7 @@ const EarningsSection = () => {
         </IncomeGrid>
 
         <IncomeGrid>
-          <GridItemLight>Balanced Dollars (bnUSD)</GridItemLight>
+          <GridItemLight>Balanced Dollar (bnUSD)</GridItemLight>
           <GridItemLight>
             {earningsCurrentPeriod ? (
               `${displayValueOrLoader(earningsCurrentPeriod?.income.loans_fees, 1, 'number')}`
