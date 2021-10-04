@@ -2,13 +2,14 @@ import keyBy from 'lodash/keyBy';
 
 import { ReactComponent as BALNIcon } from 'assets/tokens/BALN.svg';
 import { ReactComponent as bnUSDIcon } from 'assets/tokens/bnUSD.svg';
+import { ReactComponent as CFTIcon } from 'assets/tokens/CFT.svg';
 import { ReactComponent as ICXIcon } from 'assets/tokens/ICX.svg';
 import { ReactComponent as IUSDCIcon } from 'assets/tokens/IUSDC.svg';
 import { ReactComponent as OMMIcon } from 'assets/tokens/OMM.svg';
 import { ReactComponent as sICXIcon } from 'assets/tokens/sICX.svg';
 import { ReactComponent as USDSIcon } from 'assets/tokens/USDS.svg';
 
-export const CURRENCY = ['ICX', 'sICX', 'bnUSD', 'BALN', 'IUSDC', 'OMM', 'USDS'];
+export const CURRENCY = ['ICX', 'sICX', 'bnUSD', 'BALN', 'IUSDC', 'OMM', 'USDS', 'CFT'];
 
 export const CURRENCY_MAP = keyBy(CURRENCY);
 
@@ -20,6 +21,7 @@ export const currencyKeyToIconMap = {
   OMM: OMMIcon,
   IUSDC: IUSDCIcon,
   USDS: USDSIcon,
+  CFT: CFTIcon,
 };
 
 export type CurrencyKey = string;
@@ -101,6 +103,20 @@ export const SUPPORTED_PAIRS: Array<Pair> = [
     name: toMarketName(CURRENCY_MAP['OMM'], CURRENCY_MAP['USDS']),
     poolId: 8,
   },
+  {
+    baseCurrencyKey: CURRENCY_MAP['CFT'],
+    quoteCurrencyKey: CURRENCY_MAP['sICX'],
+    pair: toMarketPair(CURRENCY_MAP['CFT'], CURRENCY_MAP['sICX']),
+    name: toMarketName(CURRENCY_MAP['CFT'], CURRENCY_MAP['sICX']),
+    poolId: 9,
+  },
+  {
+    baseCurrencyKey: CURRENCY_MAP['USDS'],
+    quoteCurrencyKey: CURRENCY_MAP['bnUSD'],
+    pair: toMarketPair(CURRENCY_MAP['USDS'], CURRENCY_MAP['bnUSD']),
+    name: toMarketName(CURRENCY_MAP['USDS'], CURRENCY_MAP['bnUSD']),
+    poolId: 10,
+  },
 ];
 
 export enum NetworkId {
@@ -119,6 +135,7 @@ export const addressToCurrencyKeyMap = {
     cxae3034235540b924dfcc1b45836c293dcc82bfb7: 'IUSDC',
     cxbb2871f468a3008f80b08fdde5b8b951583acf06: 'USDS',
     cx1a29259a59f463a67bb2ef84398b30ca56b5830a: 'OMM',
+    cx2e6d0fc0eca04965d06038c8406093337f085fcf: 'CFT',
   },
   [NetworkId.YEOUIDO]: {
     cxae6334850f13dfd8b50f8544d5acb126bb8ef82d: 'sICX',
@@ -128,6 +145,7 @@ export const addressToCurrencyKeyMap = {
     cx65f639254090820361da483df233f6d0e69af9b7: 'IUSDC',
     cxc0666df567a6e0b49342648e98ccbe5362b264ea: 'USDS',
     cx05515d126a47a98c682fa86992329e6c2ec70503: 'OMM',
+    cxf7313d7fd611c99b8db29e298699be4b1fd86661: 'CFT',
   },
 };
 
@@ -140,6 +158,7 @@ export const currencyKeyToAddressMap = {
     IUSDC: 'cxae3034235540b924dfcc1b45836c293dcc82bfb7',
     USDS: 'cxbb2871f468a3008f80b08fdde5b8b951583acf06',
     OMM: 'cx1a29259a59f463a67bb2ef84398b30ca56b5830a',
+    CFT: 'cx2e6d0fc0eca04965d06038c8406093337f085fcf',
   },
   [NetworkId.YEOUIDO]: {
     sICX: 'cxae6334850f13dfd8b50f8544d5acb126bb8ef82d',
@@ -149,5 +168,6 @@ export const currencyKeyToAddressMap = {
     IUSDC: 'cx65f639254090820361da483df233f6d0e69af9b7',
     USDS: 'cxc0666df567a6e0b49342648e98ccbe5362b264ea',
     OMM: 'cx05515d126a47a98c682fa86992329e6c2ec70503',
+    CFT: 'cxf7313d7fd611c99b8db29e298699be4b1fd86661',
   },
 };
