@@ -55,6 +55,10 @@ export const contractToInfoMap = {
     symbol: 'USDS',
     displayName: 'Stably USD',
   },
+  cx2e6d0fc0eca04965d06038c8406093337f085fcf: {
+    symbol: 'CFT',
+    displayName: 'Craft',
+  },
 };
 
 export const dateOptionShort: DateOptions = {
