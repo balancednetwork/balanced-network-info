@@ -46,6 +46,24 @@ export const StyledSkeleton = styled(Skeleton)`
   margin-left: auto;
 `;
 
+const SectionHeader = styled(Flex)`
+  flex-direction: column;
+
+  h2 {
+    margin-bottom: 15px;
+  }
+
+  @media screen and (min-width: 500px) {
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+
+    h2 {
+      margin-bottom: 0;
+    }
+  }
+`;
+
 const EarningsSection = () => {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const [timePeriod, setTimePeriod] = useState<TimePeriod>(earningPeriods.day);
@@ -142,7 +160,7 @@ const EarningsSection = () => {
 
   return (
     <BoxPanel bg="bg2" mt={10} mb={10}>
-      <Flex alignItems={'center'} justifyContent={'space-between'}>
+      <SectionHeader>
         <Typography variant="h2">Earnings</Typography>
         <Text>
           {`Income earned `}
@@ -166,7 +184,7 @@ const EarningsSection = () => {
             </MenuList>
           </DropdownPopper>
         </Text>
-      </Flex>
+      </SectionHeader>
       <ScrollHelper>
         <IncomeGrid>
           <GridItemHeader>INCOME</GridItemHeader>

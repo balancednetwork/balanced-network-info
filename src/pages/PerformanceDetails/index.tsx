@@ -105,7 +105,7 @@ export function PerformanceDetails() {
 
       <Breadcrumbs items={breadcrumbsItems} />
 
-      <Typography fontWeight="bold" fontSize={[45, 45, 60]} color="#fff">
+      <Typography fontWeight="bold" fontSize={[32, 45, 60]} color="#fff">
         Performance details
       </Typography>
       <Typography fontSize="18px" lineHeight="32px" maxWidth="600px">
