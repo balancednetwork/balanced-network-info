@@ -228,7 +228,7 @@ export const useGovernanceInfo = () => {
       ? CURRENCY.reduce((sum: BigNumber, currencyKey: string) => {
           return sum.plus(
             BalancedJs.utils
-              .toIcx(daofundQuery.data[currencyKey] || '0', currencyKey)
+              .toIcx(daofundQuery.data[currencyKeyToAddressMap[NetworkId.MAINNET][currencyKey]] || '0', currencyKey)
               .times(rates[currencyKey] || ZERO),
           );
         }, ZERO)
