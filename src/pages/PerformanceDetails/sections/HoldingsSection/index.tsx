@@ -7,7 +7,7 @@ import styled from 'styled-components';
 
 import CurrencyIcon from 'components/CurrencyIcon';
 import { BoxPanel } from 'components/Panel';
-import { DatePickerWrap, displayValueOrLoader, formatPercantage } from 'pages/PerformanceDetails/utils';
+import { DatePickerWrap, DisplayValueOrLoader, formatPercantage } from 'pages/PerformanceDetails/utils';
 import { Typography } from 'theme';
 
 import { GridItemToken, GridItemAssetTotal, GridItemHeader, ScrollHelper } from '../../index';
@@ -115,11 +115,14 @@ const HoldingsSection = () => {
                   </GridItemToken>
                   <GridItemToken>
                     <Text color="text">
-                      {displayValueOrLoader(contractTokensCount, rates && rates[contractInfo.symbol].toNumber())}
+                      <DisplayValueOrLoader
+                        value={contractTokensCount}
+                        currencyRate={rates && rates[contractInfo.symbol].toNumber()}
+                      />
                       <Change percentage={percentageChange}>{formatPercantage(percentageChange)}</Change>
                     </Text>
                     <Text color="text" opacity={0.75}>
-                      {displayValueOrLoader(contractTokensCount, 1, 'number')}
+                      <DisplayValueOrLoader value={contractTokensCount} currencyRate={1} format={'number'} />
                       {` ${contractInfo.symbol}`}
                     </Text>
                   </GridItemToken>
@@ -127,7 +130,10 @@ const HoldingsSection = () => {
                     <Text color="text">
                       {holdingsPast ? (
                         holdingsPast[contract] ? (
-                          displayValueOrLoader(contractTokensCountPast, rates && rates[contractInfo.symbol].toNumber())
+                          <DisplayValueOrLoader
+                            value={contractTokensCountPast}
+                            currencyRate={rates && rates[contractInfo.symbol].toNumber()}
+                          />
                         ) : (
                           '-'
                         )
@@ -137,8 +143,12 @@ const HoldingsSection = () => {
                     </Text>
                     <Text color="text" opacity={0.75}>
                       {holdingsPast ? (
-                        holdingsPast[contract] &&
-                        displayValueOrLoader(contractTokensCountPast, 1, 'number') + ' ' + contractInfo.symbol
+                        holdingsPast[contract] ? (
+                          <>
+                            <DisplayValueOrLoader value={contractTokensCountPast} currencyRate={1} format={'number'} />
+                            {` ${contractInfo.symbol}`}
+                          </>
+                        ) : null
                       ) : (
                         <StyledSkeleton width={120} />
                       )}
@@ -152,9 +162,11 @@ const HoldingsSection = () => {
         <BalanceGrid>
           <GridItemAssetTotal>Total</GridItemAssetTotal>
           <GridItemAssetTotal>
-            {displayValueOrLoader(totalCurrent === 0 ? undefined : totalCurrent, 1)}
+            <DisplayValueOrLoader value={totalCurrent === 0 ? undefined : totalCurrent} currencyRate={1} />
           </GridItemAssetTotal>
-          <GridItemAssetTotal>{displayValueOrLoader(totalPast === 0 ? undefined : totalPast, 1)}</GridItemAssetTotal>
+          <GridItemAssetTotal>
+            <DisplayValueOrLoader value={totalPast === 0 ? undefined : totalPast} currencyRate={1} />
+          </GridItemAssetTotal>
         </BalanceGrid>
       </ScrollHelper>
     </BoxPanel>

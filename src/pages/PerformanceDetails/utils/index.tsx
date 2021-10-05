@@ -129,23 +129,21 @@ export const getTimestampFrom = (from: number = 0): number => {
   return date.setDate(date.getDate() - from) * 1_000;
 };
 
-export const displayValueOrLoader = (
-  value: number | BigNumber | undefined,
-  currencyRate,
-  format: NumberStyle = 'currency0',
-) => {
+interface ValueOrLoaderProps {
+  value: number | BigNumber | undefined;
+  currencyRate;
+  format?: NumberStyle;
+}
+
+export const DisplayValueOrLoader = ({ value, currencyRate, format = 'currency0' }: ValueOrLoaderProps) => {
   if (value !== undefined && typeof currencyRate === 'number') {
-    return typeof value === 'number'
-      ? getFormattedNumber(value * currencyRate, format)
-      : getFormattedNumber(value.integerValue().toNumber() * currencyRate, format);
-  } else {
-    return (
-      <Loader>
-        <span></span>
-        <span></span>
-        <span></span>
-      </Loader>
+    return typeof value === 'number' ? (
+      <>{getFormattedNumber(value * currencyRate, format)}</>
+    ) : (
+      <>{getFormattedNumber(value.integerValue().toNumber() * currencyRate, format)}</>
     );
+  } else {
+    return <LoaderComponent />;
   }
 };
 
@@ -269,7 +267,13 @@ export const DatePickerWrap = styled.div`
 export const formatPercantage = percentage => {
   if (typeof percentage === 'number' && !isNaN(percentage) && percentage !== 0) {
     const plusMinus = percentage > 0 ? '+' : '';
-    return ` (${plusMinus}${displayValueOrLoader(percentage / 100, 1, 'percent2')})`;
+    return (
+      <>
+        {` (${plusMinus}`}
+        <DisplayValueOrLoader value={percentage / 100} currencyRate={1} format={'percent2'} />
+        {`)`}
+      </>
+    );
   } else {
     return null;
   }

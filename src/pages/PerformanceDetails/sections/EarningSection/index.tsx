@@ -15,7 +15,7 @@ import {
   TimePeriod,
   earningPeriods,
   getTimestampFrom,
-  displayValueOrLoader,
+  DisplayValueOrLoader,
   dateOptionShort,
   dateOptionLong,
   FormattedPeriods,
@@ -182,14 +182,14 @@ const EarningsSection = () => {
           <GridItemStrong>Loan fees</GridItemStrong>
           <GridItemStrong>
             {earningsCurrentPeriod ? (
-              displayValueOrLoader(loanFees, 1)
+              <DisplayValueOrLoader value={loanFees} currencyRate={1} />
             ) : (
               <StyledSkeleton animation="wave" width={100} />
             )}
           </GridItemStrong>
           <GridItemStrong>
             {earningsPastPeriod ? (
-              displayValueOrLoader(loanFeesPast, 1)
+              <DisplayValueOrLoader value={loanFeesPast} currencyRate={1} />
             ) : (
               <StyledSkeleton animation="wave" width={100} />
             )}
@@ -197,17 +197,31 @@ const EarningsSection = () => {
         </IncomeGrid>
 
         <IncomeGrid>
-          <GridItemLight>Balanced Dollar (bnUSD)</GridItemLight>
+          <GridItemLight>Balanced Dollar</GridItemLight>
           <GridItemLight>
             {earningsCurrentPeriod ? (
-              `${displayValueOrLoader(earningsCurrentPeriod?.income.loans_fees, 1, 'number')}`
+              <>
+                <DisplayValueOrLoader
+                  value={earningsCurrentPeriod?.income.loans_fees}
+                  currencyRate={1}
+                  format={'number'}
+                />
+                {` bnUSD`}
+              </>
             ) : (
               <StyledSkeleton animation="wave" width={100} />
             )}
           </GridItemLight>
           <GridItemLight>
             {earningsPastPeriod ? (
-              `${displayValueOrLoader(earningsPastPeriod?.income.loans_fees, 1, 'number')}`
+              <>
+                <DisplayValueOrLoader
+                  value={earningsPastPeriod?.income.loans_fees}
+                  currencyRate={1}
+                  format={'number'}
+                />
+                {` bnUSD`}
+              </>
             ) : (
               <StyledSkeleton animation="wave" width={100} />
             )}
@@ -217,10 +231,13 @@ const EarningsSection = () => {
         <IncomeGrid>
           <GridItemStrong>Swap fees</GridItemStrong>
           <GridItemStrong>
-            {displayValueOrLoader(swapFeesTotalCurrent.eq(0) ? undefined : swapFeesTotalCurrent, 1)}
+            <DisplayValueOrLoader
+              value={swapFeesTotalCurrent.eq(0) ? undefined : swapFeesTotalCurrent}
+              currencyRate={1}
+            />
           </GridItemStrong>
           <GridItemStrong>
-            {displayValueOrLoader(swapFeesTotalPast.eq(0) ? undefined : swapFeesTotalPast, 1)}
+            <DisplayValueOrLoader value={swapFeesTotalPast.eq(0) ? undefined : swapFeesTotalPast} currencyRate={1} />
           </GridItemStrong>
         </IncomeGrid>
 
@@ -232,16 +249,24 @@ const EarningsSection = () => {
 
             return (
               <IncomeGrid key={swapFee.info.symbol}>
-                <GridItemLight>{`${swapFee.info.displayName} (${swapFee.info.symbol})`}</GridItemLight>
-                <GridItemLight>{`${displayValueOrLoader(swapFee.tokens, 1, 'number')} ${
-                  swapFee.info.symbol
-                }`}</GridItemLight>
+                <GridItemLight>{`${swapFee.info.displayName}`}</GridItemLight>
                 <GridItemLight>
-                  {correspondingPastSwapFee
-                    ? `${displayValueOrLoader(correspondingPastSwapFee.tokens || 0, 1, 'number')} ${
-                        swapFee.info.symbol
-                      }`
-                    : `-`}
+                  <DisplayValueOrLoader value={swapFee.tokens} currencyRate={1} format={'number'} />
+                  {` ${swapFee.info.symbol}`}
+                </GridItemLight>
+                <GridItemLight>
+                  {correspondingPastSwapFee ? (
+                    <>
+                      <DisplayValueOrLoader
+                        value={correspondingPastSwapFee.tokens || 0}
+                        currencyRate={1}
+                        format={'number'}
+                      />
+                      {` ${swapFee.info.symbol}`}
+                    </>
+                  ) : (
+                    `-`
+                  )}
                 </GridItemLight>
               </IncomeGrid>
             );
@@ -254,14 +279,14 @@ const EarningsSection = () => {
           <GridItemSubtotal>Subtotal</GridItemSubtotal>
           <GridItemSubtotal>
             {rates && earningsCurrentPeriod ? (
-              displayValueOrLoader(loanFees && loanFees.plus(swapFeesTotalCurrent), 1)
+              <DisplayValueOrLoader value={loanFees && loanFees.plus(swapFeesTotalCurrent)} currencyRate={1} />
             ) : (
               <LoaderComponent />
             )}
           </GridItemSubtotal>
           <GridItemSubtotal>
             {rates && earningsPastPeriod ? (
-              displayValueOrLoader(loanFeesPast && loanFeesPast.plus(swapFeesTotalPast), 1)
+              <DisplayValueOrLoader value={loanFeesPast && loanFeesPast.plus(swapFeesTotalPast)} currencyRate={1} />
             ) : (
               <LoaderComponent />
             )}
@@ -275,10 +300,13 @@ const EarningsSection = () => {
 
           <GridItemStrong>Network fee payout</GridItemStrong>
           <GridItemStrong>
-            {displayValueOrLoader(expensesTotalCurrent.eq(0) ? undefined : expensesTotalCurrent, 1)}
+            <DisplayValueOrLoader
+              value={expensesTotalCurrent.eq(0) ? undefined : expensesTotalCurrent}
+              currencyRate={1}
+            />
           </GridItemStrong>
           <GridItemStrong>
-            {displayValueOrLoader(expensesTotalPast.eq(0) ? undefined : expensesTotalPast, 1)}
+            <DisplayValueOrLoader value={expensesTotalPast.eq(0) ? undefined : expensesTotalPast} currencyRate={1} />
           </GridItemStrong>
         </IncomeGrid>
 
@@ -290,16 +318,24 @@ const EarningsSection = () => {
 
             return (
               <IncomeGrid key={expense.info.symbol}>
-                <GridItemLight>{`${expense.info.displayName} (${expense.info.symbol})`}</GridItemLight>
-                <GridItemLight>{`${displayValueOrLoader(expense.tokens, 1, 'number')} ${
-                  expense.info.symbol
-                }`}</GridItemLight>
+                <GridItemLight>{`${expense.info.displayName}`}</GridItemLight>
                 <GridItemLight>
-                  {correspondingPastExpense
-                    ? `${displayValueOrLoader(correspondingPastExpense.tokens || 0, 1, 'number')} ${
-                        expense.info.symbol
-                      }`
-                    : `-`}
+                  <DisplayValueOrLoader value={expense.tokens} currencyRate={1} format={'number'} />
+                  {` ${expense.info.symbol}`}
+                </GridItemLight>
+                <GridItemLight>
+                  {correspondingPastExpense ? (
+                    <>
+                      <DisplayValueOrLoader
+                        value={correspondingPastExpense.tokens || 0}
+                        currencyRate={1}
+                        format={'number'}
+                      />
+                      {` ${expense.info.symbol}`}
+                    </>
+                  ) : (
+                    `-`
+                  )}
                 </GridItemLight>
               </IncomeGrid>
             );
@@ -312,14 +348,20 @@ const EarningsSection = () => {
           <GridItemTotal>Total</GridItemTotal>
           <GridItemTotal>
             {rates && earningsCurrentPeriod ? (
-              displayValueOrLoader(loanFees && loanFees.plus(swapFeesTotalCurrent).minus(expensesTotalCurrent), 1)
+              <DisplayValueOrLoader
+                value={loanFees && loanFees.plus(swapFeesTotalCurrent).minus(expensesTotalCurrent)}
+                currencyRate={1}
+              />
             ) : (
               <LoaderComponent />
             )}
           </GridItemTotal>
           <GridItemTotal>
             {rates && earningsPastPeriod ? (
-              displayValueOrLoader(loanFeesPast && loanFeesPast.plus(swapFeesTotalPast).minus(expensesTotalPast), 1)
+              <DisplayValueOrLoader
+                value={loanFeesPast && loanFeesPast.plus(swapFeesTotalPast).minus(expensesTotalPast)}
+                currencyRate={1}
+              />
             ) : (
               <LoaderComponent />
             )}
