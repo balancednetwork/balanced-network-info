@@ -2,9 +2,11 @@ import React from 'react';
 
 import { useGovernanceInfo, useOverviewInfo } from 'queries/index';
 import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
 import { Flex, Box } from 'rebass/styled-components';
 import styled from 'styled-components';
 
+import arrowIcon from 'assets/icons/arrow.svg';
 import { ReactComponent as ChartIcon } from 'assets/icons/chart.svg';
 import { ReactComponent as CoinsIcon } from 'assets/icons/coins.svg';
 import { ReactComponent as DaoIcon } from 'assets/icons/dao.svg';
@@ -16,13 +18,14 @@ import vault from 'assets/icons/vault.svg';
 import Footer from 'components/Footer';
 import Header from 'components/Header';
 import { BoxPanel } from 'components/Panel';
+import { LINKS } from 'constants/links';
 import CollateralAndLoanSection from 'sections/CollateralAndLoanSection';
 import PairSection from 'sections/PairSection';
 import TokenSection from 'sections/TokenSection';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
 
-const Container = styled(Box)`
+export const Container = styled(Box)`
   /* disable margin collapse */
   display: flex;
   flex-direction: column;
@@ -79,12 +82,40 @@ const StatsItemData = styled(Box)`
   margin: 8px 8px;
 `;
 
-const Divider = styled(Box)`
+export const Divider = styled(Box)`
   width: 100%;
   height: 1px;
   background-color: ${({ theme }) => theme.colors.divider};
   margin-bottom: 20px;
   margin-top: 80px;
+`;
+
+const StyledArrowLink = styled(Link)`
+  color: #2fccdc;
+  text-decoration: none;
+  line-height: 40px;
+  position: relative;
+  padding: 0 30px 0 3px;
+
+  &:after {
+    content: '';
+    display: block;
+    position: absolute;
+    background-image: url(${arrowIcon});
+    height: 10px;
+    width: 20px;
+    background-repeat: no-repeat;
+    top: 16px;
+    right: 0;
+    transform: translate3d(5px, 0, 0);
+    transition: transform 0.3s ease;
+  }
+
+  &:hover {
+    &:after {
+      transform: translate3d(15px, 0, 0);
+    }
+  }
 `;
 
 export function StatsPage() {
@@ -168,9 +199,12 @@ export function StatsPage() {
         <PairSection />
 
         <BoxPanel bg="bg2" mb={10}>
-          <Typography variant="h2" mb={5}>
-            Governance
-          </Typography>
+          <Flex>
+            <Typography variant="h2" mb={5} mr={3}>
+              Governance
+            </Typography>
+            <StyledArrowLink to={LINKS.performanceDetails}>Performance details</StyledArrowLink>
+          </Flex>
 
           <Stats>
             <StatsItem className="border-right">

@@ -14,6 +14,9 @@ import {
 } from 'constants/currency';
 import { ZERO } from 'constants/number';
 import QUERY_KEYS from 'constants/queryKeys';
+import { contractToInfoMap } from 'pages/PerformanceDetails/utils';
+
+import { ContractData, PerformaceData } from '../pages/PerformanceDetails/types';
 
 export const useBnJsContractQuery = <T>(bnJs: BalancedJs, contract: string, method: string, args: any[]) => {
   return useQuery<T, string>(QUERY_KEYS.BnJs(contract, method, args), async () => {
@@ -39,8 +42,8 @@ export const useRatesQuery = () => {
 
 const API_ENDPOINT = process.env.NODE_ENV === 'production' ? 'https://balanced.geometry.io/api/v1' : '/api/v1';
 
-const LAUNCH_DAY = 1619398800000000;
-const ONE_DAY = 86400000000;
+export const LAUNCH_DAY = 1619398800000000;
+export const ONE_DAY = 86400000000;
 
 export const useCollateralChartDataQuery = (
   start: number = LAUNCH_DAY,
@@ -56,6 +59,62 @@ export const useCollateralChartDataQuery = (
       time: item.time / 1_000,
       value: BalancedJs.utils.toIcx(item.value).integerValue().toNumber(),
     }));
+  });
+};
+
+export const useEarningsDataQuery = (
+  start: number = LAUNCH_DAY,
+  end: number = new Date().valueOf() * 1_000,
+  cacheItem: string = 'earnings-data',
+) => {
+  return useQuery<PerformaceData>(cacheItem, async () => {
+    const { data } = await axios.get(
+      `${API_ENDPOINT}/stats/income-statement?start_timestamp=${start}&end_timestamp=${end}`,
+    );
+    const loanIncometokenCount = BalancedJs.utils.toIcx(data.income.loans_fees, 'bnUSD');
+    data.income.loans_fees = loanIncometokenCount;
+
+    data.income.swap_fees = Object.keys(data.income.swap_fees)
+      .filter(contract => Object.keys(contractToInfoMap).indexOf(contract) >= 0)
+      .map(contract => {
+        const contractInfo = contractToInfoMap[contract];
+        const contractFeeTokenCount = BalancedJs.utils.toIcx(data.income.swap_fees[contract], contractInfo.symbol);
+
+        return {
+          info: contractToInfoMap[contract],
+          tokens: contractFeeTokenCount,
+        };
+      });
+
+    data.expenses = Object.keys(data.expenses)
+      .filter(contract => Object.keys(contractToInfoMap).indexOf(contract) >= 0)
+      .map(contract => {
+        const contractInfo = contractToInfoMap[contract];
+        const contractExpenseTokenCount = BalancedJs.utils.toIcx(data.expenses[contract], contractInfo.symbol);
+
+        return {
+          info: contractToInfoMap[contract],
+          tokens: contractExpenseTokenCount,
+        };
+      });
+
+    return data;
+  });
+};
+
+export const useHoldingsDataQuery = (timestamp: number = -1, cacheItem: string = 'holdings-data') => {
+  return useQuery<ContractData[]>(cacheItem, async () => {
+    const { data } = await axios.get(`${API_ENDPOINT}/stats/daofund-balance-sheet?timestamp=${timestamp}`);
+    const mappedData = Object.keys(data)
+      .filter(contract => Object.keys(contractToInfoMap).indexOf(contract) >= 0)
+      .map(contract => {
+        const tokenCount = BalancedJs.utils.toIcx(data[contract], contractToInfoMap[contract].symbol);
+        return {
+          info: contractToInfoMap[contract],
+          tokens: tokenCount,
+        };
+      });
+    return mappedData;
   });
 };
 

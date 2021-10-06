@@ -19,5 +19,6 @@ export const LINKS = {
   docs: 'https://docs.balanced.network/',
   stats: 'https://stats.balanced.network/',
   forum: 'https://gov.balanced.network/',
+  performanceDetails: '/performance-details',
   blog: 'https://blog.balanced.network/',
 };
