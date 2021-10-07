@@ -7,13 +7,13 @@ import { Flex, Box } from 'rebass/styled-components';
 import styled from 'styled-components';
 
 import arrowIcon from 'assets/icons/arrow.svg';
+import { ReactComponent as CalendarIcon } from 'assets/icons/calendar.svg';
 import { ReactComponent as ChartIcon } from 'assets/icons/chart.svg';
 import { ReactComponent as CoinsIcon } from 'assets/icons/coins.svg';
 import { ReactComponent as DaoIcon } from 'assets/icons/dao.svg';
 import { ReactComponent as DistributionIcon } from 'assets/icons/distribution.svg';
 import { ReactComponent as FeesIcon } from 'assets/icons/fees.svg';
 import { ReactComponent as StakersIcon } from 'assets/icons/staking2.svg';
-import { ReactComponent as TransactionsIcon } from 'assets/icons/transactions.svg';
 import vault from 'assets/icons/vault.svg';
 import Footer from 'components/Footer';
 import Header from 'components/Header';
@@ -80,6 +80,9 @@ const StatsItemIcon = styled(Box)`
 
 const StatsItemData = styled(Box)`
   margin: 8px 8px;
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    text-align: center;
+  `}
 `;
 
 export const Divider = styled(Box)`
@@ -177,16 +180,14 @@ export function StatsPage() {
             {/* number of transactions */}
             <StatsItem>
               <StatsItemIcon>
-                <TransactionsIcon width={53} height={55} />
+                <CalendarIcon width={53} height={55} />
               </StatsItemIcon>
 
               <StatsItemData>
                 <Typography fontWeight="normal" variant="h3">
-                  {overviewInfo.transactions
-                    ? getFormattedNumber(overviewInfo.transactions['total_transactions'], 'number')
-                    : '-'}
+                  {overviewInfo.platformDay ? getFormattedNumber(overviewInfo.platformDay, 'number') : '-'}
                 </Typography>
-                <Typography>Transactions</Typography>
+                <Typography>Days since launch</Typography>
               </StatsItemData>
             </StatsItem>
           </Stats>

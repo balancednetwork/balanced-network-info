@@ -167,6 +167,13 @@ const useEarnedFeesQuery = () => {
   });
 };
 
+export const usePlatformDayQuery = () => {
+  return useQuery<number>(QUERY_KEYS.PlatformDay, async () => {
+    const res = await bnJs.Governance.getDay();
+    return parseInt(res, 16);
+  });
+};
+
 export const useOverviewInfo = () => {
   const ratesQuery = useRatesQuery();
   const rates = ratesQuery.data;
@@ -192,14 +199,13 @@ export const useOverviewInfo = () => {
   }
 
   // transactions
-  const statsTotalTransactionsQuery = useStatsTotalTransactionsQuery();
-  const statsTotalTransactions = statsTotalTransactionsQuery.isSuccess ? statsTotalTransactionsQuery.data : null;
+  const { data: platformDay } = usePlatformDayQuery();
 
   return {
     TVL: tvl,
     BALNMarketCap: BALNMarketCap?.integerValue().toNumber(),
     fees: totalFees?.integerValue().toNumber(),
-    transactions: statsTotalTransactions,
+    platformDay: platformDay,
   };
 };
 

@@ -10,6 +10,7 @@ export default {
   SnxHolders: 'snxHolders',
   sUSDHolders: 'sUSDHolders',
   SnxTotals: 'snxTotals',
+  PlatformDay: 'PlatformDay',
 
   SynthetixTokenList: 'synthetixTokenList',
 

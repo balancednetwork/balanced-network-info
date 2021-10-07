@@ -10,6 +10,7 @@ import { Contract } from './contracts/contract';
 import Daofund from './contracts/Daofund';
 import Dex from './contracts/Dex';
 import Dividends from './contracts/Dividends';
+import Governance from './contracts/Governance';
 import ICX from './contracts/ICX';
 import IISS from './contracts/IISS';
 import Loans from './contracts/Loans';
@@ -49,6 +50,7 @@ export class BalancedJs {
   Rewards: Rewards;
   Airdrip: Airdrip;
   Dividends: Dividends;
+  Governance: Governance;
   Daofund: Daofund;
   IISS: IISS;
 
@@ -101,6 +103,7 @@ export class BalancedJs {
     this.Rewards = new Rewards(this.contractSettings);
     this.Airdrip = new Airdrip(this.contractSettings);
     this.Dividends = new Dividends(this.contractSettings);
+    this.Governance = new Governance(this.contractSettings);
     this.Daofund = new Daofund(this.contractSettings);
     this.IISS = new IISS(this.contractSettings);
   }
