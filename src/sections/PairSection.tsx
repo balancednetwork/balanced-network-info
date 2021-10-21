@@ -85,7 +85,7 @@ export default function PairSection() {
                       <Text ml={2}>{`${pair.baseCurrencyKey} / ${pair.quoteCurrencyKey}`}</Text>
                     </Flex>
                   </DataText>
-                  <DataText>{getFormattedNumber(pair.apy, 'percent2')}</DataText>
+                  <DataText>{pair.apy ? getFormattedNumber(pair.apy, 'percent2') : '-'}</DataText>
                   <DataText>{getFormattedNumber(pair.participant, 'number')}</DataText>
                   <DataText>{getFormattedNumber(pair.tvl, 'currency0')}</DataText>
                   <DataText>{getFormattedNumber(pair.volume, 'currency0')}</DataText>

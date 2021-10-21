@@ -87,6 +87,22 @@ export const SUPPORTED_PAIRS: Array<Pair> = [
     rewards: 0.015,
   },
   {
+    baseCurrencyKey: CURRENCY_MAP['IUSDT'],
+    quoteCurrencyKey: CURRENCY_MAP['bnUSD'],
+    pair: toMarketPair(CURRENCY_MAP['IUSDT'], CURRENCY_MAP['bnUSD']),
+    name: toMarketName(CURRENCY_MAP['IUSDT'], CURRENCY_MAP['bnUSD']),
+    poolId: 15,
+    rewards: 0.03,
+  },
+  {
+    baseCurrencyKey: CURRENCY_MAP['USDS'],
+    quoteCurrencyKey: CURRENCY_MAP['bnUSD'],
+    pair: toMarketPair(CURRENCY_MAP['USDS'], CURRENCY_MAP['bnUSD']),
+    name: toMarketName(CURRENCY_MAP['USDS'], CURRENCY_MAP['bnUSD']),
+    poolId: 10,
+    rewards: 0.005,
+  },
+  {
     baseCurrencyKey: CURRENCY_MAP['OMM'],
     quoteCurrencyKey: CURRENCY_MAP['IUSDC'],
     pair: toMarketPair(CURRENCY_MAP['OMM'], CURRENCY_MAP['IUSDC']),
@@ -115,14 +131,6 @@ export const SUPPORTED_PAIRS: Array<Pair> = [
     poolId: 9,
   },
   {
-    baseCurrencyKey: CURRENCY_MAP['USDS'],
-    quoteCurrencyKey: CURRENCY_MAP['bnUSD'],
-    pair: toMarketPair(CURRENCY_MAP['USDS'], CURRENCY_MAP['bnUSD']),
-    name: toMarketName(CURRENCY_MAP['USDS'], CURRENCY_MAP['bnUSD']),
-    poolId: 10,
-    rewards: 0.005,
-  },
-  {
     baseCurrencyKey: CURRENCY_MAP['METX'],
     quoteCurrencyKey: CURRENCY_MAP['bnUSD'],
     pair: toMarketPair(CURRENCY_MAP['METX'], CURRENCY_MAP['bnUSD']),
@@ -149,14 +157,6 @@ export const SUPPORTED_PAIRS: Array<Pair> = [
     pair: toMarketPair(CURRENCY_MAP['METX'], CURRENCY_MAP['USDS']),
     name: toMarketName(CURRENCY_MAP['METX'], CURRENCY_MAP['USDS']),
     poolId: 14,
-  },
-  {
-    baseCurrencyKey: CURRENCY_MAP['IUSDT'],
-    quoteCurrencyKey: CURRENCY_MAP['bnUSD'],
-    pair: toMarketPair(CURRENCY_MAP['IUSDT'], CURRENCY_MAP['bnUSD']),
-    name: toMarketName(CURRENCY_MAP['IUSDT'], CURRENCY_MAP['bnUSD']),
-    poolId: 15,
-    rewards: 0.03,
   },
 ];
 
