@@ -3,8 +3,8 @@ import React from 'react';
 import { Flex, Box, Text, Link } from 'rebass/styled-components';
 import styled from 'styled-components';
 
+import { ReactComponent as Discord } from 'assets/icons/discord.svg';
 import { ReactComponent as Logo } from 'assets/icons/logo.svg';
-import { ReactComponent as Medium } from 'assets/icons/medium.svg';
 import { ReactComponent as Reddit } from 'assets/icons/reddit.svg';
 import Revue from 'assets/icons/revue.png';
 import { ReactComponent as Telegram } from 'assets/icons/telegram.svg';
@@ -79,9 +79,6 @@ const Footer = () => {
           justifyContent="center"
         >
           <StyledFlex flexDirection={['column', 'row']}>
-            <AnimatedLink className="top-right-menu-item" as="a" href={LINKS.why}>
-              Why Balanced
-            </AnimatedLink>
             <AnimatedLink className="top-right-menu-item" as="a" href={LINKS.howitworks}>
               How it works
             </AnimatedLink>
@@ -90,6 +87,9 @@ const Footer = () => {
             </AnimatedLink>
             <AnimatedLink className="top-right-menu-item" as="a" href={LINKS.blog}>
               Blog
+            </AnimatedLink>
+            <AnimatedLink className="top-right-menu-item" as="a" href={LINKS.forum}>
+              Forum
             </AnimatedLink>
             <Button style={{ fontSize: 16, padding: '3px 20px', lineHeight: '35px' }} as="a" href={LINKS.app}>
               Go to app
@@ -104,9 +104,6 @@ const Footer = () => {
             </AnimatedLink>
             <AnimatedLink as="a" href={LINKS.docs}>
               Docs
-            </AnimatedLink>
-            <AnimatedLink as="a" href={LINKS.forum}>
-              Forum
             </AnimatedLink>
           </Flex>
         </Flex>
@@ -138,14 +135,14 @@ const Footer = () => {
           <SocialButton as="a" href={SOCIAL_LINKS.twitter}>
             <Twitter height={16} />
           </SocialButton>
-          <SocialButton as="a" href={SOCIAL_LINKS.telegram}>
-            <Telegram height={16} />
-          </SocialButton>
           <SocialButton as="a" href={SOCIAL_LINKS.reddit}>
             <Reddit height={16} />
           </SocialButton>
-          <SocialButton as="a" href={SOCIAL_LINKS.medium}>
-            <Medium height={16} />
+          <SocialButton as="a" href={SOCIAL_LINKS.telegram}>
+            <Telegram height={16} />
+          </SocialButton>
+          <SocialButton as="a" href={SOCIAL_LINKS.discord}>
+            <Discord height={16} />
           </SocialButton>
           <SocialButton style={{ marginRight: 0 }} as="a" href={SOCIAL_LINKS.revue}>
             <img alt="revue" src={Revue} height={16} />
