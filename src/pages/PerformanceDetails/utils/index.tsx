@@ -87,7 +87,7 @@ export const earningPeriods: TimePeriods = {
   },
   threeMonths: {
     displayText: 'three months',
-    days: 90,
+    days: 91,
   },
 };
 
