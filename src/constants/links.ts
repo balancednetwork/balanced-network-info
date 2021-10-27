@@ -4,6 +4,7 @@ export const SOCIAL_LINKS = {
   reddit: 'https://www.reddit.com/r/BalancedNetwork/',
   medium: 'https://medium.com/@BalancedDAO',
   revue: 'https://www.getrevue.co/profile/Balanced',
+  discord: 'https://discord.com/invite/DCa53m9wPq',
 };
 
 export const LINKS = {
