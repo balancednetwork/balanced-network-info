@@ -330,7 +330,10 @@ export const useCollateralInfo = () => {
   const rateQuery = useBnJsContractQuery<string>(bnJs, 'Staking', 'getTodayRate', []);
   const rate = rateQuery.isSuccess ? BalancedJs.utils.toIcx(rateQuery.data) : null;
 
-  const totalCollateralQuery = useBnJsContractQuery<string>(bnJs, 'Loans', 'getTotalCollateral', []);
+  const totalCollateralQuery = useBnJsContractQuery<string>(bnJs, 'sICX', 'balanceOf', [
+    'cx66d4d90f5f113eba575bf793570135f9b10cece1',
+  ]);
+
   const totalCollateral = totalCollateralQuery.isSuccess ? BalancedJs.utils.toIcx(totalCollateralQuery.data) : null;
 
   const ratesQuery = useRatesQuery();
