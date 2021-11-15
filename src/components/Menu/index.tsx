@@ -11,6 +11,7 @@ export const MenuList = styled.ul`
 export const MenuItem = styled.li`
   padding: 10px 15px;
   transition: background-color 0.3s ease;
+  color: #ffffff;
 
   :hover {
     cursor: pointer;
