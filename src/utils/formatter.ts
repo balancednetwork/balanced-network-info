@@ -6,7 +6,7 @@ import { TimeSeries } from 'types/data';
 
 const DEFAULT_CURRENCY_DECIMALS = 2;
 
-export type NumberStyle = 'percent0' | 'percent2' | 'number' | 'number4' | 'currency0' | 'currency2';
+export type NumberStyle = 'percent0' | 'percent2' | 'number' | 'number4' | 'currency0' | 'currency2' | 'price';
 
 export const toBigNumber = (value: number | string): BigNumber => new BigNumber(value);
 
@@ -35,6 +35,31 @@ export const formatPercentage = (value: string | number, decimals: number = DEFA
 export const formatNumber = (num: number, mantissa: number = 0) =>
   numbro(num).format({ thousandSeparated: true, mantissa });
 
+export const formatPrice = (value: string | number) => {
+  if (value !== 0 && !value) {
+    return '$-.--';
+  }
+  console.log(value);
+  let decimals = 0;
+
+  if (value < 0.01) {
+    decimals = 6;
+  } else if (value < 10) {
+    decimals = 4;
+  } else {
+    decimals = 2;
+  }
+
+  // always use dollars for now
+  return (
+    '$' +
+    numbro(value).format({
+      thousandSeparated: true,
+      mantissa: Number.isInteger(value) ? 0 : decimals,
+    })
+  );
+};
+
 export const getFormattedNumber = (num: number | null, numFormat: NumberStyle) => {
   if (num == null) {
     return null;
@@ -52,6 +77,8 @@ export const getFormattedNumber = (num: number | null, numFormat: NumberStyle) =
     formattedNum = formatPercentage(num);
   } else if (numFormat === 'percent0') {
     formattedNum = formatPercentage(num, 0);
+  } else if (numFormat === 'price') {
+    formattedNum = formatPrice(num);
   }
   return formattedNum;
 };

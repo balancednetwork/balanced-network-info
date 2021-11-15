@@ -85,7 +85,7 @@ export default React.memo(function TokenSection() {
                   <DataText>{token.symbol === 'ICX' ? '–' : getFormattedNumber(token.holders, 'number')}</DataText>
                   <DataText>
                     <Flex alignItems="flex-end" flexDirection="column">
-                      <Typography variant="p">{getFormattedNumber(token.price, 'currency2')}</Typography>
+                      <Typography variant="p">{getFormattedNumber(token.price, 'price')}</Typography>
                       <Typography variant="p" color={token.priceChange >= 0 ? 'primary' : 'alert'}>
                         {formatPriceChange(token.priceChange)}
                       </Typography>
