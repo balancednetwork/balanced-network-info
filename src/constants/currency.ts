@@ -84,7 +84,7 @@ export const SUPPORTED_PAIRS: Array<Pair> = [
     pair: toMarketPair(CURRENCY_MAP['IUSDC'], CURRENCY_MAP['bnUSD']),
     name: toMarketName(CURRENCY_MAP['IUSDC'], CURRENCY_MAP['bnUSD']),
     poolId: 5,
-    rewards: 0.015,
+    rewards: 0.025,
   },
   {
     baseCurrencyKey: CURRENCY_MAP['IUSDT'],
@@ -92,7 +92,7 @@ export const SUPPORTED_PAIRS: Array<Pair> = [
     pair: toMarketPair(CURRENCY_MAP['IUSDT'], CURRENCY_MAP['bnUSD']),
     name: toMarketName(CURRENCY_MAP['IUSDT'], CURRENCY_MAP['bnUSD']),
     poolId: 15,
-    rewards: 0.03,
+    rewards: 0.005,
   },
   {
     baseCurrencyKey: CURRENCY_MAP['USDS'],
@@ -100,7 +100,7 @@ export const SUPPORTED_PAIRS: Array<Pair> = [
     pair: toMarketPair(CURRENCY_MAP['USDS'], CURRENCY_MAP['bnUSD']),
     name: toMarketName(CURRENCY_MAP['USDS'], CURRENCY_MAP['bnUSD']),
     poolId: 10,
-    rewards: 0.005,
+    rewards: 0.02,
   },
   {
     baseCurrencyKey: CURRENCY_MAP['OMM'],
