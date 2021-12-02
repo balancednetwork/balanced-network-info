@@ -31,6 +31,7 @@ export const GridItemHeader = styled(GridItem)`
   letter-spacing: 3px;
   color: #ffffff;
   padding: 25px 0 20px;
+  white-space: nowrap;
 `;
 
 export const GridItemStrong = styled(GridItem)`

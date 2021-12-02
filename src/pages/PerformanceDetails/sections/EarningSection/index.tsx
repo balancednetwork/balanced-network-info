@@ -37,7 +37,7 @@ export const IncomeGrid = styled.div`
   display: grid;
   grid-template-columns: 4fr 3fr 3fr;
   align-items: stretch;
-  min-width: 700px;
+  min-width: 800px;
 `;
 
 export const StyledSkeleton = styled(Skeleton)`
@@ -191,7 +191,7 @@ const EarningsSection = () => {
           <GridItemHeader>
             {formattedDates.current.dateStart} - {formattedDates.current.dateEnd}
           </GridItemHeader>
-          <GridItemHeader>
+          <GridItemHeader style={{ paddingLeft: '25px' }}>
             {formattedDates.past.dateStart} - {formattedDates.past.dateEnd}
           </GridItemHeader>
         </IncomeGrid>

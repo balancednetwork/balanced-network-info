@@ -27,6 +27,8 @@ const Change = styled.span<{ percentage: Number }>`
   ${({ percentage }) => percentage < 0 && `color: red`}
 `;
 
+const DatepickerInput = ({ ...props }) => <input type="text" {...props} readOnly />;
+
 const HoldingsSection = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() - 1)));
 
@@ -69,6 +71,7 @@ const HoldingsSection = () => {
                 popperPlacement="bottom-end"
                 minDate={new Date((LAUNCH_DAY + ONE_DAY) / 1000)}
                 maxDate={new Date().setDate(new Date().getDate() - 1)}
+                customInput={<DatepickerInput />}
                 popperModifiers={[
                   { name: 'offset', options: { offset: [20, -3] } },
                   {

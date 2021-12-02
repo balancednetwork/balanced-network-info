@@ -13,7 +13,7 @@ import { formatPriceChange, getFormattedNumber } from 'utils/formatter';
 
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
-  min-width: 550px;
+  min-width: 620px;
   overflow: auto;
 `;
 
@@ -75,8 +75,10 @@ export default React.memo(function TokenSection() {
                 <DashGrid my={4}>
                   <DataText>
                     <Flex alignItems="center">
-                      <CurrencyIcon currencyKey={token.symbol} />
-                      <Box ml={2}>
+                      <Box sx={{ minWidth: '50px' }}>
+                        <CurrencyIcon currencyKey={token.symbol} />
+                      </Box>
+                      <Box ml={2} sx={{ minWidth: '160px' }}>
                         <Text>{token.name}</Text>
                         <Text color="text1">{token.symbol}</Text>
                       </Box>
@@ -92,7 +94,7 @@ export default React.memo(function TokenSection() {
                     </Flex>
                   </DataText>
                   <DataText>
-                    <Flex alignItems="flex-end" flexDirection="column">
+                    <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
                       <Typography variant="p">{getFormattedNumber(token.marketCap, 'currency0')}</Typography>
                       <Typography variant="p" color="text1">
                         {getFormattedNumber(token.totalSupply, 'number')} {token.symbol}

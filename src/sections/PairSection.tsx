@@ -81,7 +81,9 @@ export default function PairSection() {
                 <DashGrid my={2}>
                   <DataText>
                     <Flex alignItems="center">
-                      <PoolIcon baseCurrencyKey={pair.baseCurrencyKey} quoteCurrencyKey={pair.quoteCurrencyKey} />
+                      <Box sx={{ minWidth: '95px' }}>
+                        <PoolIcon baseCurrencyKey={pair.baseCurrencyKey} quoteCurrencyKey={pair.quoteCurrencyKey} />
+                      </Box>
                       <Text ml={2}>{`${pair.baseCurrencyKey} / ${pair.quoteCurrencyKey}`}</Text>
                     </Flex>
                   </DataText>
@@ -99,7 +101,9 @@ export default function PairSection() {
             <DashGrid my={2}>
               <FooterText>
                 <Flex alignItems="center">
-                  <TotalIcon />
+                  <Box sx={{ minWidth: '95px' }}>
+                    <TotalIcon />
+                  </Box>
                   <Text ml={2}>Total</Text>
                 </Flex>
               </FooterText>
