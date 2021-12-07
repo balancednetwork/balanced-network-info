@@ -146,7 +146,7 @@ export default function CollateralAndLoanSection() {
             />
           )}
         </ChartContainer>
-        <Flex my={3}>
+        <Flex my={3} mx={-4}>
           <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
             <Typography variant="p" fontSize={[16, '18px']}>
               {loanInfo.loansAPY ? getFormattedNumber(loanInfo.loansAPY, 'percent2') : '-'}

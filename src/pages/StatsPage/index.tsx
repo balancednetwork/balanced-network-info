@@ -200,8 +200,8 @@ export function StatsPage() {
         <PairSection />
 
         <BoxPanel bg="bg2" mb={10}>
-          <Flex>
-            <Typography variant="h2" mb={5} mr={3}>
+          <Flex flexWrap="wrap" mb={5}>
+            <Typography variant="h2" mr={3}>
               Governance
             </Typography>
             <StyledArrowLink to={LINKS.performanceDetails}>Performance details</StyledArrowLink>
