@@ -3,6 +3,7 @@ import keyBy from 'lodash/keyBy';
 import { ReactComponent as BALNIcon } from 'assets/tokens/BALN.svg';
 import { ReactComponent as bnUSDIcon } from 'assets/tokens/bnUSD.svg';
 import { ReactComponent as CFTIcon } from 'assets/tokens/CFT.svg';
+import { ReactComponent as GBETIcon } from 'assets/tokens/GBET.svg';
 import { ReactComponent as ICXIcon } from 'assets/tokens/ICX.svg';
 import { ReactComponent as IUSDCIcon } from 'assets/tokens/IUSDC.svg';
 import { ReactComponent as IUSDTIcon } from 'assets/tokens/IUSDT.svg';
@@ -11,7 +12,7 @@ import { ReactComponent as OMMIcon } from 'assets/tokens/OMM.svg';
 import { ReactComponent as sICXIcon } from 'assets/tokens/sICX.svg';
 import { ReactComponent as USDSIcon } from 'assets/tokens/USDS.svg';
 
-export const CURRENCY = ['ICX', 'sICX', 'bnUSD', 'BALN', 'IUSDC', 'OMM', 'USDS', 'CFT', 'METX', 'IUSDT'];
+export const CURRENCY = ['ICX', 'sICX', 'bnUSD', 'BALN', 'IUSDC', 'OMM', 'USDS', 'CFT', 'METX', 'IUSDT', 'GBET'];
 
 export const CURRENCY_MAP = keyBy(CURRENCY);
 
@@ -26,6 +27,7 @@ export const currencyKeyToIconMap = {
   CFT: CFTIcon,
   METX: METXIcon,
   IUSDT: IUSDTIcon,
+  GBET: GBETIcon,
 };
 
 export type CurrencyKey = string;
@@ -158,6 +160,13 @@ export const SUPPORTED_PAIRS: Array<Pair> = [
     name: toMarketName(CURRENCY_MAP['METX'], CURRENCY_MAP['USDS']),
     poolId: 14,
   },
+  {
+    baseCurrencyKey: CURRENCY_MAP['GBET'],
+    quoteCurrencyKey: CURRENCY_MAP['bnUSD'],
+    pair: toMarketPair(CURRENCY_MAP['GBET'], CURRENCY_MAP['bnUSD']),
+    name: toMarketName(CURRENCY_MAP['GBET'], CURRENCY_MAP['bnUSD']),
+    poolId: 17,
+  },
 ];
 
 export enum NetworkId {
@@ -178,6 +187,7 @@ export const addressToCurrencyKeyMap = {
     cx2e6d0fc0eca04965d06038c8406093337f085fcf: 'CFT',
     cx369a5f4ce4f4648dfc96ba0c8229be0693b4eca2: 'METX',
     cx3a36ea1f6b9aa3d2dd9cb68e8987bcc3aabaaa88: 'IUSDT',
+    cx6139a27c15f1653471ffba0b4b88dc15de7e3267: 'GBET',
   },
   [NetworkId.YEOUIDO]: {
     cxae6334850f13dfd8b50f8544d5acb126bb8ef82d: 'sICX',
@@ -203,6 +213,7 @@ export const currencyKeyToAddressMap = {
     CFT: 'cx2e6d0fc0eca04965d06038c8406093337f085fcf',
     METX: 'cx369a5f4ce4f4648dfc96ba0c8229be0693b4eca2',
     IUSDT: 'cx3a36ea1f6b9aa3d2dd9cb68e8987bcc3aabaaa88',
+    GBET: 'cx6139a27c15f1653471ffba0b4b88dc15de7e3267',
   },
   [NetworkId.YEOUIDO]: {
     sICX: 'cxae6334850f13dfd8b50f8544d5acb126bb8ef82d',
