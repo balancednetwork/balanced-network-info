@@ -4,9 +4,11 @@ import { useAllPairs, useAllPairsTotal } from 'queries';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
+import { ReactComponent as QuestionIcon } from 'assets/icons/question.svg';
 import { ReactComponent as SigmaIcon } from 'assets/icons/sigma.svg';
 import Divider from 'components/Divider';
 import { BoxPanel } from 'components/Panel';
+import { MouseoverTooltip } from 'components/Tooltip';
 import { CurrencyKey } from 'constants/currency';
 import { Typography } from 'theme';
 import { getCurrencyKeyIcon } from 'utils';
@@ -14,7 +16,7 @@ import { getFormattedNumber } from 'utils/formatter';
 
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
-  min-width: 900px;
+  min-width: 1100px;
 `;
 
 const DashGrid = styled(Box)`
@@ -40,6 +42,13 @@ const DataText = styled(Flex)`
   color: #ffffff;
   align-items: center;
   line-height: 1.4;
+
+  &.apy-column {
+    padding: 10px 22px 10px 0;
+    flex-direction: column;
+    align-items: flex-end;
+    min-width: 135px;
+  }
 `;
 
 const FooterText = styled(DataText)`
@@ -55,6 +64,11 @@ const HeaderText = styled(Flex)`
   align-items: center;
 `;
 
+const APYItem = styled(Flex)`
+  align-items: flex-end;
+  line-height: 25px;
+`;
+
 export default function PairSection() {
   const allPairs = useAllPairs();
   const total = useAllPairsTotal();
@@ -67,8 +81,24 @@ export default function PairSection() {
       <Box overflow="auto">
         <List>
           <DashGrid>
-            <HeaderText>POOL</HeaderText>
-            <HeaderText>APY</HeaderText>
+            <HeaderText minWidth={'220px'}>POOL</HeaderText>
+            <HeaderText minWidth={'135px'}>
+              <Typography marginRight={'5px'}>APY</Typography>
+              <MouseoverTooltip
+                width={330}
+                text={
+                  <>
+                    The BALN APY is calculated from the USD value of BALN rewards available for a pool.
+                    <br />
+                    <br />
+                    The fee APY is calculated from the swap fees added to a pool in the last 30 days.
+                  </>
+                }
+                placement="top"
+              >
+                <QuestionIcon className="header-tooltip" width={14} />
+              </MouseoverTooltip>
+            </HeaderText>
             <HeaderText>PARTICIPANTS</HeaderText>
             <HeaderText>LIQUIDITY</HeaderText>
             <HeaderText>VOLUME (24H)</HeaderText>
@@ -79,7 +109,7 @@ export default function PairSection() {
             Object.values(allPairs).map(pair => (
               <div key={pair.poolId}>
                 <DashGrid my={2}>
-                  <DataText>
+                  <DataText minWidth={'220px'}>
                     <Flex alignItems="center">
                       <Box sx={{ minWidth: '95px' }}>
                         <PoolIcon baseCurrencyKey={pair.baseCurrencyKey} quoteCurrencyKey={pair.quoteCurrencyKey} />
@@ -87,7 +117,20 @@ export default function PairSection() {
                       <Text ml={2}>{`${pair.baseCurrencyKey} / ${pair.quoteCurrencyKey}`}</Text>
                     </Flex>
                   </DataText>
-                  <DataText>{pair.apy ? getFormattedNumber(pair.apy, 'percent2') : '-'}</DataText>
+                  <DataText className="apy-column">
+                    <APYItem>
+                      <Typography color="#d5d7db" fontSize={14} marginRight={'5px'}>
+                        BALN:
+                      </Typography>
+                      {pair.apy ? getFormattedNumber(pair.apy, 'percent2') : '-'}
+                    </APYItem>
+                    <APYItem>
+                      <Typography color="#d5d7db" fontSize={14} marginRight={'5px'}>
+                        Fees:
+                      </Typography>
+                      {pair.apy ? getFormattedNumber(pair.apy, 'percent2') : '-'}
+                    </APYItem>
+                  </DataText>
                   <DataText>{getFormattedNumber(pair.participant, 'number')}</DataText>
                   <DataText>{getFormattedNumber(pair.tvl, 'currency0')}</DataText>
                   <DataText>{getFormattedNumber(pair.volume, 'currency0')}</DataText>
@@ -107,7 +150,7 @@ export default function PairSection() {
                   <Text ml={2}>Total</Text>
                 </Flex>
               </FooterText>
-              <FooterText>–</FooterText>
+              <FooterText paddingRight={'22px'}>–</FooterText>
               <FooterText>{getFormattedNumber(total.participant, 'number')}</FooterText>
               <FooterText>{getFormattedNumber(total.tvl, 'currency0')}</FooterText>
               <FooterText>{getFormattedNumber(total.volume, 'currency0')}</FooterText>
