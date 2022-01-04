@@ -14,7 +14,6 @@ export const LINKS = {
   why: 'https://balanced.network/why/',
   howitworks: 'https://balanced.network/how/',
   app: 'https://app.balanced.network/',
-  airdrip: 'https://balanced.network/airdrip/',
   brand: 'https://balanced.network/brand/',
   demo: 'https://balanced.network/demo/',
   docs: 'https://docs.balanced.network/',
