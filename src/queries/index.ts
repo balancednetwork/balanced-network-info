@@ -14,7 +14,7 @@ import {
 } from 'constants/currency';
 import { ZERO } from 'constants/number';
 import QUERY_KEYS from 'constants/queryKeys';
-import { contractToInfoMap } from 'pages/PerformanceDetails/utils';
+import { contractToInfoMap, getTimestampFrom } from 'pages/PerformanceDetails/utils';
 
 import { ContractData, PerformaceData } from '../pages/PerformanceDetails/types';
 
@@ -201,11 +201,32 @@ export const useOverviewInfo = () => {
   // transactions
   const { data: platformDay } = usePlatformDayQuery();
 
+  //get monthly fees and BALN APY
+  let BALNAPY: BigNumber | undefined;
+  let monthlyFeesTotal: BigNumber | undefined;
+  const totalBALNStakedQuery = useBnJsContractQuery<string>(bnJs, 'BALN', 'totalStakedBalance', []);
+  const earningsDataQuery = useEarningsDataQuery(getTimestampFrom(30), getTimestampFrom(0));
+
+  if (totalBALNStakedQuery.isSuccess && ratesQuery.isSuccess && rates) {
+    //get 30 day fee payout
+    monthlyFeesTotal = earningsDataQuery?.data?.expenses.reduce(
+      (total, expense) => total.plus(expense.tokens.times(rates[expense.info.symbol].toNumber())),
+      new BigNumber(0),
+    );
+
+    //get BALN APY
+    if (monthlyFeesTotal) {
+      BALNAPY = monthlyFeesTotal?.times(12).div(BalancedJs.utils.toIcx(totalBALNStakedQuery.data).times(rates['BALN']));
+    }
+  }
+
   return {
     TVL: tvl,
     BALNMarketCap: BALNMarketCap?.integerValue().toNumber(),
     fees: totalFees?.integerValue().toNumber(),
     platformDay: platformDay,
+    BALNAPY: BALNAPY?.toNumber(),
+    monthlyFeesTotal: monthlyFeesTotal?.integerValue().toNumber(),
   };
 };
 
@@ -385,6 +406,7 @@ export const useLoanInfo = () => {
   };
 };
 
+//gets only BALN apy, no fees included
 export const useAllPairsAPY = () => {
   const dailyDistributionQuery = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
   const tvls = useAllPairsTVL();
@@ -397,6 +419,7 @@ export const useAllPairsAPY = () => {
       t[pair.name] =
         pair.rewards && dailyDistribution.times(pair.rewards).times(365).times(rates['BALN']).div(tvls[pair.name]);
     });
+
     return t;
   }
 
@@ -556,17 +579,27 @@ export const useAllPairs = () => {
   const participantQuery = useAllPairsParticipantQuery();
 
   const t: {
-    [key: string]: Pair & { tvl: number; apy: number; participant: number; volume: number; fees: number };
+    [key: string]: Pair & {
+      tvl: number;
+      apy: number;
+      feesApy: number;
+      participant: number;
+      volume: number;
+      fees: number;
+    };
   } = {};
 
   if (apys && participantQuery.isSuccess && tvls && data) {
     const participants = participantQuery.data;
 
     SUPPORTED_PAIRS.forEach(pair => {
+      const feesApyConstant = pair.name === 'sICX/ICX' ? 0.7 : 0.5;
+
       t[pair.name] = {
         ...pair,
         tvl: tvls[pair.name],
         apy: apys[pair.name],
+        feesApy: (data[pair.name]['fees'] * 365 * feesApyConstant) / tvls[pair.name],
         participant: participants[pair.name],
         volume: data[pair.name]['volume'],
         fees: data[pair.name]['fees'],

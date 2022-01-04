@@ -118,18 +118,25 @@ export default function PairSection() {
                     </Flex>
                   </DataText>
                   <DataText className="apy-column">
-                    <APYItem>
-                      <Typography color="#d5d7db" fontSize={14} marginRight={'5px'}>
-                        BALN:
-                      </Typography>
-                      {pair.apy ? getFormattedNumber(pair.apy, 'percent2') : '-'}
-                    </APYItem>
-                    <APYItem>
-                      <Typography color="#d5d7db" fontSize={14} marginRight={'5px'}>
-                        Fees:
-                      </Typography>
-                      {pair.apy ? getFormattedNumber(pair.apy, 'percent2') : '-'}
-                    </APYItem>
+                    {pair.apy && (
+                      <APYItem>
+                        <Typography color="#d5d7db" fontSize={14} marginRight={'5px'}>
+                          BALN:
+                        </Typography>
+                        {getFormattedNumber(pair.apy, 'percent2')}
+                      </APYItem>
+                    )}
+
+                    {pair.feesApy !== 0 && (
+                      <APYItem>
+                        <Typography color="#d5d7db" fontSize={14} marginRight={'5px'}>
+                          Fees:
+                        </Typography>
+                        {getFormattedNumber(pair.feesApy, 'percent2')}
+                      </APYItem>
+                    )}
+
+                    {!pair.feesApy && !pair.apy && '-'}
                   </DataText>
                   <DataText>{getFormattedNumber(pair.participant, 'number')}</DataText>
                   <DataText>{getFormattedNumber(pair.tvl, 'currency0')}</DataText>
@@ -142,7 +149,7 @@ export default function PairSection() {
 
           {total && (
             <DashGrid my={2}>
-              <FooterText>
+              <FooterText minWidth={'220px'}>
                 <Flex alignItems="center">
                   <Box sx={{ minWidth: '95px' }}>
                     <TotalIcon />
@@ -150,7 +157,9 @@ export default function PairSection() {
                   <Text ml={2}>Total</Text>
                 </Flex>
               </FooterText>
-              <FooterText paddingRight={'22px'}>–</FooterText>
+              <FooterText paddingRight={'22px'} minWidth={'135px'}>
+                –
+              </FooterText>
               <FooterText>{getFormattedNumber(total.participant, 'number')}</FooterText>
               <FooterText>{getFormattedNumber(total.tvl, 'currency0')}</FooterText>
               <FooterText>{getFormattedNumber(total.volume, 'currency0')}</FooterText>

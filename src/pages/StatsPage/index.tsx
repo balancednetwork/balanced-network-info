@@ -194,15 +194,20 @@ export function StatsPage() {
               <StatsItemData>
                 <Flex alignItems="center">
                   <Typography fontWeight="normal" variant="h3" marginRight={'7px'}>
-                    {/* {overviewInfo.platformDay ? getFormattedNumber(overviewInfo.platformDay, 'number') : '-'} */}
-                    {'***'}
+                    {overviewInfo.BALNAPY ? getFormattedNumber(overviewInfo.BALNAPY, 'percent2') : '-'}
                   </Typography>
                   <MouseoverTooltip
                     width={270}
                     text={
                       <>
                         Calculated from the network fees distributed to staked BALN holders in the last 30 days{' '}
-                        <strong style={{ whiteSpace: 'nowrap' }}>($210 000)</strong>
+                        <strong style={{ whiteSpace: 'nowrap' }}>
+                          (
+                          {overviewInfo.monthlyFeesTotal
+                            ? getFormattedNumber(overviewInfo.monthlyFeesTotal, 'currency0')
+                            : '-'}
+                          ).
+                        </strong>
                       </>
                     }
                     placement="top"
