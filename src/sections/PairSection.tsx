@@ -12,6 +12,8 @@ import { Typography } from 'theme';
 import { getCurrencyKeyIcon } from 'utils';
 import { getFormattedNumber } from 'utils/formatter';
 
+import { StyledSkeleton as Skeleton } from './TokenSection';
+
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
   min-width: 900px;
@@ -55,6 +57,17 @@ const HeaderText = styled(Flex)`
   align-items: center;
 `;
 
+const StyledSkeleton = styled(Skeleton)`
+  &.pool-icon-skeleton {
+    position: absolute;
+    left: 0;
+
+    &:last-of-type {
+      left: 38px;
+    }
+  }
+`;
+
 export default function PairSection() {
   const allPairs = useAllPairs();
   const total = useAllPairsTotal();
@@ -75,7 +88,7 @@ export default function PairSection() {
             <HeaderText>FEES (24H)</HeaderText>
           </DashGrid>
 
-          {allPairs &&
+          {allPairs ? (
             Object.values(allPairs).map(pair => (
               <div key={pair.poolId}>
                 <DashGrid my={2}>
@@ -95,7 +108,32 @@ export default function PairSection() {
                 </DashGrid>
                 <Divider />
               </div>
-            ))}
+            ))
+          ) : (
+            <>
+              <SkeletonPariPlaceholder />
+              <Divider />
+              <SkeletonPariPlaceholder />
+              <Divider />
+              <SkeletonPariPlaceholder />
+              <Divider />
+              <SkeletonPariPlaceholder />
+              <Divider />
+              <SkeletonPariPlaceholder />
+              <Divider />
+              <SkeletonPariPlaceholder />
+              <Divider />
+              <SkeletonPariPlaceholder />
+              <Divider />
+              <SkeletonPariPlaceholder />
+              <Divider />
+              <SkeletonPariPlaceholder />
+              <Divider />
+              <SkeletonPariPlaceholder />
+              <Divider />
+              <SkeletonPariPlaceholder />
+            </>
+          )}
 
           {total && (
             <DashGrid my={2}>
@@ -119,6 +157,39 @@ export default function PairSection() {
     </BoxPanel>
   );
 }
+
+const SkeletonPariPlaceholder = () => {
+  return (
+    <DashGrid my={2}>
+      <DataText>
+        <Flex alignItems="center">
+          <Box sx={{ minWidth: '95px', minHeight: '48px', position: 'relative' }}>
+            <StyledSkeleton variant="circle" width={48} height={48} className="pool-icon-skeleton" />
+            <StyledSkeleton variant="circle" width={48} height={48} className="pool-icon-skeleton" />
+          </Box>
+          <Text ml={2}>
+            <StyledSkeleton width={90} />
+          </Text>
+        </Flex>
+      </DataText>
+      <DataText>
+        <StyledSkeleton width={50} />
+      </DataText>
+      <DataText>
+        <StyledSkeleton width={70} />
+      </DataText>
+      <DataText>
+        <StyledSkeleton width={100} />
+      </DataText>
+      <DataText>
+        <StyledSkeleton width={100} />
+      </DataText>
+      <DataText>
+        <StyledSkeleton width={70} />
+      </DataText>
+    </DashGrid>
+  );
+};
 
 const IconWrapper = styled(Box)`
   width: 48px;

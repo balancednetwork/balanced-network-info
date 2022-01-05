@@ -19,6 +19,7 @@ import Footer from 'components/Footer';
 import Header from 'components/Header';
 import { BoxPanel } from 'components/Panel';
 import { LINKS } from 'constants/links';
+import { LoaderComponent } from 'pages/PerformanceDetails/utils';
 import CollateralAndLoanSection from 'sections/CollateralAndLoanSection';
 import PairSection from 'sections/PairSection';
 import TokenSection from 'sections/TokenSection';
@@ -147,7 +148,7 @@ export function StatsPage() {
               </StatsItemIcon>
               <StatsItemData>
                 <Typography fontWeight="normal" variant="h3">
-                  {overviewInfo.TVL ? getFormattedNumber(overviewInfo.TVL, 'currency0') : '-'}
+                  {overviewInfo.TVL ? getFormattedNumber(overviewInfo.TVL, 'currency0') : <LoaderComponent />}
                 </Typography>
                 <Typography>Total value locked</Typography>
               </StatsItemData>
@@ -159,7 +160,11 @@ export function StatsPage() {
               </StatsItemIcon>
               <StatsItemData>
                 <Typography fontWeight="normal" variant="h3">
-                  {overviewInfo.BALNMarketCap ? getFormattedNumber(overviewInfo.BALNMarketCap, 'currency0') : '-'}
+                  {overviewInfo.BALNMarketCap ? (
+                    getFormattedNumber(overviewInfo.BALNMarketCap, 'currency0')
+                  ) : (
+                    <LoaderComponent />
+                  )}
                 </Typography>
                 <Typography>BALN marketcap</Typography>
               </StatsItemData>
@@ -172,7 +177,7 @@ export function StatsPage() {
 
               <StatsItemData>
                 <Typography fontWeight="normal" variant="h3">
-                  {overviewInfo.fees ? getFormattedNumber(overviewInfo.fees, 'currency0') : '-'}
+                  {overviewInfo.fees ? getFormattedNumber(overviewInfo.fees, 'currency0') : <LoaderComponent />}
                 </Typography>
                 <Typography>Fees earned</Typography>
               </StatsItemData>
@@ -185,7 +190,11 @@ export function StatsPage() {
 
               <StatsItemData>
                 <Typography fontWeight="normal" variant="h3">
-                  {overviewInfo.platformDay ? getFormattedNumber(overviewInfo.platformDay, 'number') : '-'}
+                  {overviewInfo.platformDay ? (
+                    getFormattedNumber(overviewInfo.platformDay, 'number')
+                  ) : (
+                    <LoaderComponent />
+                  )}
                 </Typography>
                 <Typography>Days since launch</Typography>
               </StatsItemData>
@@ -215,7 +224,11 @@ export function StatsPage() {
 
               <StatsItemData>
                 <Typography fontWeight="normal" variant="h3">
-                  {governanceInfo.daofund ? getFormattedNumber(governanceInfo.daofund, 'currency0') : '-'}
+                  {governanceInfo.daofund ? (
+                    getFormattedNumber(governanceInfo.daofund, 'currency0')
+                  ) : (
+                    <LoaderComponent />
+                  )}
                 </Typography>
                 <Typography>DAO fund</Typography>
               </StatsItemData>
@@ -227,7 +240,11 @@ export function StatsPage() {
               </StatsItemIcon>
               <StatsItemData>
                 <Typography fontWeight="normal" variant="h3">
-                  {governanceInfo.numOfStakers ? getFormattedNumber(governanceInfo.numOfStakers, 'number') : '-'}
+                  {governanceInfo.numOfStakers ? (
+                    getFormattedNumber(governanceInfo.numOfStakers, 'number')
+                  ) : (
+                    <LoaderComponent />
+                  )}
                 </Typography>
                 <Typography>BALN stakers</Typography>
               </StatsItemData>
@@ -240,7 +257,11 @@ export function StatsPage() {
 
               <StatsItemData>
                 <Typography fontWeight="normal" variant="h3">
-                  {governanceInfo.totalStakedBALN ? getFormattedNumber(governanceInfo.totalStakedBALN, 'number') : '-'}{' '}
+                  {governanceInfo.totalStakedBALN ? (
+                    getFormattedNumber(governanceInfo.totalStakedBALN, 'number')
+                  ) : (
+                    <LoaderComponent />
+                  )}{' '}
                 </Typography>
                 <Typography>BALN staked</Typography>
               </StatsItemData>
@@ -253,9 +274,11 @@ export function StatsPage() {
 
               <StatsItemData>
                 <Typography fontWeight="normal" variant="h3">
-                  {governanceInfo.dailyDistribution
-                    ? getFormattedNumber(governanceInfo.dailyDistribution, 'number')
-                    : '-'}{' '}
+                  {governanceInfo.dailyDistribution ? (
+                    getFormattedNumber(governanceInfo.dailyDistribution, 'number')
+                  ) : (
+                    <LoaderComponent />
+                  )}{' '}
                   <Typography as="span" fontWeight="normal" color="text1">
                     BALN
                   </Typography>

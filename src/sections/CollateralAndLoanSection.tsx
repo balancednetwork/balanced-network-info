@@ -14,8 +14,10 @@ import styled from 'styled-components';
 
 import LineChart, { DEFAULT_HEIGHT } from 'components/LineChart';
 import { BoxPanel } from 'components/Panel';
+import Spinner from 'components/Spinner';
 import { ONE } from 'constants/number';
 import useTheme from 'hooks/useTheme';
+import { LoaderComponent } from 'pages/PerformanceDetails/utils';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
 
@@ -43,6 +45,9 @@ const ChartPanel = styled(BoxPanel)`
 const ChartContainer = styled(Box)`
   position: relative;
   height: ${DEFAULT_HEIGHT}px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 export default function CollateralAndLoanSection() {
@@ -84,7 +89,8 @@ export default function CollateralAndLoanSection() {
           Collateral
         </Typography>
         <Typography variant="h3" mb={1}>
-          {collateralInfo.totalCollateral ? getFormattedNumber(collateralTVLHover || 0, 'number') : '-'} sICX{' '}
+          {collateralInfo.totalCollateral ? getFormattedNumber(collateralTVLHover || 0, 'number') : <LoaderComponent />}{' '}
+          sICX{' '}
           {collateralInfo.totalCollateral && (
             <Typography variant="p" as="span" color="text1">
               {`(${collateralTVLInUSDHover})`}
@@ -95,7 +101,7 @@ export default function CollateralAndLoanSection() {
           {collateralLabel ? <>{collateralLabel}</> : <>{dayjs.utc().format('MMM D, YYYY')}</>}
         </Typography>
         <ChartContainer>
-          {collateralChartDataQuery.data && (
+          {collateralChartDataQuery.data ? (
             <LineChart
               data={collateralChartDataQuery.data}
               height={DEFAULT_HEIGHT}
@@ -106,18 +112,24 @@ export default function CollateralAndLoanSection() {
               setValue={setCollateralTVLHover}
               setLabel={setCollateralLabel}
             />
+          ) : (
+            <Spinner size="lg" />
           )}
         </ChartContainer>
         <Flex my={3}>
           <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
             <Typography variant="p" fontSize="18px">
-              {collateralInfo.stakingAPY ? getFormattedNumber(collateralInfo.stakingAPY, 'percent2') : '-'}
+              {collateralInfo.stakingAPY ? (
+                getFormattedNumber(collateralInfo.stakingAPY, 'percent2')
+              ) : (
+                <LoaderComponent />
+              )}
             </Typography>
             <Typography>Staking APY</Typography>
           </Flex>
           <Flex flex={1} flexDirection="column" alignItems="center">
             <Typography variant="p" fontSize="18px">
-              {collateralInfo.rate ? getFormattedNumber(collateralInfo.rate, 'number4') : '-'}
+              {collateralInfo.rate ? getFormattedNumber(collateralInfo.rate, 'number4') : <LoaderComponent />}
             </Typography>
             <Typography>sICX / ICX price</Typography>
           </Flex>
@@ -129,11 +141,11 @@ export default function CollateralAndLoanSection() {
           Loans
         </Typography>
         <Typography variant="h3" mb={1}>
-          {loanInfo.totalLoans ? getFormattedNumber(loanTVLHover || 0, 'number') : '-'} bnUSD
+          {loanInfo.totalLoans ? getFormattedNumber(loanTVLHover || 0, 'number') : <LoaderComponent />} bnUSD
         </Typography>
         <Typography variant="p">{loanLabel ? <>{loanLabel}</> : <>{dayjs.utc().format('MMM D, YYYY')}</>}</Typography>
         <ChartContainer>
-          {loanChartDataQuery.data && (
+          {loanChartDataQuery.data ? (
             <LineChart
               data={loanChartDataQuery.data}
               height={DEFAULT_HEIGHT}
@@ -144,24 +156,26 @@ export default function CollateralAndLoanSection() {
               setValue={setLoansTVLHover}
               setLabel={setLoanLabel}
             />
+          ) : (
+            <Spinner size="lg" />
           )}
         </ChartContainer>
         <Flex my={3} mx={-4}>
           <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
             <Typography variant="p" fontSize={[16, '18px']}>
-              {loanInfo.loansAPY ? getFormattedNumber(loanInfo.loansAPY, 'percent2') : '-'}
+              {loanInfo.loansAPY ? getFormattedNumber(loanInfo.loansAPY, 'percent2') : <LoaderComponent />}
             </Typography>
             <Typography>Borrow APY</Typography>
           </Flex>
           <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
             <Typography variant="p" fontSize={[16, '18px']}>
-              {loanInfo.dailyRewards ? getFormattedNumber(loanInfo.dailyRewards, 'number') : '-'} BALN
+              {loanInfo.dailyRewards ? getFormattedNumber(loanInfo.dailyRewards, 'number') : <LoaderComponent />} BALN
             </Typography>
             <Typography>Daily rewards</Typography>
           </Flex>
           <Flex flex={1} flexDirection="column" alignItems="center">
             <Typography variant="p" fontSize={[16, '18px']}>
-              {loanInfo.borrowers ? getFormattedNumber(loanInfo.borrowers, 'number') : '-'}
+              {loanInfo.borrowers ? getFormattedNumber(loanInfo.borrowers, 'number') : <LoaderComponent />}
             </Typography>
             <Typography>Borrowers</Typography>
           </Flex>

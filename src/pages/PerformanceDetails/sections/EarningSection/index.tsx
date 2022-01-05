@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 
-import Skeleton from '@material-ui/lab/Skeleton';
 import BigNumber from 'bignumber.js';
 import { useEarningsDataQuery, useRatesQuery } from 'queries';
 import ClickAwayListener from 'react-click-away-listener';
@@ -22,6 +21,7 @@ import {
   SkeletonPlaceholder,
   LoaderComponent,
 } from 'pages/PerformanceDetails/utils';
+import { StyledSkeleton as Skeleton } from 'sections/TokenSection';
 import { Typography } from 'theme';
 
 import {
@@ -41,7 +41,6 @@ export const IncomeGrid = styled.div`
 `;
 
 export const StyledSkeleton = styled(Skeleton)`
-  background-color: rgba(44, 169, 183, 0.2) !important;
   height: 32px;
   margin-left: auto;
 `;
