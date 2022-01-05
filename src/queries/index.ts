@@ -347,7 +347,15 @@ export const useCollateralInfo = () => {
 
   //
   const { data: IISSInfo } = useBnJsContractQuery<any>(bnJs, 'IISS', 'getIISSInfo', []);
-  const stakingAPY = IISSInfo ? new BigNumber(IISSInfo?.variable.rrep).times(3).div(10_000).toNumber() : undefined;
+  const { data: PRepsInfo } = useBnJsContractQuery<any>(bnJs, 'IISS', 'getPReps', []);
+  const totalDelegated = PRepsInfo ? new BigNumber(PRepsInfo?.totalDelegated) : undefined;
+  const stakingAPY =
+    IISSInfo && totalDelegated
+      ? new BigNumber(IISSInfo?.variable.Iglobal)
+          .times(new BigNumber(IISSInfo.variable.Ivoter).times(12))
+          .div(totalDelegated.times(100))
+          .toNumber()
+      : undefined;
 
   return {
     totalCollateral: totalCollateral?.integerValue().toNumber(),
