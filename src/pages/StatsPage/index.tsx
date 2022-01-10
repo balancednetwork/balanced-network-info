@@ -26,6 +26,8 @@ import TokenSection from 'sections/TokenSection';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
 
+import { StyledSkeleton as Skeleton } from '../../sections/TokenSection';
+
 export const Container = styled(Box)`
   /* disable margin collapse */
   display: flex;
@@ -148,7 +150,7 @@ export function StatsPage() {
               </StatsItemIcon>
               <StatsItemData>
                 <Typography fontWeight="normal" variant="h3">
-                  {overviewInfo.TVL ? getFormattedNumber(overviewInfo.TVL, 'currency0') : <LoaderComponent />}
+                  {overviewInfo.TVL ? getFormattedNumber(overviewInfo.TVL, 'currency0') : <Skeleton width={120} />}
                 </Typography>
                 <Typography>Total value locked</Typography>
               </StatsItemData>

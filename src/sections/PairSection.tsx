@@ -68,6 +68,91 @@ const StyledSkeleton = styled(Skeleton)`
   }
 `;
 
+const IconWrapper = styled(Box)`
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgb(12, 42, 77);
+  background-color: rgb(20, 74, 104);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const PoolIconWrapper = styled(Box)`
+  display: flex;
+  min-width: 80px;
+`;
+
+function PoolIcon({
+  baseCurrencyKey,
+  quoteCurrencyKey,
+}: {
+  baseCurrencyKey: CurrencyKey;
+  quoteCurrencyKey: CurrencyKey;
+}) {
+  const BaseIcon = getCurrencyKeyIcon(baseCurrencyKey);
+  const QuoteIcon = getCurrencyKeyIcon(quoteCurrencyKey);
+
+  return (
+    <PoolIconWrapper>
+      <IconWrapper>
+        <BaseIcon width={25} height={25} />
+      </IconWrapper>
+      <IconWrapper ml={-2}>
+        <QuoteIcon width={25} height={25} />
+      </IconWrapper>
+    </PoolIconWrapper>
+  );
+}
+
+function TotalIcon() {
+  return (
+    <PoolIconWrapper>
+      <IconWrapper></IconWrapper>
+      <IconWrapper ml="-38px"></IconWrapper>
+      <IconWrapper ml="-38px"></IconWrapper>
+      <IconWrapper ml="-38px"></IconWrapper>
+      <IconWrapper ml="-38px">
+        <SigmaIcon width={20} height={20} />
+      </IconWrapper>
+    </PoolIconWrapper>
+  );
+}
+
+const SkeletonPariPlaceholder = () => {
+  return (
+    <DashGrid my={2}>
+      <DataText>
+        <Flex alignItems="center">
+          <Box sx={{ minWidth: '95px', minHeight: '48px', position: 'relative' }}>
+            <StyledSkeleton variant="circle" width={48} height={48} className="pool-icon-skeleton" />
+            <StyledSkeleton variant="circle" width={48} height={48} className="pool-icon-skeleton" />
+          </Box>
+          <Text ml={2}>
+            <StyledSkeleton width={90} />
+          </Text>
+        </Flex>
+      </DataText>
+      <DataText>
+        <StyledSkeleton width={50} />
+      </DataText>
+      <DataText>
+        <StyledSkeleton width={70} />
+      </DataText>
+      <DataText>
+        <StyledSkeleton width={100} />
+      </DataText>
+      <DataText>
+        <StyledSkeleton width={100} />
+      </DataText>
+      <DataText>
+        <StyledSkeleton width={70} />
+      </DataText>
+    </DashGrid>
+  );
+};
+
 export default function PairSection() {
   const allPairs = useAllPairs();
   const total = useAllPairsTotal();
@@ -155,90 +240,5 @@ export default function PairSection() {
         </List>
       </Box>
     </BoxPanel>
-  );
-}
-
-const SkeletonPariPlaceholder = () => {
-  return (
-    <DashGrid my={2}>
-      <DataText>
-        <Flex alignItems="center">
-          <Box sx={{ minWidth: '95px', minHeight: '48px', position: 'relative' }}>
-            <StyledSkeleton variant="circle" width={48} height={48} className="pool-icon-skeleton" />
-            <StyledSkeleton variant="circle" width={48} height={48} className="pool-icon-skeleton" />
-          </Box>
-          <Text ml={2}>
-            <StyledSkeleton width={90} />
-          </Text>
-        </Flex>
-      </DataText>
-      <DataText>
-        <StyledSkeleton width={50} />
-      </DataText>
-      <DataText>
-        <StyledSkeleton width={70} />
-      </DataText>
-      <DataText>
-        <StyledSkeleton width={100} />
-      </DataText>
-      <DataText>
-        <StyledSkeleton width={100} />
-      </DataText>
-      <DataText>
-        <StyledSkeleton width={70} />
-      </DataText>
-    </DashGrid>
-  );
-};
-
-const IconWrapper = styled(Box)`
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 1px solid rgb(12, 42, 77);
-  background-color: rgb(20, 74, 104);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const PoolIconWrapper = styled(Box)`
-  display: flex;
-  min-width: 80px;
-`;
-
-function PoolIcon({
-  baseCurrencyKey,
-  quoteCurrencyKey,
-}: {
-  baseCurrencyKey: CurrencyKey;
-  quoteCurrencyKey: CurrencyKey;
-}) {
-  const BaseIcon = getCurrencyKeyIcon(baseCurrencyKey);
-  const QuoteIcon = getCurrencyKeyIcon(quoteCurrencyKey);
-
-  return (
-    <PoolIconWrapper>
-      <IconWrapper>
-        <BaseIcon width={25} height={25} />
-      </IconWrapper>
-      <IconWrapper ml={-2}>
-        <QuoteIcon width={25} height={25} />
-      </IconWrapper>
-    </PoolIconWrapper>
-  );
-}
-
-function TotalIcon() {
-  return (
-    <PoolIconWrapper>
-      <IconWrapper></IconWrapper>
-      <IconWrapper ml="-38px"></IconWrapper>
-      <IconWrapper ml="-38px"></IconWrapper>
-      <IconWrapper ml="-38px"></IconWrapper>
-      <IconWrapper ml="-38px">
-        <SigmaIcon width={20} height={20} />
-      </IconWrapper>
-    </PoolIconWrapper>
   );
 }

@@ -113,7 +113,7 @@ export default function CollateralAndLoanSection() {
               setLabel={setCollateralLabel}
             />
           ) : (
-            <Spinner size="lg" />
+            <Spinner size={75} />
           )}
         </ChartContainer>
         <Flex my={3}>
@@ -157,7 +157,7 @@ export default function CollateralAndLoanSection() {
               setLabel={setLoanLabel}
             />
           ) : (
-            <Spinner size="lg" />
+            <Spinner size={75} />
           )}
         </ChartContainer>
         <Flex my={3} mx={-4}>
