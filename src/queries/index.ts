@@ -24,6 +24,8 @@ export const useBnJsContractQuery = <T>(bnJs: BalancedJs, contract: string, meth
   });
 };
 
+type DataPeriod = '24h' | '30d';
+
 export const useRatesQuery = () => {
   const fetch = async () => {
     const { data } = await axios.get(`${API_ENDPOINT}/stats/token-stats`);
@@ -474,46 +476,51 @@ export const useAllPairsTVL = () => {
   return;
 };
 
-export const useAllPairsDataQuery = () => {
-  return useQuery<{ [key: string]: { base: BigNumber; quote: BigNumber } }>('useAllPairsDataQuery', async () => {
-    const { data } = await axios.get(`${API_ENDPOINT}/stats/dex-pool-stats-24h`);
-    const t = {};
-    SUPPORTED_PAIRS.forEach(pair => {
-      const key = `0x${pair.poolId.toString(16)}`;
+export const useAllPairsDataQuery = (period: DataPeriod = '24h') => {
+  return useQuery<{ [key: string]: { base: BigNumber; quote: BigNumber } }>(
+    `useAllPairs${period}DataQuery`,
+    async () => {
+      const { data } = await axios.get(`${API_ENDPOINT}/stats/dex-pool-stats-${period}`);
+      const t = {};
+      SUPPORTED_PAIRS.forEach(pair => {
+        const key = `0x${pair.poolId.toString(16)}`;
 
-      const baseAddress = currencyKeyToAddressMap[NetworkId.MAINNET][pair.baseCurrencyKey];
-      const quoteAddress = currencyKeyToAddressMap[NetworkId.MAINNET][pair.quoteCurrencyKey];
+        const baseAddress = currencyKeyToAddressMap[NetworkId.MAINNET][pair.baseCurrencyKey];
+        const quoteAddress = currencyKeyToAddressMap[NetworkId.MAINNET][pair.quoteCurrencyKey];
 
-      t[pair.name] = {};
+        t[pair.name] = {};
 
-      // volume
-      const _volume = data[key]['volume'];
+        // volume
+        const _volume = data[key]['volume'];
 
-      t[pair.name]['volume'] = {
-        [pair.baseCurrencyKey]: BalancedJs.utils.toIcx(_volume[baseAddress], pair.baseCurrencyKey),
-        [pair.quoteCurrencyKey]: BalancedJs.utils.toIcx(_volume[quoteAddress], pair.quoteCurrencyKey),
-      };
+        t[pair.name]['volume'] = {
+          [pair.baseCurrencyKey]: BalancedJs.utils.toIcx(_volume[baseAddress], pair.baseCurrencyKey),
+          [pair.quoteCurrencyKey]: BalancedJs.utils.toIcx(_volume[quoteAddress], pair.quoteCurrencyKey),
+        };
 
-      // fees
-      const _fees = data[key]['fees'];
-      t[pair.name]['fees'] = {
-        [pair.baseCurrencyKey]: {
-          lp_fees: BalancedJs.utils.toIcx(_fees[baseAddress]['lp_fees'], pair.baseCurrencyKey),
-          baln_fees: BalancedJs.utils.toIcx(_fees[baseAddress]['baln_fees'], pair.baseCurrencyKey),
-        },
-        [pair.quoteCurrencyKey]: {
-          lp_fees: BalancedJs.utils.toIcx(_fees[quoteAddress]['lp_fees'], pair.quoteCurrencyKey),
-          baln_fees: BalancedJs.utils.toIcx(_fees[quoteAddress]['baln_fees'], pair.quoteCurrencyKey),
-        },
-      };
-    });
+        // fees
+        const _fees = data[key]['fees'];
+        t[pair.name]['fees'] = {
+          [pair.baseCurrencyKey]: {
+            lp_fees: BalancedJs.utils.toIcx(_fees[baseAddress]['lp_fees'], pair.baseCurrencyKey),
+            baln_fees: BalancedJs.utils.toIcx(_fees[baseAddress]['baln_fees'], pair.baseCurrencyKey),
+          },
+          [pair.quoteCurrencyKey]: {
+            lp_fees: BalancedJs.utils.toIcx(_fees[quoteAddress]['lp_fees'], pair.quoteCurrencyKey),
+            baln_fees: BalancedJs.utils.toIcx(_fees[quoteAddress]['baln_fees'], pair.quoteCurrencyKey),
+          },
+        };
+      });
 
-    return t;
-  });
+      return t;
+    },
+  );
 };
 
-export const useAllPairsData = (): { [key in string]: { volume: number; fees: number } } | undefined => {
-  const dataQuery = useAllPairsDataQuery();
+export const useAllPairsData = (
+  period: DataPeriod = '24h',
+): { [key in string]: { volume: number; fees: number } } | undefined => {
+  const dataQuery = useAllPairsDataQuery(period);
   const ratesQuery = useRatesQuery();
 
   if (dataQuery.isSuccess && ratesQuery.isSuccess) {
@@ -576,6 +583,7 @@ export const useAllPairs = () => {
   const apys = useAllPairsAPY();
   const tvls = useAllPairsTVL();
   const data = useAllPairsData();
+  const data30day = useAllPairsData('30d');
   const participantQuery = useAllPairsParticipantQuery();
 
   const t: {
@@ -589,7 +597,7 @@ export const useAllPairs = () => {
     };
   } = {};
 
-  if (apys && participantQuery.isSuccess && tvls && data) {
+  if (apys && participantQuery.isSuccess && tvls && data && data30day) {
     const participants = participantQuery.data;
 
     SUPPORTED_PAIRS.forEach(pair => {
@@ -599,7 +607,7 @@ export const useAllPairs = () => {
         ...pair,
         tvl: tvls[pair.name],
         apy: apys[pair.name],
-        feesApy: (data[pair.name]['fees'] * 365 * feesApyConstant) / tvls[pair.name],
+        feesApy: (data30day[pair.name]['fees'] * 12 * feesApyConstant) / tvls[pair.name],
         participant: participants[pair.name],
         volume: data[pair.name]['volume'],
         fees: data[pair.name]['fees'],
