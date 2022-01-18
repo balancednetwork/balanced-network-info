@@ -19,7 +19,6 @@ import {
   dateOptionLong,
   FormattedPeriods,
   SkeletonPlaceholder,
-  LoaderComponent,
 } from 'pages/PerformanceDetails/utils';
 import { StyledSkeleton as Skeleton } from 'sections/TokenSection';
 import { Typography } from 'theme';
@@ -298,14 +297,14 @@ const EarningsSection = () => {
             {rates && earningsCurrentPeriod ? (
               <DisplayValueOrLoader value={loanFees && loanFees.plus(swapFeesTotalCurrent)} currencyRate={1} />
             ) : (
-              <LoaderComponent />
+              <StyledSkeleton animation="wave" width={100} />
             )}
           </GridItemSubtotal>
           <GridItemSubtotal>
             {rates && earningsPastPeriod ? (
               <DisplayValueOrLoader value={loanFeesPast && loanFeesPast.plus(swapFeesTotalPast)} currencyRate={1} />
             ) : (
-              <LoaderComponent />
+              <StyledSkeleton animation="wave" width={100} />
             )}
           </GridItemSubtotal>
         </IncomeGrid>
@@ -370,7 +369,7 @@ const EarningsSection = () => {
                 currencyRate={1}
               />
             ) : (
-              <LoaderComponent />
+              <StyledSkeleton animation="wave" width={100} />
             )}
           </GridItemTotal>
           <GridItemTotal>
@@ -380,7 +379,7 @@ const EarningsSection = () => {
                 currencyRate={1}
               />
             ) : (
-              <LoaderComponent />
+              <StyledSkeleton animation="wave" width={100} />
             )}
           </GridItemTotal>
         </IncomeGrid>
