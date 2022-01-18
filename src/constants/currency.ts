@@ -54,7 +54,7 @@ export const SUPPORTED_PAIRS: Array<Pair> = [
     pair: toMarketPair(CURRENCY_MAP['sICX'], CURRENCY_MAP['ICX']),
     poolId: 1,
     name: toMarketName(CURRENCY_MAP['sICX'], CURRENCY_MAP['ICX']),
-    rewards: 0.05,
+    rewards: 0.03,
   },
   {
     baseCurrencyKey: CURRENCY_MAP['sICX'],
@@ -62,7 +62,7 @@ export const SUPPORTED_PAIRS: Array<Pair> = [
     pair: toMarketPair(CURRENCY_MAP['sICX'], CURRENCY_MAP['bnUSD']),
     poolId: 2,
     name: toMarketName(CURRENCY_MAP['sICX'], CURRENCY_MAP['bnUSD']),
-    rewards: 0.145,
+    rewards: 0.12,
   },
   {
     baseCurrencyKey: CURRENCY_MAP['BALN'],
@@ -70,7 +70,7 @@ export const SUPPORTED_PAIRS: Array<Pair> = [
     pair: toMarketPair(CURRENCY_MAP['BALN'], CURRENCY_MAP['bnUSD']),
     poolId: 3,
     name: toMarketName(CURRENCY_MAP['BALN'], CURRENCY_MAP['bnUSD']),
-    rewards: 0.145,
+    rewards: 0.12,
   },
   {
     baseCurrencyKey: CURRENCY_MAP['BALN'],
@@ -78,7 +78,7 @@ export const SUPPORTED_PAIRS: Array<Pair> = [
     pair: toMarketPair(CURRENCY_MAP['BALN'], CURRENCY_MAP['sICX']),
     poolId: 4,
     name: toMarketName(CURRENCY_MAP['BALN'], CURRENCY_MAP['sICX']),
-    rewards: 0.1,
+    rewards: 0.15,
   },
   {
     baseCurrencyKey: CURRENCY_MAP['IUSDC'],
