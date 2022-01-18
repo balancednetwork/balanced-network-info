@@ -140,7 +140,7 @@ export function StatsPage() {
           <Typography fontWeight="bold" fontSize={[45, 45, 60]} color="#fff">
             Statistics
           </Typography>
-          <Typography padding={'0 0 13px 20px'} fontSize={18}>
+          <Typography padding={'0 0 13px 20px'} fontSize={18} color="#FFF" opacity={0.75}>
             Day {overviewInfo.platformDay ? getFormattedNumber(overviewInfo.platformDay, 'number') : '-'}
           </Typography>
         </Flex>

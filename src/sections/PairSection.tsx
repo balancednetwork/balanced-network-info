@@ -82,7 +82,7 @@ export default function PairSection() {
         <List>
           <DashGrid>
             <HeaderText minWidth={'220px'}>POOL</HeaderText>
-            <HeaderText minWidth={'135px'}>
+            <HeaderText minWidth={'135px'} paddingRight={'22px'}>
               <Typography marginRight={'5px'}>APY</Typography>
               <MouseoverTooltip
                 width={330}
@@ -91,7 +91,7 @@ export default function PairSection() {
                     The BALN APY is calculated from the USD value of BALN rewards available for a pool.
                     <br />
                     <br />
-                    The fee APY is calculated from the swap fees added to a pool in the last 30 days.
+                    The fee APY is calculated from the swap fees earned by a pool in the last 30 days.
                   </>
                 }
                 placement="top"
