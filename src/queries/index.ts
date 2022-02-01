@@ -370,7 +370,7 @@ export const useLoanInfo = () => {
 
   const dailyDistributionQuery = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
   const dailyRewards = dailyDistributionQuery.isSuccess
-    ? BalancedJs.utils.toIcx(dailyDistributionQuery.data).times(0.1)
+    ? BalancedJs.utils.toIcx(dailyDistributionQuery.data).times(0.125)
     : null;
 
   const ratesQuery = useRatesQuery();
