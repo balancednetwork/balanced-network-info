@@ -12,6 +12,8 @@ import { Typography } from 'theme';
 import { getCurrencyKeyIcon } from 'utils';
 import { getFormattedNumber } from 'utils/formatter';
 
+import { StyledSkeleton as Skeleton } from './TokenSection';
+
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
   min-width: 900px;
@@ -55,70 +57,16 @@ const HeaderText = styled(Flex)`
   align-items: center;
 `;
 
-export default function PairSection() {
-  const allPairs = useAllPairs();
-  const total = useAllPairsTotal();
+const StyledSkeleton = styled(Skeleton)`
+  &.pool-icon-skeleton {
+    position: absolute;
+    left: 0;
 
-  return (
-    <BoxPanel bg="bg2">
-      <Typography variant="h2" mb={5}>
-        Exchange
-      </Typography>
-      <Box overflow="auto">
-        <List>
-          <DashGrid>
-            <HeaderText>POOL</HeaderText>
-            <HeaderText>APY</HeaderText>
-            <HeaderText>PARTICIPANTS</HeaderText>
-            <HeaderText>LIQUIDITY</HeaderText>
-            <HeaderText>VOLUME (24H)</HeaderText>
-            <HeaderText>FEES (24H)</HeaderText>
-          </DashGrid>
-
-          {allPairs &&
-            Object.values(allPairs).map(pair => (
-              <div key={pair.poolId}>
-                <DashGrid my={2}>
-                  <DataText>
-                    <Flex alignItems="center">
-                      <Box sx={{ minWidth: '95px' }}>
-                        <PoolIcon baseCurrencyKey={pair.baseCurrencyKey} quoteCurrencyKey={pair.quoteCurrencyKey} />
-                      </Box>
-                      <Text ml={2}>{`${pair.baseCurrencyKey} / ${pair.quoteCurrencyKey}`}</Text>
-                    </Flex>
-                  </DataText>
-                  <DataText>{pair.apy ? getFormattedNumber(pair.apy, 'percent2') : '-'}</DataText>
-                  <DataText>{getFormattedNumber(pair.participant, 'number')}</DataText>
-                  <DataText>{getFormattedNumber(pair.tvl, 'currency0')}</DataText>
-                  <DataText>{getFormattedNumber(pair.volume, 'currency0')}</DataText>
-                  <DataText>{getFormattedNumber(pair.fees, 'currency0')}</DataText>
-                </DashGrid>
-                <Divider />
-              </div>
-            ))}
-
-          {total && (
-            <DashGrid my={2}>
-              <FooterText>
-                <Flex alignItems="center">
-                  <Box sx={{ minWidth: '95px' }}>
-                    <TotalIcon />
-                  </Box>
-                  <Text ml={2}>Total</Text>
-                </Flex>
-              </FooterText>
-              <FooterText>–</FooterText>
-              <FooterText>{getFormattedNumber(total.participant, 'number')}</FooterText>
-              <FooterText>{getFormattedNumber(total.tvl, 'currency0')}</FooterText>
-              <FooterText>{getFormattedNumber(total.volume, 'currency0')}</FooterText>
-              <FooterText>{getFormattedNumber(total.fees, 'currency0')}</FooterText>
-            </DashGrid>
-          )}
-        </List>
-      </Box>
-    </BoxPanel>
-  );
-}
+    &:last-of-type {
+      left: 38px;
+    }
+  }
+`;
 
 const IconWrapper = styled(Box)`
   width: 48px;
@@ -169,5 +117,128 @@ function TotalIcon() {
         <SigmaIcon width={20} height={20} />
       </IconWrapper>
     </PoolIconWrapper>
+  );
+}
+
+const SkeletonPariPlaceholder = () => {
+  return (
+    <DashGrid my={2}>
+      <DataText>
+        <Flex alignItems="center">
+          <Box sx={{ minWidth: '95px', minHeight: '48px', position: 'relative' }}>
+            <StyledSkeleton variant="circle" width={48} height={48} className="pool-icon-skeleton" />
+            <StyledSkeleton variant="circle" width={48} height={48} className="pool-icon-skeleton" />
+          </Box>
+          <Text ml={2}>
+            <StyledSkeleton width={90} />
+          </Text>
+        </Flex>
+      </DataText>
+      <DataText>
+        <StyledSkeleton width={50} />
+      </DataText>
+      <DataText>
+        <StyledSkeleton width={70} />
+      </DataText>
+      <DataText>
+        <StyledSkeleton width={100} />
+      </DataText>
+      <DataText>
+        <StyledSkeleton width={100} />
+      </DataText>
+      <DataText>
+        <StyledSkeleton width={70} />
+      </DataText>
+    </DashGrid>
+  );
+};
+
+export default function PairSection() {
+  const allPairs = useAllPairs();
+  const total = useAllPairsTotal();
+
+  return (
+    <BoxPanel bg="bg2">
+      <Typography variant="h2" mb={5}>
+        Exchange
+      </Typography>
+      <Box overflow="auto">
+        <List>
+          <DashGrid>
+            <HeaderText>POOL</HeaderText>
+            <HeaderText>APY</HeaderText>
+            <HeaderText>PARTICIPANTS</HeaderText>
+            <HeaderText>LIQUIDITY</HeaderText>
+            <HeaderText>VOLUME (24H)</HeaderText>
+            <HeaderText>FEES (24H)</HeaderText>
+          </DashGrid>
+
+          {allPairs ? (
+            Object.values(allPairs).map(pair => (
+              <div key={pair.poolId}>
+                <DashGrid my={2}>
+                  <DataText>
+                    <Flex alignItems="center">
+                      <Box sx={{ minWidth: '95px' }}>
+                        <PoolIcon baseCurrencyKey={pair.baseCurrencyKey} quoteCurrencyKey={pair.quoteCurrencyKey} />
+                      </Box>
+                      <Text ml={2}>{`${pair.baseCurrencyKey} / ${pair.quoteCurrencyKey}`}</Text>
+                    </Flex>
+                  </DataText>
+                  <DataText>{pair.apy ? getFormattedNumber(pair.apy, 'percent2') : '-'}</DataText>
+                  <DataText>{getFormattedNumber(pair.participant, 'number')}</DataText>
+                  <DataText>{getFormattedNumber(pair.tvl, 'currency0')}</DataText>
+                  <DataText>{getFormattedNumber(pair.volume, 'currency0')}</DataText>
+                  <DataText>{getFormattedNumber(pair.fees, 'currency0')}</DataText>
+                </DashGrid>
+                <Divider />
+              </div>
+            ))
+          ) : (
+            <>
+              <SkeletonPariPlaceholder />
+              <Divider />
+              <SkeletonPariPlaceholder />
+              <Divider />
+              <SkeletonPariPlaceholder />
+              <Divider />
+              <SkeletonPariPlaceholder />
+              <Divider />
+              <SkeletonPariPlaceholder />
+              <Divider />
+              <SkeletonPariPlaceholder />
+              <Divider />
+              <SkeletonPariPlaceholder />
+              <Divider />
+              <SkeletonPariPlaceholder />
+              <Divider />
+              <SkeletonPariPlaceholder />
+              <Divider />
+              <SkeletonPariPlaceholder />
+              <Divider />
+              <SkeletonPariPlaceholder />
+            </>
+          )}
+
+          {total && (
+            <DashGrid my={2}>
+              <FooterText>
+                <Flex alignItems="center">
+                  <Box sx={{ minWidth: '95px' }}>
+                    <TotalIcon />
+                  </Box>
+                  <Text ml={2}>Total</Text>
+                </Flex>
+              </FooterText>
+              <FooterText>–</FooterText>
+              <FooterText>{getFormattedNumber(total.participant, 'number')}</FooterText>
+              <FooterText>{getFormattedNumber(total.tvl, 'currency0')}</FooterText>
+              <FooterText>{getFormattedNumber(total.volume, 'currency0')}</FooterText>
+              <FooterText>{getFormattedNumber(total.fees, 'currency0')}</FooterText>
+            </DashGrid>
+          )}
+        </List>
+      </Box>
+    </BoxPanel>
   );
 }

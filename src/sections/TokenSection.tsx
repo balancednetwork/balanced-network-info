@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { Skeleton } from '@material-ui/lab';
 import { useAllTokens } from 'queries';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
@@ -52,6 +53,57 @@ const HeaderText = styled(Flex)`
   align-items: center;
 `;
 
+export const StyledSkeleton = styled(Skeleton)`
+  background-color: rgba(44, 169, 183, 0.2) !important;
+`;
+
+function CurrencyIcon({ currencyKey }: { currencyKey: CurrencyKey }) {
+  const Icon = getCurrencyKeyIcon(currencyKey);
+
+  return <Icon width={40} height={40} />;
+}
+
+const SkeletonTokenPlaceholder = () => {
+  return (
+    <DashGrid my={4}>
+      <DataText>
+        <Flex alignItems="center">
+          <Box sx={{ minWidth: '50px' }}>
+            <StyledSkeleton variant="circle" width={40} height={40} />
+          </Box>
+          <Box ml={2} sx={{ minWidth: '160px' }}>
+            <StyledSkeleton width={160} />
+            <StyledSkeleton width={70} />
+          </Box>
+        </Flex>
+      </DataText>
+      <DataText>
+        <StyledSkeleton width={90} />
+      </DataText>
+      <DataText>
+        <Flex alignItems="flex-end" flexDirection="column">
+          <Typography variant="p">
+            <StyledSkeleton width={90} />
+          </Typography>
+          <Typography variant="p">
+            <StyledSkeleton width={90} />
+          </Typography>
+        </Flex>
+      </DataText>
+      <DataText>
+        <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
+          <Typography variant="p">
+            <StyledSkeleton width={120} />
+          </Typography>
+          <Typography variant="p">
+            <StyledSkeleton width={160} />
+          </Typography>
+        </Flex>
+      </DataText>
+    </DashGrid>
+  );
+};
+
 export default React.memo(function TokenSection() {
   const allTokens = useAllTokens();
 
@@ -69,7 +121,7 @@ export default React.memo(function TokenSection() {
             <HeaderText>MARKETCAP</HeaderText>
           </DashGrid>
 
-          {allTokens &&
+          {allTokens ? (
             Object.values(allTokens).map((token, index, arr) => (
               <div key={token.symbol}>
                 <DashGrid my={4}>
@@ -105,15 +157,34 @@ export default React.memo(function TokenSection() {
 
                 {index !== arr.length - 1 && <Divider />}
               </div>
-            ))}
+            ))
+          ) : (
+            <>
+              <SkeletonTokenPlaceholder />
+              <Divider />
+              <SkeletonTokenPlaceholder />
+              <Divider />
+              <SkeletonTokenPlaceholder />
+              <Divider />
+              <SkeletonTokenPlaceholder />
+              <Divider />
+              <SkeletonTokenPlaceholder />
+              <Divider />
+              <SkeletonTokenPlaceholder />
+              <Divider />
+              <SkeletonTokenPlaceholder />
+              <Divider />
+              <SkeletonTokenPlaceholder />
+              <Divider />
+              <SkeletonTokenPlaceholder />
+              <Divider />
+              <SkeletonTokenPlaceholder />
+              <Divider />
+              <SkeletonTokenPlaceholder />
+            </>
+          )}
         </List>
       </Box>
     </BoxPanel>
   );
 });
-
-function CurrencyIcon({ currencyKey }: { currencyKey: CurrencyKey }) {
-  const Icon = getCurrencyKeyIcon(currencyKey);
-
-  return <Icon width={40} height={40} />;
-}
