@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { BalancedJs } from 'packages/BalancedJs';
@@ -364,14 +366,31 @@ export const useCollateralInfo = () => {
   };
 };
 
+export function useBalnAllocation() {
+  const [allocation, setAllocation] = useState<undefined | { [key: string]: string }>(undefined);
+
+  useEffect(() => {
+    const fetchAllocation = async () => {
+      const res = await bnJs.Rewards.getRecipientsSplit();
+      setAllocation(res);
+    };
+    fetchAllocation();
+  }, []);
+
+  return allocation;
+}
+
 export const useLoanInfo = () => {
   const totalLoansQuery = useBnJsContractQuery<string>(bnJs, 'bnUSD', 'totalSupply', []);
   const totalLoans = totalLoansQuery.isSuccess ? BalancedJs.utils.toIcx(totalLoansQuery.data) : null;
+  const balnAllocation = useBalnAllocation();
+  const loansBalnAllocation = BalancedJs.utils.toIcx(balnAllocation?.Loans || 0);
 
   const dailyDistributionQuery = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
-  const dailyRewards = dailyDistributionQuery.isSuccess
-    ? BalancedJs.utils.toIcx(dailyDistributionQuery.data).times(0.125)
-    : null;
+  const dailyRewards =
+    dailyDistributionQuery.isSuccess && loansBalnAllocation.isGreaterThan(0)
+      ? BalancedJs.utils.toIcx(dailyDistributionQuery.data).times(loansBalnAllocation)
+      : null;
 
   const ratesQuery = useRatesQuery();
   const rates = ratesQuery.data || {};

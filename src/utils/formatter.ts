@@ -39,7 +39,7 @@ export const formatPrice = (value: string | number) => {
   if (value !== 0 && !value) {
     return '$-.--';
   }
-  console.log(value);
+
   let decimals = 0;
 
   if (value < 0.01) {
