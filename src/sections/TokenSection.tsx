@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { createRef, forwardRef, useEffect, useLayoutEffect, useState } from 'react';
 
 import { Skeleton } from '@material-ui/lab';
-import { useAllTokens } from 'queries';
+import { Token, useAllTokens } from 'queries';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
 import Divider from 'components/Divider';
 import { BoxPanel } from 'components/Panel';
 import { CurrencyKey } from 'constants/currency';
+import usePrevious from 'hooks/usePrevious';
 import useSort from 'hooks/useSort';
 import { Typography } from 'theme';
 import { getCurrencyKeyIcon } from 'utils';
@@ -64,6 +65,65 @@ function CurrencyIcon({ currencyKey }: { currencyKey: CurrencyKey }) {
 
   return <Icon width={40} height={40} />;
 }
+
+const calculateBoundingBoxes = children => {
+  const boundingBoxes = {};
+
+  React.Children.forEach(children, child => {
+    const domNode = child.ref.current;
+    const nodeBoundingBox = domNode.getBoundingClientRect();
+
+    boundingBoxes[child.key] = nodeBoundingBox;
+  });
+
+  return boundingBoxes;
+};
+
+const AnimateList = ({ children }) => {
+  const [boundingBox, setBoundingBox] = useState({});
+  const [prevBoundingBox, setPrevBoundingBox] = useState({});
+  const prevChildren = usePrevious(children);
+
+  useLayoutEffect(() => {
+    const newBoundingBox = calculateBoundingBoxes(children);
+    setBoundingBox(newBoundingBox);
+  }, [children]);
+
+  useLayoutEffect(() => {
+    const prevBoundingBox = calculateBoundingBoxes(prevChildren);
+    setPrevBoundingBox(prevBoundingBox);
+  }, [prevChildren]);
+
+  useEffect(() => {
+    const hasPrevBoundingBox = Object.keys(prevBoundingBox).length;
+
+    if (hasPrevBoundingBox) {
+      React.Children.forEach(children, child => {
+        const domNode = child.ref.current;
+        const firstBox = prevBoundingBox[child.key];
+        const lastBox = boundingBox[child.key];
+        const changeInY = firstBox.top - lastBox.top;
+
+        if (changeInY) {
+          requestAnimationFrame(() => {
+            // Before the DOM paints, invert child to old position
+            domNode.style.transform = `translate3d(0, ${changeInY}px, 0)`;
+            domNode.style.transition = 'transform 0s';
+
+            requestAnimationFrame(() => {
+              // After the previous frame, remove
+              // the transistion to play the animation
+              domNode.style.transform = '';
+              domNode.style.transition = 'transform 500ms';
+            });
+          });
+        }
+      });
+    }
+  }, [boundingBox, prevBoundingBox, children]);
+
+  return children;
+};
 
 const SkeletonTokenPlaceholder = () => {
   return (
@@ -161,42 +221,11 @@ export default React.memo(function TokenSection() {
           </DashGrid>
 
           {allTokens ? (
-            sortData(Object.values(allTokens)).map((token, index, arr) => (
-              <div key={token.symbol}>
-                <DashGrid my={4}>
-                  <DataText>
-                    <Flex alignItems="center">
-                      <Box sx={{ minWidth: '50px' }}>
-                        <CurrencyIcon currencyKey={token.symbol} />
-                      </Box>
-                      <Box ml={2} sx={{ minWidth: '160px' }}>
-                        <Text>{token.name}</Text>
-                        <Text color="text1">{token.symbol}</Text>
-                      </Box>
-                    </Flex>
-                  </DataText>
-                  <DataText>{token.symbol === 'ICX' ? '–' : getFormattedNumber(token.holders, 'number')}</DataText>
-                  <DataText>
-                    <Flex alignItems="flex-end" flexDirection="column">
-                      <Typography variant="p">{getFormattedNumber(token.price, 'price')}</Typography>
-                      <Typography variant="p" color={token.priceChange >= 0 ? 'primary' : 'alert'}>
-                        {formatPriceChange(token.priceChange)}
-                      </Typography>
-                    </Flex>
-                  </DataText>
-                  <DataText>
-                    <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
-                      <Typography variant="p">{getFormattedNumber(token.marketCap, 'currency0')}</Typography>
-                      <Typography variant="p" color="text1">
-                        {getFormattedNumber(token.totalSupply, 'number')} {token.symbol}
-                      </Typography>
-                    </Flex>
-                  </DataText>
-                </DashGrid>
-
-                {index !== arr.length - 1 && <Divider />}
-              </div>
-            ))
+            <AnimateList>
+              {sortData(Object.values(allTokens)).map((token, index, arr) => (
+                <TokenItem key={token.symbol} ref={createRef()} token={token} isLast={index === arr.length - 1} />
+              ))}
+            </AnimateList>
           ) : (
             <>
               <SkeletonTokenPlaceholder />
@@ -227,3 +256,44 @@ export default React.memo(function TokenSection() {
     </BoxPanel>
   );
 });
+
+type TokenItemProps = {
+  token: Token;
+  isLast: boolean;
+};
+
+const TokenItem = forwardRef(({ token, isLast }: TokenItemProps, ref) => (
+  <>
+    <DashGrid my={4} ref={ref}>
+      <DataText>
+        <Flex alignItems="center">
+          <Box sx={{ minWidth: '50px' }}>
+            <CurrencyIcon currencyKey={token.symbol} />
+          </Box>
+          <Box ml={2} sx={{ minWidth: '160px' }}>
+            <Text>{token.name}</Text>
+            <Text color="text1">{token.symbol}</Text>
+          </Box>
+        </Flex>
+      </DataText>
+      <DataText>{token.symbol === 'ICX' ? '–' : getFormattedNumber(token.holders, 'number')}</DataText>
+      <DataText>
+        <Flex alignItems="flex-end" flexDirection="column">
+          <Typography variant="p">{getFormattedNumber(token.price, 'price')}</Typography>
+          <Typography variant="p" color={token.priceChange >= 0 ? 'primary' : 'alert'}>
+            {formatPriceChange(token.priceChange)}
+          </Typography>
+        </Flex>
+      </DataText>
+      <DataText>
+        <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
+          <Typography variant="p">{getFormattedNumber(token.marketCap, 'currency0')}</Typography>
+          <Typography variant="p" color="text1">
+            {getFormattedNumber(token.totalSupply, 'number')} {token.symbol}
+          </Typography>
+        </Flex>
+      </DataText>
+    </DashGrid>
+    {!isLast && <Divider />}
+  </>
+));
