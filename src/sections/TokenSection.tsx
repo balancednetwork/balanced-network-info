@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import Divider from 'components/Divider';
 import { BoxPanel } from 'components/Panel';
 import { CurrencyKey } from 'constants/currency';
+import useSort from 'hooks/useSort';
 import { Typography } from 'theme';
 import { getCurrencyKeyIcon } from 'utils';
 import { formatPriceChange, getFormattedNumber } from 'utils/formatter';
@@ -51,6 +52,7 @@ const HeaderText = styled(Flex)`
   letter-spacing: 3px;
   text-transform: uppercase;
   align-items: center;
+  cursor: pointer;
 `;
 
 export const StyledSkeleton = styled(Skeleton)`
@@ -106,6 +108,7 @@ const SkeletonTokenPlaceholder = () => {
 
 export default React.memo(function TokenSection() {
   const allTokens = useAllTokens();
+  const { handleSortSelect, sortData } = useSort({ key: 'name', order: 'ASC' });
 
   return (
     <BoxPanel bg="bg2">
@@ -115,14 +118,50 @@ export default React.memo(function TokenSection() {
       <Box overflow="auto">
         <List>
           <DashGrid>
-            <HeaderText>ASSET</HeaderText>
-            <HeaderText>HOLDERS</HeaderText>
-            <HeaderText>PRICE (24H)</HeaderText>
-            <HeaderText>MARKETCAP</HeaderText>
+            <HeaderText
+              role="button"
+              onClick={() =>
+                handleSortSelect({
+                  key: 'name',
+                })
+              }
+            >
+              ASSET
+            </HeaderText>
+            <HeaderText
+              role="button"
+              onClick={() =>
+                handleSortSelect({
+                  key: 'holders',
+                })
+              }
+            >
+              HOLDERS
+            </HeaderText>
+            <HeaderText
+              role="button"
+              onClick={() =>
+                handleSortSelect({
+                  key: 'priceChange',
+                })
+              }
+            >
+              PRICE (24H)
+            </HeaderText>
+            <HeaderText
+              role="button"
+              onClick={() =>
+                handleSortSelect({
+                  key: 'marketCap',
+                })
+              }
+            >
+              MARKETCAP
+            </HeaderText>
           </DashGrid>
 
           {allTokens ? (
-            Object.values(allTokens).map((token, index, arr) => (
+            sortData(Object.values(allTokens)).map((token, index, arr) => (
               <div key={token.symbol}>
                 <DashGrid my={4}>
                   <DataText>

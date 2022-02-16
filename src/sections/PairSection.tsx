@@ -8,6 +8,7 @@ import { ReactComponent as SigmaIcon } from 'assets/icons/sigma.svg';
 import Divider from 'components/Divider';
 import { BoxPanel } from 'components/Panel';
 import { CurrencyKey } from 'constants/currency';
+import useSort from 'hooks/useSort';
 import { Typography } from 'theme';
 import { getCurrencyKeyIcon } from 'utils';
 import { getFormattedNumber } from 'utils/formatter';
@@ -55,6 +56,7 @@ const HeaderText = styled(Flex)`
   letter-spacing: 3px;
   text-transform: uppercase;
   align-items: center;
+  cursor: pointer;
 `;
 
 const StyledSkeleton = styled(Skeleton)`
@@ -156,6 +158,7 @@ const SkeletonPariPlaceholder = () => {
 export default function PairSection() {
   const allPairs = useAllPairs();
   const total = useAllPairsTotal();
+  const { handleSortSelect, sortData } = useSort({ key: 'poolId', order: 'ASC' });
 
   return (
     <BoxPanel bg="bg2">
@@ -165,16 +168,70 @@ export default function PairSection() {
       <Box overflow="auto">
         <List>
           <DashGrid>
-            <HeaderText>POOL</HeaderText>
-            <HeaderText>APY</HeaderText>
-            <HeaderText>PARTICIPANTS</HeaderText>
-            <HeaderText>LIQUIDITY</HeaderText>
-            <HeaderText>VOLUME (24H)</HeaderText>
-            <HeaderText>FEES (24H)</HeaderText>
+            <HeaderText
+              role="button"
+              onClick={() =>
+                handleSortSelect({
+                  key: 'baseCurrencyKey',
+                })
+              }
+            >
+              POOL
+            </HeaderText>
+            <HeaderText
+              role="button"
+              onClick={() =>
+                handleSortSelect({
+                  key: 'apy',
+                })
+              }
+            >
+              APY
+            </HeaderText>
+            <HeaderText
+              role="button"
+              onClick={() =>
+                handleSortSelect({
+                  key: 'participant',
+                })
+              }
+            >
+              PARTICIPANTS
+            </HeaderText>
+            <HeaderText
+              role="button"
+              onClick={() =>
+                handleSortSelect({
+                  key: 'tvl',
+                })
+              }
+            >
+              LIQUIDITY
+            </HeaderText>
+            <HeaderText
+              role="button"
+              onClick={() =>
+                handleSortSelect({
+                  key: 'volume',
+                })
+              }
+            >
+              VOLUME (24H)
+            </HeaderText>
+            <HeaderText
+              role="button"
+              onClick={() =>
+                handleSortSelect({
+                  key: 'fees',
+                })
+              }
+            >
+              FEES (24H)
+            </HeaderText>
           </DashGrid>
 
           {allPairs ? (
-            Object.values(allPairs).map(pair => (
+            sortData(Object.values(allPairs)).map(pair => (
               <div key={pair.poolId}>
                 <DashGrid my={2}>
                   <DataText>
