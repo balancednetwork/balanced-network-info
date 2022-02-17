@@ -14,11 +14,11 @@ import { Typography } from 'theme';
 import { getCurrencyKeyIcon } from 'utils';
 import { getFormattedNumber } from 'utils/formatter';
 
-import { StyledSkeleton as Skeleton } from './TokenSection';
+import { HeaderText, StyledSkeleton as Skeleton } from './TokenSection';
 
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
-  min-width: 900px;
+  min-width: 930px;
   overflow: hidden;
 `;
 
@@ -49,16 +49,6 @@ const DataText = styled(Flex)`
 
 const FooterText = styled(DataText)`
   font-weight: bold;
-`;
-
-const HeaderText = styled(Flex)`
-  display: flex;
-  font-size: 14px;
-  color: #d5d7db;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  align-items: center;
-  cursor: pointer;
 `;
 
 const StyledSkeleton = styled(Skeleton)`
@@ -191,7 +181,7 @@ const PairItem = forwardRef(({ pair }: PairItemProps, ref) => (
 export default function PairSection() {
   const allPairs = useAllPairs();
   const total = useAllPairsTotal();
-  const { handleSortSelect, sortData } = useSort({ key: 'poolId', order: 'ASC' });
+  const { sortBy, handleSortSelect, sortData } = useSort({ key: 'poolId', order: 'ASC' });
 
   return (
     <BoxPanel bg="bg2">
@@ -203,6 +193,7 @@ export default function PairSection() {
           <DashGrid>
             <HeaderText
               role="button"
+              className={sortBy.key === 'baseCurrencyKey' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
                   key: 'baseCurrencyKey',
@@ -213,6 +204,7 @@ export default function PairSection() {
             </HeaderText>
             <HeaderText
               role="button"
+              className={sortBy.key === 'apy' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
                   key: 'apy',
@@ -223,6 +215,7 @@ export default function PairSection() {
             </HeaderText>
             <HeaderText
               role="button"
+              className={sortBy.key === 'participant' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
                   key: 'participant',
@@ -233,6 +226,7 @@ export default function PairSection() {
             </HeaderText>
             <HeaderText
               role="button"
+              className={sortBy.key === 'tvl' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
                   key: 'tvl',
@@ -243,6 +237,7 @@ export default function PairSection() {
             </HeaderText>
             <HeaderText
               role="button"
+              className={sortBy.key === 'volume' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
                   key: 'volume',
@@ -253,6 +248,7 @@ export default function PairSection() {
             </HeaderText>
             <HeaderText
               role="button"
+              className={sortBy.key === 'fees' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
                   key: 'fees',

@@ -3,7 +3,7 @@ import React, { createRef, forwardRef } from 'react';
 import { Skeleton } from '@material-ui/lab';
 import { Token, useAllTokens } from 'queries';
 import { Flex, Box, Text } from 'rebass/styled-components';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import AnimateList from 'components/AnimatedList';
 import Divider from 'components/Divider';
@@ -46,7 +46,7 @@ const DataText = styled(Flex)`
   line-height: 1.4;
 `;
 
-const HeaderText = styled(Flex)`
+export const HeaderText = styled(Flex)<{ className?: string }>`
   display: flex;
   font-size: 14px;
   color: #d5d7db;
@@ -54,6 +54,114 @@ const HeaderText = styled(Flex)`
   text-transform: uppercase;
   align-items: center;
   cursor: pointer;
+  position: relative;
+  transition: all ease 200ms;
+  padding-left: 15px;
+  white-space: nowrap;
+
+  &::before,
+  &:after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 2px;
+    border-radius: 2px;
+    background: ${({ theme }) => theme.colors.primary};
+    display: inline-block;
+    top: 50%;
+    transition: all ease 200ms;
+    right: 0;
+    transform-origin: center;
+    opacity: 0;
+    transform: rotate(0) translate3d(0, 0, 0);
+  }
+
+  ${props =>
+    props.className === 'ASC' &&
+    css`
+      padding-right: 15px;
+      padding-left: 0;
+      &::before,
+      &:after {
+        opacity: 1;
+      }
+
+      &:before {
+        transform: rotate(-45deg) translate3d(-2px, -3px, 0);
+      }
+
+      &:after {
+        transform: rotate(45deg) translate3d(0px, -1px, 0);
+      }
+    `};
+
+  ${props =>
+    props.className === 'DESC' &&
+    css`
+      padding-right: 15px;
+      padding-left: 15px;
+      &::before,
+      &:after {
+        opacity: 1;
+      }
+
+      &:before {
+        transform: rotate(45deg) translate3d(-3px, 2px, 0);
+      }
+
+      &:after {
+        transform: rotate(-45deg) translate3d(1px, 0, 0);
+      }
+    `};
+
+  &:first-of-type {
+    padding-left: 0;
+    padding-right: 15px;
+
+    &::before,
+    &:after {
+      right: initial;
+      left: 0;
+    }
+
+    ${props =>
+      props.className === 'DESC' &&
+      css`
+        padding-right: 0;
+        padding-left: 15px;
+        &::before,
+        &:after {
+          opacity: 1;
+        }
+
+        &:before {
+          transform: rotate(45deg) translate3d(-1px, 0px, 0);
+        }
+
+        &:after {
+          transform: rotate(-45deg) translate3d(3px, 2px, 0);
+        }
+      `};
+
+    ${props =>
+      props.className === 'ASC' &&
+      css`
+        padding-right: 0;
+        padding-left: 15px;
+        &::before,
+        &:after {
+          opacity: 1;
+        }
+
+        &:before {
+          transform: rotate(-45deg) translate3d(0, -1px, 0);
+        }
+
+        &:after {
+          transform: rotate(45deg) translate3d(2px, -3px, 0);
+        }
+      `};
+  }
 `;
 
 export const StyledSkeleton = styled(Skeleton)`
@@ -150,7 +258,7 @@ const TokenItem = forwardRef(({ token, isLast }: TokenItemProps, ref) => (
 
 export default React.memo(function TokenSection() {
   const allTokens = useAllTokens();
-  const { handleSortSelect, sortData } = useSort({ key: 'name', order: 'ASC' });
+  const { sortBy, handleSortSelect, sortData } = useSort({ key: 'name' });
 
   return (
     <BoxPanel bg="bg2">
@@ -162,6 +270,7 @@ export default React.memo(function TokenSection() {
           <DashGrid>
             <HeaderText
               role="button"
+              className={sortBy.key === 'name' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
                   key: 'name',
@@ -172,6 +281,7 @@ export default React.memo(function TokenSection() {
             </HeaderText>
             <HeaderText
               role="button"
+              className={sortBy.key === 'holders' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
                   key: 'holders',
@@ -182,6 +292,7 @@ export default React.memo(function TokenSection() {
             </HeaderText>
             <HeaderText
               role="button"
+              className={sortBy.key === 'priceChange' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
                   key: 'priceChange',
@@ -192,6 +303,7 @@ export default React.memo(function TokenSection() {
             </HeaderText>
             <HeaderText
               role="button"
+              className={sortBy.key === 'marketCap' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
                   key: 'marketCap',
