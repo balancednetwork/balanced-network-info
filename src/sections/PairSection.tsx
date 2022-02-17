@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { createRef, forwardRef } from 'react';
 
 import { useAllPairs, useAllPairsTotal } from 'queries';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
 import { ReactComponent as SigmaIcon } from 'assets/icons/sigma.svg';
+import AnimateList from 'components/AnimatedList';
 import Divider from 'components/Divider';
 import { BoxPanel } from 'components/Panel';
-import { CurrencyKey } from 'constants/currency';
+import { CurrencyKey, Pair } from 'constants/currency';
 import useSort from 'hooks/useSort';
 import { Typography } from 'theme';
 import { getCurrencyKeyIcon } from 'utils';
@@ -18,6 +19,7 @@ import { StyledSkeleton as Skeleton } from './TokenSection';
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
   min-width: 900px;
+  overflow: hidden;
 `;
 
 const DashGrid = styled(Box)`
@@ -155,6 +157,37 @@ const SkeletonPariPlaceholder = () => {
   );
 };
 
+type PairItemProps = {
+  pair: Pair & {
+    tvl: number;
+    apy: number;
+    participant: number;
+    volume: number;
+    fees: number;
+  };
+};
+
+const PairItem = forwardRef(({ pair }: PairItemProps, ref) => (
+  <>
+    <DashGrid my={2} ref={ref}>
+      <DataText>
+        <Flex alignItems="center">
+          <Box sx={{ minWidth: '95px' }}>
+            <PoolIcon baseCurrencyKey={pair.baseCurrencyKey} quoteCurrencyKey={pair.quoteCurrencyKey} />
+          </Box>
+          <Text ml={2}>{`${pair.baseCurrencyKey} / ${pair.quoteCurrencyKey}`}</Text>
+        </Flex>
+      </DataText>
+      <DataText>{pair.apy ? getFormattedNumber(pair.apy, 'percent2') : '-'}</DataText>
+      <DataText>{getFormattedNumber(pair.participant, 'number')}</DataText>
+      <DataText>{getFormattedNumber(pair.tvl, 'currency0')}</DataText>
+      <DataText>{getFormattedNumber(pair.volume, 'currency0')}</DataText>
+      <DataText>{getFormattedNumber(pair.fees, 'currency0')}</DataText>
+    </DashGrid>
+    <Divider />
+  </>
+));
+
 export default function PairSection() {
   const allPairs = useAllPairs();
   const total = useAllPairsTotal();
@@ -231,26 +264,11 @@ export default function PairSection() {
           </DashGrid>
 
           {allPairs ? (
-            sortData(Object.values(allPairs)).map(pair => (
-              <div key={pair.poolId}>
-                <DashGrid my={2}>
-                  <DataText>
-                    <Flex alignItems="center">
-                      <Box sx={{ minWidth: '95px' }}>
-                        <PoolIcon baseCurrencyKey={pair.baseCurrencyKey} quoteCurrencyKey={pair.quoteCurrencyKey} />
-                      </Box>
-                      <Text ml={2}>{`${pair.baseCurrencyKey} / ${pair.quoteCurrencyKey}`}</Text>
-                    </Flex>
-                  </DataText>
-                  <DataText>{pair.apy ? getFormattedNumber(pair.apy, 'percent2') : '-'}</DataText>
-                  <DataText>{getFormattedNumber(pair.participant, 'number')}</DataText>
-                  <DataText>{getFormattedNumber(pair.tvl, 'currency0')}</DataText>
-                  <DataText>{getFormattedNumber(pair.volume, 'currency0')}</DataText>
-                  <DataText>{getFormattedNumber(pair.fees, 'currency0')}</DataText>
-                </DashGrid>
-                <Divider />
-              </div>
-            ))
+            <AnimateList>
+              {sortData(Object.values(allPairs)).map(pair => (
+                <PairItem key={`${pair.baseCurrencyKey}${pair.quoteCurrencyKey}`} ref={createRef()} pair={pair} />
+              ))}
+            </AnimateList>
           ) : (
             <>
               <SkeletonPariPlaceholder />

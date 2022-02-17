@@ -46,5 +46,5 @@ export default function useSort(initialState: SortingType) {
     return dataToSort;
   };
 
-  return { handleSortSelect, sortData };
+  return { sortBy, handleSortSelect, sortData };
 }
