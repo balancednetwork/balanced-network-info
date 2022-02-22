@@ -292,10 +292,10 @@ export default React.memo(function TokenSection() {
             </HeaderText>
             <HeaderText
               role="button"
-              className={sortBy.key === 'priceChange' ? sortBy.order : ''}
+              className={sortBy.key === 'price' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
-                  key: 'priceChange',
+                  key: 'price',
                 })
               }
             >
