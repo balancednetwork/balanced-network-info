@@ -14,4 +14,12 @@ export default class IISS extends Contract {
 
     return this.call(callParams);
   }
+
+  getPReps() {
+    const callParams = this.paramsBuilder({
+      method: 'getPReps',
+    });
+
+    return this.call(callParams);
+  }
 }

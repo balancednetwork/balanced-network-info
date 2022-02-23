@@ -96,9 +96,6 @@ const Footer = () => {
             </Button>
           </StyledFlex>
           <Flex flexDirection={['column', 'row']} alignItems="center">
-            <AnimatedLink as="a" href={LINKS.airdrip}>
-              Airdrip
-            </AnimatedLink>
             <AnimatedLink as="a" href={LINKS.demo}>
               Demo
             </AnimatedLink>

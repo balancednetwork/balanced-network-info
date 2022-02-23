@@ -137,9 +137,15 @@ interface ValueOrLoaderProps {
   value: number | BigNumber | undefined;
   currencyRate;
   format?: NumberStyle;
+  useDotsLoader?: boolean;
 }
 
-export const DisplayValueOrLoader = ({ value, currencyRate, format = 'currency0' }: ValueOrLoaderProps) => {
+export const DisplayValueOrLoader = ({
+  value,
+  currencyRate,
+  format = 'currency0',
+  useDotsLoader,
+}: ValueOrLoaderProps) => {
   if (value !== undefined && typeof currencyRate === 'number') {
     return typeof value === 'number' ? (
       <>{getFormattedNumber(value * currencyRate, format)}</>
@@ -147,7 +153,7 @@ export const DisplayValueOrLoader = ({ value, currencyRate, format = 'currency0'
       <>{getFormattedNumber(value.integerValue().toNumber() * currencyRate, format)}</>
     );
   } else {
-    return <LoaderComponent />;
+    return useDotsLoader ? <LoaderComponent /> : <StyledSkeleton animation="wave" width={100} />;
   }
 };
 
