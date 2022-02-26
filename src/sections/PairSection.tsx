@@ -181,7 +181,7 @@ const PairItem = forwardRef(({ pair }: PairItemProps, ref) => (
 export default function PairSection() {
   const allPairs = useAllPairs();
   const total = useAllPairsTotal();
-  const { sortBy, handleSortSelect, sortData } = useSort({ key: 'poolId', order: 'ASC' });
+  const { sortBy, handleSortSelect, sortData } = useSort({ key: 'apy', order: 'DESC' });
 
   return (
     <BoxPanel bg="bg2">
@@ -200,7 +200,7 @@ export default function PairSection() {
                 })
               }
             >
-              POOL
+              <span>POOL</span>
             </HeaderText>
             <HeaderText
               role="button"

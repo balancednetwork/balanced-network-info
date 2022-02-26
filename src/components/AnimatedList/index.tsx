@@ -67,8 +67,8 @@ const AnimateList = ({ children }) => {
             requestAnimationFrame(() => {
               // After the previous frame, remove
               // the transistion to play the animation
-              domNode.style.transform = '';
-              domNode.style.transition = 'transform 750ms';
+              domNode.style.transform = `translate3d(0, 0, 0)`;
+              domNode.style.transition = 'transform 500ms';
             });
           });
         }
