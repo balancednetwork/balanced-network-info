@@ -367,11 +367,19 @@ export const useCollateralInfo = () => {
 export const useLoanInfo = () => {
   const totalLoansQuery = useBnJsContractQuery<string>(bnJs, 'bnUSD', 'totalSupply', []);
   const totalLoans = totalLoansQuery.isSuccess ? BalancedJs.utils.toIcx(totalLoansQuery.data) : null;
+  const { data: balnAllocation } = useBnJsContractQuery<{ [key: string]: string }>(
+    bnJs,
+    'Rewards',
+    'getRecipientsSplit',
+    [],
+  );
+  const loansBalnAllocation = BalancedJs.utils.toIcx(balnAllocation?.Loans || 0);
 
   const dailyDistributionQuery = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
-  const dailyRewards = dailyDistributionQuery.isSuccess
-    ? BalancedJs.utils.toIcx(dailyDistributionQuery.data).times(0.125)
-    : null;
+  const dailyRewards =
+    dailyDistributionQuery.isSuccess && loansBalnAllocation.isGreaterThan(0)
+      ? BalancedJs.utils.toIcx(dailyDistributionQuery.data).times(loansBalnAllocation)
+      : null;
 
   const ratesQuery = useRatesQuery();
   const rates = ratesQuery.data || {};
