@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react';
-
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { BalancedJs } from 'packages/BalancedJs';
@@ -366,24 +364,15 @@ export const useCollateralInfo = () => {
   };
 };
 
-export function useBalnAllocation() {
-  const [allocation, setAllocation] = useState<undefined | { [key: string]: string }>(undefined);
-
-  useEffect(() => {
-    const fetchAllocation = async () => {
-      const res = await bnJs.Rewards.getRecipientsSplit();
-      setAllocation(res);
-    };
-    fetchAllocation();
-  }, []);
-
-  return allocation;
-}
-
 export const useLoanInfo = () => {
   const totalLoansQuery = useBnJsContractQuery<string>(bnJs, 'bnUSD', 'totalSupply', []);
   const totalLoans = totalLoansQuery.isSuccess ? BalancedJs.utils.toIcx(totalLoansQuery.data) : null;
-  const balnAllocation = useBalnAllocation();
+  const { data: balnAllocation } = useBnJsContractQuery<{ [key: string]: string }>(
+    bnJs,
+    'Rewards',
+    'getRecipientsSplit',
+    [],
+  );
   const loansBalnAllocation = BalancedJs.utils.toIcx(balnAllocation?.Loans || 0);
 
   const dailyDistributionQuery = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
