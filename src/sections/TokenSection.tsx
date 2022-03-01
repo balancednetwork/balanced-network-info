@@ -59,8 +59,10 @@ export const HeaderText = styled(Flex)<{ className?: string }>`
   padding-left: 15px;
   white-space: nowrap;
 
-  &::before,
-  &:after {
+  &:before,
+  &:after,
+  span:after,
+  span:before {
     content: '';
     position: absolute;
     width: 8px;
@@ -81,16 +83,20 @@ export const HeaderText = styled(Flex)<{ className?: string }>`
     css`
       padding-right: 15px;
       padding-left: 0;
-      &::before,
-      &:after {
+      &:before,
+      &:after,
+      span:after,
+      span:before {
         opacity: 1;
       }
 
-      &:before {
+      &:before,
+      span:before {
         transform: rotate(-45deg) translate3d(-2px, -3px, 0);
       }
 
-      &:after {
+      &:after,
+      span:after {
         transform: rotate(45deg) translate3d(0px, -1px, 0);
       }
     `};
@@ -100,67 +106,39 @@ export const HeaderText = styled(Flex)<{ className?: string }>`
     css`
       padding-right: 15px;
       padding-left: 15px;
-      &::before,
-      &:after {
+      &:before,
+      &:after,
+      span:after,
+      span:before {
         opacity: 1;
       }
 
-      &:before {
+      &:before,
+      span:before {
         transform: rotate(45deg) translate3d(-3px, 2px, 0);
       }
 
-      &:after {
+      &:after,
+      span:after {
         transform: rotate(-45deg) translate3d(1px, 0, 0);
       }
     `};
 
   &:first-of-type {
     padding-left: 0;
-    padding-right: 15px;
-
     &::before,
-    &:after {
-      right: initial;
-      left: 0;
+    &::after {
+      display: none;
     }
 
-    ${props =>
-      props.className === 'DESC' &&
-      css`
-        padding-right: 0;
-        padding-left: 15px;
-        &::before,
-        &:after {
-          opacity: 1;
-        }
+    span {
+      position: relative;
 
-        &:before {
-          transform: rotate(45deg) translate3d(-1px, 0px, 0);
-        }
-
-        &:after {
-          transform: rotate(-45deg) translate3d(3px, 2px, 0);
-        }
-      `};
-
-    ${props =>
-      props.className === 'ASC' &&
-      css`
-        padding-right: 0;
-        padding-left: 15px;
-        &::before,
-        &:after {
-          opacity: 1;
-        }
-
-        &:before {
-          transform: rotate(-45deg) translate3d(0, -1px, 0);
-        }
-
-        &:after {
-          transform: rotate(45deg) translate3d(2px, -3px, 0);
-        }
-      `};
+      &::before,
+      &:after {
+        margin-right: -15px;
+      }
+    }
   }
 `;
 
@@ -258,7 +236,7 @@ const TokenItem = forwardRef(({ token, isLast }: TokenItemProps, ref) => (
 
 export default React.memo(function TokenSection() {
   const allTokens = useAllTokens();
-  const { sortBy, handleSortSelect, sortData } = useSort({ key: 'name' });
+  const { sortBy, handleSortSelect, sortData } = useSort({ key: 'name', order: 'ASC' });
 
   return (
     <BoxPanel bg="bg2">
@@ -277,7 +255,7 @@ export default React.memo(function TokenSection() {
                 })
               }
             >
-              ASSET
+              <span>ASSET</span>
             </HeaderText>
             <HeaderText
               role="button"
