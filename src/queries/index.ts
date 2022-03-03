@@ -470,34 +470,36 @@ export const useAllPairsDataQuery = () => {
   return useQuery<{ [key: string]: { base: BigNumber; quote: BigNumber } }>('useAllPairsDataQuery', async () => {
     const { data } = await axios.get(`${API_ENDPOINT}/stats/dex-pool-stats-24h`);
     const t = {};
+
     SUPPORTED_PAIRS.forEach(pair => {
       const key = `0x${pair.poolId.toString(16)}`;
 
       const baseAddress = currencyKeyToAddressMap[NetworkId.MAINNET][pair.baseCurrencyKey];
       const quoteAddress = currencyKeyToAddressMap[NetworkId.MAINNET][pair.quoteCurrencyKey];
 
-      t[pair.name] = {};
+      if (data[key]) {
+        t[pair.name] = {};
+        // volume
+        const _volume = data[key]['volume'];
 
-      // volume
-      const _volume = data[key]['volume'];
+        t[pair.name]['volume'] = {
+          [pair.baseCurrencyKey]: BalancedJs.utils.toIcx(_volume[baseAddress], pair.baseCurrencyKey),
+          [pair.quoteCurrencyKey]: BalancedJs.utils.toIcx(_volume[quoteAddress], pair.quoteCurrencyKey),
+        };
 
-      t[pair.name]['volume'] = {
-        [pair.baseCurrencyKey]: BalancedJs.utils.toIcx(_volume[baseAddress], pair.baseCurrencyKey),
-        [pair.quoteCurrencyKey]: BalancedJs.utils.toIcx(_volume[quoteAddress], pair.quoteCurrencyKey),
-      };
-
-      // fees
-      const _fees = data[key]['fees'];
-      t[pair.name]['fees'] = {
-        [pair.baseCurrencyKey]: {
-          lp_fees: BalancedJs.utils.toIcx(_fees[baseAddress]['lp_fees'], pair.baseCurrencyKey),
-          baln_fees: BalancedJs.utils.toIcx(_fees[baseAddress]['baln_fees'], pair.baseCurrencyKey),
-        },
-        [pair.quoteCurrencyKey]: {
-          lp_fees: BalancedJs.utils.toIcx(_fees[quoteAddress]['lp_fees'], pair.quoteCurrencyKey),
-          baln_fees: BalancedJs.utils.toIcx(_fees[quoteAddress]['baln_fees'], pair.quoteCurrencyKey),
-        },
-      };
+        // fees
+        const _fees = data[key]['fees'];
+        t[pair.name]['fees'] = {
+          [pair.baseCurrencyKey]: {
+            lp_fees: BalancedJs.utils.toIcx(_fees[baseAddress]['lp_fees'], pair.baseCurrencyKey),
+            baln_fees: BalancedJs.utils.toIcx(_fees[baseAddress]['baln_fees'], pair.baseCurrencyKey),
+          },
+          [pair.quoteCurrencyKey]: {
+            lp_fees: BalancedJs.utils.toIcx(_fees[quoteAddress]['lp_fees'], pair.quoteCurrencyKey),
+            baln_fees: BalancedJs.utils.toIcx(_fees[quoteAddress]['baln_fees'], pair.quoteCurrencyKey),
+          },
+        };
+      }
     });
 
     return t;
@@ -571,7 +573,7 @@ export const useAllPairs = () => {
   const participantQuery = useAllPairsParticipantQuery();
 
   const t: {
-    [key: string]: Pair & { tvl: number; apy: number; participant: number; volume: number; fees: number };
+    [key: string]: Pair & { tvl: number; apy: number; participant: number; volume?: number; fees?: number };
   } = {};
 
   if (apys && participantQuery.isSuccess && tvls && data) {
@@ -583,9 +585,12 @@ export const useAllPairs = () => {
         tvl: tvls[pair.name],
         apy: apys[pair.name],
         participant: participants[pair.name],
-        volume: data[pair.name]['volume'],
-        fees: data[pair.name]['fees'],
       };
+
+      if (data[pair.name]) {
+        t[pair.name].volume = data[pair.name]['volume'];
+        t[pair.name].fees = data[pair.name]['fees'];
+      }
     });
     return t;
   } else return null;
@@ -599,8 +604,8 @@ export const useAllPairsTotal = () => {
       (total, pair) => {
         total.participant += pair.participant;
         total.tvl += pair.tvl;
-        total.volume += pair.volume;
-        total.fees += pair.fees;
+        total.volume += pair.volume ? pair.volume : 0;
+        total.fees += pair.fees ? pair.fees : 0;
         return total;
       },
       { participant: 0, tvl: 0, volume: 0, fees: 0 },
