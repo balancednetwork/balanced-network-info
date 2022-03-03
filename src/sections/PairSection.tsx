@@ -171,8 +171,8 @@ const PairItem = forwardRef(({ pair }: PairItemProps, ref) => (
       <DataText>{pair.apy ? getFormattedNumber(pair.apy, 'percent2') : '-'}</DataText>
       <DataText>{getFormattedNumber(pair.participant, 'number')}</DataText>
       <DataText>{getFormattedNumber(pair.tvl, 'currency0')}</DataText>
-      <DataText>{getFormattedNumber(pair.volume, 'currency0')}</DataText>
-      <DataText>{getFormattedNumber(pair.fees, 'currency0')}</DataText>
+      <DataText>{pair.volume ? getFormattedNumber(pair.volume, 'currency0') : '-'}</DataText>
+      <DataText>{pair.fees ? getFormattedNumber(pair.fees, 'currency0') : '-'}</DataText>
     </DashGrid>
     <Divider />
   </>
