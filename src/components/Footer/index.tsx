@@ -18,7 +18,7 @@ const Grid = styled(Box)`
   display: grid;
   grid-template-columns: auto 1fr;
   margin: 50px 0;
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     margin: 25px 0 ;
     grid-template-columns: none;
     grid-template-rows: auto 1fr;
@@ -31,7 +31,7 @@ const Grid = styled(Box)`
     button {
       margin: 0;
       margin-left: 25px;
-      ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+      ${({ theme }) => theme.mediaWidth.upToSmall`
         margin-left: 0;
         margin-bottom: 3px;
       `}
@@ -39,7 +39,7 @@ const Grid = styled(Box)`
   }
 
   &.footer-social {
-    ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    ${({ theme }) => theme.mediaWidth.upToSmall`
       flex-direction: column-reverse;
     `}
   }
@@ -53,7 +53,7 @@ const StyledFlex = styled(Flex)`
     margin: 0 0 -9px 25px;
   }
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     margin-bottom: 10px;
     a {
       margin: 0 0 3px 0;
@@ -61,24 +61,93 @@ const StyledFlex = styled(Flex)`
   `}
 `;
 
+const FooterLogo = styled(Flex)`
+  margin-bottom: 0;
+  justify-content: flex-start;
+  align-items: center;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    margin-bottom: 15px;
+    justify-content: center;
+  `}
+`;
+
+const FooterNav = styled(Flex)`
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    margin-bottom: 15px;
+    justify-content: center;
+    align-items: center;
+  `}
+`;
+
+const FooterNavTop = styled(StyledFlex)`
+  flex-direction: row;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column;
+  `}
+`;
+
+const FooterNavBottom = styled(Flex)`
+  align-items: center;
+  flex-direction: row;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column;
+  `}
+`;
+
+const FooterSocials = styled(Flex)`
+  padding-bottom: 40px;
+  flex-direction: row;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column-reverse;
+  `}
+`;
+
+const SocialsList = styled(Flex)`
+  justify-content: flex-end;
+  margin-left: auto;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    justify-content: center;
+    margin: 0 0 15px 0; 
+  `}
+
+  a {
+    margin: 0 9px;
+  }
+`;
+
+const FooterSubNav = styled(Flex)`
+  align-items: flex-start;
+  flex-direction: column;
+  text-align: center;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    text-align: left;
+    align-items: center;
+  `}
+`;
+
 const Footer = () => {
   return (
     <>
       <Grid>
-        <Flex marginBottom={[15, 0]} alignItems="center" justifyContent={['center', 'flex-start']}>
+        <FooterLogo>
           <Box width="100px">
             <Link href="https://balanced.network/">
               <Logo width="100%" />
             </Link>
           </Box>
-        </Flex>
-        <Flex
-          className="footer-right-menu"
-          flexDirection="column"
-          alignItems={['center', 'flex-end']}
-          justifyContent="center"
-        >
-          <StyledFlex flexDirection={['column', 'row']}>
+        </FooterLogo>
+        <FooterNav className="footer-right-menu">
+          <FooterNavTop>
             <AnimatedLink className="top-right-menu-item" as="a" href={LINKS.howitworks}>
               How it works
             </AnimatedLink>
@@ -94,41 +163,38 @@ const Footer = () => {
             <Button style={{ fontSize: 16, padding: '3px 20px', lineHeight: '35px' }} as="a" href={LINKS.app}>
               Go to app
             </Button>
-          </StyledFlex>
-          <Flex flexDirection={['column', 'row']} alignItems="center">
+          </FooterNavTop>
+          <FooterNavBottom>
             <AnimatedLink as="a" href={LINKS.demo}>
               Demo
             </AnimatedLink>
             <AnimatedLink as="a" href={LINKS.docs}>
               Docs
             </AnimatedLink>
-          </Flex>
-        </Flex>
+            <AnimatedLink as="a" href={LINKS.stablecoin}>
+              Stablecoin
+            </AnimatedLink>
+          </FooterNavBottom>
+        </FooterNav>
       </Grid>
-      <Flex pb={40} flexDirection={['column-reverse', 'row']} className="footer-social">
-        <Box
-          sx={{
-            textAlign: ['center', 'left'],
-          }}
-        >
+      <FooterSocials className="footer-social">
+        <FooterSubNav>
           <Text>© Balanced 2021, All rights reserved.</Text>
-          <AnimatedLink style={{ marginLeft: 0, display: 'inline-block' }} as="a" href={LINKS.disclamer}>
-            Disclaimer
-          </AnimatedLink>
-          {' | '}
-          <AnimatedLink style={{ marginLeft: 0, display: 'inline-block' }} as="a" href={LINKS.bugBounty}>
-            Bug bounty
-          </AnimatedLink>
-          {' | '}
-          <AnimatedLink style={{ marginLeft: 0, display: 'inline-block' }} as="a" href={LINKS.brand}>
-            Brand
-          </AnimatedLink>
-        </Box>
-        <Flex
-          sx={{ flex: 1, a: { margin: '0 9px' }, mb: [15, 0] }}
-          alignItems="center"
-          justifyContent={['center', 'flex-end']}
-        >
+          <Flex alignItems="center">
+            <AnimatedLink style={{ marginLeft: 0, display: 'inline-block' }} as="a" href={LINKS.disclamer}>
+              Disclaimer
+            </AnimatedLink>
+            {' | '}
+            <AnimatedLink style={{ marginLeft: 0, display: 'inline-block' }} as="a" href={LINKS.bugBounty}>
+              Bug bounty
+            </AnimatedLink>
+            {' | '}
+            <AnimatedLink style={{ marginLeft: 0, display: 'inline-block' }} as="a" href={LINKS.brand}>
+              Brand
+            </AnimatedLink>
+          </Flex>
+        </FooterSubNav>
+        <SocialsList>
           <SocialButton as="a" href={SOCIAL_LINKS.twitter}>
             <Twitter height={16} />
           </SocialButton>
@@ -144,8 +210,8 @@ const Footer = () => {
           <SocialButton style={{ marginRight: 0 }} as="a" href={SOCIAL_LINKS.revue}>
             <img alt="revue" src={Revue} height={16} />
           </SocialButton>
-        </Flex>
-      </Flex>
+        </SocialsList>
+      </FooterSocials>
     </>
   );
 };
