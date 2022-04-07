@@ -6,8 +6,6 @@ import styled from 'styled-components';
 import { ReactComponent as Discord } from 'assets/icons/discord.svg';
 import { ReactComponent as Logo } from 'assets/icons/logo.svg';
 import { ReactComponent as Reddit } from 'assets/icons/reddit.svg';
-import Revue from 'assets/icons/revue.png';
-import { ReactComponent as Telegram } from 'assets/icons/telegram.svg';
 import { ReactComponent as Twitter } from 'assets/icons/twitter.svg';
 import { Button } from 'components/Button';
 import AnimatedLink from 'components/Button/AnimatedLink';
@@ -201,14 +199,8 @@ const Footer = () => {
           <SocialButton as="a" href={SOCIAL_LINKS.reddit}>
             <Reddit height={16} />
           </SocialButton>
-          <SocialButton as="a" href={SOCIAL_LINKS.telegram}>
-            <Telegram height={16} />
-          </SocialButton>
-          <SocialButton as="a" href={SOCIAL_LINKS.discord}>
+          <SocialButton style={{ marginRight: 0 }} as="a" href={SOCIAL_LINKS.discord}>
             <Discord height={16} />
-          </SocialButton>
-          <SocialButton style={{ marginRight: 0 }} as="a" href={SOCIAL_LINKS.revue}>
-            <img alt="revue" src={Revue} height={16} />
           </SocialButton>
         </SocialsList>
       </FooterSocials>
