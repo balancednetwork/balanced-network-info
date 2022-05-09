@@ -23,8 +23,8 @@ const BalanceGrid = styled.div`
 `;
 
 const Change = styled.span<{ percentage: Number }>`
-  ${({ percentage }) => percentage > 0 && `color: #2fccdc`}
-  ${({ percentage }) => percentage < 0 && `color: red`}
+  ${({ percentage, theme }) => percentage > 0 && `color: ${theme.colors.primaryBright}`}
+  ${({ percentage, theme }) => percentage < 0 && `color: ${theme.colors.alert}`}
 `;
 
 const DatepickerInput = ({ ...props }) => <input type="text" {...props} readOnly />;
