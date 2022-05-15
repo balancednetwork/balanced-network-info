@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 
-import { useHoldingsDataQuery, useRatesQuery, LAUNCH_DAY, ONE_DAY } from 'queries';
+import { useHoldingsDataQuery, useRatesQuery, useWhitelistedTokensList, LAUNCH_DAY, ONE_DAY } from 'queries';
 import DatePicker from 'react-datepicker';
 import { Box, Flex, Text } from 'rebass/styled-components';
-import styled from 'styled-components';
 
 import CurrencyIcon from 'components/CurrencyIcon';
 import { BoxPanel } from 'components/Panel';
@@ -12,27 +11,17 @@ import { Typography } from 'theme';
 
 import { GridItemToken, GridItemAssetTotal, GridItemHeader, ScrollHelper } from '../../index';
 import { StyledSkeleton } from '../EarningSection';
+import { BalanceGrid, Change, DatepickerInput } from '../HoldingsSection';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
 const whitelistedTokens = ['IUSDC', 'USDS'];
 
-const BalanceGrid = styled.div`
-  display: grid;
-  grid-template-columns: 12fr 11fr 11fr;
-  align-items: stretch;
-  min-width: 600px;
-`;
-
-const Change = styled.span<{ percentage: Number }>`
-  ${({ percentage }) => percentage > 0 && `color: #2fccdc`}
-  ${({ percentage }) => percentage < 0 && `color: red`}
-`;
-
-const DatepickerInput = ({ ...props }) => <input type="text" {...props} readOnly />;
-
 const StabilityFundSection = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() - 1)));
+
+  const kjkj = useWhitelistedTokensList();
+  console.log(kjkj);
 
   const holdingsDataQueryCurrent = useHoldingsDataQuery();
   const holdingsDataQueryPast = useHoldingsDataQuery(

@@ -614,3 +614,7 @@ export const useAllPairsTotal = () => {
 
   return;
 };
+
+export const useWhitelistedTokensList = () => {
+  return useBnJsContractQuery<string[]>(bnJs, 'Peg', 'getAcceptedTokens', []);
+};

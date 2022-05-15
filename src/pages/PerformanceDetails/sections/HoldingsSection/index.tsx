@@ -15,19 +15,19 @@ import { StyledSkeleton } from '../EarningSection';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
-const BalanceGrid = styled.div`
+export const BalanceGrid = styled.div`
   display: grid;
   grid-template-columns: 12fr 11fr 11fr;
   align-items: stretch;
   min-width: 600px;
 `;
 
-const Change = styled.span<{ percentage: Number }>`
+export const Change = styled.span<{ percentage: Number }>`
   ${({ percentage }) => percentage > 0 && `color: #2fccdc`}
   ${({ percentage }) => percentage < 0 && `color: red`}
 `;
 
-const DatepickerInput = ({ ...props }) => <input type="text" {...props} readOnly />;
+export const DatepickerInput = ({ ...props }) => <input type="text" {...props} readOnly />;
 
 const HoldingsSection = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() - 1)));

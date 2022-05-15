@@ -13,6 +13,7 @@ import Governance from './contracts/Governance';
 import ICX from './contracts/ICX';
 import IISS from './contracts/IISS';
 import Loans from './contracts/Loans';
+import Peg from './contracts/Peg';
 import Rewards from './contracts/Rewards';
 import sICX from './contracts/sICX';
 import Staking from './contracts/Staking';
@@ -51,6 +52,7 @@ export class BalancedJs {
   Governance: Governance;
   Daofund: Daofund;
   IISS: IISS;
+  Peg: Peg;
 
   static utils = {
     toLoop(value: BigNumber | number | string, currencyKey?: string): BigNumber {
@@ -103,6 +105,7 @@ export class BalancedJs {
     this.Governance = new Governance(this.contractSettings);
     this.Daofund = new Daofund(this.contractSettings);
     this.IISS = new IISS(this.contractSettings);
+    this.Peg = new Peg(this.contractSettings);
   }
 
   inject({ account, legerSettings }: SettingInjection) {
