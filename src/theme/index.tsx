@@ -16,6 +16,7 @@ export const sizes = {
   upToSmall: 800,
   upToMedium: 1000,
   upToLarge: 1280,
+  upToSuperExtraSmall: 385,
 };
 
 // Iterate through the sizes and create a media template
