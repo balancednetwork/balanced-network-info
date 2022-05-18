@@ -59,6 +59,8 @@ export function theme(): DefaultTheme {
       // Balanced turquoise
       primary: '#2ca9b7',
 
+      primaryBright: '#2fccdc',
+
       //specialty colors
       modalBG: 'rgba(1, 0, 42, 0.75)',
       advancedBG: 'rgba(255,255,255,0.6)',

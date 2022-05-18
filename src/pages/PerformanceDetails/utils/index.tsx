@@ -89,6 +89,10 @@ export const earningPeriods: TimePeriods = {
     displayText: '3 months',
     days: 91,
   },
+  sixMonths: {
+    displayText: '6 months',
+    days: 182,
+  },
 };
 
 const Loader = styled.span`
