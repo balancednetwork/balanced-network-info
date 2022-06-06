@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import { useHoldingsDataQuery, useRatesQuery, useWhitelistedTokensList, LAUNCH_DAY, ONE_DAY } from 'queries';
+import { useBlockDetails } from 'queries/blockDetails';
 import DatePicker from 'react-datepicker';
 import { Box, Flex, Text } from 'rebass/styled-components';
 
@@ -20,8 +21,8 @@ const whitelistedTokens = ['IUSDC', 'USDS'];
 const StabilityFundSection = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() - 1)));
 
-  const kjkj = useWhitelistedTokensList();
-  console.log(kjkj);
+  const wlTokens = useWhitelistedTokensList();
+  console.log(wlTokens);
 
   const holdingsDataQueryCurrent = useHoldingsDataQuery();
   const holdingsDataQueryPast = useHoldingsDataQuery(
@@ -36,6 +37,14 @@ const StabilityFundSection = () => {
 
   let totalCurrent = 0;
   let totalPast = 0;
+
+  const now = new Date();
+  const { data: blockDetails } = useBlockDetails(now.getTime() - 100000);
+
+  console.log('ss');
+  console.log(selectedDate.valueOf());
+
+  console.log(blockDetails?.number);
 
   return (
     <BoxPanel bg="bg2" mb={10}>
