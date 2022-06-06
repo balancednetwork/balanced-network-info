@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@ledgerhq/hw-app-icx": "file:src/packages/hw-app-icx",
+    "@balancednetwork/balanced-js": "1.0.2",
+    "@balancednetwork/sdk-core": "1.0.1",
     "@material-ui/core": "4.12.3",
     "@material-ui/lab": "4.0.0-alpha.60",
     "@popperjs/core": "2.8.4",

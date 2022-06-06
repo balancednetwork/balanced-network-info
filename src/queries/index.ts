@@ -1,6 +1,6 @@
+import { BalancedJs } from '@balancednetwork/balanced-js';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import { BalancedJs } from 'packages/BalancedJs';
 import { useQuery } from 'react-query';
 
 import bnJs from 'bnJs';

@@ -114,7 +114,7 @@ function TotalIcon() {
   );
 }
 
-const SkeletonPariPlaceholder = () => {
+const SkeletonPairPlaceholder = () => {
   return (
     <DashGrid my={2}>
       <DataText>
@@ -267,27 +267,27 @@ export default function PairSection() {
             </AnimateList>
           ) : (
             <>
-              <SkeletonPariPlaceholder />
+              <SkeletonPairPlaceholder />
               <Divider />
-              <SkeletonPariPlaceholder />
+              <SkeletonPairPlaceholder />
               <Divider />
-              <SkeletonPariPlaceholder />
+              <SkeletonPairPlaceholder />
               <Divider />
-              <SkeletonPariPlaceholder />
+              <SkeletonPairPlaceholder />
               <Divider />
-              <SkeletonPariPlaceholder />
+              <SkeletonPairPlaceholder />
               <Divider />
-              <SkeletonPariPlaceholder />
+              <SkeletonPairPlaceholder />
               <Divider />
-              <SkeletonPariPlaceholder />
+              <SkeletonPairPlaceholder />
               <Divider />
-              <SkeletonPariPlaceholder />
+              <SkeletonPairPlaceholder />
               <Divider />
-              <SkeletonPariPlaceholder />
+              <SkeletonPairPlaceholder />
               <Divider />
-              <SkeletonPariPlaceholder />
+              <SkeletonPairPlaceholder />
               <Divider />
-              <SkeletonPariPlaceholder />
+              <SkeletonPairPlaceholder />
             </>
           )}
 
