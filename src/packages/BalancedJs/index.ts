@@ -12,6 +12,7 @@ import Dividends from './contracts/Dividends';
 import Governance from './contracts/Governance';
 import ICX from './contracts/ICX';
 import IISS from './contracts/IISS';
+import IRC2 from './contracts/IRC2';
 import Loans from './contracts/Loans';
 import Rewards from './contracts/Rewards';
 import sICX from './contracts/sICX';
@@ -125,5 +126,9 @@ export class BalancedJs {
     });
 
     return contract.callICONPlugins(payload);
+  }
+
+  getContract(address: string): IRC2 {
+    return new IRC2(this.contractSettings, address);
   }
 }

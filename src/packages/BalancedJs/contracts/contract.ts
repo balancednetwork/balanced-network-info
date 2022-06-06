@@ -22,11 +22,12 @@ export class Contract {
   public address: string = '';
   public ledger: Ledger;
 
-  constructor(protected contractSettings: ContractSettings) {
+  constructor(protected contractSettings: ContractSettings, address?: string) {
     this.provider = contractSettings.provider;
     this.nid = contractSettings.networkId;
     this.ledger = new Ledger(contractSettings);
     this.contractSettings.ledgerSettings.actived = !isEmpty(this.ledger.viewSetting().transport);
+    this.address = address || '';
   }
 
   protected get account(): AccountType {
@@ -52,14 +53,18 @@ export class Contract {
 
   public paramsBuilder({
     method,
+    blockHeight,
     params,
   }: {
     method: string;
+    blockHeight?: number;
     params?: {
       [key: string]: any;
     };
   }) {
-    return new IconBuilder.CallBuilder().to(this.address).method(method).params(params).build();
+    const tx = new IconBuilder.CallBuilder().to(this.address).method(method).params(params).build();
+    if (blockHeight) tx['height'] = IconConverter.toHex(blockHeight);
+    return tx;
   }
 
   call(params) {
@@ -122,6 +127,21 @@ export class Contract {
       id: Date.now(),
     };
   }
+
+  // public historicBalanceOf(): TransactionParams {
+  //   return {
+  //     jsonrpc: '2.0',
+  //     method: 'icx_call',
+  //     params: {
+  //       to: this.address,
+  //       dataType: 'call',
+  //       data: {
+  //         method: 'balanceOf',
+  //       },
+  //     },
+  //     id: Date.now(),
+  //   };
+  // }
 
   public async callICONPlugins(payload: any): Promise<ResponseJsonRPCPayload> {
     if (this.contractSettings.ledgerSettings.actived) {

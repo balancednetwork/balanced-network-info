@@ -616,5 +616,7 @@ export const useAllPairsTotal = () => {
 };
 
 export const useWhitelistedTokensList = () => {
-  return useBnJsContractQuery<string[]>(bnJs, 'Peg', 'getAcceptedTokens', []);
+  return useQuery<string[]>('whitelistedTokens', async () => {
+    return await bnJs.StabilityFund.getAcceptedTokens();
+  });
 };

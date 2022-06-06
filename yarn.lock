@@ -3720,7 +3720,7 @@ bindings@^1.5.0:
 bip66@^1.1.5:
   version "1.1.5"
   resolved "https://registry.yarnpkg.com/bip66/-/bip66-1.1.5.tgz#01fa8748785ca70955d5011217d1b3139969ca22"
-  integrity sha1-AfqHSHhcpwlV1QESF9GzE5lpyiI=
+  integrity sha512-nemMHz95EmS38a26XbbdxIYj5csHd3RMP3H5bwQknX0WYHF01qhpufP42mLOwVICuH2JmhIhXiWs89MfUGL7Xw==
   dependencies:
     safe-buffer "^5.0.1"
 
@@ -3729,10 +3729,15 @@ bluebird@^3.5.5:
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.7.2.tgz#9f229c15be272454ffa973ace0dbee79a1b0c36f"
   integrity sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==
 
-bn.js@^4.0.0, bn.js@^4.1.0, bn.js@^4.11.8, bn.js@^4.11.9, bn.js@^4.4.0:
+bn.js@^4.0.0, bn.js@^4.1.0, bn.js@^4.4.0:
   version "4.11.9"
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.11.9.tgz#26d556829458f9d1e81fc48952493d0ba3507828"
   integrity sha512-E6QoYqCKZfgatHTdHzs1RRKP7ip4vvm+EyRUeE2RF0NblwVvb0p6jSVeNTOFxPn26QXN2o6SMfNxKp6kU8zQaw==
+
+bn.js@^4.11.8, bn.js@^4.11.9:
+  version "4.12.0"
+  resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.12.0.tgz#775b3f278efbb9718eec7361f483fb36fbbfea88"
+  integrity sha512-c98Bf3tPniI+scsdk237ku1Dc3ujXQTSgyiPUDEOe7tRkhrqridvh8klBv0HCEso1OLOYcHuCv/cS6DNxKH+ZA==
 
 bn.js@^5.0.0, bn.js@^5.1.1:
   version "5.1.3"
@@ -3951,7 +3956,7 @@ buffer-indexof@^1.0.0:
 buffer-xor@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/buffer-xor/-/buffer-xor-1.0.3.tgz#26e61ed1422fb70dd42e6e36729ed51d855fe8d9"
-  integrity sha1-JuYe0UIvtw3ULm42cp7VHYVf6Nk=
+  integrity sha512-571s0T7nZWK6vB67HI5dyUF7wXiNcfaPPPTl6zYCNApANjIvYJTg7hlud/+cJpdAhS7dVzqMLmfhfHR3rAcOjQ==
 
 buffer@^4.3.0:
   version "4.9.2"
@@ -5671,7 +5676,7 @@ dotenv@8.2.0:
 drbg.js@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/drbg.js/-/drbg.js-1.0.1.tgz#3e36b6c42b37043823cdbc332d58f31e2445480b"
-  integrity sha1-Pja2xCs3BDgjzbwzLVjzHiRFSAs=
+  integrity sha512-F4wZ06PvqxYLFEZKkFxTDcns9oFNk34hvmJSEwdzsxVQ8YI5YaxtACgQatkYgv2VI2CFkUd2Y+xosPQnHv809g==
   dependencies:
     browserify-aes "^1.0.6"
     create-hash "^1.1.2"
@@ -9798,10 +9803,15 @@ mute-stream@0.0.8:
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.8.tgz#1630c42b2251ff81e2a283de96a5497ea92e5e0d"
   integrity sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==
 
-nan@^2.12.1, nan@^2.14.0:
+nan@^2.12.1:
   version "2.14.2"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.2.tgz#f5376400695168f4cc694ac9393d0c9585eeea19"
   integrity sha512-M2ufzIiINKCuDfBSAUr1vWQ+vuVcA9kqx8JJUsbQi6yf1uGRyb7HfpdfUr5qLXf3B/t8dPvcjhKMmlfnP47EzQ==
+
+nan@^2.14.0:
+  version "2.16.0"
+  resolved "https://registry.yarnpkg.com/nan/-/nan-2.16.0.tgz#664f43e45460fb98faf00edca0bb0d7b8dce7916"
+  integrity sha512-UdAqHyFngu7TfQKsCBgAA6pWDkT8MAO7d0jyOecVhN5354xbLqdn8mV9Tat9gepAupm0bt2DbeaSC8vS52MuFA==
 
 nano-css@^5.2.1:
   version "5.3.0"
@@ -14246,6 +14256,11 @@ to-through@^2.0.0:
   integrity sha1-/JKtq6ByZHvAtn1rA2ZKoZUJOvY=
   dependencies:
     through2 "^2.0.3"
+
+toformat@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/toformat/-/toformat-2.0.0.tgz#7a043fd2dfbe9021a4e36e508835ba32056739d8"
+  integrity sha512-03SWBVop6nU8bpyZCx7SodpYznbZF5R4ljwNLBcTQzKOD9xuihRo/psX58llS1BMFhhAI08H3luot5GoXJz2pQ==
 
 toggle-selection@^1.0.6:
   version "1.0.6"
