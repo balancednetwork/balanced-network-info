@@ -1,7 +1,7 @@
 import React, { createRef, forwardRef } from 'react';
 
 import { Skeleton } from '@material-ui/lab';
-import { Token, useAllTokens } from 'queries';
+import { MetaToken, useAllTokens } from 'queries';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled, { css } from 'styled-components';
 
@@ -194,7 +194,7 @@ const SkeletonTokenPlaceholder = () => {
 };
 
 type TokenItemProps = {
-  token: Token;
+  token: MetaToken;
   isLast: boolean;
 };
 
