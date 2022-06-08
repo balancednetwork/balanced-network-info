@@ -8,10 +8,9 @@ import styled, { css } from 'styled-components';
 import AnimateList from 'components/AnimatedList';
 import Divider from 'components/Divider';
 import { BoxPanel } from 'components/Panel';
-import { CurrencyKey } from 'constants/currency';
+import CurrencyLogo from 'components/shared/CurrencyLogo';
 import useSort from 'hooks/useSort';
 import { Typography } from 'theme';
-import { getCurrencyKeyIcon } from 'utils';
 import { formatPriceChange, getFormattedNumber } from 'utils/formatter';
 
 const List = styled(Box)`
@@ -146,12 +145,6 @@ export const StyledSkeleton = styled(Skeleton)`
   background-color: rgba(44, 169, 183, 0.2) !important;
 `;
 
-function CurrencyIcon({ currencyKey }: { currencyKey: CurrencyKey }) {
-  const Icon = getCurrencyKeyIcon(currencyKey);
-
-  return <Icon width={40} height={40} />;
-}
-
 const SkeletonTokenPlaceholder = () => {
   return (
     <DashGrid my={4}>
@@ -204,7 +197,7 @@ const TokenItem = forwardRef(({ token, isLast }: TokenItemProps, ref) => (
       <DataText>
         <Flex alignItems="center">
           <Box sx={{ minWidth: '50px' }}>
-            <CurrencyIcon currencyKey={token.symbol} />
+            <CurrencyLogo currency={token.info} size="40px" />
           </Box>
           <Box ml={2} sx={{ minWidth: '160px' }}>
             <Text>{token.name}</Text>

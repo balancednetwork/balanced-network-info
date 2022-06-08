@@ -8,10 +8,10 @@ import { ReactComponent as SigmaIcon } from 'assets/icons/sigma.svg';
 import AnimateList from 'components/AnimatedList';
 import Divider from 'components/Divider';
 import { BoxPanel } from 'components/Panel';
-import { CurrencyKey, Pair } from 'constants/currency';
+import PoolLogo, { IconWrapper, PoolLogoWrapper } from 'components/shared/PoolLogo';
+import { PairInfo } from 'constants/pairs';
 import useSort from 'hooks/useSort';
 import { Typography } from 'theme';
-import { getCurrencyKeyIcon } from 'utils';
 import { getFormattedNumber } from 'utils/formatter';
 
 import { HeaderText, StyledSkeleton as Skeleton } from './TokenSection';
@@ -62,47 +62,9 @@ const StyledSkeleton = styled(Skeleton)`
   }
 `;
 
-const IconWrapper = styled(Box)`
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 1px solid rgb(12, 42, 77);
-  background-color: rgb(20, 74, 104);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const PoolIconWrapper = styled(Box)`
-  display: flex;
-  min-width: 80px;
-`;
-
-function PoolIcon({
-  baseCurrencyKey,
-  quoteCurrencyKey,
-}: {
-  baseCurrencyKey: CurrencyKey;
-  quoteCurrencyKey: CurrencyKey;
-}) {
-  const BaseIcon = getCurrencyKeyIcon(baseCurrencyKey);
-  const QuoteIcon = getCurrencyKeyIcon(quoteCurrencyKey);
-
-  return (
-    <PoolIconWrapper>
-      <IconWrapper>
-        <BaseIcon width={25} height={25} />
-      </IconWrapper>
-      <IconWrapper ml={-2}>
-        <QuoteIcon width={25} height={25} />
-      </IconWrapper>
-    </PoolIconWrapper>
-  );
-}
-
 function TotalIcon() {
   return (
-    <PoolIconWrapper>
+    <PoolLogoWrapper>
       <IconWrapper></IconWrapper>
       <IconWrapper ml="-38px"></IconWrapper>
       <IconWrapper ml="-38px"></IconWrapper>
@@ -110,7 +72,7 @@ function TotalIcon() {
       <IconWrapper ml="-38px">
         <SigmaIcon width={20} height={20} />
       </IconWrapper>
-    </PoolIconWrapper>
+    </PoolLogoWrapper>
   );
 }
 
@@ -148,7 +110,7 @@ const SkeletonPairPlaceholder = () => {
 };
 
 type PairItemProps = {
-  pair: Pair & {
+  pair: PairInfo & {
     tvl: number;
     apy: number;
     participant: number;
@@ -163,7 +125,7 @@ const PairItem = forwardRef(({ pair }: PairItemProps, ref) => (
       <DataText>
         <Flex alignItems="center">
           <Box sx={{ minWidth: '95px' }}>
-            <PoolIcon baseCurrencyKey={pair.baseCurrencyKey} quoteCurrencyKey={pair.quoteCurrencyKey} />
+            <PoolLogo baseCurrency={pair.baseToken} quoteCurrency={pair.quoteToken} />
           </Box>
           <Text ml={2}>{`${pair.baseCurrencyKey} / ${pair.quoteCurrencyKey}`}</Text>
         </Flex>

@@ -220,7 +220,7 @@ export const SUPPORTED_TOKENS: { [chainId: number]: Token[] } = {
 export const SUPPORTED_TOKENS_LIST = SUPPORTED_TOKENS[NETWORK_ID];
 
 export const SUPPORTED_TOKENS_MAP_BY_ADDRESS: {
-  [key: string]: Currency;
+  [key: string]: Token;
 } = SUPPORTED_TOKENS_LIST.reduce((prev, cur) => {
   prev[cur.address] = cur;
   return prev;

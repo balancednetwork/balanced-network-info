@@ -1,5 +1,5 @@
 import { BalancedJs } from '@balancednetwork/balanced-js';
-import { Token } from '@balancednetwork/sdk-core';
+import { Currency, CurrencyAmount, Token } from '@balancednetwork/sdk-core';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { useQuery } from 'react-query';
@@ -8,10 +8,7 @@ import bnJs from 'bnJs';
 import { ZERO } from 'constants/number';
 import { PairInfo, SUPPORTED_PAIRS } from 'constants/pairs';
 import QUERY_KEYS from 'constants/queryKeys';
-import { SUPPORTED_TOKENS_LIST, SUPPORTED_TOKENS_MAP_BY_ADDRESS } from 'constants/tokens';
-import { contractToInfoMap } from 'pages/PerformanceDetails/utils';
-
-import { ContractData, PerformaceData } from '../pages/PerformanceDetails/types';
+import { bnUSD, SUPPORTED_TOKENS_LIST, SUPPORTED_TOKENS_MAP_BY_ADDRESS } from 'constants/tokens';
 
 export const useBnJsContractQuery = <T>(bnJs: BalancedJs, contract: string, method: string, args: any[]) => {
   return useQuery<T, string>(QUERY_KEYS.BnJs(contract, method, args), async () => {
@@ -67,54 +64,49 @@ export const useEarningsDataQuery = (
   end: number = new Date().valueOf() * 1_000,
   cacheItem: string = 'earnings-data',
 ) => {
-  return useQuery<PerformaceData>(cacheItem, async () => {
+  return useQuery<{
+    income: { loansFees: CurrencyAmount<Token>; swapFees: { [key: string]: CurrencyAmount<Token> } };
+    expenses: { [key: string]: CurrencyAmount<Token> };
+  }>(cacheItem, async () => {
     const { data } = await axios.get(
       `${API_ENDPOINT}/stats/income-statement?start_timestamp=${start}&end_timestamp=${end}`,
     );
-    const loanIncometokenCount = BalancedJs.utils.toIcx(data.income.loans_fees, 'bnUSD');
-    data.income.loans_fees = loanIncometokenCount;
 
-    data.income.swap_fees = Object.keys(data.income.swap_fees)
-      .filter(contract => Object.keys(contractToInfoMap).indexOf(contract) >= 0)
-      .map(contract => {
-        const contractInfo = contractToInfoMap[contract];
-        const contractFeeTokenCount = BalancedJs.utils.toIcx(data.income.swap_fees[contract], contractInfo.symbol);
-
-        return {
-          info: contractToInfoMap[contract],
-          tokens: contractFeeTokenCount,
-        };
-      });
-
-    data.expenses = Object.keys(data.expenses)
-      .filter(contract => Object.keys(contractToInfoMap).indexOf(contract) >= 0)
-      .map(contract => {
-        const contractInfo = contractToInfoMap[contract];
-        const contractExpenseTokenCount = BalancedJs.utils.toIcx(data.expenses[contract], contractInfo.symbol);
-
-        return {
-          info: contractToInfoMap[contract],
-          tokens: contractExpenseTokenCount,
-        };
-      });
-
-    return data;
+    return {
+      income: {
+        loansFees: CurrencyAmount.fromRawAmount(bnUSD, data.income.loans_fees),
+        swapFees: Object.keys(data.income.swap_fees)
+          .filter(addr => SUPPORTED_TOKENS_MAP_BY_ADDRESS[addr])
+          .reduce<{ [key: string]: CurrencyAmount<Token> }>((prev, addr) => {
+            prev[addr] = CurrencyAmount.fromRawAmount(
+              SUPPORTED_TOKENS_MAP_BY_ADDRESS[addr],
+              data.income.swap_fees[addr],
+            );
+            return prev;
+          }, {}),
+      },
+      expenses: Object.keys(data.expenses)
+        .filter(addr => SUPPORTED_TOKENS_MAP_BY_ADDRESS[addr])
+        .reduce<{ [key: string]: CurrencyAmount<Token> }>((prev, addr) => {
+          prev[addr] = CurrencyAmount.fromRawAmount(SUPPORTED_TOKENS_MAP_BY_ADDRESS[addr], data.expenses[addr]);
+          return prev;
+        }, {}),
+    };
   });
 };
 
 export const useHoldingsDataQuery = (timestamp: number = -1, cacheItem: string = 'holdings-data') => {
-  return useQuery<ContractData[]>(cacheItem, async () => {
+  return useQuery<{ [key in string]: CurrencyAmount<Currency> }>(cacheItem, async () => {
     const { data } = await axios.get(`${API_ENDPOINT}/stats/daofund-balance-sheet?timestamp=${timestamp}`);
-    const mappedData = Object.keys(data)
-      .filter(contract => Object.keys(contractToInfoMap).indexOf(contract) >= 0)
-      .map(contract => {
-        const tokenCount = BalancedJs.utils.toIcx(data[contract], contractToInfoMap[contract].symbol);
-        return {
-          info: contractToInfoMap[contract],
-          tokens: tokenCount,
-        };
+
+    const t = {};
+    Object.keys(data)
+      .filter(contract => Object.keys(SUPPORTED_TOKENS_MAP_BY_ADDRESS).indexOf(contract) >= 0)
+      .forEach(contract => {
+        t[contract] = CurrencyAmount.fromRawAmount(SUPPORTED_TOKENS_MAP_BY_ADDRESS[contract], data[contract]);
       });
-    return mappedData;
+
+    return t;
   });
 };
 
@@ -251,6 +243,7 @@ export const useGovernanceInfo = () => {
 };
 
 export type MetaToken = {
+  info: Token;
   holders: number;
   name: string;
   symbol: string;
@@ -291,6 +284,7 @@ export const useAllTokensQuery = () => {
     ).forEach(token => {
       const _token = _tokens[token.symbol!];
       const token1 = {
+        info: token,
         ..._token,
         price: BalancedJs.utils.toIcx(_token.price).toNumber(),
         totalSupply: BalancedJs.utils.toIcx(_token.total_supply, token.symbol!).toNumber(),

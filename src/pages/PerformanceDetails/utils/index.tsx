@@ -30,37 +30,6 @@ export interface FormattedPeriods {
   };
 }
 
-export const contractToInfoMap = {
-  cx88fd7df7ddff82f7cc735c871dc519838cb235bb: {
-    symbol: 'bnUSD',
-    displayName: 'Balanced Dollar',
-  },
-  cx2609b924e33ef00b648a409245c7ea394c467824: {
-    symbol: 'sICX',
-    displayName: 'Staked ICX',
-  },
-  cxf61cd5a45dc9f91c15aa65831a30a90d59a09619: {
-    symbol: 'BALN',
-    displayName: 'Balance Token',
-  },
-  cx1a29259a59f463a67bb2ef84398b30ca56b5830a: {
-    symbol: 'OMM',
-    displayName: 'Omm Token',
-  },
-  cxae3034235540b924dfcc1b45836c293dcc82bfb7: {
-    symbol: 'IUSDC',
-    displayName: 'ICON USD Coin',
-  },
-  cxbb2871f468a3008f80b08fdde5b8b951583acf06: {
-    symbol: 'USDS',
-    displayName: 'Stably USD',
-  },
-  cx2e6d0fc0eca04965d06038c8406093337f085fcf: {
-    symbol: 'CFT',
-    displayName: 'Craft',
-  },
-};
-
 export const dateOptionShort: DateOptions = {
   month: 'short',
   day: '2-digit',
@@ -278,7 +247,7 @@ export const DatePickerWrap = styled.div`
   }
 `;
 
-export const formatPercantage = percentage => {
+export const formatPercentage = percentage => {
   if (typeof percentage === 'number' && !isNaN(percentage) && percentage !== 0) {
     const plusMinus = percentage > 0 ? '+' : '';
     return (
