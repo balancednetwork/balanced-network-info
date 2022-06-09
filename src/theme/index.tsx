@@ -16,6 +16,7 @@ export const sizes = {
   upToSmall: 800,
   upToMedium: 1000,
   upToLarge: 1280,
+  upToSuperExtraSmall: 385,
 };
 
 // Iterate through the sizes and create a media template
@@ -58,6 +59,8 @@ export function theme(): DefaultTheme {
 
       // Balanced turquoise
       primary: '#2ca9b7',
+
+      primaryBright: '#2fccdc',
 
       //specialty colors
       modalBG: 'rgba(1, 0, 42, 0.75)',

@@ -1,26 +1,23 @@
+import { BalancedJs } from '@balancednetwork/balanced-js';
+import { Currency, CurrencyAmount, Token } from '@balancednetwork/sdk-core';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import { BalancedJs } from 'packages/BalancedJs';
 import { useQuery } from 'react-query';
 
 import bnJs from 'bnJs';
-import {
-  SUPPORTED_PAIRS,
-  Pair,
-  CURRENCY,
-  addressToCurrencyKeyMap,
-  NetworkId,
-  currencyKeyToAddressMap,
-} from 'constants/currency';
 import { ZERO } from 'constants/number';
+import { PairInfo, SUPPORTED_PAIRS } from 'constants/pairs';
 import QUERY_KEYS from 'constants/queryKeys';
-import { contractToInfoMap } from 'pages/PerformanceDetails/utils';
-
-import { ContractData, PerformaceData } from '../pages/PerformanceDetails/types';
+import { bnUSD, SUPPORTED_TOKENS_LIST, SUPPORTED_TOKENS_MAP_BY_ADDRESS } from 'constants/tokens';
 
 export const useBnJsContractQuery = <T>(bnJs: BalancedJs, contract: string, method: string, args: any[]) => {
   return useQuery<T, string>(QUERY_KEYS.BnJs(contract, method, args), async () => {
-    return bnJs[contract][method](...args);
+    try {
+      return bnJs[contract][method](...args);
+    } catch (e) {
+      console.log(contract, method);
+      throw e;
+    }
   });
 };
 
@@ -67,54 +64,49 @@ export const useEarningsDataQuery = (
   end: number = new Date().valueOf() * 1_000,
   cacheItem: string = 'earnings-data',
 ) => {
-  return useQuery<PerformaceData>(cacheItem, async () => {
+  return useQuery<{
+    income: { loansFees: CurrencyAmount<Token>; swapFees: { [key: string]: CurrencyAmount<Token> } };
+    expenses: { [key: string]: CurrencyAmount<Token> };
+  }>(cacheItem, async () => {
     const { data } = await axios.get(
       `${API_ENDPOINT}/stats/income-statement?start_timestamp=${start}&end_timestamp=${end}`,
     );
-    const loanIncometokenCount = BalancedJs.utils.toIcx(data.income.loans_fees, 'bnUSD');
-    data.income.loans_fees = loanIncometokenCount;
 
-    data.income.swap_fees = Object.keys(data.income.swap_fees)
-      .filter(contract => Object.keys(contractToInfoMap).indexOf(contract) >= 0)
-      .map(contract => {
-        const contractInfo = contractToInfoMap[contract];
-        const contractFeeTokenCount = BalancedJs.utils.toIcx(data.income.swap_fees[contract], contractInfo.symbol);
-
-        return {
-          info: contractToInfoMap[contract],
-          tokens: contractFeeTokenCount,
-        };
-      });
-
-    data.expenses = Object.keys(data.expenses)
-      .filter(contract => Object.keys(contractToInfoMap).indexOf(contract) >= 0)
-      .map(contract => {
-        const contractInfo = contractToInfoMap[contract];
-        const contractExpenseTokenCount = BalancedJs.utils.toIcx(data.expenses[contract], contractInfo.symbol);
-
-        return {
-          info: contractToInfoMap[contract],
-          tokens: contractExpenseTokenCount,
-        };
-      });
-
-    return data;
+    return {
+      income: {
+        loansFees: CurrencyAmount.fromRawAmount(bnUSD, data.income.loans_fees),
+        swapFees: Object.keys(data.income.swap_fees)
+          .filter(addr => SUPPORTED_TOKENS_MAP_BY_ADDRESS[addr])
+          .reduce<{ [key: string]: CurrencyAmount<Token> }>((prev, addr) => {
+            prev[addr] = CurrencyAmount.fromRawAmount(
+              SUPPORTED_TOKENS_MAP_BY_ADDRESS[addr],
+              data.income.swap_fees[addr],
+            );
+            return prev;
+          }, {}),
+      },
+      expenses: Object.keys(data.expenses)
+        .filter(addr => SUPPORTED_TOKENS_MAP_BY_ADDRESS[addr])
+        .reduce<{ [key: string]: CurrencyAmount<Token> }>((prev, addr) => {
+          prev[addr] = CurrencyAmount.fromRawAmount(SUPPORTED_TOKENS_MAP_BY_ADDRESS[addr], data.expenses[addr]);
+          return prev;
+        }, {}),
+    };
   });
 };
 
 export const useHoldingsDataQuery = (timestamp: number = -1, cacheItem: string = 'holdings-data') => {
-  return useQuery<ContractData[]>(cacheItem, async () => {
+  return useQuery<{ [key in string]: CurrencyAmount<Currency> }>(cacheItem, async () => {
     const { data } = await axios.get(`${API_ENDPOINT}/stats/daofund-balance-sheet?timestamp=${timestamp}`);
-    const mappedData = Object.keys(data)
-      .filter(contract => Object.keys(contractToInfoMap).indexOf(contract) >= 0)
-      .map(contract => {
-        const tokenCount = BalancedJs.utils.toIcx(data[contract], contractToInfoMap[contract].symbol);
-        return {
-          info: contractToInfoMap[contract],
-          tokens: tokenCount,
-        };
+
+    const t = {};
+    Object.keys(data)
+      .filter(contract => Object.keys(SUPPORTED_TOKENS_MAP_BY_ADDRESS).indexOf(contract) >= 0)
+      .forEach(contract => {
+        t[contract] = CurrencyAmount.fromRawAmount(SUPPORTED_TOKENS_MAP_BY_ADDRESS[contract], data[contract]);
       });
-    return mappedData;
+
+    return t;
   });
 };
 
@@ -157,9 +149,9 @@ const useEarnedFeesQuery = () => {
 
     const t: { [key in string]: BigNumber } = {};
     Object.keys(data).forEach(address => {
-      t[addressToCurrencyKeyMap[NetworkId.MAINNET][address]] = BalancedJs.utils.toIcx(
+      t[SUPPORTED_TOKENS_MAP_BY_ADDRESS[address].symbol!] = BalancedJs.utils.toIcx(
         data[address]['total'],
-        addressToCurrencyKeyMap[NetworkId.MAINNET][address],
+        SUPPORTED_TOKENS_MAP_BY_ADDRESS[address].symbol!,
       );
     });
 
@@ -186,8 +178,8 @@ export const useOverviewInfo = () => {
   let totalFees: BigNumber | undefined;
   if (feesQuery.isSuccess && ratesQuery.isSuccess && rates) {
     const fees = feesQuery.data;
-    totalFees = CURRENCY.reduce((sum: BigNumber, currencyKey: string) => {
-      return fees[currencyKey] ? sum.plus(fees[currencyKey].times(rates[currencyKey])) : sum;
+    totalFees = SUPPORTED_TOKENS_LIST.reduce((sum: BigNumber, token: Token) => {
+      return fees[token.symbol!] ? sum.plus(fees[token.symbol!].times(rates[token.symbol!])) : sum;
     }, ZERO);
   }
 
@@ -219,7 +211,7 @@ export const useGovernanceNumOfStakersQuery = () => {
 export const useGovernanceInfo = () => {
   const dailyDistributionQuery = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
   const totalStakedBALNQuery = useBnJsContractQuery<string>(bnJs, 'BALN', 'totalStakedBalance', []);
-  const daofundQuery = useBnJsContractQuery<any>(bnJs, 'Daofund', 'getBalances', []);
+  const daofundQuery = useBnJsContractQuery<any>(bnJs, 'DAOFund', 'getBalances', []);
 
   const dailyDistribution = dailyDistributionQuery.isSuccess
     ? BalancedJs.utils.toIcx(dailyDistributionQuery.data)
@@ -231,11 +223,11 @@ export const useGovernanceInfo = () => {
   const rates = ratesQuery.data || {};
   const daofund =
     daofundQuery.isSuccess && ratesQuery.isSuccess
-      ? CURRENCY.reduce((sum: BigNumber, currencyKey: string) => {
+      ? SUPPORTED_TOKENS_LIST.reduce((sum: BigNumber, token: Token) => {
           return sum.plus(
             BalancedJs.utils
-              .toIcx(daofundQuery.data[currencyKeyToAddressMap[NetworkId.MAINNET][currencyKey]] || '0', currencyKey)
-              .times(rates[currencyKey] || ZERO),
+              .toIcx(daofundQuery.data[token.address] || '0', token.symbol!)
+              .times(rates[token.symbol!] || ZERO),
           );
         }, ZERO)
       : null;
@@ -250,7 +242,8 @@ export const useGovernanceInfo = () => {
   };
 };
 
-export type Token = {
+export type MetaToken = {
+  info: Token;
   holders: number;
   name: string;
   symbol: string;
@@ -264,17 +257,15 @@ export const useAllTokensHoldersQuery = () => {
   const endpoint = `https://tracker.icon.foundation/v3/token/holders?contractAddr=`;
 
   const fetch = async () => {
-    const tokens = CURRENCY.filter(key => key !== 'ICX');
+    const tokens = SUPPORTED_TOKENS_LIST.filter(token => token.symbol !== 'ICX');
 
     const data: any[] = await Promise.all(
-      tokens.map(currencyKey =>
-        axios.get(`${endpoint}${currencyKeyToAddressMap[NetworkId.MAINNET][currencyKey]}`).then(res => res.data),
-      ),
+      tokens.map((token: Token) => axios.get(`${endpoint}${token.address}`).then(res => res.data)),
     );
 
     const t = {};
-    tokens.forEach((currencyKey, index) => {
-      t[currencyKey] = data[index].totalSize;
+    tokens.forEach((token: Token, index) => {
+      t[token.symbol!] = data[index].totalSize;
     });
     return t;
   };
@@ -286,24 +277,25 @@ export const useAllTokensQuery = () => {
   const fetch = async () => {
     const { data } = await axios.get(`${API_ENDPOINT}/stats/token-stats`);
     const timestamp = data.timestamp;
-    const tokens: { [key in string]: Token } = {};
+    const tokens: { [key in string]: MetaToken } = {};
     const _tokens = data.tokens;
-    CURRENCY.sort((tokenKey1, tokenKey2) => _tokens[tokenKey1].name.localeCompare(_tokens[tokenKey2].name)).forEach(
-      tokenKey => {
-        const _token = _tokens[tokenKey];
-        const token = {
-          ..._token,
-          price: BalancedJs.utils.toIcx(_token.price).toNumber(),
-          totalSupply: BalancedJs.utils.toIcx(_token.total_supply, tokenKey).toNumber(),
-          marketCap: BalancedJs.utils
-            .toIcx(_token.total_supply, tokenKey)
-            .times(BalancedJs.utils.toIcx(_token.price))
-            .toNumber(),
-          priceChange: _token.price_change,
-        };
-        tokens[tokenKey] = token;
-      },
-    );
+    SUPPORTED_TOKENS_LIST.sort((token0, token1) =>
+      _tokens[token0.symbol!].name.localeCompare(_tokens[token1.symbol!].name),
+    ).forEach(token => {
+      const _token = _tokens[token.symbol!];
+      const token1 = {
+        info: token,
+        ..._token,
+        price: BalancedJs.utils.toIcx(_token.price).toNumber(),
+        totalSupply: BalancedJs.utils.toIcx(_token.total_supply, token.symbol!).toNumber(),
+        marketCap: BalancedJs.utils
+          .toIcx(_token.total_supply, token.symbol!)
+          .times(BalancedJs.utils.toIcx(_token.price))
+          .toNumber(),
+        priceChange: _token.price_change,
+      };
+      tokens[token.symbol!] = token1;
+    });
 
     return {
       timestamp: timestamp,
@@ -311,7 +303,7 @@ export const useAllTokensQuery = () => {
     };
   };
 
-  return useQuery<{ timestamp: number; tokens: { [key in string]: Token } }>('useAllTokensQuery', fetch);
+  return useQuery<{ timestamp: number; tokens: { [key in string]: MetaToken } }>('useAllTokensQuery', fetch);
 };
 
 export const useAllTokens = () => {
@@ -321,7 +313,7 @@ export const useAllTokens = () => {
   if (allTokensQuery.isSuccess && holdersQuery.isSuccess) {
     const holders = holdersQuery.data;
     const allTokens = allTokensQuery.data.tokens;
-    CURRENCY.forEach(tokenKey => (allTokens[tokenKey].holders = holders[tokenKey]));
+    SUPPORTED_TOKENS_LIST.forEach(token => (allTokens[token.symbol!].holders = holders[token.symbol!]));
     return allTokens;
   }
 };
@@ -424,7 +416,7 @@ export const useAllPairsTVLQuery = () => {
     async () => {
       const res = await Promise.all(
         SUPPORTED_PAIRS.map(async pair => {
-          const { data } = await axios.get(`${API_ENDPOINT}/dex/stats/${pair.poolId}`);
+          const { data } = await axios.get(`${API_ENDPOINT}/dex/stats/${pair.id}`);
           return data;
         }),
       );
@@ -472,10 +464,10 @@ export const useAllPairsDataQuery = () => {
     const t = {};
 
     SUPPORTED_PAIRS.forEach(pair => {
-      const key = `0x${pair.poolId.toString(16)}`;
+      const key = `0x${pair.id.toString(16)}`;
 
-      const baseAddress = currencyKeyToAddressMap[NetworkId.MAINNET][pair.baseCurrencyKey];
-      const quoteAddress = currencyKeyToAddressMap[NetworkId.MAINNET][pair.quoteCurrencyKey];
+      const baseAddress = pair.baseToken.address;
+      const quoteAddress = pair.quoteToken.address;
 
       if (data[key]) {
         t[pair.name] = {};
@@ -555,7 +547,7 @@ export const useDexTVL = () => {
 
 export const useAllPairsParticipantQuery = () => {
   return useQuery<{ [key: string]: number }>('useAllPairsParticipantQuery', async () => {
-    const res: Array<string> = await Promise.all(SUPPORTED_PAIRS.map(pair => bnJs.Dex.totalDexAddresses(pair.poolId)));
+    const res: Array<string> = await Promise.all(SUPPORTED_PAIRS.map(pair => bnJs.Dex.totalDexAddresses(pair.id)));
 
     const t = {};
     SUPPORTED_PAIRS.forEach((pair, index) => {
@@ -573,7 +565,7 @@ export const useAllPairs = () => {
   const participantQuery = useAllPairsParticipantQuery();
 
   const t: {
-    [key: string]: Pair & { tvl: number; apy: number; participant: number; volume?: number; fees?: number };
+    [key: string]: PairInfo & { tvl: number; apy: number; participant: number; volume?: number; fees?: number };
   } = {};
 
   if (apys && participantQuery.isSuccess && tvls && data) {

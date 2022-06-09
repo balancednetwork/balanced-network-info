@@ -24,6 +24,7 @@ export interface Colors {
 
   //blues
   primary: Color;
+  primaryBright: Color;
   // primary1: Color;
   // primary2: Color;
   // primary3: Color;
@@ -94,6 +95,7 @@ declare module 'styled-components' {
       upToSmall: MediaFunction;
       upToMedium: MediaFunction;
       upToLarge: MediaFunction;
+      upToSuperExtraSmall: MediaFunction;
     };
 
     // breakpoints

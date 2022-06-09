@@ -1,7 +1,5 @@
 import { isEoaAddress } from 'icon-sdk-js/lib/data/Validator.js';
 
-import { currencyKeyToIconMap, CurrencyKey } from 'constants/currency';
-
 export enum NetworkId {
   MAINNET = 1,
   YEOUIDO = 3,
@@ -51,5 +49,3 @@ export function getTrackerLink(
 export function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
-
-export const getCurrencyKeyIcon = (currencyKey: CurrencyKey) => currencyKeyToIconMap[currencyKey];

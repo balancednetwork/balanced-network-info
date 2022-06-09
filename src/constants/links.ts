@@ -21,4 +21,5 @@ export const LINKS = {
   forum: 'https://gov.balanced.network/',
   performanceDetails: '/performance-details',
   blog: 'https://blog.balanced.network/',
+  stablecoin: 'https://balanced.network/stablecoin/',
 };
