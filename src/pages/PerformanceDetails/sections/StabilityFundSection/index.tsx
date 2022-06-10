@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 
+import { Currency } from '@balancednetwork/sdk-core';
 import BigNumber from 'bignumber.js';
 import { useRatesQuery, LAUNCH_DAY, ONE_DAY } from 'queries';
 import { useStabilityFundHoldings } from 'queries/blockDetails';
 import DatePicker from 'react-datepicker';
 import { Box, Flex, Text } from 'rebass/styled-components';
 
-import CurrencyIcon from 'components/CurrencyIcon';
 import { BoxPanel } from 'components/Panel';
-import { DatePickerWrap, DisplayValueOrLoader, formatPercantage } from 'pages/PerformanceDetails/utils';
+import CurrencyLogo from 'components/shared/CurrencyLogo';
+import { DatePickerWrap, DisplayValueOrLoader, formatPercentage } from 'pages/PerformanceDetails/utils';
 import { Typography } from 'theme';
 
 import { GridItemToken, GridItemAssetTotal, GridItemHeader, ScrollHelper } from '../../index';
 import { StyledSkeleton } from '../EarningSection';
-import { BalanceGrid, Change, DatepickerInput } from '../HoldingsSection';
+import { BalanceGrid, Change, DatePickerInput } from '../HoldingsSection';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -57,7 +58,7 @@ const StabilityFundSection = () => {
                 popperPlacement="bottom-end"
                 minDate={new Date((LAUNCH_DAY + ONE_DAY * 382) / 1000)}
                 maxDate={new Date().setDate(new Date().getDate() - 1)}
-                customInput={<DatepickerInput />}
+                customInput={<DatePickerInput />}
                 popperModifiers={[
                   { name: 'offset', options: { offset: [20, -3] } },
                   {
@@ -97,7 +98,7 @@ const StabilityFundSection = () => {
                 <BalanceGrid key={contract}>
                   <GridItemToken>
                     <Flex alignItems="center">
-                      <CurrencyIcon currencyKey={contractInfo.symbol!} width={40} height={40} />
+                      <CurrencyLogo currency={contractInfo as Currency} size="40px" />
                       <Box ml={2}>
                         <Text color="text">{contractInfo.name}</Text>
                         <Text color="text" opacity={0.75}>
@@ -112,7 +113,7 @@ const StabilityFundSection = () => {
                         value={contractBalance}
                         currencyRate={rates && rates[contractInfo.symbol!].toNumber()}
                       />
-                      <Change percentage={percentageChange}>{formatPercantage(percentageChange)}</Change>
+                      <Change percentage={percentageChange}>{formatPercentage(percentageChange)}</Change>
                     </Text>
                     <Text color="text" opacity={0.75}>
                       <DisplayValueOrLoader value={contractBalance} currencyRate={1} format={'number'} />
