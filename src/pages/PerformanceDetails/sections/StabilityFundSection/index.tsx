@@ -77,14 +77,15 @@ const StabilityFundSection = () => {
 
         {stabilityFundHoldings &&
           Object.keys(stabilityFundHoldings).map(contract => {
-            const contractInfo = stabilityFundHoldings[contract].info;
-            const contractBalance = stabilityFundHoldings[contract].balance;
-            const contractHistoricBalance = new BigNumber(
-              historicStabilityFundHoldings ? historicStabilityFundHoldings[contract].balance : 0,
-            );
-            const percentageChange = historicStabilityFundHoldings
-              ? 100 - contractHistoricBalance.times(100).div(contractBalance).toNumber()
-              : 0;
+            const contractInfo = stabilityFundHoldings[contract].currency.wrapped;
+            const contractBalance = new BigNumber(stabilityFundHoldings[contract].toFixed());
+            const contractHistoricBalance =
+              historicStabilityFundHoldings &&
+              historicStabilityFundHoldings[contract] &&
+              new BigNumber(historicStabilityFundHoldings[contract].toFixed());
+            const percentageChange =
+              contractHistoricBalance &&
+              new BigNumber(100).minus(contractHistoricBalance.times(100).div(contractBalance)).toNumber();
 
             if (rates && contractBalance) {
               totalCurrent += contractBalance.times(rates[contractInfo.symbol!]).toNumber();
@@ -113,7 +114,7 @@ const StabilityFundSection = () => {
                         value={contractBalance}
                         currencyRate={rates && rates[contractInfo.symbol!].toNumber()}
                       />
-                      <Change percentage={percentageChange}>{formatPercentage(percentageChange)}</Change>
+                      <Change percentage={percentageChange || 0}>{formatPercentage(percentageChange)}</Change>
                     </Text>
                     <Text color="text" opacity={0.75}>
                       <DisplayValueOrLoader value={contractBalance} currencyRate={1} format={'number'} />
