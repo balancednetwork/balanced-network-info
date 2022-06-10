@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { Currency } from '@balancednetwork/sdk-core';
 import BigNumber from 'bignumber.js';
-import { useRatesQuery, LAUNCH_DAY, ONE_DAY } from 'queries';
+import { useRatesQuery, LAUNCH_DAY } from 'queries';
 import { useDaoFundHoldings } from 'queries/blockDetails';
 import DatePicker from 'react-datepicker';
 import { Box, Flex, Text } from 'rebass/styled-components';
@@ -138,7 +138,7 @@ const HoldingsSection = () => {
                   <GridItemToken>
                     <Text color="text">
                       {historicDaoFundHoldings ? (
-                        historicDaoFundHoldings[contract] ? (
+                        historicDaoFundHoldings[contract].greaterThan(0) ? (
                           <DisplayValueOrLoader
                             value={contractHistoricBalance}
                             currencyRate={rates && rates[contractInfo.symbol!].toNumber()}
@@ -152,7 +152,7 @@ const HoldingsSection = () => {
                     </Text>
                     <Text color="text" opacity={0.75}>
                       {historicDaoFundHoldings ? (
-                        historicDaoFundHoldings[contract] ? (
+                        historicDaoFundHoldings[contract].greaterThan(0) ? (
                           <>
                             <DisplayValueOrLoader value={contractHistoricBalance} currencyRate={1} format={'number'} />
                             {` ${contractInfo.symbol}`}

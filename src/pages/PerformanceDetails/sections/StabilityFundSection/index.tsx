@@ -124,7 +124,7 @@ const StabilityFundSection = () => {
                   <GridItemToken>
                     <Text color="text">
                       {historicStabilityFundHoldings ? (
-                        historicStabilityFundHoldings[contract] ? (
+                        historicStabilityFundHoldings[contract].greaterThan(0) ? (
                           <DisplayValueOrLoader
                             value={contractHistoricBalance}
                             currencyRate={rates && rates[contractInfo.symbol!].toNumber()}
@@ -138,7 +138,7 @@ const StabilityFundSection = () => {
                     </Text>
                     <Text color="text" opacity={0.75}>
                       {historicStabilityFundHoldings ? (
-                        historicStabilityFundHoldings[contract] ? (
+                        historicStabilityFundHoldings[contract].greaterThan(0) ? (
                           <>
                             <DisplayValueOrLoader value={contractHistoricBalance} currencyRate={1} format={'number'} />
                             {` ${contractInfo.symbol}`}

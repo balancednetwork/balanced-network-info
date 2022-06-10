@@ -1,5 +1,5 @@
 import { BalancedJs } from '@balancednetwork/balanced-js';
-import { Currency, CurrencyAmount, Token } from '@balancednetwork/sdk-core';
+import { CurrencyAmount, Token } from '@balancednetwork/sdk-core';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { useQuery } from 'react-query';
@@ -92,21 +92,6 @@ export const useEarningsDataQuery = (
           return prev;
         }, {}),
     };
-  });
-};
-
-export const useHoldingsDataQuery = (timestamp: number = -1, cacheItem: string = 'holdings-data') => {
-  return useQuery<{ [key in string]: CurrencyAmount<Currency> }>(cacheItem, async () => {
-    const { data } = await axios.get(`${API_ENDPOINT}/stats/daofund-balance-sheet?timestamp=${timestamp}`);
-
-    const t = {};
-    Object.keys(data)
-      .filter(contract => Object.keys(SUPPORTED_TOKENS_MAP_BY_ADDRESS).indexOf(contract) >= 0)
-      .forEach(contract => {
-        t[contract] = CurrencyAmount.fromRawAmount(SUPPORTED_TOKENS_MAP_BY_ADDRESS[contract], data[contract]);
-      });
-
-    return t;
   });
 };
 
