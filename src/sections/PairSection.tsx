@@ -142,7 +142,7 @@ type PairItemProps = {
 const PairItem = forwardRef(({ pair }: PairItemProps, ref) => (
   <>
     <DashGrid my={2} ref={ref}>
-      <DataText>
+      <DataText minWidth={'220px'}>
         <Flex alignItems="center">
           <Box sx={{ minWidth: '95px' }}>
             <PoolLogo baseCurrency={pair.baseToken} quoteCurrency={pair.quoteToken} />
