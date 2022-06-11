@@ -113,48 +113,54 @@ const EarningsSection = () => {
     setTimePeriod(earningPeriods[period]);
   };
 
-  const loanFees = rates && earningsCurrentPeriod?.income.loans_fees.times(rates['bnUSD'].toNumber());
-  const loanFeesPast = rates && earningsPastPeriod?.income.loans_fees.times(rates['bnUSD'].toNumber());
+  const loanFees =
+    rates &&
+    earningsCurrentPeriod &&
+    new BigNumber(earningsCurrentPeriod.income.loansFees.toFixed()).times(rates['bnUSD'].toNumber());
+  const loanFeesPast =
+    rates &&
+    earningsPastPeriod &&
+    new BigNumber(earningsPastPeriod.income.loansFees.toFixed()).times(rates['bnUSD'].toNumber());
 
   let swapFeesTotalCurrent = new BigNumber(0);
   let swapFeesTotalPast = new BigNumber(0);
 
-  earningsCurrentPeriod?.income?.swap_fees.map(swapFee => {
-    const correspondingPastSwapFee = earningsPastPeriod?.income.swap_fees.filter(
-      pastSwapFee => pastSwapFee.info.symbol === swapFee.info.symbol,
-    )[0];
+  earningsCurrentPeriod &&
+    Object.keys(earningsCurrentPeriod.income.swapFees).forEach(addr => {
+      const curFee = earningsCurrentPeriod.income.swapFees[addr];
+      const prevFee = earningsPastPeriod?.income.swapFees[addr];
 
-    if (rates) {
-      swapFeesTotalCurrent = swapFeesTotalCurrent.plus(swapFee.tokens.times(rates[swapFee.info.symbol].toNumber()));
-    }
-    if (rates && correspondingPastSwapFee) {
-      swapFeesTotalPast = swapFeesTotalPast.plus(
-        correspondingPastSwapFee.tokens.times(rates[swapFee.info.symbol].toNumber()),
-      );
-    }
-
-    return true;
-  });
+      if (rates) {
+        swapFeesTotalCurrent = swapFeesTotalCurrent.plus(
+          new BigNumber(curFee.toFixed()).times(rates[curFee.currency.symbol!].toNumber()),
+        );
+      }
+      if (rates && prevFee) {
+        swapFeesTotalPast = swapFeesTotalPast.plus(
+          new BigNumber(prevFee.toFixed()).times(rates[curFee.currency.symbol!].toNumber()),
+        );
+      }
+    });
 
   let expensesTotalCurrent = new BigNumber(0);
   let expensesTotalPast = new BigNumber(0);
 
-  earningsCurrentPeriod?.expenses.map(expense => {
-    const correspondingPastExpense = earningsPastPeriod?.expenses.filter(
-      pastExpense => pastExpense.info.symbol === expense.info.symbol,
-    )[0];
+  earningsCurrentPeriod &&
+    Object.keys(earningsCurrentPeriod.expenses).forEach(addr => {
+      const curExpense = earningsCurrentPeriod.expenses[addr];
+      const prevExpense = earningsPastPeriod?.expenses[addr];
 
-    if (rates) {
-      expensesTotalCurrent = expensesTotalCurrent.plus(expense.tokens.times(rates[expense.info.symbol].toNumber()));
-    }
-    if (rates && correspondingPastExpense) {
-      expensesTotalPast = expensesTotalPast.plus(
-        correspondingPastExpense.tokens.times(rates[expense.info.symbol].toNumber()),
-      );
-    }
-
-    return true;
-  });
+      if (rates) {
+        expensesTotalCurrent = expensesTotalCurrent.plus(
+          new BigNumber(curExpense.toFixed()).times(rates[curExpense.currency.symbol!].toNumber()),
+        );
+      }
+      if (rates && prevExpense) {
+        expensesTotalPast = expensesTotalPast.plus(
+          new BigNumber(prevExpense.toFixed()).times(rates[curExpense.currency.symbol!].toNumber()),
+        );
+      }
+    });
 
   return (
     <BoxPanel bg="bg2" mt={10} mb={10}>
@@ -218,7 +224,7 @@ const EarningsSection = () => {
             {earningsCurrentPeriod ? (
               <>
                 <DisplayValueOrLoader
-                  value={earningsCurrentPeriod?.income.loans_fees}
+                  value={parseFloat(earningsCurrentPeriod?.income.loansFees.toFixed())}
                   currencyRate={1}
                   format={'number'}
                 />
@@ -232,7 +238,7 @@ const EarningsSection = () => {
             {earningsPastPeriod ? (
               <>
                 <DisplayValueOrLoader
-                  value={earningsPastPeriod?.income.loans_fees}
+                  value={parseFloat(earningsPastPeriod?.income.loansFees.toFixed())}
                   currencyRate={1}
                   format={'number'}
                 />
@@ -258,27 +264,22 @@ const EarningsSection = () => {
         </IncomeGrid>
 
         {earningsCurrentPeriod ? (
-          earningsCurrentPeriod.income?.swap_fees.map(swapFee => {
-            const correspondingPastSwapFee = earningsPastPeriod?.income.swap_fees.filter(
-              pastSwapFee => pastSwapFee.info.symbol === swapFee.info.symbol,
-            )[0];
+          Object.keys(earningsCurrentPeriod.income?.swapFees).map(addr => {
+            const curFee = earningsCurrentPeriod.income.swapFees[addr];
+            const prevFee = earningsPastPeriod?.income.swapFees[addr];
 
             return (
-              <IncomeGrid key={swapFee.info.symbol}>
-                <GridItemLight>{`${swapFee.info.displayName}`}</GridItemLight>
+              <IncomeGrid key={curFee.currency.symbol}>
+                <GridItemLight>{`${curFee.currency.name}`}</GridItemLight>
                 <GridItemLight>
-                  <DisplayValueOrLoader value={swapFee.tokens} currencyRate={1} format={'number'} />
-                  {` ${swapFee.info.symbol}`}
+                  <DisplayValueOrLoader value={parseFloat(curFee.toFixed())} currencyRate={1} format={'number'} />
+                  {` ${curFee.currency.symbol}`}
                 </GridItemLight>
                 <GridItemLight>
-                  {correspondingPastSwapFee ? (
+                  {prevFee ? (
                     <>
-                      <DisplayValueOrLoader
-                        value={correspondingPastSwapFee.tokens || 0}
-                        currencyRate={1}
-                        format={'number'}
-                      />
-                      {` ${swapFee.info.symbol}`}
+                      <DisplayValueOrLoader value={parseFloat(prevFee.toFixed())} currencyRate={1} format={'number'} />
+                      {` ${curFee.currency.symbol}`}
                     </>
                   ) : (
                     `-`
@@ -327,27 +328,26 @@ const EarningsSection = () => {
         </IncomeGrid>
 
         {earningsCurrentPeriod ? (
-          earningsCurrentPeriod.expenses.map(expense => {
-            const correspondingPastExpense = earningsPastPeriod?.expenses.filter(
-              pastExpense => pastExpense.info.symbol === expense.info.symbol,
-            )[0];
+          Object.keys(earningsCurrentPeriod.expenses).map(addr => {
+            const curExpense = earningsCurrentPeriod?.expenses[addr];
+            const prevExpense = earningsPastPeriod?.expenses[addr];
 
             return (
-              <IncomeGrid key={expense.info.symbol}>
-                <GridItemLight>{`${expense.info.displayName}`}</GridItemLight>
+              <IncomeGrid key={curExpense.currency.symbol}>
+                <GridItemLight>{`${curExpense.currency.name}`}</GridItemLight>
                 <GridItemLight>
-                  <DisplayValueOrLoader value={expense.tokens} currencyRate={1} format={'number'} />
-                  {` ${expense.info.symbol}`}
+                  <DisplayValueOrLoader value={parseFloat(curExpense.toFixed())} currencyRate={1} format={'number'} />
+                  {` ${curExpense.currency.symbol}`}
                 </GridItemLight>
                 <GridItemLight>
-                  {correspondingPastExpense ? (
+                  {prevExpense ? (
                     <>
                       <DisplayValueOrLoader
-                        value={correspondingPastExpense.tokens || 0}
+                        value={parseFloat(prevExpense.toFixed())}
                         currencyRate={1}
                         format={'number'}
                       />
-                      {` ${expense.info.symbol}`}
+                      {` ${curExpense.currency.symbol}`}
                     </>
                   ) : (
                     `-`

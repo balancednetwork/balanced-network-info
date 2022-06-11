@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 
+import BigNumber from 'bignumber.js';
 import { useHoldingsDataQuery, useRatesQuery, LAUNCH_DAY, ONE_DAY } from 'queries';
 import DatePicker from 'react-datepicker';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
-import CurrencyIcon from 'components/CurrencyIcon';
 import { BoxPanel } from 'components/Panel';
-import { DatePickerWrap, DisplayValueOrLoader, formatPercantage } from 'pages/PerformanceDetails/utils';
+import CurrencyLogo from 'components/shared/CurrencyLogo';
+import { DatePickerWrap, DisplayValueOrLoader, formatPercentage } from 'pages/PerformanceDetails/utils';
 import { Typography } from 'theme';
 
 import { GridItemToken, GridItemAssetTotal, GridItemHeader, ScrollHelper } from '../../index';
 import { StyledSkeleton } from '../EarningSection';
-
 import 'react-datepicker/dist/react-datepicker.css';
 
 const BalanceGrid = styled.div`
@@ -23,22 +23,20 @@ const BalanceGrid = styled.div`
 `;
 
 const Change = styled.span<{ percentage: Number }>`
-  ${({ percentage }) => percentage > 0 && `color: #2fccdc`}
-  ${({ percentage }) => percentage < 0 && `color: red`}
+  ${({ percentage, theme }) => percentage > 0 && `color: ${theme.colors.primaryBright}`}
+  ${({ percentage, theme }) => percentage < 0 && `color: ${theme.colors.alert}`}
 `;
 
-const DatepickerInput = ({ ...props }) => <input type="text" {...props} readOnly />;
+const DatePickerInput = ({ ...props }) => <input type="text" {...props} readOnly />;
 
 const HoldingsSection = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() - 1)));
 
-  const holdingsDataQueryCurrent = useHoldingsDataQuery();
-  const holdingsDataQueryPast = useHoldingsDataQuery(
+  const { data: holdingsCurrent } = useHoldingsDataQuery();
+  const { data: holdingsPast } = useHoldingsDataQuery(
     selectedDate.valueOf() * 1000,
     `holdings-data-${selectedDate.valueOf()}`,
   );
-  const { data: holdingsCurrent } = holdingsDataQueryCurrent;
-  const { data: holdingsPast } = holdingsDataQueryPast;
 
   const ratesQuery = useRatesQuery();
   const { data: rates } = ratesQuery;
@@ -71,7 +69,7 @@ const HoldingsSection = () => {
                 popperPlacement="bottom-end"
                 minDate={new Date((LAUNCH_DAY + ONE_DAY) / 1000)}
                 maxDate={new Date().setDate(new Date().getDate() - 1)}
-                customInput={<DatepickerInput />}
+                customInput={<DatePickerInput />}
                 popperModifiers={[
                   { name: 'offset', options: { offset: [20, -3] } },
                   {
@@ -89,76 +87,75 @@ const HoldingsSection = () => {
         </BalanceGrid>
 
         {holdingsCurrent &&
-          Object.keys(holdingsCurrent).map(contract => {
-            const contractInfo = holdingsCurrent[contract].info;
-            const contractTokensCount = holdingsCurrent[contract].tokens.integerValue().toNumber();
-            const contractTokensCountPast = holdingsPast && holdingsPast[contract]?.tokens.integerValue().toNumber();
-            const percentageChange = 100 - (contractTokensCountPast * 100) / contractTokensCount;
+          Object.keys(holdingsCurrent).map((addr: string) => {
+            const token = holdingsCurrent[addr].currency;
+            const curAmount = new BigNumber(holdingsCurrent[addr].toFixed());
+            const prevAmount = holdingsPast && holdingsPast[addr] && new BigNumber(holdingsPast[addr].toFixed());
+            const percentageChange =
+              prevAmount && new BigNumber(100).minus(prevAmount.times(100).div(curAmount)).toNumber();
 
-            if (rates && contractTokensCount) {
-              totalCurrent += contractTokensCount * rates[contractInfo.symbol].toNumber();
+            if (rates && curAmount) {
+              totalCurrent += curAmount.times(rates[token.symbol!]).toNumber();
             }
-            if (rates && contractTokensCountPast) {
-              totalPast += contractTokensCountPast * rates[contractInfo.symbol].toNumber();
+            if (rates && prevAmount) {
+              totalPast += prevAmount.times(rates[token.symbol!]).toNumber();
             }
 
             return (
-              contractTokensCount > 0 && (
-                <BalanceGrid key={contract}>
-                  <GridItemToken>
-                    <Flex alignItems="center">
-                      <CurrencyIcon currencyKey={contractInfo.symbol} width={40} height={40} />
-                      <Box ml={2}>
-                        <Text color="text">{contractInfo.displayName}</Text>
-                        <Text color="text" opacity={0.75}>
-                          {contractInfo.symbol}
-                        </Text>
-                      </Box>
-                    </Flex>
-                  </GridItemToken>
-                  <GridItemToken>
-                    <Text color="text">
-                      <DisplayValueOrLoader
-                        value={contractTokensCount}
-                        currencyRate={rates && rates[contractInfo.symbol].toNumber()}
-                      />
-                      <Change percentage={percentageChange}>{formatPercantage(percentageChange)}</Change>
-                    </Text>
-                    <Text color="text" opacity={0.75}>
-                      <DisplayValueOrLoader value={contractTokensCount} currencyRate={1} format={'number'} />
-                      {` ${contractInfo.symbol}`}
-                    </Text>
-                  </GridItemToken>
-                  <GridItemToken>
-                    <Text color="text">
-                      {holdingsPast ? (
-                        holdingsPast[contract] ? (
-                          <DisplayValueOrLoader
-                            value={contractTokensCountPast}
-                            currencyRate={rates && rates[contractInfo.symbol].toNumber()}
-                          />
-                        ) : (
-                          '-'
-                        )
+              <BalanceGrid key={token.symbol}>
+                <GridItemToken>
+                  <Flex alignItems="center">
+                    <CurrencyLogo currency={token} size="40px" />
+                    <Box ml={2}>
+                      <Text color="text">{token.name}</Text>
+                      <Text color="text" opacity={0.75}>
+                        {token.symbol}
+                      </Text>
+                    </Box>
+                  </Flex>
+                </GridItemToken>
+                <GridItemToken>
+                  <Text color="text">
+                    <DisplayValueOrLoader
+                      value={curAmount.toNumber()}
+                      currencyRate={rates && rates[token.symbol!].toNumber()}
+                    />
+                    <Change percentage={percentageChange ?? 0}>{formatPercentage(percentageChange)}</Change>
+                  </Text>
+                  <Text color="text" opacity={0.75}>
+                    <DisplayValueOrLoader value={curAmount.toNumber()} currencyRate={1} format={'number'} />
+                    {` ${token?.symbol}`}
+                  </Text>
+                </GridItemToken>
+                <GridItemToken>
+                  <Text color="text">
+                    {holdingsPast ? (
+                      holdingsPast[addr] ? (
+                        <DisplayValueOrLoader
+                          value={prevAmount?.toNumber()!}
+                          currencyRate={rates && rates[token?.symbol!].toNumber()}
+                        />
                       ) : (
-                        <StyledSkeleton width={120} />
-                      )}
-                    </Text>
-                    <Text color="text" opacity={0.75}>
-                      {holdingsPast ? (
-                        holdingsPast[contract] ? (
-                          <>
-                            <DisplayValueOrLoader value={contractTokensCountPast} currencyRate={1} format={'number'} />
-                            {` ${contractInfo.symbol}`}
-                          </>
-                        ) : null
-                      ) : (
-                        <StyledSkeleton width={120} />
-                      )}
-                    </Text>
-                  </GridItemToken>
-                </BalanceGrid>
-              )
+                        '-'
+                      )
+                    ) : (
+                      <StyledSkeleton width={120} />
+                    )}
+                  </Text>
+                  <Text color="text" opacity={0.75}>
+                    {holdingsPast ? (
+                      holdingsPast[addr] ? (
+                        <>
+                          <DisplayValueOrLoader value={prevAmount?.toNumber()} currencyRate={1} format={'number'} />
+                          {` ${token.symbol}`}
+                        </>
+                      ) : null
+                    ) : (
+                      <StyledSkeleton width={120} />
+                    )}
+                  </Text>
+                </GridItemToken>
+              </BalanceGrid>
             );
           })}
 

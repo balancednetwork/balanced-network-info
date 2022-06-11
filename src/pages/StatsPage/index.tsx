@@ -55,9 +55,15 @@ const Stats = styled(Flex)`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   grid-template-rows: none;
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToSuperExtraSmall`
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
   `}
 `;
 
@@ -67,7 +73,7 @@ const StatsItem = styled(Flex)`
   display: flex;
   justify-content: center;
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     border-right: 0;
   `}
 
@@ -83,7 +89,7 @@ const StatsItemIcon = styled(Box)`
 
 const StatsItemData = styled(Box)`
   margin: 8px 8px;
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     text-align: center;
   `}
 `;
