@@ -49,7 +49,7 @@ const DataText = styled(Flex)`
   line-height: 1.4;
 
   &.apy-column {
-    padding: 10px 22px 10px 0;
+    padding: 10px 0;
     flex-direction: column;
     align-items: flex-end;
     min-width: 135px;
@@ -74,6 +74,10 @@ const StyledSkeleton = styled(Skeleton)`
       left: 38px;
     }
   }
+`;
+
+const QuestionWrapper = styled(Box)`
+  margin-right: 5px;
 `;
 
 function TotalIcon() {
@@ -127,6 +131,8 @@ type PairItemProps = {
   pair: PairInfo & {
     tvl: number;
     apy: number;
+    feesApy: number;
+    apyTotal: number;
     participant: number;
     volume: number;
     fees: number;
@@ -144,7 +150,27 @@ const PairItem = forwardRef(({ pair }: PairItemProps, ref) => (
           <Text ml={2}>{`${pair.baseCurrencyKey} / ${pair.quoteCurrencyKey}`}</Text>
         </Flex>
       </DataText>
-      <DataText>{pair.apy ? getFormattedNumber(pair.apy, 'percent2') : '-'}</DataText>
+      <DataText className="apy-column">
+        {' '}
+        {pair.apy && (
+          <APYItem>
+            <Typography color="#d5d7db" fontSize={14} marginRight={'5px'}>
+              BALN:
+            </Typography>
+            {getFormattedNumber(pair.apy, 'percent2')}
+          </APYItem>
+        )}
+        {pair.feesApy !== 0 && (
+          <APYItem>
+            <Typography color="#d5d7db" fontSize={14} marginRight={'5px'}>
+              Fees:
+            </Typography>
+            {getFormattedNumber(pair.feesApy, 'percent2')}
+          </APYItem>
+        )}
+        {!pair.feesApy && !pair.apy && '-'}
+      </DataText>
+
       <DataText>{getFormattedNumber(pair.participant, 'number')}</DataText>
       <DataText>{getFormattedNumber(pair.tvl, 'currency0')}</DataText>
       <DataText>{pair.volume ? getFormattedNumber(pair.volume, 'currency0') : '-'}</DataText>
@@ -157,7 +183,7 @@ const PairItem = forwardRef(({ pair }: PairItemProps, ref) => (
 export default function PairSection() {
   const allPairs = useAllPairs();
   const total = useAllPairsTotal();
-  const { sortBy, handleSortSelect, sortData } = useSort({ key: 'apy', order: 'DESC' });
+  const { sortBy, handleSortSelect, sortData } = useSort({ key: 'apyTotal', order: 'DESC' });
 
   return (
     <BoxPanel bg="bg2">
@@ -168,6 +194,7 @@ export default function PairSection() {
         <List>
           <DashGrid>
             <HeaderText
+              minWidth={'220px'}
               role="button"
               className={sortBy.key === 'baseCurrencyKey' ? sortBy.order : ''}
               onClick={() =>
@@ -179,15 +206,15 @@ export default function PairSection() {
               <span>POOL</span>
             </HeaderText>
             <HeaderText
+              minWidth={'135px'}
               role="button"
-              className={sortBy.key === 'apy' ? sortBy.order : ''}
+              className={sortBy.key === 'apyTotal' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
-                  key: 'apy',
+                  key: 'apyTotal',
                 })
               }
             >
-              APY
               <MouseoverTooltip
                 width={330}
                 text={
@@ -200,8 +227,11 @@ export default function PairSection() {
                 }
                 placement="top"
               >
-                <QuestionIcon className="header-tooltip" width={14} />
+                <QuestionWrapper>
+                  <QuestionIcon className="header-tooltip" width={14} />
+                </QuestionWrapper>
               </MouseoverTooltip>
+              APY
             </HeaderText>
             <HeaderText
               role="button"
@@ -291,9 +321,7 @@ export default function PairSection() {
                   <Text ml={2}>Total</Text>
                 </Flex>
               </FooterText>
-              <FooterText paddingRight={'22px'} minWidth={'135px'}>
-                –
-              </FooterText>
+              <FooterText minWidth={'135px'}>–</FooterText>
               <FooterText>{getFormattedNumber(total.participant, 'number')}</FooterText>
               <FooterText>{getFormattedNumber(total.tvl, 'currency0')}</FooterText>
               <FooterText>{getFormattedNumber(total.volume, 'currency0')}</FooterText>

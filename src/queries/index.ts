@@ -206,7 +206,10 @@ export const useOverviewInfo = () => {
     //get 30 day fee payout
     earningsDataQuery?.data?.expenses &&
       Object.keys(earningsDataQuery.data.expenses).forEach(expense => {
-        monthlyFeesTotal.plus(new BigNumber(earningsDataQuery.data.expenses[expense].toFixed()));
+        const expenseItem = earningsDataQuery.data.expenses[expense];
+        monthlyFeesTotal = monthlyFeesTotal.plus(
+          new BigNumber(expenseItem.toFixed()).times(rates[expenseItem.currency.symbol!]),
+        );
       });
 
     //get BALN APY
@@ -601,6 +604,7 @@ export const useAllPairs = () => {
       tvl: number;
       apy: number;
       feesApy: number;
+      apyTotal: number;
       participant: number;
       volume?: number;
       fees?: number;
@@ -619,6 +623,13 @@ export const useAllPairs = () => {
         apy: apys[pair.name],
         feesApy: (data30day[pair.name]['fees'] * 12 * feesApyConstant) / tvls[pair.name],
         participant: participants[pair.name],
+        apyTotal: new BigNumber(apys[pair.name] || 0)
+          .plus(
+            new BigNumber(data30day[pair.name]['fees'] * 12 * feesApyConstant || 0).div(
+              new BigNumber(tvls[pair.name]) || 1,
+            ),
+          )
+          .toNumber(),
       };
 
       if (data[pair.name]) {
