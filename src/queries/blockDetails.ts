@@ -1,12 +1,11 @@
 import { addresses } from '@balancednetwork/balanced-js';
-import { Currency } from '@balancednetwork/sdk-core';
+import { Currency, CurrencyAmount } from '@balancednetwork/sdk-core';
 import axios from 'axios';
 import { useWhitelistedTokensList } from 'queries';
 import { useQuery } from 'react-query';
 
 import bnJs from 'bnJs';
 import { SUPPORTED_TOKENS_LIST, NULL_CONTRACT_ADDRESS } from 'constants/tokens';
-import { CurrencyAmount } from 'types/balanced-sdk-core';
 
 const API_ENDPOINT = 'https://tracker.v2.mainnet.sng.vultr.icon.community/api/v1/';
 
