@@ -44,8 +44,8 @@ const HoldingsSection = () => {
   const oneMinPeriod = 1000 * 60;
   const now = Math.floor(new Date().getTime() / oneMinPeriod) * oneMinPeriod;
 
-  const { data: daoFundHoldings } = useDaoFundHoldings(now);
-  const { data: historicDaoFundHoldings } = useDaoFundHoldings(selectedDate.valueOf());
+  const { data: holdingsCurrent } = useDaoFundHoldings(now);
+  const { data: holdingsPast } = useDaoFundHoldings(selectedDate.valueOf());
 
   return (
     <BoxPanel bg="bg2" mb={10}>
@@ -89,59 +89,53 @@ const HoldingsSection = () => {
           </GridItemHeader>
         </BalanceGrid>
 
-        {daoFundHoldings &&
-          Object.keys(daoFundHoldings).map(contract => {
-            const contractInfo = daoFundHoldings[contract].currency.wrapped;
-            const contractBalance = new BigNumber(daoFundHoldings[contract].toFixed());
-            const contractHistoricBalance =
-              historicDaoFundHoldings &&
-              historicDaoFundHoldings[contract] &&
-              new BigNumber(historicDaoFundHoldings[contract].toFixed());
+        {holdingsCurrent &&
+          Object.keys(holdingsCurrent).map(contract => {
+            const token = holdingsCurrent[contract].currency.wrapped;
+            const curAmount = new BigNumber(holdingsCurrent[contract].toFixed());
+            const prevAmount =
+              holdingsPast && holdingsPast[contract] && new BigNumber(holdingsPast[contract].toFixed());
             const percentageChange =
-              contractHistoricBalance &&
-              new BigNumber(100).minus(contractHistoricBalance.times(100).div(contractBalance)).toNumber();
+              prevAmount && new BigNumber(100).minus(prevAmount.times(100).div(curAmount)).toNumber();
 
-            if (rates && contractBalance) {
-              totalCurrent += contractBalance.times(rates[contractInfo.symbol!]).toNumber();
+            if (rates && curAmount) {
+              totalCurrent += curAmount.times(rates[token.symbol!]).toNumber();
             }
-            if (rates && contractHistoricBalance) {
-              totalPast += contractHistoricBalance.times(rates[contractInfo.symbol!]).toNumber();
+            if (rates && prevAmount) {
+              totalPast += prevAmount.times(rates[token.symbol!]).toNumber();
             }
 
             return (
-              contractBalance.isGreaterThan(0) && (
+              curAmount.isGreaterThan(0) && (
                 <BalanceGrid key={contract}>
                   <GridItemToken>
                     <Flex alignItems="center">
-                      <CurrencyLogo currency={contractInfo as Currency} size="40px" />
+                      <CurrencyLogo currency={token as Currency} size="40px" />
                       <Box ml={2}>
-                        <Text color="text">{contractInfo.name}</Text>
+                        <Text color="text">{token.name}</Text>
                         <Text color="text" opacity={0.75}>
-                          {contractInfo.symbol}
+                          {token.symbol}
                         </Text>
                       </Box>
                     </Flex>
                   </GridItemToken>
                   <GridItemToken>
                     <Text color="text">
-                      <DisplayValueOrLoader
-                        value={contractBalance}
-                        currencyRate={rates && rates[contractInfo.symbol!].toNumber()}
-                      />
+                      <DisplayValueOrLoader value={curAmount} currencyRate={rates && rates[token.symbol!].toNumber()} />
                       <Change percentage={percentageChange ?? 0}>{formatPercentage(percentageChange)}</Change>
                     </Text>
                     <Text color="text" opacity={0.75}>
-                      <DisplayValueOrLoader value={contractBalance} currencyRate={1} format={'number'} />
-                      {` ${contractInfo.symbol}`}
+                      <DisplayValueOrLoader value={curAmount} currencyRate={1} format={'number'} />
+                      {` ${token.symbol}`}
                     </Text>
                   </GridItemToken>
                   <GridItemToken>
                     <Text color="text">
-                      {historicDaoFundHoldings ? (
-                        historicDaoFundHoldings[contract].greaterThan(0) ? (
+                      {holdingsPast ? (
+                        holdingsPast[contract].greaterThan(0) ? (
                           <DisplayValueOrLoader
-                            value={contractHistoricBalance}
-                            currencyRate={rates && rates[contractInfo.symbol!].toNumber()}
+                            value={prevAmount}
+                            currencyRate={rates && rates[token.symbol!].toNumber()}
                           />
                         ) : (
                           '-'
@@ -151,11 +145,11 @@ const HoldingsSection = () => {
                       )}
                     </Text>
                     <Text color="text" opacity={0.75}>
-                      {historicDaoFundHoldings ? (
-                        historicDaoFundHoldings[contract].greaterThan(0) ? (
+                      {holdingsPast ? (
+                        holdingsPast[contract].greaterThan(0) ? (
                           <>
-                            <DisplayValueOrLoader value={contractHistoricBalance} currencyRate={1} format={'number'} />
-                            {` ${contractInfo.symbol}`}
+                            <DisplayValueOrLoader value={prevAmount} currencyRate={1} format={'number'} />
+                            {` ${token.symbol}`}
                           </>
                         ) : null
                       ) : (
@@ -171,14 +165,14 @@ const HoldingsSection = () => {
         <BalanceGrid>
           <GridItemAssetTotal>Total</GridItemAssetTotal>
           <GridItemAssetTotal>
-            {daoFundHoldings ? (
+            {holdingsCurrent ? (
               <DisplayValueOrLoader value={totalCurrent} currencyRate={1} />
             ) : (
               <StyledSkeleton width={120} />
             )}
           </GridItemAssetTotal>
           <GridItemAssetTotal>
-            {historicDaoFundHoldings ? (
+            {holdingsPast ? (
               <DisplayValueOrLoader value={totalPast} currencyRate={1} />
             ) : (
               <StyledSkeleton width={120} />
