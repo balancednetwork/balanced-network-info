@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 
 import { Currency } from '@balancednetwork/sdk-core';
 import BigNumber from 'bignumber.js';
-import { useRatesQuery, LAUNCH_DAY } from 'queries';
-import { useDaoFundHoldings } from 'queries/blockDetails';
+import { useRatesQuery, LAUNCH_DAY, ONE_DAY } from 'queries';
+import { useStabilityFundHoldings } from 'queries/blockDetails';
 import DatePicker from 'react-datepicker';
 import { Box, Flex, Text } from 'rebass/styled-components';
-import styled from 'styled-components';
 
 import { BoxPanel } from 'components/Panel';
 import CurrencyLogo from 'components/shared/CurrencyLogo';
@@ -15,24 +14,11 @@ import { Typography } from 'theme';
 
 import { GridItemToken, GridItemAssetTotal, GridItemHeader, ScrollHelper } from '../../index';
 import { StyledSkeleton } from '../EarningSection';
+import { BalanceGrid, Change, DatePickerInput } from '../HoldingsSection';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
-export const BalanceGrid = styled.div`
-  display: grid;
-  grid-template-columns: 12fr 11fr 11fr;
-  align-items: stretch;
-  min-width: 600px;
-`;
-
-export const Change = styled.span<{ percentage: Number }>`
-  ${({ percentage, theme }) => percentage > 0 && `color: ${theme.colors.primaryBright}`}
-  ${({ percentage, theme }) => percentage < 0 && `color: ${theme.colors.alert}`}
-`;
-
-export const DatePickerInput = ({ ...props }) => <input type="text" {...props} readOnly />;
-
-const HoldingsSection = () => {
+const StabilityFundSection = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() - 1)));
 
   const ratesQuery = useRatesQuery();
@@ -44,12 +30,12 @@ const HoldingsSection = () => {
   const oneMinPeriod = 1000 * 60;
   const now = Math.floor(new Date().getTime() / oneMinPeriod) * oneMinPeriod;
 
-  const { data: holdingsCurrent } = useDaoFundHoldings(now);
-  const { data: holdingsPast } = useDaoFundHoldings(selectedDate.valueOf());
+  const { data: holdingsCurrent } = useStabilityFundHoldings(now);
+  const { data: holdingsPast } = useStabilityFundHoldings(selectedDate.valueOf());
 
   return (
     <BoxPanel bg="bg2" mb={10}>
-      <Typography variant="h2">Holdings</Typography>
+      <Typography variant="h2">Stability fund</Typography>
       <ScrollHelper>
         <BalanceGrid>
           <GridItemHeader>Asset</GridItemHeader>
@@ -70,7 +56,7 @@ const HoldingsSection = () => {
                 dateFormat="dd MMM yyyy"
                 popperClassName="datepicker-popper-wrap"
                 popperPlacement="bottom-end"
-                minDate={new Date(LAUNCH_DAY / 1000)}
+                minDate={new Date((LAUNCH_DAY + ONE_DAY * 382) / 1000)}
                 maxDate={new Date().setDate(new Date().getDate() - 1)}
                 customInput={<DatePickerInput />}
                 popperModifiers={[
@@ -122,7 +108,7 @@ const HoldingsSection = () => {
                   <GridItemToken>
                     <Text color="text">
                       <DisplayValueOrLoader value={curAmount} currencyRate={rates && rates[token.symbol!].toNumber()} />
-                      <Change percentage={percentageChange ?? 0}>{formatPercentage(percentageChange)}</Change>
+                      <Change percentage={percentageChange || 0}>{formatPercentage(percentageChange)}</Change>
                     </Text>
                     <Text color="text" opacity={0.75}>
                       <DisplayValueOrLoader value={curAmount} currencyRate={1} format={'number'} />
@@ -184,4 +170,4 @@ const HoldingsSection = () => {
   );
 };
 
-export default HoldingsSection;
+export default StabilityFundSection;

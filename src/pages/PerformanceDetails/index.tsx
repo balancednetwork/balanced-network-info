@@ -11,6 +11,7 @@ import { Typography } from 'theme';
 
 import EarningsSection from './sections/EarningSection';
 import HoldingsSection from './sections/HoldingsSection';
+import StabilityFundSection from './sections/StabilityFundSection';
 
 export const GridItem = styled.div`
   text-align: right;
@@ -116,6 +117,8 @@ export function PerformanceDetails() {
       <EarningsSection />
 
       <HoldingsSection />
+
+      <StabilityFundSection />
 
       <Divider />
       <Footer />
