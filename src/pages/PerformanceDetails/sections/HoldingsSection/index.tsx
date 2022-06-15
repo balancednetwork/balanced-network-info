@@ -26,6 +26,7 @@ export const BalanceGrid = styled.div`
 `;
 
 export const Change = styled.span<{ percentage: Number }>`
+  font-size: 14px;
   ${({ percentage, theme }) => percentage > 0 && `color: ${theme.colors.primaryBright}`}
   ${({ percentage, theme }) => percentage < 0 && `color: ${theme.colors.alert}`}
 `;
