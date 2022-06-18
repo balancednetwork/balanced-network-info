@@ -21,13 +21,9 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 const BalanceGrid = styled.div`
   display: grid;
-  grid-template-columns: 5fr 3fr 3fr 3fr;
+  grid-template-columns: 31% 23% 23% 23%;
   align-items: stretch;
   min-width: 700px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    grid-template-columns: 31% 23% 23% 23%;
-  `};
 `;
 
 const GridItem = styled.div`

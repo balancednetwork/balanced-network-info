@@ -20,7 +20,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 export const BalanceGrid = styled.div`
   display: grid;
-  grid-template-columns: 12fr 11fr 11fr;
+  grid-template-columns: 35% 32.5% 32.5%;
   align-items: stretch;
   min-width: 600px;
 `;
