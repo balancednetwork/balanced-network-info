@@ -24,6 +24,10 @@ const BalanceGrid = styled.div`
   grid-template-columns: 5fr 3fr 3fr 3fr;
   align-items: stretch;
   min-width: 700px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    grid-template-columns: 31% 23% 23% 23%;
+  `};
 `;
 
 const GridItem = styled.div`
