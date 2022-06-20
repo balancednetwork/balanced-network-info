@@ -1,8 +1,8 @@
-import { BalancedJs } from '@balancednetwork/balanced-js';
-import { Currency, CurrencyAmount, Token } from '@balancednetwork/sdk-core';
+import { BalancedJs, CallData } from '@balancednetwork/balanced-js';
+import { CurrencyAmount, Token } from '@balancednetwork/sdk-core';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import { useQuery } from 'react-query';
+import { useQuery, UseQueryResult } from 'react-query';
 
 import bnJs from 'bnJs';
 import { ZERO } from 'constants/number';
@@ -95,21 +95,6 @@ export const useEarningsDataQuery = (
           return prev;
         }, {}),
     };
-  });
-};
-
-export const useHoldingsDataQuery = (timestamp: number = -1, cacheItem: string = 'holdings-data') => {
-  return useQuery<{ [key in string]: CurrencyAmount<Currency> }>(cacheItem, async () => {
-    const { data } = await axios.get(`${API_ENDPOINT}/stats/daofund-balance-sheet?timestamp=${timestamp}`);
-
-    const t = {};
-    Object.keys(data)
-      .filter(contract => Object.keys(SUPPORTED_TOKENS_MAP_BY_ADDRESS).indexOf(contract) >= 0)
-      .forEach(contract => {
-        t[contract] = CurrencyAmount.fromRawAmount(SUPPORTED_TOKENS_MAP_BY_ADDRESS[contract], data[contract]);
-      });
-
-    return t;
   });
 };
 
@@ -659,3 +644,38 @@ export const useAllPairsTotal = () => {
 
   return;
 };
+
+export const useWhitelistedTokensList = () => {
+  return useQuery<string[]>('whitelistedTokens', async () => {
+    return await bnJs.StabilityFund.getAcceptedTokens();
+  });
+};
+
+export function useFundLimits(): UseQueryResult<{ [key: string]: CurrencyAmount<Token> }> {
+  const whitelistedTokenAddressesQuery = useWhitelistedTokensList();
+  const whitelistedTokenAddresses = whitelistedTokenAddressesQuery.data ?? [];
+
+  return useQuery<{ [key: string]: CurrencyAmount<Token> }>(
+    `useFundLimitsQuery${whitelistedTokenAddresses.length}`,
+    async () => {
+      const cds: CallData[] = whitelistedTokenAddresses.map(address => {
+        return {
+          target: bnJs.StabilityFund.address,
+          method: 'getLimit',
+          params: [address],
+        };
+      });
+
+      const data: string[] = await bnJs.Multicall.getAggregateData(cds);
+
+      const limits = {};
+      data.forEach((limit, index) => {
+        const address = whitelistedTokenAddresses[index];
+        const token = SUPPORTED_TOKENS_LIST.filter(token => token.address === address)[0];
+        limits[address] = CurrencyAmount.fromRawAmount(token, limit);
+      });
+
+      return limits;
+    },
+  );
+}

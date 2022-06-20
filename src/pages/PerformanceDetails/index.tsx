@@ -11,6 +11,7 @@ import { Typography } from 'theme';
 
 import EarningsSection from './sections/EarningSection';
 import HoldingsSection from './sections/HoldingsSection';
+import StabilityFundSection from './sections/StabilityFundSection';
 
 export const GridItem = styled.div`
   text-align: right;
@@ -32,6 +33,12 @@ export const GridItemHeader = styled(GridItem)`
   color: #ffffff;
   padding: 25px 0 20px;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  &:nth-of-type(3n + 1) {
+    justify-content: start;
+  }
 `;
 
 export const GridItemStrong = styled(GridItem)`
@@ -116,6 +123,8 @@ export function PerformanceDetails() {
       <EarningsSection />
 
       <HoldingsSection />
+
+      <StabilityFundSection />
 
       <Divider />
       <Footer />
