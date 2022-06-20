@@ -2,30 +2,90 @@ import React, { useState } from 'react';
 
 import { Currency } from '@balancednetwork/sdk-core';
 import BigNumber from 'bignumber.js';
-import { useRatesQuery, LAUNCH_DAY, ONE_DAY } from 'queries';
+import { LAUNCH_DAY, ONE_DAY, useFundLimits } from 'queries';
 import { useStabilityFundHoldings } from 'queries/blockDetails';
 import DatePicker from 'react-datepicker';
 import { Box, Flex, Text } from 'rebass/styled-components';
+import styled from 'styled-components';
 
 import { BoxPanel } from 'components/Panel';
 import CurrencyLogo from 'components/shared/CurrencyLogo';
 import { DatePickerWrap, DisplayValueOrLoader, formatPercentage } from 'pages/PerformanceDetails/utils';
 import { Typography } from 'theme';
 
-import { GridItemToken, GridItemAssetTotal, GridItemHeader, ScrollHelper } from '../../index';
+import { ScrollHelper } from '../../index';
 import { StyledSkeleton } from '../EarningSection';
-import { BalanceGrid, Change, DatePickerInput } from '../HoldingsSection';
+import { Change, DatePickerInput } from '../HoldingsSection';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
+const BalanceGrid = styled.div`
+  display: grid;
+  grid-template-columns: 31% 23% 23% 23%;
+  align-items: stretch;
+  min-width: 700px;
+`;
+
+const GridItem = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  &:nth-of-type(4n + 1) {
+    justify-content: start;
+  }
+`;
+
+const GridItemStrong = styled(GridItem)`
+  padding-bottom: 10px;
+  font-weight: 700;
+  color: #ffffff;
+
+  &:nth-of-type(4n + 1) {
+    padding-left: 25px;
+  }
+`;
+
+const GridItemSubtotal = styled(GridItemStrong)`
+  border-top: 1px solid #304a68;
+  border-bottom: 1px solid #304a68;
+  padding-top: 9px;
+
+  &:nth-of-type(4n + 1) {
+    padding-left: 0;
+  }
+`;
+
+const GridItemTotal = styled(GridItemSubtotal)`
+  border-bottom: 0;
+`;
+
+const GridItemToken = styled(GridItem)`
+  padding: 20px 0;
+  border-bottom: 1px solid #304a68;
+`;
+
+const GridItemAssetTotal = styled(GridItemTotal)`
+  border-top: 0;
+  padding-top: 20px;
+`;
+
+const GridItemHeader = styled(GridItem)`
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: normal;
+  letter-spacing: 3px;
+  color: #ffffff;
+  padding: 25px 0 20px;
+  white-space: nowrap;
+`;
+
 const StabilityFundSection = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() - 1)));
-
-  const ratesQuery = useRatesQuery();
-  const { data: rates } = ratesQuery;
+  const { data: fundLimits } = useFundLimits();
 
   let totalCurrent = 0;
   let totalPast = 0;
+  let totalLimit = 0;
 
   const oneMinPeriod = 1000 * 60;
   const now = Math.floor(new Date().getTime() / oneMinPeriod) * oneMinPeriod;
@@ -39,6 +99,7 @@ const StabilityFundSection = () => {
       <ScrollHelper>
         <BalanceGrid>
           <GridItemHeader>Asset</GridItemHeader>
+          <GridItemHeader>Maximum limit</GridItemHeader>
           <GridItemHeader>
             {new Date().toLocaleDateString('en-US', {
               day: '2-digit',
@@ -78,17 +139,22 @@ const StabilityFundSection = () => {
         {holdingsCurrent &&
           Object.keys(holdingsCurrent).map(contract => {
             const token = holdingsCurrent[contract].currency.wrapped;
+            const fundLimit = fundLimits && fundLimits[token.address];
             const curAmount = new BigNumber(holdingsCurrent[contract].toFixed());
             const prevAmount =
               holdingsPast && holdingsPast[contract] && new BigNumber(holdingsPast[contract].toFixed());
             const percentageChange =
               prevAmount && new BigNumber(100).minus(prevAmount.times(100).div(curAmount)).toNumber();
 
-            if (rates && curAmount) {
-              totalCurrent += curAmount.times(rates[token.symbol!]).toNumber();
+            if (curAmount) {
+              totalCurrent += curAmount.toNumber();
             }
-            if (rates && prevAmount) {
-              totalPast += prevAmount.times(rates[token.symbol!]).toNumber();
+            if (prevAmount) {
+              totalPast += prevAmount.toNumber();
+            }
+
+            if (fundLimit) {
+              totalLimit += new BigNumber(fundLimit.toFixed()).toNumber();
             }
 
             return (
@@ -107,37 +173,29 @@ const StabilityFundSection = () => {
                   </GridItemToken>
                   <GridItemToken>
                     <Text color="text">
-                      <DisplayValueOrLoader value={curAmount} currencyRate={rates && rates[token.symbol!].toNumber()} />
-                      <Change percentage={percentageChange || 0}>{formatPercentage(percentageChange)}</Change>
+                      {fundLimit && (
+                        <DisplayValueOrLoader
+                          value={new BigNumber(fundLimit.toFixed())}
+                          currencyRate={1}
+                          format="number"
+                        />
+                      )}
                     </Text>
-                    <Text color="text" opacity={0.75}>
+                  </GridItemToken>
+                  <GridItemToken>
+                    <Text color="text">
                       <DisplayValueOrLoader value={curAmount} currencyRate={1} format={'number'} />
-                      {` ${token.symbol}`}
+                      <Change percentage={percentageChange || 0}>{formatPercentage(percentageChange)}</Change>
                     </Text>
                   </GridItemToken>
                   <GridItemToken>
                     <Text color="text">
                       {holdingsPast ? (
                         holdingsPast[contract].greaterThan(0) ? (
-                          <DisplayValueOrLoader
-                            value={prevAmount}
-                            currencyRate={rates && rates[token.symbol!].toNumber()}
-                          />
+                          <DisplayValueOrLoader value={prevAmount} currencyRate={1} format={'number'} />
                         ) : (
                           '-'
                         )
-                      ) : (
-                        <StyledSkeleton width={120} />
-                      )}
-                    </Text>
-                    <Text color="text" opacity={0.75}>
-                      {holdingsPast ? (
-                        holdingsPast[contract].greaterThan(0) ? (
-                          <>
-                            <DisplayValueOrLoader value={prevAmount} currencyRate={1} format={'number'} />
-                            {` ${token.symbol}`}
-                          </>
-                        ) : null
                       ) : (
                         <StyledSkeleton width={120} />
                       )}
@@ -150,6 +208,9 @@ const StabilityFundSection = () => {
 
         <BalanceGrid>
           <GridItemAssetTotal>Total</GridItemAssetTotal>
+          <GridItemAssetTotal>
+            {fundLimits ? <DisplayValueOrLoader value={totalLimit} currencyRate={1} /> : <StyledSkeleton width={120} />}
+          </GridItemAssetTotal>
           <GridItemAssetTotal>
             {holdingsCurrent ? (
               <DisplayValueOrLoader value={totalCurrent} currencyRate={1} />

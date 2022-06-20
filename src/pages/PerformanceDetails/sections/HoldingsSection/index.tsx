@@ -20,12 +20,13 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 export const BalanceGrid = styled.div`
   display: grid;
-  grid-template-columns: 12fr 11fr 11fr;
+  grid-template-columns: 35% 32.5% 32.5%;
   align-items: stretch;
   min-width: 600px;
 `;
 
 export const Change = styled.span<{ percentage: Number }>`
+  font-size: 14px;
   ${({ percentage, theme }) => percentage > 0 && `color: ${theme.colors.primaryBright}`}
   ${({ percentage, theme }) => percentage < 0 && `color: ${theme.colors.alert}`}
 `;

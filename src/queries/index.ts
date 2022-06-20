@@ -1,8 +1,8 @@
-import { BalancedJs } from '@balancednetwork/balanced-js';
+import { BalancedJs, CallData } from '@balancednetwork/balanced-js';
 import { CurrencyAmount, Token } from '@balancednetwork/sdk-core';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import { useQuery } from 'react-query';
+import { useQuery, UseQueryResult } from 'react-query';
 
 import bnJs from 'bnJs';
 import { ZERO } from 'constants/number';
@@ -597,3 +597,32 @@ export const useWhitelistedTokensList = () => {
     return await bnJs.StabilityFund.getAcceptedTokens();
   });
 };
+
+export function useFundLimits(): UseQueryResult<{ [key: string]: CurrencyAmount<Token> }> {
+  const whitelistedTokenAddressesQuery = useWhitelistedTokensList();
+  const whitelistedTokenAddresses = whitelistedTokenAddressesQuery.data ?? [];
+
+  return useQuery<{ [key: string]: CurrencyAmount<Token> }>(
+    `useFundLimitsQuery${whitelistedTokenAddresses.length}`,
+    async () => {
+      const cds: CallData[] = whitelistedTokenAddresses.map(address => {
+        return {
+          target: bnJs.StabilityFund.address,
+          method: 'getLimit',
+          params: [address],
+        };
+      });
+
+      const data: string[] = await bnJs.Multicall.getAggregateData(cds);
+
+      const limits = {};
+      data.forEach((limit, index) => {
+        const address = whitelistedTokenAddresses[index];
+        const token = SUPPORTED_TOKENS_LIST.filter(token => token.address === address)[0];
+        limits[address] = CurrencyAmount.fromRawAmount(token, limit);
+      });
+
+      return limits;
+    },
+  );
+}
