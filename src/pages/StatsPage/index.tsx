@@ -205,26 +205,28 @@ export function StatsPage() {
               <StatsItemData>
                 <Flex alignItems="center">
                   <Typography fontWeight="normal" variant="h3" marginRight={'7px'}>
-                    {overviewInfo.BALNAPY ? getFormattedNumber(overviewInfo.BALNAPY, 'percent2') : '-'}
+                    {overviewInfo.BALNAPY ? getFormattedNumber(overviewInfo.BALNAPY, 'percent2') : <LoaderComponent />}
                   </Typography>
-                  <MouseoverTooltip
-                    width={270}
-                    text={
-                      <>
-                        Calculated from the network fees distributed to staked BALN holders in the last 30 days{' '}
-                        <strong style={{ whiteSpace: 'nowrap' }}>
-                          (
-                          {overviewInfo.monthlyFeesTotal
-                            ? getFormattedNumber(overviewInfo.monthlyFeesTotal, 'currency0')
-                            : '-'}
-                          ).
-                        </strong>
-                      </>
-                    }
-                    placement="top"
-                  >
-                    <QuestionIcon width={14} />
-                  </MouseoverTooltip>
+                  {overviewInfo.BALNAPY ? (
+                    <MouseoverTooltip
+                      width={270}
+                      text={
+                        <>
+                          Calculated from the network fees distributed to staked BALN holders in the last 30 days{' '}
+                          <strong style={{ whiteSpace: 'nowrap' }}>
+                            (
+                            {overviewInfo.monthlyFeesTotal
+                              ? getFormattedNumber(overviewInfo.monthlyFeesTotal, 'currency0')
+                              : '-'}
+                            ).
+                          </strong>
+                        </>
+                      }
+                      placement="top"
+                    >
+                      <QuestionIcon width={14} />
+                    </MouseoverTooltip>
+                  ) : null}
                 </Flex>
                 <Typography>BALN staking APY</Typography>
               </StatsItemData>

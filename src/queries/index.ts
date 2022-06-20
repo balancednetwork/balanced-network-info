@@ -497,19 +497,32 @@ export const useAllPairsDataQuery = (period: DataPeriod = '24h') => {
 
           // fees
           const _fees = data[key]['fees'];
-          t[pair.name]['fees'] = {
-            [pair.baseCurrencyKey]: {
-              lp_fees: BalancedJs.utils.toIcx(_fees[baseAddress]['lp_fees'], pair.baseCurrencyKey),
-              baln_fees: BalancedJs.utils.toIcx(_fees[baseAddress]['baln_fees'], pair.baseCurrencyKey),
-            },
-            [pair.quoteCurrencyKey]: {
-              lp_fees: BalancedJs.utils.toIcx(_fees[quoteAddress]['lp_fees'], pair.quoteCurrencyKey),
-              baln_fees: BalancedJs.utils.toIcx(_fees[quoteAddress]['baln_fees'], pair.quoteCurrencyKey),
-            },
-          };
+          if (_fees[baseAddress]) {
+            t[pair.name]['fees'] = {
+              [pair.baseCurrencyKey]: {
+                lp_fees: BalancedJs.utils.toIcx(_fees[baseAddress]['lp_fees'], pair.baseCurrencyKey),
+                baln_fees: BalancedJs.utils.toIcx(_fees[baseAddress]['baln_fees'], pair.baseCurrencyKey),
+              },
+            };
+          }
+          if (_fees[quoteAddress]) {
+            t[pair.name]['fees'] = t[pair.name]['fees']
+              ? {
+                  ...t[pair.name]['fees'],
+                  [pair.quoteCurrencyKey]: {
+                    lp_fees: BalancedJs.utils.toIcx(_fees[quoteAddress]['lp_fees'], pair.quoteCurrencyKey),
+                    baln_fees: BalancedJs.utils.toIcx(_fees[quoteAddress]['baln_fees'], pair.quoteCurrencyKey),
+                  },
+                }
+              : {
+                  [pair.quoteCurrencyKey]: {
+                    lp_fees: BalancedJs.utils.toIcx(_fees[quoteAddress]['lp_fees'], pair.quoteCurrencyKey),
+                    baln_fees: BalancedJs.utils.toIcx(_fees[quoteAddress]['baln_fees'], pair.quoteCurrencyKey),
+                  },
+                };
+          }
         }
       });
-
       return t;
     },
   );
@@ -534,13 +547,17 @@ export const useAllPairsData = (
       const volume = baseVol.plus(quoteVol).integerValue().toNumber();
 
       // fees
-      const baseFees = data[pair.name]['fees'][pair.baseCurrencyKey]['lp_fees']
-        .plus(data[pair.name]['fees'][pair.baseCurrencyKey]['baln_fees'])
-        .times(rates[pair.baseCurrencyKey]);
+      const baseFees = data[pair.name]['fees'][pair.baseCurrencyKey]
+        ? data[pair.name]['fees'][pair.baseCurrencyKey]['lp_fees']
+            .plus(data[pair.name]['fees'][pair.baseCurrencyKey]['baln_fees'])
+            .times(rates[pair.baseCurrencyKey])
+        : new BigNumber(0);
 
-      const quoteFees = data[pair.name]['fees'][pair.quoteCurrencyKey]['lp_fees']
-        .plus(data[pair.name]['fees'][pair.quoteCurrencyKey]['baln_fees'])
-        .times(rates[pair.quoteCurrencyKey]);
+      const quoteFees = data[pair.name]['fees'][pair.quoteCurrencyKey]
+        ? data[pair.name]['fees'][pair.quoteCurrencyKey]['lp_fees']
+            .plus(data[pair.name]['fees'][pair.quoteCurrencyKey]['baln_fees'])
+            .times(rates[pair.quoteCurrencyKey])
+        : new BigNumber(0);
       const fees = baseFees.plus(quoteFees).integerValue().toNumber();
 
       t[pair.name] = { volume, fees };
