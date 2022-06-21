@@ -82,7 +82,7 @@ export default function Popover({ content, show, children, placement = 'auto' }:
   const [arrowElement, setArrowElement] = useState<HTMLDivElement | null>(null);
   const { styles, update, attributes } = usePopper(referenceElement, popperElement, {
     placement,
-    strategy: 'fixed',
+    strategy: 'absolute',
     modifiers: [
       { name: 'offset', options: { offset: [0, 12] } },
       { name: 'arrow', options: { element: arrowElement } },
