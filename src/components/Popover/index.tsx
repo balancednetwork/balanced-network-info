@@ -86,19 +86,12 @@ export default function Popover({ content, show, children, placement = 'auto' }:
     modifiers: [
       { name: 'offset', options: { offset: [0, 12] } },
       { name: 'arrow', options: { element: arrowElement } },
-      { name: 'eventListeners', enabled: true },
     ],
   });
   const updateCallback = useCallback(() => {
     update && update();
   }, [update]);
   useInterval(updateCallback, show ? 100 : null);
-
-  useEffect(() => {
-    if (show) {
-      updateCallback();
-    }
-  }, [show, updateCallback]);
 
   return (
     <>
