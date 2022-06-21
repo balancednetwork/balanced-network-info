@@ -13,6 +13,7 @@ import PoolLogo, { IconWrapper, PoolLogoWrapper } from 'components/shared/PoolLo
 import { MouseoverTooltip } from 'components/Tooltip';
 import { PairInfo } from 'constants/pairs';
 import useSort from 'hooks/useSort';
+import useTheme from 'hooks/useTheme';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
 
@@ -184,6 +185,7 @@ export default function PairSection() {
   const allPairs = useAllPairs();
   const total = useAllPairsTotal();
   const { sortBy, handleSortSelect, sortData } = useSort({ key: 'apyTotal', order: 'DESC' });
+  const theme = useTheme();
 
   return (
     <BoxPanel bg="bg2">
@@ -223,6 +225,9 @@ export default function PairSection() {
                     <br />
                     <br />
                     The fee APY is calculated from the swap fees earned by a pool in the last 30 days.
+                    <Typography marginTop={'25px'} color={theme.colors.text1} fontSize={14}>
+                      Impermanent loss is not factored in.
+                    </Typography>
                   </>
                 }
                 placement="top"
