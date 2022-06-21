@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { Placement } from '@popperjs/core';
 import Portal from '@reach/portal';
@@ -93,6 +93,12 @@ export default function Popover({ content, show, children, placement = 'auto' }:
     update && update();
   }, [update]);
   useInterval(updateCallback, show ? 100 : null);
+
+  useEffect(() => {
+    if (show) {
+      updateCallback();
+    }
+  }, [show, updateCallback]);
 
   return (
     <>
