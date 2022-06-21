@@ -86,6 +86,7 @@ export default function Popover({ content, show, children, placement = 'auto' }:
     modifiers: [
       { name: 'offset', options: { offset: [0, 12] } },
       { name: 'arrow', options: { element: arrowElement } },
+      { name: 'eventListeners', enabled: true },
     ],
   });
   const updateCallback = useCallback(() => {
@@ -96,19 +97,17 @@ export default function Popover({ content, show, children, placement = 'auto' }:
   return (
     <>
       <ReferenceElement ref={setReferenceElement as any}>{children}</ReferenceElement>
-      {show && (
-        <Portal>
-          <PopoverContainer show={show} ref={setPopperElement as any} style={styles.popper} {...attributes.popper}>
-            <ContentWrapper>{content}</ContentWrapper>
-            <Arrow
-              className={`arrow-${attributes.popper?.['data-popper-placement'] ?? ''}`}
-              ref={setArrowElement as any}
-              style={styles.arrow}
-              {...attributes.arrow}
-            />
-          </PopoverContainer>
-        </Portal>
-      )}
+      <Portal>
+        <PopoverContainer show={show} ref={setPopperElement as any} style={styles.popper} {...attributes.popper}>
+          <ContentWrapper>{content}</ContentWrapper>
+          <Arrow
+            className={`arrow-${attributes.popper?.['data-popper-placement'] ?? ''}`}
+            ref={setArrowElement as any}
+            style={styles.arrow}
+            {...attributes.arrow}
+          />
+        </PopoverContainer>
+      </Portal>
     </>
   );
 }
