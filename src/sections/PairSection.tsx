@@ -4,13 +4,16 @@ import { useAllPairs, useAllPairsTotal } from 'queries';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
+import { ReactComponent as QuestionIcon } from 'assets/icons/question.svg';
 import { ReactComponent as SigmaIcon } from 'assets/icons/sigma.svg';
 import AnimateList from 'components/AnimatedList';
 import Divider from 'components/Divider';
 import { BoxPanel } from 'components/Panel';
 import PoolLogo, { IconWrapper, PoolLogoWrapper } from 'components/shared/PoolLogo';
+import { MouseoverTooltip } from 'components/Tooltip';
 import { PairInfo } from 'constants/pairs';
 import useSort from 'hooks/useSort';
+import useTheme from 'hooks/useTheme';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
 
@@ -18,7 +21,7 @@ import { HeaderText, StyledSkeleton as Skeleton } from './TokenSection';
 
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
-  min-width: 930px;
+  min-width: 1100px;
   overflow: hidden;
 `;
 
@@ -45,10 +48,22 @@ const DataText = styled(Flex)`
   color: #ffffff;
   align-items: center;
   line-height: 1.4;
+
+  &.apy-column {
+    padding: 10px 0;
+    flex-direction: column;
+    align-items: flex-end;
+    min-width: 135px;
+  }
 `;
 
 const FooterText = styled(DataText)`
   font-weight: bold;
+`;
+
+const APYItem = styled(Flex)`
+  align-items: flex-end;
+  line-height: 25px;
 `;
 
 const StyledSkeleton = styled(Skeleton)`
@@ -60,6 +75,10 @@ const StyledSkeleton = styled(Skeleton)`
       left: 38px;
     }
   }
+`;
+
+const QuestionWrapper = styled(Box)`
+  margin-right: 5px;
 `;
 
 function TotalIcon() {
@@ -113,6 +132,8 @@ type PairItemProps = {
   pair: PairInfo & {
     tvl: number;
     apy: number;
+    feesApy: number;
+    apyTotal: number;
     participant: number;
     volume: number;
     fees: number;
@@ -122,7 +143,7 @@ type PairItemProps = {
 const PairItem = forwardRef(({ pair }: PairItemProps, ref) => (
   <>
     <DashGrid my={2} ref={ref}>
-      <DataText>
+      <DataText minWidth={'220px'}>
         <Flex alignItems="center">
           <Box sx={{ minWidth: '95px' }}>
             <PoolLogo baseCurrency={pair.baseToken} quoteCurrency={pair.quoteToken} />
@@ -130,7 +151,27 @@ const PairItem = forwardRef(({ pair }: PairItemProps, ref) => (
           <Text ml={2}>{`${pair.baseCurrencyKey} / ${pair.quoteCurrencyKey}`}</Text>
         </Flex>
       </DataText>
-      <DataText>{pair.apy ? getFormattedNumber(pair.apy, 'percent2') : '-'}</DataText>
+      <DataText className="apy-column">
+        {' '}
+        {pair.apy && (
+          <APYItem>
+            <Typography color="#d5d7db" fontSize={14} marginRight={'5px'}>
+              BALN:
+            </Typography>
+            {getFormattedNumber(pair.apy, 'percent2')}
+          </APYItem>
+        )}
+        {pair.feesApy !== 0 && (
+          <APYItem>
+            <Typography color="#d5d7db" fontSize={14} marginRight={'5px'}>
+              Fees:
+            </Typography>
+            {getFormattedNumber(pair.feesApy, 'percent2')}
+          </APYItem>
+        )}
+        {!pair.feesApy && !pair.apy && '-'}
+      </DataText>
+
       <DataText>{getFormattedNumber(pair.participant, 'number')}</DataText>
       <DataText>{getFormattedNumber(pair.tvl, 'currency0')}</DataText>
       <DataText>{pair.volume ? getFormattedNumber(pair.volume, 'currency0') : '-'}</DataText>
@@ -143,7 +184,8 @@ const PairItem = forwardRef(({ pair }: PairItemProps, ref) => (
 export default function PairSection() {
   const allPairs = useAllPairs();
   const total = useAllPairsTotal();
-  const { sortBy, handleSortSelect, sortData } = useSort({ key: 'apy', order: 'DESC' });
+  const { sortBy, handleSortSelect, sortData } = useSort({ key: 'apyTotal', order: 'DESC' });
+  const theme = useTheme();
 
   return (
     <BoxPanel bg="bg2">
@@ -154,6 +196,7 @@ export default function PairSection() {
         <List>
           <DashGrid>
             <HeaderText
+              minWidth={'220px'}
               role="button"
               className={sortBy.key === 'baseCurrencyKey' ? sortBy.order : ''}
               onClick={() =>
@@ -165,14 +208,34 @@ export default function PairSection() {
               <span>POOL</span>
             </HeaderText>
             <HeaderText
+              minWidth={'135px'}
               role="button"
-              className={sortBy.key === 'apy' ? sortBy.order : ''}
+              className={sortBy.key === 'apyTotal' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
-                  key: 'apy',
+                  key: 'apyTotal',
                 })
               }
             >
+              <MouseoverTooltip
+                width={330}
+                text={
+                  <>
+                    The BALN APY is calculated from the USD value of BALN rewards available for a pool.
+                    <br />
+                    <br />
+                    The fee APY is calculated from the swap fees earned by a pool in the last 30 days.
+                    <Typography marginTop={'25px'} color={theme.colors.text1} fontSize={14}>
+                      Impermanent loss is not factored in.
+                    </Typography>
+                  </>
+                }
+                placement="top"
+              >
+                <QuestionWrapper>
+                  <QuestionIcon className="header-tooltip" width={14} />
+                </QuestionWrapper>
+              </MouseoverTooltip>
               APY
             </HeaderText>
             <HeaderText
@@ -255,7 +318,7 @@ export default function PairSection() {
 
           {total && (
             <DashGrid my={2}>
-              <FooterText>
+              <FooterText minWidth={'220px'}>
                 <Flex alignItems="center">
                   <Box sx={{ minWidth: '95px' }}>
                     <TotalIcon />
@@ -263,7 +326,7 @@ export default function PairSection() {
                   <Text ml={2}>Total</Text>
                 </Flex>
               </FooterText>
-              <FooterText>–</FooterText>
+              <FooterText minWidth={'135px'}>–</FooterText>
               <FooterText>{getFormattedNumber(total.participant, 'number')}</FooterText>
               <FooterText>{getFormattedNumber(total.tvl, 'currency0')}</FooterText>
               <FooterText>{getFormattedNumber(total.volume, 'currency0')}</FooterText>

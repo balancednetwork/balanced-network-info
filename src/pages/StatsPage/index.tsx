@@ -7,17 +7,19 @@ import { Flex, Box } from 'rebass/styled-components';
 import styled from 'styled-components';
 
 import arrowIcon from 'assets/icons/arrow.svg';
-import { ReactComponent as CalendarIcon } from 'assets/icons/calendar.svg';
+import { ReactComponent as BalnStakingIcon } from 'assets/icons/balnstaking.svg';
 import { ReactComponent as ChartIcon } from 'assets/icons/chart.svg';
 import { ReactComponent as CoinsIcon } from 'assets/icons/coins.svg';
 import { ReactComponent as DaoIcon } from 'assets/icons/dao.svg';
 import { ReactComponent as DistributionIcon } from 'assets/icons/distribution.svg';
 import { ReactComponent as FeesIcon } from 'assets/icons/fees.svg';
+import { ReactComponent as QuestionIcon } from 'assets/icons/question.svg';
 import { ReactComponent as StakersIcon } from 'assets/icons/staking2.svg';
 import vault from 'assets/icons/vault.svg';
 import Footer from 'components/Footer';
 import Header from 'components/Header';
 import { BoxPanel } from 'components/Panel';
+import { MouseoverTooltip } from 'components/Tooltip';
 import { LINKS } from 'constants/links';
 import { LoaderComponent } from 'pages/PerformanceDetails/utils';
 import CollateralAndLoanSection from 'sections/CollateralAndLoanSection';
@@ -141,9 +143,15 @@ export function StatsPage() {
       <Header />
 
       <StatsLayout>
-        <Typography fontWeight="bold" fontSize={[45, 45, 60]} color="#fff">
-          Statistics
-        </Typography>
+        <Flex alignItems="flex-end">
+          <Typography fontWeight="bold" fontSize={[45, 45, 60]} color="#fff">
+            Statistics
+          </Typography>
+          <Typography padding={'0 0 13px 20px'} fontSize={18} color="#FFF" opacity={0.75}>
+            Day {overviewInfo.platformDay ? getFormattedNumber(overviewInfo.platformDay, 'number') : '-'}
+          </Typography>
+        </Flex>
+
         <BoxPanel bg="bg2">
           <Stats>
             {/* TVL */}
@@ -185,24 +193,42 @@ export function StatsPage() {
                 <Typography fontWeight="normal" variant="h3">
                   {overviewInfo.fees ? getFormattedNumber(overviewInfo.fees, 'currency0') : <LoaderComponent />}
                 </Typography>
-                <Typography>Fees earned</Typography>
+                <Typography>Total fees earned</Typography>
               </StatsItemData>
             </StatsItem>
-            {/* number of transactions */}
+            {/* Baln staking info */}
             <StatsItem>
               <StatsItemIcon>
-                <CalendarIcon width={53} height={55} />
+                <BalnStakingIcon width={55} height={55} />
               </StatsItemIcon>
 
               <StatsItemData>
-                <Typography fontWeight="normal" variant="h3">
-                  {overviewInfo.platformDay ? (
-                    getFormattedNumber(overviewInfo.platformDay, 'number')
-                  ) : (
-                    <LoaderComponent />
-                  )}
-                </Typography>
-                <Typography>Days since launch</Typography>
+                <Flex alignItems="center">
+                  <Typography fontWeight="normal" variant="h3" marginRight={'7px'}>
+                    {overviewInfo.BALNAPY ? getFormattedNumber(overviewInfo.BALNAPY, 'percent2') : <LoaderComponent />}
+                  </Typography>
+                  {overviewInfo.BALNAPY ? (
+                    <MouseoverTooltip
+                      width={270}
+                      text={
+                        <>
+                          Calculated from the network fees distributed to staked BALN holders in the last 30 days{' '}
+                          <strong style={{ whiteSpace: 'nowrap' }}>
+                            (
+                            {overviewInfo.monthlyFeesTotal
+                              ? getFormattedNumber(overviewInfo.monthlyFeesTotal, 'currency0')
+                              : '-'}
+                            ).
+                          </strong>
+                        </>
+                      }
+                      placement="top"
+                    >
+                      <QuestionIcon width={14} />
+                    </MouseoverTooltip>
+                  ) : null}
+                </Flex>
+                <Typography>BALN staking APY</Typography>
               </StatsItemData>
             </StatsItem>
           </Stats>
