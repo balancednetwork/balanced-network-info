@@ -203,7 +203,7 @@ export function StatsPage() {
               </StatsItemIcon>
 
               <StatsItemData>
-                <Flex alignItems="center">
+                <Flex alignItems="center" justifyContent={['center', 'center', 'start']}>
                   <Typography fontWeight="normal" variant="h3" marginRight={'7px'}>
                     {overviewInfo.BALNAPY ? getFormattedNumber(overviewInfo.BALNAPY, 'percent2') : <LoaderComponent />}
                   </Typography>
