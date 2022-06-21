@@ -78,7 +78,7 @@ const StyledSkeleton = styled(Skeleton)`
 `;
 
 const QuestionWrapper = styled(Box)`
-  margin-right: 5px;
+  margin: 0 5px 0 5px;
 `;
 
 function TotalIcon() {
@@ -225,14 +225,14 @@ export default function PairSection() {
                     <br />
                     <br />
                     The fee APY is calculated from the swap fees earned by a pool in the last 30 days.
-                    <Typography marginTop={'25px'} color={theme.colors.text1} fontSize={14}>
+                    <Typography marginTop={'20px'} color={theme.colors.text1} fontSize={14}>
                       Impermanent loss is not factored in.
                     </Typography>
                   </>
                 }
                 placement="top"
               >
-                <QuestionWrapper>
+                <QuestionWrapper onClick={e => e.stopPropagation()}>
                   <QuestionIcon className="header-tooltip" width={14} />
                 </QuestionWrapper>
               </MouseoverTooltip>
