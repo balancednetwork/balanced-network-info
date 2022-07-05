@@ -45,23 +45,6 @@ const API_ENDPOINT = process.env.NODE_ENV === 'production' ? 'https://balanced.s
 export const LAUNCH_DAY = 1619398800000000;
 export const ONE_DAY = 86400000000;
 
-export const useCollateralChartDataQuery = (
-  start: number = LAUNCH_DAY,
-  end: number = new Date().valueOf() * 1_000,
-  interval: number = ONE_DAY,
-) => {
-  return useQuery<{ time: number; value: number }[]>('collateral-chart-data', async () => {
-    const { data }: { data: { time: number; value: string }[] } = await axios.get(
-      `${API_ENDPOINT}/stats/collateral-chart?start_timestamp=${start}&end_timestamp=${end}&time_interval=${interval}`,
-    );
-
-    return data.map(item => ({
-      time: item.time / 1_000,
-      value: BalancedJs.utils.toIcx(item.value).integerValue().toNumber(),
-    }));
-  });
-};
-
 export const useEarningsDataQuery = (
   start: number = LAUNCH_DAY,
   end: number = new Date().valueOf() * 1_000,
@@ -95,23 +78,6 @@ export const useEarningsDataQuery = (
           return prev;
         }, {}),
     };
-  });
-};
-
-export const useLoanChartDataQuery = (
-  start: number = LAUNCH_DAY,
-  end: number = new Date().valueOf() * 1_000,
-  interval: number = ONE_DAY,
-) => {
-  return useQuery<{ time: number; value: number }[]>('loan-chart-data', async () => {
-    const { data }: { data: { time: number; value: string }[] } = await axios.get(
-      `${API_ENDPOINT}/stats/loans-chart?start_timestamp=${start}&end_timestamp=${end}&time_interval=${interval}`,
-    );
-
-    return data.map(item => ({
-      time: item.time / 1_000,
-      value: BalancedJs.utils.toIcx(item.value).integerValue().toNumber(),
-    }));
   });
 };
 
