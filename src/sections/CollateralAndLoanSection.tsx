@@ -1,14 +1,10 @@
 import React from 'react';
 
+import { addresses } from '@balancednetwork/balanced-js';
 import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
-import {
-  useCollateralChartDataQuery,
-  useCollateralInfo,
-  useLoanChartDataQuery,
-  useLoanInfo,
-  useRatesQuery,
-} from 'queries/index';
+import { useHistoricalDataQuery } from 'queries/historical';
+import { useCollateralInfo, useLoanInfo, useRatesQuery } from 'queries/index';
 import { Flex, Box } from 'rebass/styled-components';
 import styled from 'styled-components';
 
@@ -52,12 +48,12 @@ const ChartContainer = styled(Box)`
 
 export default function CollateralAndLoanSection() {
   const collateralInfo = useCollateralInfo();
-  const collateralChartDataQuery = useCollateralChartDataQuery();
   const loanInfo = useLoanInfo();
-  const loanChartDataQuery = useLoanChartDataQuery();
   const ratesQuery = useRatesQuery();
   const rates = ratesQuery.data || {};
   const theme = useTheme();
+  const { data: collateralChartData } = useHistoricalDataQuery(addresses[1].loans, 'getTotalCollateral');
+  const { data: loansChartData } = useHistoricalDataQuery(addresses[1].bnusd, 'totalSupply');
 
   const [loanTVLHover, setLoansTVLHover] = React.useState<number | undefined>();
   const [loanLabel, setLoanLabel] = React.useState<string | undefined>();
@@ -101,9 +97,10 @@ export default function CollateralAndLoanSection() {
           {collateralLabel ? <>{collateralLabel}</> : <>{dayjs.utc().format('MMM D, YYYY')}</>}
         </Typography>
         <ChartContainer>
-          {collateralChartDataQuery.data ? (
+          {collateralChartData ? (
             <LineChart
-              data={collateralChartDataQuery.data}
+              data={collateralChartData}
+              // data={collateralChartDataQuery.data}
               height={DEFAULT_HEIGHT}
               minHeight={DEFAULT_HEIGHT}
               color={theme.colors.primary}
@@ -145,9 +142,10 @@ export default function CollateralAndLoanSection() {
         </Typography>
         <Typography variant="p">{loanLabel ? <>{loanLabel}</> : <>{dayjs.utc().format('MMM D, YYYY')}</>}</Typography>
         <ChartContainer>
-          {loanChartDataQuery.data ? (
+          {loansChartData ? (
             <LineChart
-              data={loanChartDataQuery.data}
+              data={loansChartData}
+              // data={loanChartDataQuery.data}
               height={DEFAULT_HEIGHT}
               minHeight={DEFAULT_HEIGHT}
               color={theme.colors.primary}
