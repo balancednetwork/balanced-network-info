@@ -100,7 +100,6 @@ export default function CollateralAndLoanSection() {
           {collateralChartData ? (
             <LineChart
               data={collateralChartData}
-              // data={collateralChartDataQuery.data}
               height={DEFAULT_HEIGHT}
               minHeight={DEFAULT_HEIGHT}
               color={theme.colors.primary}
@@ -145,7 +144,6 @@ export default function CollateralAndLoanSection() {
           {loansChartData ? (
             <LineChart
               data={loansChartData}
-              // data={loanChartDataQuery.data}
               height={DEFAULT_HEIGHT}
               minHeight={DEFAULT_HEIGHT}
               color={theme.colors.primary}
