@@ -2,6 +2,7 @@ import React, { Dispatch, SetStateAction, ReactNode } from 'react';
 
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import { HistoricalDataType } from 'queries/historical';
 import { ResponsiveContainer, XAxis, YAxis, Tooltip, AreaChart, Area } from 'recharts';
 import styled from 'styled-components';
 
@@ -27,7 +28,7 @@ const Wrapper = styled(Card)`
 `;
 
 export type LineChartProps = {
-  data: any[];
+  data: HistoricalDataType[];
   color?: string | undefined;
   height?: number | undefined;
   minHeight?: number;
@@ -87,7 +88,7 @@ const Chart = ({
             </linearGradient>
           </defs>
           <XAxis
-            dataKey="time"
+            dataKey="timestamp"
             axisLine={false}
             tickLine={false}
             minTickGap={10}
@@ -107,11 +108,11 @@ const Chart = ({
           <Tooltip
             cursor={{ stroke: theme.colors.text1 }}
             contentStyle={{ display: 'none' }}
-            formatter={(value: number, name: string, props: { payload: { time: string; value: number } }) => {
+            formatter={(value: number, name: string, props: { payload: { timestamp: number; value: number } }) => {
               if (setValue && parsedValue !== props.payload.value) {
                 setValue(props.payload.value);
               }
-              const formattedTime = dayjs(props.payload.time).format('MMM D, YYYY');
+              const formattedTime = dayjs(props.payload.timestamp).format('MMM D, YYYY');
               if (setLabel && label !== formattedTime) setLabel(formattedTime);
             }}
           />
