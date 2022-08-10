@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { useQuery } from 'react-query';
 
-const API_ENDPOINT = 'https://balanced.icon.community/api/v1/historical';
+const API_ENDPOINT = 'https://balanced.icon.community/api/v1/';
 
-export type HistoricalDataType = {
+export type ContractMethodsDataType = {
   address: string;
   timestamp: number;
   updateInterval: number;
@@ -14,7 +14,7 @@ export type HistoricalDataType = {
   value: number;
 };
 
-export const useHistoricalDataQuery = (
+export const useContractMethodsDataQuery = (
   contract: string,
   method: string,
   skip: number = 0,
@@ -23,11 +23,11 @@ export const useHistoricalDataQuery = (
   start_timestamp?: number,
   end_timestamp?: number,
 ) => {
-  return useQuery<HistoricalDataType[]>(
+  return useQuery<ContractMethodsDataType[]>(
     `historicalQuery|${skip}|${limit}|${contract}|${method}|${days_ago}|${start_timestamp}|${end_timestamp}`,
     async () => {
       const { data } = await axios.get(
-        `${API_ENDPOINT}?skip=${skip}&limit=${limit}&address=${contract}&method=${method}${
+        `${API_ENDPOINT}contract-methods?skip=${skip}&limit=${limit}&address=${contract}&method=${method}${
           days_ago ? `&days_ago=${days_ago}` : ''
         }${start_timestamp ? `&start_timestamp=${start_timestamp}` : ''}${
           end_timestamp ? `&end_timestamp=${end_timestamp}` : ''
