@@ -3,7 +3,7 @@ import React from 'react';
 import { addresses } from '@balancednetwork/balanced-js';
 import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
-import { useHistoricalDataQuery } from 'queries/historical';
+import { useContractMethodsDataQuery } from 'queries/backendv2';
 import { useCollateralInfo, useLoanInfo, useRatesQuery } from 'queries/index';
 import { Flex, Box } from 'rebass/styled-components';
 import styled from 'styled-components';
@@ -52,8 +52,8 @@ export default function CollateralAndLoanSection() {
   const ratesQuery = useRatesQuery();
   const rates = ratesQuery.data || {};
   const theme = useTheme();
-  const { data: collateralChartData } = useHistoricalDataQuery(addresses[1].loans, 'getTotalCollateral');
-  const { data: loansChartData } = useHistoricalDataQuery(addresses[1].bnusd, 'totalSupply');
+  const { data: collateralChartData } = useContractMethodsDataQuery(addresses[1].loans, 'getTotalCollateral');
+  const { data: loansChartData } = useContractMethodsDataQuery(addresses[1].bnusd, 'totalSupply');
 
   const [loanTVLHover, setLoansTVLHover] = React.useState<number | undefined>();
   const [loanLabel, setLoanLabel] = React.useState<string | undefined>();
