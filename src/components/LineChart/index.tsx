@@ -2,7 +2,7 @@ import React, { Dispatch, SetStateAction, ReactNode } from 'react';
 
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import { HistoricalDataType } from 'queries/historical';
+import { ContractMethodsDataType } from 'queries/backendv2';
 import { ResponsiveContainer, XAxis, YAxis, Tooltip, AreaChart, Area } from 'recharts';
 import styled from 'styled-components';
 
@@ -28,7 +28,7 @@ const Wrapper = styled(Card)`
 `;
 
 export type LineChartProps = {
-  data: HistoricalDataType[];
+  data: ContractMethodsDataType[];
   color?: string | undefined;
   height?: number | undefined;
   minHeight?: number;
