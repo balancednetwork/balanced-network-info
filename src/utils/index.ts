@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import { isEoaAddress } from 'icon-sdk-js/lib/data/Validator.js';
 
 export enum NetworkId {
@@ -6,6 +7,8 @@ export enum NetworkId {
   EULJIRO = 2,
   PAGODA = 80,
 }
+
+const TEN = new BigNumber(10);
 
 export const NETWORK_ID: number = parseInt(process.env.REACT_APP_NETWORK_ID ?? '1');
 
@@ -48,4 +51,8 @@ export function getTrackerLink(
 
 export function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
+
+export function formatUnits(value: string, decimals: number = 18, fixed: number = 0): string {
+  return new BigNumber(value).div(TEN.pow(decimals)).toFixed(fixed);
 }

@@ -8,12 +8,15 @@ import { useCollateralInfo, useLoanInfo, useRatesQuery } from 'queries/index';
 import { Flex, Box } from 'rebass/styled-components';
 import styled from 'styled-components';
 
+import CollateralSelector from 'components/CollateralSelector';
 import LineChart, { DEFAULT_HEIGHT } from 'components/LineChart';
 import { BoxPanel } from 'components/Panel';
 import Spinner from 'components/Spinner';
 import { ONE } from 'constants/number';
 import useTheme from 'hooks/useTheme';
+import useWidth from 'hooks/useWidth';
 import { LoaderComponent } from 'pages/PerformanceDetails/utils';
+import { useTokensCollateralData } from 'store/collateral/hooks';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
 
@@ -78,12 +81,20 @@ export default function CollateralAndLoanSection() {
     }
   }, [collateralTVLHover, collateralInfo]);
 
+  const [ref, width] = useWidth();
+
+  const supportedTokens = useTokensCollateralData();
+
   return (
     <ChartSection>
       <ChartPanel bg="bg2">
-        <Typography variant="h2" mb={1}>
-          Collateral
-        </Typography>
+        <Flex ref={ref} alignItems="center" mb={1}>
+          <Typography variant="h2" mr={2}>
+            Collateral:
+          </Typography>
+          <CollateralSelector width={width} containerRef={ref.current} />
+        </Flex>
+
         <Typography variant="h3" mb={1}>
           {collateralInfo.totalCollateral ? getFormattedNumber(collateralTVLHover || 0, 'number') : <LoaderComponent />}{' '}
           sICX{' '}
@@ -133,13 +144,28 @@ export default function CollateralAndLoanSection() {
       </ChartPanel>
 
       <ChartPanel bg="bg2">
-        <Typography variant="h2" mb={1}>
-          Loans
-        </Typography>
-        <Typography variant="h3" mb={1}>
-          {loanInfo.totalLoans ? getFormattedNumber(loanTVLHover || 0, 'number') : <LoaderComponent />} bnUSD
-        </Typography>
-        <Typography variant="p">{loanLabel ? <>{loanLabel}</> : <>{dayjs.utc().format('MMM D, YYYY')}</>}</Typography>
+        <Flex flexDirection={['column', 'row']}>
+          <Flex mr="auto" flexDirection="column" mb={1}>
+            <Typography variant="h2" mr="auto" mb={1}>
+              Balanced Dollars
+            </Typography>
+            <Typography variant="p" color="text2" mr="auto" fontSize={18}>
+              {loanLabel ? <>{loanLabel}</> : <>{dayjs.utc().format('MMM D, YYYY')}</>}
+            </Typography>
+          </Flex>
+          <Flex flexDirection="column" alignItems={['start', 'end']} mb={1}>
+            <Typography variant="h3" mb={1}>
+              {loanInfo.totalLoans ? getFormattedNumber(loanTVLHover || 0, 'number') : <LoaderComponent />} bnUSD
+            </Typography>
+            <Typography color="text2" fontSize={18}>
+              {rates && rates['bnUSD'] && loanInfo.totalLoans ? (
+                `$${rates['bnUSD'].times(loanTVLHover || 1).toFormat(0)}`
+              ) : (
+                <LoaderComponent />
+              )}
+            </Typography>
+          </Flex>
+        </Flex>
         <ChartContainer>
           {loansChartData ? (
             <LineChart
