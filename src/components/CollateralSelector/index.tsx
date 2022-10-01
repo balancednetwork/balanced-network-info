@@ -25,7 +25,7 @@ export const CollateralTypeSwitcherWrap = styled.div`
   }
 `;
 
-const CollateralSelector = ({ width, containerRef }) => {
+const CollateralSelector = ({ width, containerRef, collateral, setCollateral }) => {
   const [anchor, setAnchor] = React.useState<HTMLElement | null>(null);
 
   const arrowRef = React.useRef(null);
@@ -43,7 +43,7 @@ const CollateralSelector = ({ width, containerRef }) => {
   return (
     <>
       <Wrap onClick={handleToggle} style={{ position: 'relative' }}>
-        <UnderlineText>select</UnderlineText>
+        <UnderlineText>{collateral}</UnderlineText>
         <div ref={arrowRef} style={{ display: 'inline-block' }}>
           <StyledArrowDownIcon />
         </div>
@@ -57,7 +57,7 @@ const CollateralSelector = ({ width, containerRef }) => {
           placement="bottom"
           offset={[0, 8]}
         >
-          <CollateralTypeList width={width} anchor={anchor} setAnchor={setAnchor} />
+          <CollateralTypeList width={width} anchor={anchor} setAnchor={setAnchor} setCollateral={setCollateral} />
         </DropdownPopper>
       </ClickAwayListener>
     </>

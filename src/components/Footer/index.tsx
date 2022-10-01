@@ -177,7 +177,7 @@ const Footer = () => {
       </Grid>
       <FooterSocials className="footer-social">
         <FooterSubNav>
-          <Text>© Balanced 2021, All rights reserved.</Text>
+          <Text>© Balanced {new Date().getFullYear()}, All rights reserved.</Text>
           <Flex alignItems="center">
             <AnimatedLink style={{ marginLeft: 0, display: 'inline-block' }} as="a" href={LINKS.disclamer}>
               Disclaimer
