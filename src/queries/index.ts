@@ -232,18 +232,18 @@ export type MetaToken = {
 };
 
 export const useAllTokensHoldersQuery = () => {
-  const endpoint = `https://tracker.icon.foundation/v3/token/holders?contractAddr=`;
+  const endpoint = `https://tracker.icon.community/api/v1/transactions/token-holders/token-contract/`;
 
   const fetch = async () => {
     const tokens = SUPPORTED_TOKENS_LIST.filter(token => token.symbol !== 'ICX');
 
     const data: any[] = await Promise.all(
-      tokens.map((token: Token) => axios.get(`${endpoint}${token.address}`).then(res => res.data)),
+      tokens.map((token: Token) => axios.get(`${endpoint}${token.address}`).then(res => res.headers)),
     );
 
     const t = {};
     tokens.forEach((token: Token, index) => {
-      t[token.symbol!] = data[index].totalSize;
+      t[token.symbol!] = data[index]['x-total-count'];
     });
     return t;
   };
