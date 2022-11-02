@@ -7,7 +7,7 @@ import { useQuery } from 'react-query';
 import bnJs from 'bnJs';
 import { SUPPORTED_TOKENS_LIST, NULL_CONTRACT_ADDRESS } from 'constants/tokens';
 
-const API_ENDPOINT = 'https://tracker.v2.mainnet.sng.vultr.icon.community/api/v1/';
+const API_ENDPOINT = 'https://tracker.icon.community/api/v1/';
 
 const SUPPORTED_TOKENS_LIST_WITHOUT_ICX = SUPPORTED_TOKENS_LIST.filter(
   token => token.address !== NULL_CONTRACT_ADDRESS,
@@ -21,7 +21,7 @@ type BlockDetails = {
   number: number;
 };
 
-const useBlockDetails = (timestamp: number) => {
+export const useBlockDetails = (timestamp: number) => {
   const getBlock = async (): Promise<BlockDetails> => {
     const { data } = await axios.get(`${API_ENDPOINT}blocks/timestamp/${timestamp * 1000}`);
     return data;

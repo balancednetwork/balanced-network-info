@@ -205,30 +205,23 @@ export function StatsPage() {
               <StatsItemData>
                 <Flex alignItems="center" justifyContent={['center', 'center', 'start']}>
                   <Typography fontWeight="normal" variant="h3" marginRight={'7px'}>
-                    {overviewInfo.BALNAPY ? getFormattedNumber(overviewInfo.BALNAPY, 'percent2') : <LoaderComponent />}
+                    {overviewInfo.monthlyFeesTotal ? (
+                      `$${overviewInfo.monthlyFeesTotal.toFormat(0)}`
+                    ) : (
+                      <LoaderComponent />
+                    )}
                   </Typography>
-                  {overviewInfo.BALNAPY ? (
+                  {overviewInfo.monthlyFeesTotal ? (
                     <MouseoverTooltip
-                      width={270}
-                      text={
-                        <>
-                          Calculated from the network fees distributed to staked BALN holders in the last 30 days{' '}
-                          <strong style={{ whiteSpace: 'nowrap' }}>
-                            (
-                            {overviewInfo.monthlyFeesTotal
-                              ? getFormattedNumber(overviewInfo.monthlyFeesTotal, 'currency0')
-                              : '-'}
-                            ).
-                          </strong>
-                        </>
-                      }
+                      width={240}
+                      text={<>Network fees distributed in the last 30 days to bBALN holders.</>}
                       placement="top"
                     >
                       <QuestionIcon width={14} />
                     </MouseoverTooltip>
                   ) : null}
                 </Flex>
-                <Typography>BALN staking APY</Typography>
+                <Typography>Distributed past month</Typography>
               </StatsItemData>
             </StatsItem>
           </Stats>
@@ -272,13 +265,13 @@ export function StatsPage() {
               </StatsItemIcon>
               <StatsItemData>
                 <Typography fontWeight="normal" variant="h3">
-                  {governanceInfo.numOfStakers ? (
-                    getFormattedNumber(governanceInfo.numOfStakers, 'number')
+                  {governanceInfo.numOfHolders ? (
+                    getFormattedNumber(governanceInfo.numOfHolders, 'number')
                   ) : (
                     <LoaderComponent />
                   )}
                 </Typography>
-                <Typography>BALN stakers</Typography>
+                <Typography>bBALN holders</Typography>
               </StatsItemData>
             </StatsItem>
 
@@ -289,13 +282,13 @@ export function StatsPage() {
 
               <StatsItemData>
                 <Typography fontWeight="normal" variant="h3">
-                  {governanceInfo.totalStakedBALN ? (
-                    getFormattedNumber(governanceInfo.totalStakedBALN, 'number')
+                  {governanceInfo.totalBALNLocked ? (
+                    getFormattedNumber(governanceInfo.totalBALNLocked, 'number')
                   ) : (
                     <LoaderComponent />
                   )}{' '}
                 </Typography>
-                <Typography>BALN staked</Typography>
+                <Typography>BALN locked</Typography>
               </StatsItemData>
             </StatsItem>
 
