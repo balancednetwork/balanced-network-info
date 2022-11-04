@@ -7,14 +7,14 @@ import { Flex, Box } from 'rebass/styled-components';
 import styled from 'styled-components';
 
 import arrowIcon from 'assets/icons/arrow.svg';
-import { ReactComponent as BalnStakingIcon } from 'assets/icons/balnstaking.svg';
+import { ReactComponent as StakersIcon } from 'assets/icons/bbalnholders.svg';
 import { ReactComponent as ChartIcon } from 'assets/icons/chart.svg';
 import { ReactComponent as CoinsIcon } from 'assets/icons/coins.svg';
 import { ReactComponent as DaoIcon } from 'assets/icons/dao.svg';
 import { ReactComponent as DistributionIcon } from 'assets/icons/distribution.svg';
 import { ReactComponent as FeesIcon } from 'assets/icons/fees.svg';
 import { ReactComponent as QuestionIcon } from 'assets/icons/question.svg';
-import { ReactComponent as StakersIcon } from 'assets/icons/staking2.svg';
+import { ReactComponent as BalnStakingIcon } from 'assets/icons/staking2.svg';
 import vault from 'assets/icons/vault.svg';
 import Footer from 'components/Footer';
 import Header from 'components/Header';
@@ -214,7 +214,22 @@ export function StatsPage() {
                   {overviewInfo.monthlyFeesTotal ? (
                     <MouseoverTooltip
                       width={240}
-                      text={<>Network fees distributed in the last 30 days to bBALN holders.</>}
+                      text={
+                        <>
+                          <Typography>
+                            Network fees distributed to bBALN holders in the last 30 days, based on the current USD
+                            value of each asset.
+                          </Typography>
+
+                          {overviewInfo.bBALNAPY && (
+                            <Typography mt={2}>
+                              Up to the{' '}
+                              <strong>{getFormattedNumber(overviewInfo.bBALNAPY.toNumber(), 'percent2')} APY</strong>{' '}
+                              when BALN is locked for 4 years.
+                            </Typography>
+                          )}
+                        </>
+                      }
                       placement="top"
                     >
                       <QuestionIcon width={14} />
@@ -261,7 +276,7 @@ export function StatsPage() {
 
             <StatsItem className="border-right">
               <StatsItemIcon>
-                <StakersIcon width={53} height={55} />
+                <StakersIcon opacity={1} width={53} height={55} />
               </StatsItemIcon>
               <StatsItemData>
                 <Typography fontWeight="normal" variant="h3">

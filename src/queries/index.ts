@@ -217,12 +217,23 @@ export const useOverviewInfo = () => {
   const { data: platformDay } = usePlatformDayQuery();
   const earningsDataQuery = useEarningsDataQuery(getTimestampFrom(30), getTimestampFrom(0));
 
+  //bBALN apy
+  const assumedYearlyDistribution = earningsDataQuery?.data?.feesDistributed.times(12);
+  const bBALNSupplyQuery = useBnJsContractQuery<string>(bnJs, 'BBALN', 'totalSupply', []);
+  const bBALNSupply = bBALNSupplyQuery.isSuccess && new BigNumber(formatUnits(bBALNSupplyQuery.data));
+  const bBALNAPY =
+    assumedYearlyDistribution &&
+    bBALNSupply &&
+    rates &&
+    assumedYearlyDistribution.div(bBALNSupply.times(rates['BALN']));
+
   return {
     TVL: tvl,
     BALNMarketCap: BALNMarketCap?.integerValue().toNumber(),
     fees: totalFees?.integerValue().toNumber(),
     platformDay: platformDay,
     monthlyFeesTotal: earningsDataQuery?.data?.feesDistributed,
+    bBALNAPY: bBALNAPY,
   };
 };
 
