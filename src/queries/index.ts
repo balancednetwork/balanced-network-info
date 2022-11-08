@@ -8,8 +8,11 @@ import bnJs from 'bnJs';
 import { ZERO } from 'constants/number';
 import { PairInfo, SUPPORTED_PAIRS } from 'constants/pairs';
 import QUERY_KEYS from 'constants/queryKeys';
-import { bnUSD, SUPPORTED_TOKENS_LIST, SUPPORTED_TOKENS_MAP_BY_ADDRESS } from 'constants/tokens';
+import { SUPPORTED_TOKENS_LIST, SUPPORTED_TOKENS_MAP_BY_ADDRESS } from 'constants/tokens';
 import { getTimestampFrom } from 'pages/PerformanceDetails/utils';
+import { formatUnits } from 'utils';
+
+import { useBlockDetails } from './blockDetails';
 
 export const useBnJsContractQuery = <T>(bnJs: BalancedJs, contract: string, method: string, args: any[]) => {
   return useQuery<T, string>(QUERY_KEYS.BnJs(contract, method, args), async () => {
@@ -41,6 +44,7 @@ export const useRatesQuery = () => {
 };
 
 const API_ENDPOINT = process.env.NODE_ENV === 'production' ? 'https://balanced.sudoblock.io/api/v1' : '/api/v1';
+const PERCENTAGE_DISTRIBUTED = new BigNumber(0.6);
 
 export const LAUNCH_DAY = 1619398800000000;
 export const ONE_DAY = 86400000000;
@@ -50,35 +54,101 @@ export const useEarningsDataQuery = (
   end: number = new Date().valueOf() * 1_000,
   cacheItem: string = 'earnings-data',
 ) => {
-  return useQuery<{
-    income: { loansFees: CurrencyAmount<Token>; swapFees: { [key: string]: CurrencyAmount<Token> } };
-    expenses: { [key: string]: CurrencyAmount<Token> };
-  }>(cacheItem, async () => {
-    const { data } = await axios.get(
-      `${API_ENDPOINT}/stats/income-statement?start_timestamp=${start}&end_timestamp=${end}`,
-    );
+  const { data: blockStart } = useBlockDetails(start);
+  const { data: blockEnd } = useBlockDetails(end);
+  const { data: rates } = useRatesQuery();
 
-    return {
-      income: {
-        loansFees: CurrencyAmount.fromRawAmount(bnUSD, data.income.loans_fees),
-        swapFees: Object.keys(data.income.swap_fees)
-          .filter(addr => SUPPORTED_TOKENS_MAP_BY_ADDRESS[addr])
-          .reduce<{ [key: string]: CurrencyAmount<Token> }>((prev, addr) => {
-            prev[addr] = CurrencyAmount.fromRawAmount(
-              SUPPORTED_TOKENS_MAP_BY_ADDRESS[addr],
-              data.income.swap_fees[addr],
-            );
-            return prev;
-          }, {}),
-      },
-      expenses: Object.keys(data.expenses)
-        .filter(addr => SUPPORTED_TOKENS_MAP_BY_ADDRESS[addr])
-        .reduce<{ [key: string]: CurrencyAmount<Token> }>((prev, addr) => {
-          prev[addr] = CurrencyAmount.fromRawAmount(SUPPORTED_TOKENS_MAP_BY_ADDRESS[addr], data.expenses[addr]);
-          return prev;
-        }, {}),
-    };
-  });
+  return useQuery<
+    | {
+        income: {
+          loans: BigNumber;
+          fund: BigNumber;
+          swaps: { [key: string]: { amount: BigNumber; value: BigNumber } };
+        };
+        expenses: { [key: string]: { amount: BigNumber; value: BigNumber } };
+        feesDistributed: BigNumber;
+      }
+    | undefined
+  >(
+    `${cacheItem}${blockStart && blockStart.number}${blockEnd && blockEnd.number}${rates && Object.keys(rates).length}`,
+    async () => {
+      if (blockStart?.number && blockEnd?.number && rates) {
+        try {
+          const loanFeesStart = await bnJs.FeeHandler.getLoanFeesAccrued(blockStart.number);
+          const loanFeesEnd = await bnJs.FeeHandler.getLoanFeesAccrued(blockEnd.number);
+
+          const fundFeesStart = await bnJs.FeeHandler.getStabilityFundFeesAccrued(blockStart.number);
+          const fundFeesEnd = await bnJs.FeeHandler.getStabilityFundFeesAccrued(blockEnd.number);
+
+          //swap fees
+          const bnUSDFeesStart = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.bnUSD.address, blockStart.number);
+          const bnUSDFeesEnd = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.bnUSD.address, blockEnd.number);
+
+          const sICXFeesStart = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.sICX.address, blockStart.number);
+          const sICXFeesEnd = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.sICX.address, blockEnd.number);
+
+          const balnFeesStart = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.BALN.address, blockStart.number);
+          const balnFeesEnd = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.BALN.address, blockEnd.number);
+
+          const bnUSDIncome = new BigNumber(formatUnits(bnUSDFeesEnd)).minus(
+            new BigNumber(formatUnits(bnUSDFeesStart)),
+          );
+          const sICXIncome = new BigNumber(formatUnits(sICXFeesEnd)).minus(new BigNumber(formatUnits(sICXFeesStart)));
+          const balnIncome = new BigNumber(formatUnits(balnFeesEnd)).minus(new BigNumber(formatUnits(balnFeesStart)));
+          const loansIncome = new BigNumber(formatUnits(loanFeesEnd)).minus(new BigNumber(formatUnits(loanFeesStart)));
+          const fundIncome = new BigNumber(formatUnits(fundFeesEnd)).minus(new BigNumber(formatUnits(fundFeesStart)));
+
+          return {
+            income: {
+              loans: loansIncome,
+              fund: fundIncome,
+              swaps: {
+                BALN: {
+                  amount: balnIncome,
+                  value: balnIncome.times(rates['BALN']),
+                },
+                bnUSD: {
+                  amount: bnUSDIncome,
+                  value: bnUSDIncome,
+                },
+                sICX: {
+                  amount: sICXIncome,
+                  value: sICXIncome.times(rates['sICX']),
+                },
+              },
+            },
+            expenses: {
+              BALN: {
+                amount: balnIncome.times(PERCENTAGE_DISTRIBUTED),
+                value: balnIncome.times(rates['BALN']).times(PERCENTAGE_DISTRIBUTED),
+              },
+              bnUSD: {
+                amount: bnUSDIncome.plus(loansIncome).plus(fundIncome).times(PERCENTAGE_DISTRIBUTED),
+                value: bnUSDIncome.plus(loansIncome).plus(fundIncome).times(PERCENTAGE_DISTRIBUTED),
+              },
+              sICX: {
+                amount: sICXIncome.times(PERCENTAGE_DISTRIBUTED),
+                value: sICXIncome.times(rates['sICX']).times(PERCENTAGE_DISTRIBUTED),
+              },
+            },
+            feesDistributed: balnIncome
+              .times(rates['BALN'])
+              .times(PERCENTAGE_DISTRIBUTED)
+              .plus(sICXIncome.times(rates['sICX']).times(PERCENTAGE_DISTRIBUTED))
+              .plus(bnUSDIncome.plus(loansIncome).plus(fundIncome).times(PERCENTAGE_DISTRIBUTED)),
+          };
+        } catch (e) {
+          console.error('Error calculating dao earnings: ', e);
+        }
+      }
+    },
+    {
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      refetchInterval: undefined,
+      refetchIntervalInBackground: undefined,
+    },
+  );
 };
 
 export const useStatsTotalTransactionsQuery = () => {
@@ -144,38 +214,34 @@ export const useOverviewInfo = () => {
     BALNMarketCap = BalancedJs.utils.toIcx(totalSupplyQuery.data).times(rates['BALN']);
   }
 
-  // transactions
   const { data: platformDay } = usePlatformDayQuery();
-
-  //get monthly fees and BALN APY
-  let BALNAPY: BigNumber | undefined;
-  let monthlyFeesTotal = new BigNumber(0);
-  const totalBALNStakedQuery = useBnJsContractQuery<string>(bnJs, 'BALN', 'totalStakedBalance', []);
   const earningsDataQuery = useEarningsDataQuery(getTimestampFrom(30), getTimestampFrom(0));
 
-  if (totalBALNStakedQuery.isSuccess && ratesQuery.isSuccess && rates) {
-    //get 30 day fee payout
-    earningsDataQuery?.data?.expenses &&
-      Object.keys(earningsDataQuery.data.expenses).forEach(expense => {
-        const expenseItem = earningsDataQuery.data.expenses[expense];
-        monthlyFeesTotal = monthlyFeesTotal.plus(
-          new BigNumber(expenseItem.toFixed()).times(rates[expenseItem.currency.symbol!]),
-        );
-      });
+  //bBALN apy
+  const assumedYearlyDistribution = earningsDataQuery?.data?.feesDistributed.times(12);
+  const bBALNSupplyQuery = useBnJsContractQuery<string>(bnJs, 'BBALN', 'totalSupply', []);
+  const bBALNSupply = bBALNSupplyQuery.isSuccess && new BigNumber(formatUnits(bBALNSupplyQuery.data));
+  const bBALNAPY =
+    assumedYearlyDistribution &&
+    bBALNSupply &&
+    rates &&
+    assumedYearlyDistribution.div(bBALNSupply.times(rates['BALN']));
 
-    //get BALN APY
-    if (monthlyFeesTotal) {
-      BALNAPY = monthlyFeesTotal?.times(12).div(BalancedJs.utils.toIcx(totalBALNStakedQuery.data).times(rates['BALN']));
-    }
-  }
+  const previousChunkAmount = 100;
 
   return {
     TVL: tvl,
     BALNMarketCap: BALNMarketCap?.integerValue().toNumber(),
     fees: totalFees?.integerValue().toNumber(),
     platformDay: platformDay,
-    BALNAPY: BALNAPY?.toNumber(),
-    monthlyFeesTotal: monthlyFeesTotal?.integerValue().toNumber(),
+    monthlyFeesTotal: earningsDataQuery?.data?.feesDistributed,
+    bBALNAPY: bBALNAPY,
+    balnPrice: rates && rates['BALN'],
+    previousChunk:
+      bBALNSupply &&
+      earningsDataQuery?.data &&
+      new BigNumber(previousChunkAmount).dividedBy(bBALNSupply).times(earningsDataQuery?.data?.feesDistributed),
+    previousChunkAmount: previousChunkAmount,
   };
 };
 
@@ -188,14 +254,17 @@ export const useGovernanceNumOfStakersQuery = () => {
 
 export const useGovernanceInfo = () => {
   const dailyDistributionQuery = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
-  const totalStakedBALNQuery = useBnJsContractQuery<string>(bnJs, 'BALN', 'totalStakedBalance', []);
   const daofundQuery = useBnJsContractQuery<any>(bnJs, 'DAOFund', 'getBalances', []);
+
+  const totalBalnLockedQuery = useBnJsContractQuery<string>(bnJs, 'BBALN', 'getTotalLocked', []);
+  const totalBBalnHoldersQuery = useBnJsContractQuery<string>(bnJs, 'BBALN', 'activeUsersCount', []);
 
   const dailyDistribution = dailyDistributionQuery.isSuccess
     ? BalancedJs.utils.toIcx(dailyDistributionQuery.data)
     : null;
 
-  const totalStakedBALN = totalStakedBALNQuery.isSuccess ? BalancedJs.utils.toIcx(totalStakedBALNQuery.data) : null;
+  const totalBalnLocked = totalBalnLockedQuery.isSuccess && Number(totalBalnLockedQuery.data) / 10 ** 18;
+  const totalBBalnHolders = totalBBalnHoldersQuery.isSuccess && Number(totalBBalnHoldersQuery.data);
 
   const ratesQuery = useRatesQuery();
   const rates = ratesQuery.data || {};
@@ -210,13 +279,11 @@ export const useGovernanceInfo = () => {
         }, ZERO)
       : null;
 
-  const numOfStakersQuery = useGovernanceNumOfStakersQuery();
-
   return {
     dailyDistribution: dailyDistribution?.integerValue().toNumber(),
-    totalStakedBALN: totalStakedBALN?.integerValue().toNumber(),
     daofund: daofund?.integerValue().toNumber(),
-    numOfStakers: numOfStakersQuery.data,
+    totalBALNLocked: totalBalnLocked,
+    numOfHolders: totalBBalnHolders,
   };
 };
 

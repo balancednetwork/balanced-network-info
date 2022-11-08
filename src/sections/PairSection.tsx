@@ -19,6 +19,8 @@ import { getFormattedNumber } from 'utils/formatter';
 
 import { HeaderText, StyledSkeleton as Skeleton } from './TokenSection';
 
+const MAX_BOOST = 2.5;
+
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
   min-width: 1100px;
@@ -53,7 +55,7 @@ const DataText = styled(Flex)`
     padding: 10px 0;
     flex-direction: column;
     align-items: flex-end;
-    min-width: 135px;
+    min-width: 190px;
   }
 `;
 
@@ -158,7 +160,7 @@ const PairItem = forwardRef(({ pair }: PairItemProps, ref) => (
             <Typography color="#d5d7db" fontSize={14} marginRight={'5px'}>
               BALN:
             </Typography>
-            {getFormattedNumber(pair.apy, 'percent2')}
+            {`${getFormattedNumber(pair.apy, 'percent2')} - ${getFormattedNumber(pair.apy * MAX_BOOST, 'percent2')}`}
           </APYItem>
         )}
         {pair.feesApy !== 0 && (
@@ -208,7 +210,7 @@ export default function PairSection() {
               <span>POOL</span>
             </HeaderText>
             <HeaderText
-              minWidth={'135px'}
+              minWidth={'190px'}
               role="button"
               className={sortBy.key === 'apyTotal' ? sortBy.order : ''}
               onClick={() =>
@@ -221,10 +223,13 @@ export default function PairSection() {
                 width={330}
                 text={
                   <>
-                    The BALN APY is calculated from the USD value of BALN rewards available for a pool.
-                    <br />
-                    <br />
-                    The fee APY is calculated from the swap fees earned by a pool in the last 30 days.
+                    <Typography>
+                      The BALN APY is calculated from the USD value of BALN rewards allocated to a pool. Your rate will
+                      vary based on the amount of bBALN you hold.
+                    </Typography>
+                    <Typography marginTop={'20px'}>
+                      The fee APY is calculated from the swap fees earned by a pool in the last 30 days.
+                    </Typography>
                     <Typography marginTop={'20px'} color={theme.colors.text1} fontSize={14}>
                       Impermanent loss is not factored in.
                     </Typography>
@@ -326,7 +331,7 @@ export default function PairSection() {
                   <Text ml={2}>Total</Text>
                 </Flex>
               </FooterText>
-              <FooterText minWidth={'135px'}>–</FooterText>
+              <FooterText minWidth={'190px'}>–</FooterText>
               <FooterText>{getFormattedNumber(total.participant, 'number')}</FooterText>
               <FooterText>{getFormattedNumber(total.tvl, 'currency0')}</FooterText>
               <FooterText>{getFormattedNumber(total.volume, 'currency0')}</FooterText>
