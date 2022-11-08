@@ -7,14 +7,14 @@ import { Flex, Box } from 'rebass/styled-components';
 import styled from 'styled-components';
 
 import arrowIcon from 'assets/icons/arrow.svg';
-import { ReactComponent as StakersIcon } from 'assets/icons/bbalnholders.svg';
+import { ReactComponent as BalnStakingIcon } from 'assets/icons/balnstaking.svg';
 import { ReactComponent as ChartIcon } from 'assets/icons/chart.svg';
 import { ReactComponent as CoinsIcon } from 'assets/icons/coins.svg';
 import { ReactComponent as DaoIcon } from 'assets/icons/dao.svg';
 import { ReactComponent as DistributionIcon } from 'assets/icons/distribution.svg';
 import { ReactComponent as FeesIcon } from 'assets/icons/fees.svg';
 import { ReactComponent as QuestionIcon } from 'assets/icons/question.svg';
-import { ReactComponent as BalnStakingIcon } from 'assets/icons/staking2.svg';
+import { ReactComponent as StakersIcon } from 'assets/icons/staking-1.svg';
 import vault from 'assets/icons/vault.svg';
 import Footer from 'components/Footer';
 import Header from 'components/Header';
@@ -205,27 +205,32 @@ export function StatsPage() {
               <StatsItemData>
                 <Flex alignItems="center" justifyContent={['center', 'center', 'start']}>
                   <Typography fontWeight="normal" variant="h3" marginRight={'7px'}>
-                    {overviewInfo.monthlyFeesTotal ? (
-                      `$${overviewInfo.monthlyFeesTotal.toFormat(0)}`
+                    {overviewInfo.bBALNAPY ? (
+                      getFormattedNumber(overviewInfo.bBALNAPY.toNumber(), 'percent2')
                     ) : (
                       <LoaderComponent />
                     )}
                   </Typography>
                   {overviewInfo.monthlyFeesTotal ? (
                     <MouseoverTooltip
-                      width={240}
+                      width={300}
                       text={
                         <>
                           <Typography>
-                            Network fees distributed to bBALN holders in the last 30 days, based on the current USD
-                            value of each asset.
+                            Calculated from the network fees distributed to bBALN holders over the last 30 days (
+                            <strong>${overviewInfo.monthlyFeesTotal.toFormat(0)}</strong>). Assumes the price of 1 bBALN
+                            is equivalent to 1 BALN locked for 4 years
+                            {overviewInfo.balnPrice ? (
+                              <strong>{` ($${overviewInfo.balnPrice.toFormat(2)})`}</strong>
+                            ) : (
+                              ''
+                            )}
+                            .
                           </Typography>
-
-                          {overviewInfo.bBALNAPY && (
+                          {overviewInfo.previousChunk && (
                             <Typography mt={2}>
-                              Up to the{' '}
-                              <strong>{getFormattedNumber(overviewInfo.bBALNAPY.toNumber(), 'percent2')} APY</strong>{' '}
-                              when BALN is locked for 4 years.
+                              Over the past month, {overviewInfo.previousChunkAmount} bBALN would have received{' '}
+                              <strong>${overviewInfo.previousChunk.toPrecision(3)}</strong>.
                             </Typography>
                           )}
                         </>
@@ -236,7 +241,7 @@ export function StatsPage() {
                     </MouseoverTooltip>
                   ) : null}
                 </Flex>
-                <Typography>Distributed past month</Typography>
+                <Typography>bBALN APY</Typography>
               </StatsItemData>
             </StatsItem>
           </Stats>

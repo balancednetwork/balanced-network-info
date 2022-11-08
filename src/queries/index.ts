@@ -8,7 +8,7 @@ import bnJs from 'bnJs';
 import { ZERO } from 'constants/number';
 import { PairInfo, SUPPORTED_PAIRS } from 'constants/pairs';
 import QUERY_KEYS from 'constants/queryKeys';
-import { bnUSD, SUPPORTED_TOKENS_LIST, SUPPORTED_TOKENS_MAP_BY_ADDRESS } from 'constants/tokens';
+import { SUPPORTED_TOKENS_LIST, SUPPORTED_TOKENS_MAP_BY_ADDRESS } from 'constants/tokens';
 import { getTimestampFrom } from 'pages/PerformanceDetails/utils';
 import { formatUnits } from 'utils';
 
@@ -227,6 +227,8 @@ export const useOverviewInfo = () => {
     rates &&
     assumedYearlyDistribution.div(bBALNSupply.times(rates['BALN']));
 
+  const previousChunkAmount = 100;
+
   return {
     TVL: tvl,
     BALNMarketCap: BALNMarketCap?.integerValue().toNumber(),
@@ -234,6 +236,12 @@ export const useOverviewInfo = () => {
     platformDay: platformDay,
     monthlyFeesTotal: earningsDataQuery?.data?.feesDistributed,
     bBALNAPY: bBALNAPY,
+    balnPrice: rates && rates['BALN'],
+    previousChunk:
+      bBALNSupply &&
+      earningsDataQuery?.data &&
+      new BigNumber(previousChunkAmount).dividedBy(bBALNSupply).times(earningsDataQuery?.data?.feesDistributed),
+    previousChunkAmount: previousChunkAmount,
   };
 };
 
