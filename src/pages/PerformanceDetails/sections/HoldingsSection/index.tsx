@@ -97,7 +97,11 @@ const HoldingsSection = () => {
             const prevAmount =
               holdingsPast && holdingsPast[contract] && new BigNumber(holdingsPast[contract].toFixed());
             const percentageChange =
-              prevAmount && new BigNumber(100).minus(prevAmount.times(100).div(curAmount)).toNumber();
+              prevAmount && curAmount.isGreaterThan(prevAmount)
+                ? new BigNumber(100).minus(prevAmount.times(100).div(curAmount)).toNumber()
+                : prevAmount && prevAmount.isGreaterThan(0)
+                ? curAmount.div(prevAmount).minus(1).times(100).toNumber()
+                : 1;
 
             if (rates && curAmount) {
               totalCurrent += curAmount.times(rates[token.symbol!]).toNumber();
