@@ -77,13 +77,6 @@ export const CFT = new Token(
   'CFT',
   'Craft',
 );
-export const METX = new Token(
-  SupportedChainId.MAINNET,
-  'cx369a5f4ce4f4648dfc96ba0c8229be0693b4eca2',
-  18,
-  'METX',
-  'Metanyx',
-);
 export const IUSDT = new Token(
   SupportedChainId.MAINNET,
   'cx3a36ea1f6b9aa3d2dd9cb68e8987bcc3aabaaa88',
@@ -202,7 +195,7 @@ export const FIN_SEJONG = new Token(
 
 // todo: calculate supported tokens from supported tokens info
 export const SUPPORTED_TOKENS: { [chainId: number]: Token[] } = {
-  [SupportedChainId.MAINNET]: [ICX, BALN, bnUSD, sICX, IUSDC, USDS, OMM, USDS, IUSDT, CFT, METX, GBET, FIN],
+  [SupportedChainId.MAINNET]: [ICX, BALN, bnUSD, sICX, IUSDC, USDS, OMM, USDS, IUSDT, CFT, GBET, FIN],
   [SupportedChainId.YEOUIDO]: [
     ICX_YEOUIDO,
     sICX_YEOUIDO,

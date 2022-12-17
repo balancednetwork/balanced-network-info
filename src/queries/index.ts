@@ -1,5 +1,5 @@
-import { BalancedJs, CallData } from '@balancednetwork/balanced-js';
-import { CurrencyAmount, Token } from '@balancednetwork/sdk-core';
+import { addresses, BalancedJs, CallData } from '@balancednetwork/balanced-js';
+import { CurrencyAmount, Token, Fraction } from '@balancednetwork/sdk-core';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { useQuery, UseQueryResult } from 'react-query';
@@ -14,6 +14,8 @@ import { formatUnits } from 'utils';
 
 import { useBlockDetails } from './blockDetails';
 
+const WEIGHT_CONST = 10 ** 18;
+
 export const useBnJsContractQuery = <T>(bnJs: BalancedJs, contract: string, method: string, args: any[]) => {
   return useQuery<T, string>(QUERY_KEYS.BnJs(contract, method, args), async () => {
     try {
@@ -23,6 +25,29 @@ export const useBnJsContractQuery = <T>(bnJs: BalancedJs, contract: string, meth
       throw e;
     }
   });
+};
+
+export type RewardDistributionRaw = {
+  Base: Map<string, Fraction>;
+  Fixed: Map<string, Fraction>;
+  Voting: Map<string, Fraction>;
+};
+
+export type RewardDistribution = {
+  Base: Map<string, Fraction>;
+  Fixed: Map<string, Fraction>;
+  Voting: Map<string, Fraction>;
+};
+
+export type MetaToken = {
+  info: Token;
+  holders: number;
+  name: string;
+  symbol: string;
+  price: number;
+  priceChange: number;
+  totalSupply: number;
+  marketCap: number;
 };
 
 type DataPeriod = '24h' | '30d';
@@ -287,15 +312,96 @@ export const useGovernanceInfo = () => {
   };
 };
 
-export type MetaToken = {
-  info: Token;
-  holders: number;
-  name: string;
-  symbol: string;
-  price: number;
-  priceChange: number;
-  totalSupply: number;
-  marketCap: number;
+export function useRewardsPercentDistribution(): UseQueryResult<RewardDistribution, Error> {
+  return useQuery('rewardDistribution', async () => {
+    const data: RewardDistributionRaw = await bnJs.Rewards.getDistributionPercentages();
+
+    return {
+      Base: Object.keys(data.Base).reduce((distributions, item) => {
+        try {
+          distributions[item] = new Fraction(data.Base[item], WEIGHT_CONST);
+        } catch (e) {
+          console.error(e);
+        } finally {
+          return distributions;
+        }
+      }, {}),
+      Fixed: Object.keys(data.Fixed).reduce((distributions, item) => {
+        try {
+          distributions[item] = new Fraction(data.Fixed[item], WEIGHT_CONST);
+        } catch (e) {
+          console.error(e);
+        } finally {
+          return distributions;
+        }
+      }, {}),
+      Voting: Object.keys(data.Voting).reduce((distributions, item) => {
+        try {
+          distributions[item] = new Fraction(data.Voting[item], WEIGHT_CONST);
+        } catch (e) {
+          console.error(e);
+        } finally {
+          return distributions;
+        }
+      }, {}),
+    };
+  });
+}
+
+export function useFlattenedRewardsDistribution(): UseQueryResult<Map<string, Fraction>, Error> {
+  const { data: distribution } = useRewardsPercentDistribution();
+
+  return useQuery(
+    ['flattenedDistribution', distribution],
+    () => {
+      if (distribution) {
+        return Object.values(distribution).reduce((flattened, dist) => {
+          return Object.keys(dist).reduce((flattened, item) => {
+            if (Object.keys(flattened).indexOf(item) >= 0) {
+              flattened[item] = flattened[item].add(dist[item]);
+            } else {
+              flattened[item] = dist[item];
+            }
+            return flattened;
+          }, flattened);
+        }, {});
+      }
+    },
+    {
+      keepPreviousData: true,
+    },
+  );
+}
+
+export const useIncentivisedPairs = (): UseQueryResult<{ name: string; id: number; rewards: Fraction }[], Error> => {
+  const { data: rewards } = useFlattenedRewardsDistribution();
+
+  return useQuery(
+    ['incentivisedPairs', rewards],
+    async () => {
+      if (rewards) {
+        const lpData = await bnJs.StakedLP.getDataSources();
+        const lpSources: string[] = ['sICX/ICX', ...lpData];
+
+        const cds: CallData[] = lpSources.map(source => ({
+          target: addresses[1].stakedLp,
+          method: 'getSourceId',
+          params: [source],
+        }));
+
+        const sourceIDs = await bnJs.Multicall.getAggregateData(cds);
+
+        return lpSources.map((source, index) => ({
+          name: source,
+          id: index === 0 ? 1 : parseInt(sourceIDs[index], 16),
+          rewards: rewards[source],
+        }));
+      }
+    },
+    {
+      keepPreviousData: true,
+    },
+  );
 };
 
 export const useAllTokensHoldersQuery = () => {
@@ -442,13 +548,22 @@ export const useAllPairsAPY = () => {
   const dailyDistributionQuery = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
   const tvls = useAllPairsTVL();
   const { data: rates } = useRatesQuery();
+  const { data: incentivisedPairs } = useIncentivisedPairs();
 
-  if (tvls && rates && dailyDistributionQuery.isSuccess) {
+  if (tvls && rates && incentivisedPairs && dailyDistributionQuery.isSuccess) {
     const dailyDistribution = BalancedJs.utils.toIcx(dailyDistributionQuery.data);
     const t = {};
     SUPPORTED_PAIRS.forEach(pair => {
+      const incentivisedPair = incentivisedPairs.find(incentivisedPair => incentivisedPair.name === pair.name);
+
       t[pair.name] =
-        pair.rewards && dailyDistribution.times(pair.rewards).times(365).times(rates['BALN']).div(tvls[pair.name]);
+        incentivisedPair &&
+        dailyDistribution
+          .times(new BigNumber(incentivisedPair.rewards.toFixed(4)))
+          .times(365)
+          .times(rates['BALN'])
+          .div(tvls[pair.name])
+          .toFixed(8);
     });
 
     return t;
@@ -651,16 +766,17 @@ export const useAllPairs = () => {
 
     SUPPORTED_PAIRS.forEach(pair => {
       const feesApyConstant = pair.name === 'sICX/ICX' ? 0.7 : 0.5;
+      const feesApy = data30day[pair.name] && (data30day[pair.name]['fees'] * 12 * feesApyConstant) / tvls[pair.name];
 
       t[pair.name] = {
         ...pair,
         tvl: tvls[pair.name],
         apy: apys[pair.name],
-        feesApy: (data30day[pair.name]['fees'] * 12 * feesApyConstant) / tvls[pair.name],
+        feesApy: feesApy < 10000 ? feesApy : 0,
         participant: participants[pair.name],
         apyTotal: new BigNumber(apys[pair.name] || 0)
           .plus(
-            new BigNumber(data30day[pair.name]['fees'] * 12 * feesApyConstant || 0).div(
+            new BigNumber(feesApy < 10000 ? data30day[pair.name]['fees'] * 12 * feesApyConstant : 0).div(
               new BigNumber(tvls[pair.name]) || 1,
             ),
           )
