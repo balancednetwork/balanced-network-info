@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { Currency } from '@balancednetwork/sdk-core';
 import BigNumber from 'bignumber.js';
-import { LAUNCH_DAY, ONE_DAY, useFundLimits } from 'queries';
+import { useFundLimits } from 'queries';
 import { useStabilityFundHoldings } from 'queries/blockDetails';
 import DatePicker from 'react-datepicker';
 import { Box, Flex, Text } from 'rebass/styled-components';
@@ -117,7 +117,7 @@ const StabilityFundSection = () => {
                 dateFormat="dd MMM yyyy"
                 popperClassName="datepicker-popper-wrap"
                 popperPlacement="bottom-end"
-                minDate={new Date((LAUNCH_DAY + ONE_DAY * 382) / 1000)}
+                minDate={new Date(2022, 7, 16)}
                 maxDate={new Date().setDate(new Date().getDate() - 1)}
                 customInput={<DatePickerInput />}
                 popperModifiers={[
