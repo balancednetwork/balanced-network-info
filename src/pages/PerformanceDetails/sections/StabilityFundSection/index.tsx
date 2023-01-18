@@ -162,51 +162,49 @@ const StabilityFundSection = () => {
             }
 
             return (
-              curAmount.isGreaterThan(0) && (
-                <BalanceGrid key={contract}>
-                  <GridItemToken>
-                    <Flex alignItems="center">
-                      <CurrencyLogo currency={token as Currency} size="40px" />
-                      <Box ml={2}>
-                        <Text color="text">{token.name}</Text>
-                        <Text color="text" opacity={0.75}>
-                          {token.symbol}
-                        </Text>
-                      </Box>
-                    </Flex>
-                  </GridItemToken>
-                  <GridItemToken>
-                    <Text color="text">
-                      {fundLimit && (
-                        <DisplayValueOrLoader
-                          value={new BigNumber(fundLimit.toFixed())}
-                          currencyRate={1}
-                          format="number"
-                        />
-                      )}
-                    </Text>
-                  </GridItemToken>
-                  <GridItemToken>
-                    <Text color="text">
-                      <DisplayValueOrLoader value={curAmount} currencyRate={1} format={'number'} />
-                      <Change percentage={percentageChange || 0}>{formatPercentage(percentageChange)}</Change>
-                    </Text>
-                  </GridItemToken>
-                  <GridItemToken>
-                    <Text color="text">
-                      {holdingsPast ? (
-                        holdingsPast[contract].greaterThan(0) ? (
-                          <DisplayValueOrLoader value={prevAmount} currencyRate={1} format={'number'} />
-                        ) : (
-                          '-'
-                        )
+              <BalanceGrid key={contract}>
+                <GridItemToken>
+                  <Flex alignItems="center">
+                    <CurrencyLogo currency={token as Currency} size="40px" />
+                    <Box ml={2}>
+                      <Text color="text">{token.name}</Text>
+                      <Text color="text" opacity={0.75}>
+                        {token.symbol}
+                      </Text>
+                    </Box>
+                  </Flex>
+                </GridItemToken>
+                <GridItemToken>
+                  <Text color="text">
+                    {fundLimit && (
+                      <DisplayValueOrLoader
+                        value={new BigNumber(fundLimit.toFixed())}
+                        currencyRate={1}
+                        format="number"
+                      />
+                    )}
+                  </Text>
+                </GridItemToken>
+                <GridItemToken>
+                  <Text color="text">
+                    <DisplayValueOrLoader value={curAmount} currencyRate={1} format={'number'} />
+                    <Change percentage={percentageChange || 0}>{formatPercentage(percentageChange)}</Change>
+                  </Text>
+                </GridItemToken>
+                <GridItemToken>
+                  <Text color="text">
+                    {holdingsPast ? (
+                      holdingsPast[contract].greaterThan(0) ? (
+                        <DisplayValueOrLoader value={prevAmount} currencyRate={1} format={'number'} />
                       ) : (
-                        <StyledSkeleton width={120} />
-                      )}
-                    </Text>
-                  </GridItemToken>
-                </BalanceGrid>
-              )
+                        '0'
+                      )
+                    ) : (
+                      <StyledSkeleton width={120} />
+                    )}
+                  </Text>
+                </GridItemToken>
+              </BalanceGrid>
             );
           })}
 
