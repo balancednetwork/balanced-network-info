@@ -100,6 +100,13 @@ export const FIN = new Token(
   'Fin Token',
   'optimus',
 );
+export const BUSD = new Token(
+  SupportedChainId.MAINNET,
+  'cxb49d82c46be6b61cab62aaf9824b597c6cf8a25d',
+  18,
+  'BUSD',
+  'Binance USD',
+);
 
 // yeouido
 export const ICX_YEOUIDO = new Token(SupportedChainId.YEOUIDO, NULL_CONTRACT_ADDRESS, 18, 'ICX', 'ICX');
@@ -195,7 +202,7 @@ export const FIN_SEJONG = new Token(
 
 // todo: calculate supported tokens from supported tokens info
 export const SUPPORTED_TOKENS: { [chainId: number]: Token[] } = {
-  [SupportedChainId.MAINNET]: [ICX, BALN, bnUSD, sICX, IUSDC, USDS, OMM, USDS, IUSDT, CFT, GBET, FIN],
+  [SupportedChainId.MAINNET]: [ICX, BALN, bnUSD, sICX, IUSDC, USDS, OMM, USDS, IUSDT, CFT, GBET, FIN, BUSD],
   [SupportedChainId.YEOUIDO]: [
     ICX_YEOUIDO,
     sICX_YEOUIDO,
@@ -209,6 +216,8 @@ export const SUPPORTED_TOKENS: { [chainId: number]: Token[] } = {
   //[SupportedChainId.SEJONG]: [ICX_SEJONG, sICX_SEJONG, bnUSD_SEJONG, BALN_SEJONG, IUSDC_SEJONG],
   [SupportedChainId.SEJONG]: [ICX_SEJONG, sICX_SEJONG, bnUSD_SEJONG, BALN_SEJONG, FIN_SEJONG],
 };
+
+export const TOKENS_OMITTED_FROM_STATS = ['BUSD'];
 
 export const SUPPORTED_TOKENS_LIST = SUPPORTED_TOKENS[NETWORK_ID];
 

@@ -8,7 +8,7 @@ import bnJs from 'bnJs';
 import { ZERO } from 'constants/number';
 import { PairInfo, SUPPORTED_PAIRS } from 'constants/pairs';
 import QUERY_KEYS from 'constants/queryKeys';
-import { SUPPORTED_TOKENS_LIST, SUPPORTED_TOKENS_MAP_BY_ADDRESS } from 'constants/tokens';
+import { SUPPORTED_TOKENS_LIST, SUPPORTED_TOKENS_MAP_BY_ADDRESS, TOKENS_OMITTED_FROM_STATS } from 'constants/tokens';
 import { getTimestampFrom } from 'pages/PerformanceDetails/utils';
 import { formatUnits } from 'utils';
 
@@ -408,7 +408,9 @@ export const useAllTokensHoldersQuery = () => {
   const endpoint = `https://tracker.icon.community/api/v1/transactions/token-holders/token-contract/`;
 
   const fetch = async () => {
-    const tokens = SUPPORTED_TOKENS_LIST.filter(token => token.symbol !== 'ICX');
+    const tokens = SUPPORTED_TOKENS_LIST.filter(
+      token => token.symbol !== 'ICX' || TOKENS_OMITTED_FROM_STATS.indexOf(token.symbol!) < 0,
+    );
 
     const data: any[] = await Promise.all(
       tokens.map((token: Token) => axios.get(`${endpoint}${token.address}`).then(res => res.headers)),
@@ -430,22 +432,26 @@ export const useAllTokensQuery = () => {
     const timestamp = data.timestamp;
     const tokens: { [key in string]: MetaToken } = {};
     const _tokens = data.tokens;
-    SUPPORTED_TOKENS_LIST.sort((token0, token1) =>
-      _tokens[token0.symbol!].name.localeCompare(_tokens[token1.symbol!].name),
-    ).forEach(token => {
-      const _token = _tokens[token.symbol!];
-      const token1 = {
-        info: token,
-        ..._token,
-        price: BalancedJs.utils.toIcx(_token.price).toNumber(),
-        totalSupply: BalancedJs.utils.toIcx(_token.total_supply, token.symbol!).toNumber(),
-        marketCap: BalancedJs.utils
-          .toIcx(_token.total_supply, token.symbol!)
-          .times(BalancedJs.utils.toIcx(_token.price))
-          .toNumber(),
-        priceChange: _token.price_change,
-      };
-      tokens[token.symbol!] = token1;
+    SUPPORTED_TOKENS_LIST.sort((token0, token1) => {
+      if (_tokens[token0.symbol!] && _tokens[token1.symbol!]) {
+        return _tokens[token0.symbol!].name.localeCompare(_tokens[token1.symbol!].name);
+      } else return 0;
+    }).forEach(token => {
+      if (_tokens[token.symbol!]) {
+        const _token = _tokens[token.symbol!];
+        const token1 = {
+          info: token,
+          ..._token,
+          price: BalancedJs.utils.toIcx(_token.price).toNumber(),
+          totalSupply: BalancedJs.utils.toIcx(_token.total_supply, token.symbol!).toNumber(),
+          marketCap: BalancedJs.utils
+            .toIcx(_token.total_supply, token.symbol!)
+            .times(BalancedJs.utils.toIcx(_token.price))
+            .toNumber(),
+          priceChange: _token.price_change,
+        };
+        tokens[token.symbol!] = token1;
+      }
     });
 
     return {
@@ -464,7 +470,9 @@ export const useAllTokens = () => {
   if (allTokensQuery.isSuccess && holdersQuery.isSuccess) {
     const holders = holdersQuery.data;
     const allTokens = allTokensQuery.data.tokens;
-    SUPPORTED_TOKENS_LIST.forEach(token => (allTokens[token.symbol!].holders = holders[token.symbol!]));
+    SUPPORTED_TOKENS_LIST.filter(token => TOKENS_OMITTED_FROM_STATS.indexOf(token.symbol!) < 0).forEach(
+      token => (allTokens[token.symbol!].holders = holders[token.symbol!]),
+    );
     return allTokens;
   }
 };
