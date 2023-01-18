@@ -102,18 +102,33 @@ export const usePOLData = (timestamp: number) => {
       if (rates && SUPPORTED_TOKENS_MAP_BY_ADDRESS[dataSet.poolStats['quote_token']]) {
         const LPBalanceDAO = new BigNumber(dataSet.balance).div(10 ** 18);
         const LPBalanceTotal = new BigNumber(dataSet.poolStats['total_supply']).div(10 ** 18);
-        const quoteValue = new BigNumber(dataSet.poolStats['quote'])
-          .div(10 ** parseInt(dataSet.poolStats['quote_decimals'], 16))
-          .times(rates[SUPPORTED_TOKENS_MAP_BY_ADDRESS[dataSet.poolStats['quote_token']].symbol!]);
+        const DAOFraction = LPBalanceDAO.div(LPBalanceTotal);
+        const quoteAmount = new BigNumber(dataSet.poolStats['quote']).div(
+          10 ** parseInt(dataSet.poolStats['quote_decimals'], 16),
+        );
+        const baseAmount = new BigNumber(dataSet.poolStats['base']).div(
+          10 ** parseInt(dataSet.poolStats['base_decimals'], 16),
+        );
+        const quoteValue = quoteAmount.times(
+          rates[SUPPORTED_TOKENS_MAP_BY_ADDRESS[dataSet.poolStats['quote_token']].symbol!],
+        );
         const poolLiquidity = quoteValue.times(2);
         const poolData = {
           id: dataSet.poolID,
           liquidity: poolLiquidity.div(LPBalanceTotal).times(LPBalanceDAO),
           pair: SUPPORTED_PAIRS.find(pair => pair.id === dataSet.poolID),
+          DAOQuoteAmount: quoteAmount.times(DAOFraction),
+          DAOBaseAmount: baseAmount.times(DAOFraction),
         };
         return poolData;
       } else {
-        return { id: null, liquidity: new BigNumber(0), pair: undefined };
+        return {
+          id: null,
+          liquidity: new BigNumber(0),
+          pair: null,
+          DAOQuoteAmount: new BigNumber(0),
+          DAOBaseAmount: new BigNumber(0),
+        };
       }
     });
   });

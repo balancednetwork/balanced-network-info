@@ -18,11 +18,11 @@ import { StyledSkeleton } from '../EarningSection';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
-export const BalanceGrid = styled.div`
+export const BalanceGrid = styled.div<{ minWidth?: number }>`
   display: grid;
   grid-template-columns: 35% 32.5% 32.5%;
   align-items: stretch;
-  min-width: 600px;
+  ${({ minWidth }) => `min-width: ${minWidth || 600}px`};
 `;
 
 export const Change = styled.span<{ percentage: Number }>`

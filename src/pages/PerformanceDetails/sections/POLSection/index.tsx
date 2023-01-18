@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 
 import BigNumber from 'bignumber.js';
-import { LAUNCH_DAY } from 'queries';
 import { usePOLData } from 'queries/blockDetails';
 import DatePicker from 'react-datepicker';
 import { Box, Flex, Text } from 'rebass/styled-components';
@@ -28,11 +27,13 @@ const POLSection = () => {
   const { data: POLCurrent } = usePOLData(now);
   const { data: POLPast } = usePOLData(selectedDate.valueOf());
 
+  const gridWidth = 850;
+
   return (
     <BoxPanel bg="bg2" mb={10}>
       <Typography variant="h2">Protocol owned liquidity</Typography>
       <ScrollHelper>
-        <BalanceGrid>
+        <BalanceGrid minWidth={gridWidth}>
           <GridItemHeader>Pool</GridItemHeader>
           <GridItemHeader>
             {new Date().toLocaleDateString('en-US', {
@@ -51,7 +52,7 @@ const POLSection = () => {
                 dateFormat="dd MMM yyyy"
                 popperClassName="datepicker-popper-wrap"
                 popperPlacement="bottom-end"
-                minDate={new Date(LAUNCH_DAY / 1000)}
+                minDate={new Date(2023, 0, 2)}
                 maxDate={new Date().setDate(new Date().getDate() - 1)}
                 customInput={<DatePickerInput />}
                 popperModifiers={[
@@ -87,7 +88,7 @@ const POLSection = () => {
 
             return (
               currentPool.liquidity.isGreaterThan(0) && (
-                <BalanceGrid key={currentPool.id}>
+                <BalanceGrid minWidth={gridWidth} key={currentPool.id}>
                   <GridItemToken>
                     {currentPool.pair && (
                       <Flex alignItems="center">
@@ -104,30 +105,38 @@ const POLSection = () => {
                     )}
                   </GridItemToken>
                   <GridItemToken>
-                    <Text color="text" mt={'13px'}>
+                    <Text color="text">
                       <DisplayValueOrLoader value={currentPool.liquidity} currencyRate={1} />
                       <Change percentage={percentageChange ?? 0}>{formatPercentage(percentageChange)}</Change>
                     </Text>
+                    <Text color="text2">{`${currentPool.DAOBaseAmount.toFormat(0)} ${
+                      currentPool.pair?.baseCurrencyKey
+                    } / ${currentPool.DAOQuoteAmount.toFormat(0)} ${currentPool.pair?.quoteCurrencyKey}`}</Text>
                   </GridItemToken>
                   <GridItemToken>
-                    <Text color="text" mt={'13px'}>
-                      {POLPast && poolPast ? (
-                        poolPast.liquidity.isGreaterThan(0) ? (
-                          <DisplayValueOrLoader value={poolPast.liquidity} currencyRate={1} />
-                        ) : (
-                          '-'
-                        )
+                    {POLPast && poolPast ? (
+                      poolPast.liquidity.isGreaterThan(0) ? (
+                        <>
+                          <Text color="text">
+                            <DisplayValueOrLoader value={poolPast.liquidity} currencyRate={1} />
+                          </Text>
+                          <Text color="text2">{`${poolPast.DAOBaseAmount.toFormat(0)} ${
+                            poolPast.pair?.baseCurrencyKey
+                          } / ${poolPast.DAOQuoteAmount.toFormat(0)} ${poolPast.pair?.quoteCurrencyKey}`}</Text>
+                        </>
                       ) : (
-                        <StyledSkeleton width={120} />
-                      )}
-                    </Text>
+                        '-'
+                      )
+                    ) : (
+                      <StyledSkeleton width={120} />
+                    )}
                   </GridItemToken>
                 </BalanceGrid>
               )
             );
           })}
 
-        <BalanceGrid>
+        <BalanceGrid minWidth={gridWidth}>
           <GridItemAssetTotal>Total</GridItemAssetTotal>
           <GridItemAssetTotal>
             {POLCurrent ? (
