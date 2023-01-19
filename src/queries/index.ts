@@ -198,12 +198,13 @@ const useEarnedFeesQuery = () => {
 
     const t: { [key in string]: BigNumber } = {};
     Object.keys(data).forEach(address => {
-      t[SUPPORTED_TOKENS_MAP_BY_ADDRESS[address].symbol!] = BalancedJs.utils.toIcx(
-        data[address]['total'],
-        SUPPORTED_TOKENS_MAP_BY_ADDRESS[address].symbol!,
-      );
+      if (SUPPORTED_TOKENS_MAP_BY_ADDRESS[address]) {
+        t[SUPPORTED_TOKENS_MAP_BY_ADDRESS[address].symbol!] = BalancedJs.utils.toIcx(
+          data[address]['total'],
+          SUPPORTED_TOKENS_MAP_BY_ADDRESS[address].symbol!,
+        );
+      }
     });
-
     return t;
   });
 };
@@ -228,7 +229,9 @@ export const useOverviewInfo = () => {
   if (feesQuery.isSuccess && ratesQuery.isSuccess && rates) {
     const fees = feesQuery.data;
     totalFees = SUPPORTED_TOKENS_LIST.reduce((sum: BigNumber, token: Token) => {
-      return fees[token.symbol!] ? sum.plus(fees[token.symbol!].times(rates[token.symbol!])) : sum;
+      return fees[token.symbol!] && rates[token.symbol!]
+        ? sum.plus(fees[token.symbol!].times(rates[token.symbol!]))
+        : sum;
     }, ZERO);
   }
 
