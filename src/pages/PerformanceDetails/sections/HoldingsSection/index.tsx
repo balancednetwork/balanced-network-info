@@ -111,10 +111,10 @@ const HoldingsSection = () => {
                 ? curAmount.div(prevAmount).minus(1).times(100).toNumber()
                 : 0;
 
-            if (rates && curAmount) {
+            if (rates && rates[token.symbol!] && curAmount) {
               totalCurrent += curAmount.times(rates[token.symbol!]).toNumber();
             }
-            if (rates && prevAmount) {
+            if (rates && rates[token.symbol!] && prevAmount) {
               totalPast += prevAmount.times(rates[token.symbol!]).toNumber();
             }
 
@@ -134,7 +134,10 @@ const HoldingsSection = () => {
                   </GridItemToken>
                   <GridItemToken>
                     <Text color="text">
-                      <DisplayValueOrLoader value={curAmount} currencyRate={rates && rates[token.symbol!].toNumber()} />
+                      {rates && rates[token.symbol!] && (
+                        <DisplayValueOrLoader value={curAmount} currencyRate={rates[token.symbol!].toNumber()} />
+                      )}
+
                       <Change percentage={percentageChange ?? 0}>{formatPercentage(percentageChange)}</Change>
                     </Text>
                     <Text color="text" opacity={0.75}>
