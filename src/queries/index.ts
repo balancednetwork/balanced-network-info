@@ -12,7 +12,7 @@ import { SUPPORTED_TOKENS_LIST, SUPPORTED_TOKENS_MAP_BY_ADDRESS } from 'constant
 import { getTimestampFrom } from 'pages/PerformanceDetails/utils';
 import { formatUnits } from 'utils';
 
-import { useBlockDetails } from './blockDetails';
+import { useBlockDetails, useDaoFundHoldings, usePOLData } from './blockDetails';
 
 const WEIGHT_CONST = 10 ** 18;
 
@@ -279,7 +279,6 @@ export const useGovernanceNumOfStakersQuery = () => {
 
 export const useGovernanceInfo = () => {
   const dailyDistributionQuery = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
-  const daofundQuery = useBnJsContractQuery<any>(bnJs, 'DAOFund', 'getBalances', []);
 
   const totalBalnLockedQuery = useBnJsContractQuery<string>(bnJs, 'BBALN', 'getTotalLocked', []);
   const totalBBalnHoldersQuery = useBnJsContractQuery<string>(bnJs, 'BBALN', 'activeUsersCount', []);
@@ -291,22 +290,28 @@ export const useGovernanceInfo = () => {
   const totalBalnLocked = totalBalnLockedQuery.isSuccess && Number(totalBalnLockedQuery.data) / 10 ** 18;
   const totalBBalnHolders = totalBBalnHoldersQuery.isSuccess && Number(totalBBalnHoldersQuery.data);
 
+  const oneMinPeriod = 1000 * 60;
+  const now = Math.floor(new Date().getTime() / oneMinPeriod) * oneMinPeriod;
+
+  const { data: POLData } = usePOLData(now);
+  const { data: holdingsData } = useDaoFundHoldings(now);
+
   const ratesQuery = useRatesQuery();
   const rates = ratesQuery.data || {};
-  const daofund =
-    daofundQuery.isSuccess && ratesQuery.isSuccess
-      ? SUPPORTED_TOKENS_LIST.reduce((sum: BigNumber, token: Token) => {
-          return sum.plus(
-            BalancedJs.utils
-              .toIcx(daofundQuery.data[token.address] || '0', token.symbol!)
-              .times(rates[token.symbol!] || ZERO),
-          );
-        }, ZERO)
-      : null;
+
+  const holdings = holdingsData
+    ? Object.keys(holdingsData).reduce((total, contract) => {
+        const token = holdingsData[contract].currency.wrapped;
+        const curAmount = new BigNumber(holdingsData[contract].toFixed());
+        return total + curAmount.times(rates[token.symbol!]).toNumber();
+      }, 0)
+    : 0;
+
+  const POLHoldings = POLData ? POLData.reduce((total, pool) => total + pool.liquidity.toNumber(), 0) : 0;
 
   return {
     dailyDistribution: dailyDistribution?.integerValue().toNumber(),
-    daofund: daofund?.integerValue().toNumber(),
+    daofund: holdings + POLHoldings,
     totalBALNLocked: totalBalnLocked,
     numOfHolders: totalBBalnHolders,
   };
