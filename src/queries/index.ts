@@ -89,6 +89,7 @@ export const useEarningsDataQuery = (
           loans: BigNumber;
           fund: BigNumber;
           swaps: { [key: string]: { amount: BigNumber; value: BigNumber } };
+          fees: { [key: string]: { amount: BigNumber; value: BigNumber } };
         };
         expenses: { [key: string]: { amount: BigNumber; value: BigNumber } };
         feesDistributed: BigNumber;
@@ -114,6 +115,48 @@ export const useEarningsDataQuery = (
 
           const balnFeesStart = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.BALN.address, blockStart.number);
           const balnFeesEnd = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.BALN.address, blockEnd.number);
+
+          const networkFeesStartRaw = await bnJs.DAOFund.getFeeEarnings(blockStart.number);
+          const networkFeesEndRaw = await bnJs.DAOFund.getFeeEarnings(blockEnd.number);
+
+          const networkFeesStart = Object.keys(networkFeesStartRaw).reduce((fees, contract) => {
+            const currencyAmount = CurrencyAmount.fromRawAmount(
+              SUPPORTED_TOKENS_MAP_BY_ADDRESS[contract],
+              networkFeesStartRaw[contract],
+            );
+            fees[contract] = {
+              value: new BigNumber(currencyAmount.toFixed()).times(rates[currencyAmount.currency.symbol!]),
+              amount: new BigNumber(currencyAmount.toFixed()),
+            };
+            return fees;
+          }, {});
+
+          const networkFeesEnd = Object.keys(networkFeesEndRaw).reduce((fees, contract) => {
+            const currencyAmount = CurrencyAmount.fromRawAmount(
+              SUPPORTED_TOKENS_MAP_BY_ADDRESS[contract],
+              networkFeesEndRaw[contract],
+            );
+            fees[contract] = {
+              value: new BigNumber(currencyAmount.toFixed()).times(rates[currencyAmount.currency.symbol!]),
+              amount: new BigNumber(currencyAmount.toFixed()),
+            };
+            return fees;
+          }, {});
+
+          const networkFeesIncome = Object.keys(networkFeesEnd).reduce((net, contract) => {
+            if (networkFeesStart[contract]) {
+              net[contract] = {
+                value: networkFeesEnd[contract].value.minus(networkFeesStart[contract].value),
+                amount: networkFeesEnd[contract].amount.minus(networkFeesStart[contract].amount),
+              };
+            } else {
+              net[contract] = {
+                value: networkFeesEnd[contract].value,
+                amount: networkFeesEnd[contract].amount,
+              };
+            }
+            return net;
+          }, {} as { [key: string]: { value: BigNumber; amount: BigNumber } });
 
           const bnUSDIncome = new BigNumber(formatUnits(bnUSDFeesEnd)).minus(
             new BigNumber(formatUnits(bnUSDFeesStart)),
@@ -141,6 +184,7 @@ export const useEarningsDataQuery = (
                   value: sICXIncome.times(rates['sICX']),
                 },
               },
+              fees: networkFeesIncome,
             },
             expenses: {
               BALN: {
