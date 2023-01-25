@@ -306,7 +306,11 @@ export const useGovernanceInfo = () => {
     ? Object.keys(holdingsData).reduce((total, contract) => {
         const token = holdingsData[contract].currency.wrapped;
         const curAmount = new BigNumber(holdingsData[contract].toFixed());
-        return total + curAmount.times(rates[token.symbol!]).toNumber();
+        if (rates[token.symbol!]) {
+          return total + curAmount.times(rates[token.symbol!]).toNumber();
+        } else {
+          return total;
+        }
       }, 0)
     : 0;
 
