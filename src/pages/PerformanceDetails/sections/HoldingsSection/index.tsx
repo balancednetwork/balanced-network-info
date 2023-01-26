@@ -62,7 +62,7 @@ const HoldingsSection = () => {
       <Typography variant="h2">Holdings</Typography>
       <ScrollHelper>
         <BalanceGrid minWidth={gridWidth}>
-          <GridItemHeader>Asset</GridItemHeader>
+          <GridItemHeader>DAO Fund</GridItemHeader>
           <GridItemHeader>
             {new Date().toLocaleDateString('en-US', {
               day: '2-digit',
@@ -196,7 +196,7 @@ const HoldingsSection = () => {
         </BalanceGrid>
 
         <BalanceGrid minWidth={gridWidth}>
-          <GridItemHeader>Pool</GridItemHeader>
+          <GridItemHeader>Exchange</GridItemHeader>
         </BalanceGrid>
         {POLCurrent &&
           POLCurrent.map(currentPool => {

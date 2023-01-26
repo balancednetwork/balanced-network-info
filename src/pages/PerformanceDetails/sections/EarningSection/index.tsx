@@ -356,7 +356,37 @@ const EarningsSection = () => {
         )}
 
         <IncomeGrid>
-          <GridItemStrong>Network fees</GridItemStrong>
+          <GridItemStrong>Liquidity rewards</GridItemStrong>
+          <GridItemStrong>
+            <DisplayValueOrLoader value={earningsCurrentPeriod?.income.liquidity.value} currencyRate={1} />
+          </GridItemStrong>
+          <GridItemStrong>
+            <DisplayValueOrLoader value={earningsPastPeriod?.income.liquidity.value} currencyRate={1} />
+          </GridItemStrong>
+        </IncomeGrid>
+
+        <IncomeGrid>
+          <GridItemLight>Balance Token</GridItemLight>
+          <GridItemLight>
+            <DisplayValueOrLoader
+              value={earningsCurrentPeriod?.income.liquidity.amount || 0}
+              currencyRate={1}
+              format={'number'}
+            />
+            {` BALN`}
+          </GridItemLight>
+          <GridItemLight>
+            <DisplayValueOrLoader
+              value={earningsPastPeriod?.income.liquidity.amount || 0}
+              currencyRate={1}
+              format={'number'}
+            />
+            {` BALN`}
+          </GridItemLight>
+        </IncomeGrid>
+
+        <IncomeGrid>
+          <GridItemStrong>Network fee rewards</GridItemStrong>
           <GridItemStrong>
             <DisplayValueOrLoader value={networkFeesTotalCurrent} currencyRate={1} />
           </GridItemStrong>
@@ -461,7 +491,8 @@ const EarningsSection = () => {
                 value={earningsCurrentPeriod.income.loans
                   .plus(swapFeesTotalCurrent)
                   .plus(networkFeesTotalCurrent)
-                  .plus(earningsCurrentPeriod.income.fund)}
+                  .plus(earningsCurrentPeriod.income.fund)
+                  .plus(earningsCurrentPeriod.income.liquidity.value)}
                 currencyRate={1}
               />
             ) : (
@@ -474,7 +505,8 @@ const EarningsSection = () => {
                 value={earningsPastPeriod.income.loans
                   .plus(swapFeesTotalPast)
                   .plus(networkFeesTotalPast)
-                  .plus(earningsPastPeriod.income.fund)}
+                  .plus(earningsPastPeriod.income.fund)
+                  .plus(earningsPastPeriod.income.liquidity.value)}
                 currencyRate={1}
               />
             ) : (
@@ -567,11 +599,13 @@ const EarningsSection = () => {
         <IncomeGrid>
           <GridItemTotal>Total</GridItemTotal>
           <GridItemTotal>
-            {earningsCurrentPeriod && swapFeesTotalCurrent ? (
+            {earningsCurrentPeriod && swapFeesTotalCurrent && networkFeesTotalCurrent ? (
               <DisplayValueOrLoader
                 value={earningsCurrentPeriod.income.loans
                   .plus(swapFeesTotalCurrent)
                   .plus(earningsCurrentPeriod.income.fund)
+                  .plus(networkFeesTotalCurrent)
+                  .plus(earningsCurrentPeriod.income.liquidity.value)
                   .minus(expensesTotalCurrent)}
                 currencyRate={1}
               />
@@ -580,11 +614,13 @@ const EarningsSection = () => {
             )}
           </GridItemTotal>
           <GridItemTotal>
-            {earningsPastPeriod && swapFeesTotalPast ? (
+            {earningsPastPeriod && swapFeesTotalPast && networkFeesTotalPast ? (
               <DisplayValueOrLoader
                 value={earningsPastPeriod.income.loans
                   .plus(swapFeesTotalPast)
                   .plus(earningsPastPeriod.income.fund)
+                  .plus(networkFeesTotalPast)
+                  .plus(earningsPastPeriod.income.liquidity.value)
                   .minus(expensesTotalPast)}
                 currencyRate={1}
               />

@@ -88,6 +88,7 @@ export const useEarningsDataQuery = (
         income: {
           loans: BigNumber;
           fund: BigNumber;
+          liquidity: { amount: BigNumber; value: BigNumber };
           swaps: { [key: string]: { amount: BigNumber; value: BigNumber } };
           fees: { [key: string]: { amount: BigNumber; value: BigNumber } };
         };
@@ -118,6 +119,9 @@ export const useEarningsDataQuery = (
 
           const networkFeesStartRaw = await bnJs.DAOFund.getFeeEarnings(blockStart.number);
           const networkFeesEndRaw = await bnJs.DAOFund.getFeeEarnings(blockEnd.number);
+
+          const liquidityStart = await bnJs.DAOFund.getBalnEarnings(blockStart.number);
+          const liquidityEnd = await bnJs.DAOFund.getBalnEarnings(blockEnd.number);
 
           const networkFeesStart = Object.keys(networkFeesStartRaw).reduce((fees, contract) => {
             const currencyAmount = CurrencyAmount.fromRawAmount(
@@ -165,11 +169,22 @@ export const useEarningsDataQuery = (
           const balnIncome = new BigNumber(formatUnits(balnFeesEnd)).minus(new BigNumber(formatUnits(balnFeesStart)));
           const loansIncome = new BigNumber(formatUnits(loanFeesEnd)).minus(new BigNumber(formatUnits(loanFeesStart)));
           const fundIncome = new BigNumber(formatUnits(fundFeesEnd)).minus(new BigNumber(formatUnits(fundFeesStart)));
+          const liquidityIncome = {
+            amount: new BigNumber(formatUnits(liquidityEnd || 0)).minus(
+              new BigNumber(formatUnits(liquidityStart || 0)),
+            ),
+            value: new BigNumber(formatUnits(liquidityEnd || 0))
+              .minus(new BigNumber(formatUnits(liquidityStart || 0)))
+              .times(rates['BALN']),
+          };
+
+          console.log(liquidityIncome);
 
           return {
             income: {
               loans: loansIncome,
               fund: fundIncome,
+              liquidity: liquidityIncome,
               swaps: {
                 BALN: {
                   amount: balnIncome,
