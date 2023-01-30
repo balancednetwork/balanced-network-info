@@ -196,16 +196,16 @@ const BBALNSection = () => {
 
         <Flex width="100%">
           <Flex flexGrow={1} flexDirection="column" alignItems="center" className="border-right">
-            <Typography fontSize={14} opacity={0.75}>
+            <Typography fontSize={14} color="text2">
               Liquidity rewards
             </Typography>
-            <Flex mt={2}>
+            <Flex mt={2} alignItems="center">
               {daoBBALNData ? (
                 <>
-                  <Typography color="text">
+                  <Typography fontSize={16} color="text">
                     {daoBBALNData?.DAORewards.baln.toFixed(2, { groupSeparator: ',' })}
                   </Typography>
-                  <Typography color="text" opacity={0.75} ml={1}>
+                  <Typography color="text2" ml={1} pt={'1px'}>
                     BALN
                   </Typography>
                 </>
@@ -215,15 +215,17 @@ const BBALNSection = () => {
             </Flex>
           </Flex>
           <Flex flexGrow={1} flexDirection="column" alignItems="center">
-            <Typography fontSize={14} opacity={0.75}>
+            <Typography fontSize={14} color="text2">
               Network fees
             </Typography>
             <Flex mt={2} flexDirection="column">
               {daoBBALNData ? (
                 Object.values(daoBBALNData.DAORewards.fees).map(feeItem => (
-                  <Flex>
-                    <Typography color="text">{feeItem.toFixed(2, { groupSeparator: ',' })}</Typography>
-                    <Typography opacity={0.75} ml={1}>
+                  <Flex alignItems="center">
+                    <Typography fontSize={16} color="text">
+                      {feeItem.toFixed(2, { groupSeparator: ',' })}
+                    </Typography>
+                    <Typography color="text2" ml={1} pt={'1px'}>
                       {feeItem.currency.symbol}
                     </Typography>
                   </Flex>
@@ -238,7 +240,7 @@ const BBALNSection = () => {
             </Flex>
           </Flex>
         </Flex>
-        <Typography textAlign="center" opacity={0.75} mt={'19px'}>
+        <Typography textAlign="center" color="text2" mt={'13px'}>
           Available to claim via smart contract.
         </Typography>
       </BoxPanel>
@@ -250,17 +252,17 @@ const BBALNSection = () => {
               Boosted BALN
             </Typography>
             {daoBBALNData && (
-              <Typography color="text1" opacity={0.75} padding="0 3px 2px 0">{`${daoBBALNData.BBALNDaoHolding.toFormat(
+              <Typography color="text2" padding="0 3px 2px 0">{`${daoBBALNData.BBALNDaoHolding.toFormat(
                 0,
               )} bBALN`}</Typography>
             )}
           </Flex>
         </Box>
         <LockedBar lockedWidth={balnLocked && balnTotal ? balnLocked.dividedBy(balnTotal).times(100).toNumber() : 0} />
-        <Flex justifyContent="space-between" mt="11px" flexWrap="wrap">
+        <Flex justifyContent="space-between" mt="13px" flexWrap="wrap">
           <Flex mb={1}>
             {balnTotal ? (
-              <Typography color="text1" opacity={0.75} pr={3}>{`${balnLocked?.toFormat(0)} / ${balnTotal?.toFormat(
+              <Typography color="text2" pr={3}>{`${balnLocked?.toFormat(0)} / ${balnTotal?.toFormat(
                 0,
               )} BALN`}</Typography>
             ) : (
@@ -268,7 +270,7 @@ const BBALNSection = () => {
             )}
           </Flex>
           {daoBBALNData && daoBBALNData.BALNLockEnd ? (
-            <Typography color="text1" opacity={0.75} mb={1}>
+            <Typography color="text2" mb={1}>
               {` Locked until ${daoBBALNData.BALNLockEnd.toLocaleDateString('en-GB', {
                 month: 'short',
                 day: '2-digit',
