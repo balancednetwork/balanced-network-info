@@ -368,20 +368,32 @@ const EarningsSection = () => {
         <IncomeGrid>
           <GridItemLight>Balance Token</GridItemLight>
           <GridItemLight>
-            <DisplayValueOrLoader
-              value={earningsCurrentPeriod?.income.liquidity.amount || 0}
-              currencyRate={1}
-              format={'number'}
-            />
-            {` BALN`}
+            {earningsCurrentPeriod ? (
+              <>
+                <DisplayValueOrLoader
+                  value={earningsCurrentPeriod.income.liquidity.amount || 0}
+                  currencyRate={1}
+                  format={'number'}
+                />
+                {` BALN`}
+              </>
+            ) : (
+              <StyledSkeleton animation="wave" width={100} />
+            )}
           </GridItemLight>
           <GridItemLight>
-            <DisplayValueOrLoader
-              value={earningsPastPeriod?.income.liquidity.amount || 0}
-              currencyRate={1}
-              format={'number'}
-            />
-            {` BALN`}
+            {earningsPastPeriod ? (
+              <>
+                <DisplayValueOrLoader
+                  value={earningsPastPeriod?.income.liquidity.amount || 0}
+                  currencyRate={1}
+                  format={'number'}
+                />
+                {` BALN`}
+              </>
+            ) : (
+              <StyledSkeleton animation="wave" width={100} />
+            )}
           </GridItemLight>
         </IncomeGrid>
 
