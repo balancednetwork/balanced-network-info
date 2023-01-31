@@ -928,11 +928,11 @@ type Source = {
   supply: BigNumber;
   workingBalance: BigNumber;
   workingSupply: BigNumber;
+  apy: number;
 };
 
 type DaoBBALNData = {
   BBALNTotalSupply: BigNumber;
-  BALNDaoHolding: BigNumber;
   BBALNDaoHolding: BigNumber;
   BALNDaoLocked: BigNumber;
   BALNLockEnd: Date;
@@ -943,11 +943,11 @@ type DaoBBALNData = {
 export function useDaoBBALNData(): UseQueryResult<DaoBBALNData, Error> {
   const oneMinPeriod = 1000 * 60;
   const now = Math.floor(new Date().getTime() / oneMinPeriod) * oneMinPeriod;
-  const { data: holdingsCurrent } = useDaoFundHoldings(now);
   const feesDistributedIn = [bnJs.sICX.address, bnJs.bnUSD.address, bnJs.BALN.address];
+  const allPairs = useAllPairs();
 
   return useQuery(
-    `daoBBALNData${now}${holdingsCurrent && Object.keys(holdingsCurrent).length}`,
+    `daoBBALNData${now}${!!allPairs}`,
     async () => {
       let daoBBALNData = {};
 
@@ -955,10 +955,6 @@ export function useDaoBBALNData(): UseQueryResult<DaoBBALNData, Error> {
       const BBALNTotalSupplyRaw = await bnJs.BBALN.totalSupply();
       const BBALNTotalSupply = new BigNumber(formatUnits(BBALNTotalSupplyRaw));
       daoBBALNData['BBALNTotalSupply'] = BBALNTotalSupply;
-
-      //dao BALN holdings
-      const BALNDaoHolding = holdingsCurrent && new BigNumber(holdingsCurrent[bnJs.BALN.address].toFixed(0));
-      daoBBALNData['BALNDaoHolding'] = BALNDaoHolding;
 
       //dao bBALN holding
       const BBALNDaoHoldingRaw = await bnJs.BBALN.balanceOf(bnJs.DAOFund.address);
@@ -978,11 +974,20 @@ export function useDaoBBALNData(): UseQueryResult<DaoBBALNData, Error> {
       const DAOSourcesRaw = await bnJs.Rewards.getBoostData(bnJs.DAOFund.address);
       const DAOSources = Object.keys(DAOSourcesRaw).reduce((sources, sourceName) => {
         if (new BigNumber(DAOSourcesRaw[sourceName].balance).isGreaterThan(0)) {
+          const workingBalance = new BigNumber(DAOSourcesRaw[sourceName].workingBalance);
+          const balance = new BigNumber(DAOSourcesRaw[sourceName].balance);
+          const boost = workingBalance.dividedBy(balance);
+          const feesApy = allPairs && allPairs[sourceName] ? allPairs[sourceName].feesApy : 0;
+          const balnApy = allPairs && allPairs[sourceName] ? allPairs[sourceName].apy : 0;
+
+          const apy = boost.times(balnApy).plus(feesApy).times(100).dp(2);
+
           sources[sourceName] = {
-            balance: new BigNumber(DAOSourcesRaw[sourceName].balance),
+            balance: balance,
             supply: new BigNumber(DAOSourcesRaw[sourceName].supply),
-            workingBalance: new BigNumber(DAOSourcesRaw[sourceName].workingBalance),
+            workingBalance: workingBalance,
             workingSupply: new BigNumber(DAOSourcesRaw[sourceName].workingSupply),
+            apy: apy,
           };
         }
         return sources;

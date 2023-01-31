@@ -123,9 +123,9 @@ export function PerformanceDetails() {
 
       <EarningsSection />
 
-      <BBALNSection />
-
       <HoldingsSection />
+
+      <BBALNSection />
 
       <StabilityFundSection />
 

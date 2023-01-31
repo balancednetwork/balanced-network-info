@@ -6,6 +6,8 @@ import styled, { css } from 'styled-components';
 
 import { ReactComponent as QuestionIcon } from 'assets/icons/question.svg';
 import { BoxPanel, FlexPanel } from 'components/Panel';
+import QuestionHelper, { QuestionWrapper } from 'components/QuestionHelper';
+import { LoaderComponent } from 'pages/PerformanceDetails/utils';
 import { StyledSkeleton } from 'sections/TokenSection';
 import { Typography } from 'theme';
 
@@ -82,7 +84,7 @@ const BoostedBox = styled(Flex)`
 `;
 
 const PoolItem = styled(Flex)`
-  min-width: 115px !important;
+  min-width: 160px !important;
   width: 100%;
   max-width: 25%;
   padding: 15px 15px 0 15px;
@@ -142,6 +144,7 @@ const LiquidityDetailsWrap = styled(Box)<{ show?: boolean }>`
 
 const LiquidityDetails = styled(Flex)`
   display: inline-flex;
+  justify-content: center;
   flex-wrap: wrap;
   padding: 0 15px 15px 15px;
   background: ${({ theme }) => theme.colors.bg2};
@@ -167,7 +170,6 @@ const BBALNSection = () => {
   const { data: daoBBALNData } = useDaoBBALNData();
 
   const balnLocked = daoBBALNData?.BALNDaoLocked;
-  const balnTotal = daoBBALNData?.BALNDaoLocked.plus(daoBBALNData.BALNDaoHolding);
   const daoSources = daoBBALNData?.DAOSources;
 
   const showLPTooltip = () => {
@@ -258,13 +260,16 @@ const BBALNSection = () => {
             )}
           </Flex>
         </Box>
-        <LockedBar lockedWidth={balnLocked && balnTotal ? balnLocked.dividedBy(balnTotal).times(100).toNumber() : 0} />
+        <LockedBar lockedWidth={100} />
         <Flex justifyContent="space-between" mt="13px" flexWrap="wrap">
           <Flex mb={1}>
-            {balnTotal ? (
-              <Typography color="text2" pr={3}>{`${balnLocked?.toFormat(0)} / ${balnTotal?.toFormat(
-                0,
-              )} BALN`}</Typography>
+            {balnLocked ? (
+              <Typography color="text2" pr={3}>
+                {`${balnLocked?.toFormat(0)} / ${balnLocked?.toFormat(0)} BALN`}
+                <QuestionWrapper margin="0 0 0 2px" style={{ transform: 'translateY(1px)' }}>
+                  <QuestionHelper text="Showing only BALN amount that's been earned by protocol owned liquidity."></QuestionHelper>
+                </QuestionWrapper>
+              </Typography>
             ) : (
               <StyledSkeleton animation="wave" width={170}></StyledSkeleton>
             )}
@@ -315,16 +320,29 @@ const BBALNSection = () => {
           <LiquidityDetailsWrap show={showLiquidityTooltip}>
             <LiquidityDetails>
               {daoSources &&
-                Object.keys(daoSources).map(boostedLP => (
-                  <PoolItem key={boostedLP}>
-                    <Typography fontSize={16} color="#FFF">
-                      {`${daoSources[boostedLP].workingBalance.dividedBy(daoSources[boostedLP].balance).toFixed(2)} x`}
-                    </Typography>
-                    <Typography fontSize={14} style={{ whiteSpace: 'nowrap' }}>
-                      {boostedLP}
-                    </Typography>
-                  </PoolItem>
-                ))}
+                Object.keys(daoSources).map(boostedLP => {
+                  return (
+                    <PoolItem key={boostedLP}>
+                      <Typography fontSize={16} color="#FFF" style={{ whiteSpace: 'nowrap' }}>
+                        {boostedLP}
+                      </Typography>
+                      <Typography fontSize={14} style={{ whiteSpace: 'nowrap' }}>
+                        {`${daoSources[boostedLP].workingBalance
+                          .dividedBy(daoSources[boostedLP].balance)
+                          .toFixed(2)} x`}
+                        {daoSources[boostedLP].apy.isGreaterThan(0) ? (
+                          ` (${daoSources[boostedLP].apy}% APY)`
+                        ) : (
+                          <>
+                            {' ('}
+                            <LoaderComponent />
+                            {' )'}
+                          </>
+                        )}
+                      </Typography>
+                    </PoolItem>
+                  );
+                })}
             </LiquidityDetails>
           </LiquidityDetailsWrap>
         </BoostedInfo>
