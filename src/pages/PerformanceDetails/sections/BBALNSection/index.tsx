@@ -267,7 +267,7 @@ const BBALNSection = () => {
               <Typography color="text2" pr={3}>
                 {`${balnLocked?.toFormat(0)} / ${balnLocked?.toFormat(0)} BALN`}
                 <QuestionWrapper margin="0 0 0 2px" style={{ transform: 'translateY(1px)' }}>
-                  <QuestionHelper text="Showing only BALN amount that's been earned by protocol owned liquidity."></QuestionHelper>
+                  <QuestionHelper text="Only includes BALN earned via liquidity rewards, not the BALN held in the DAO Fund."></QuestionHelper>
                 </QuestionWrapper>
               </Typography>
             ) : (
@@ -324,7 +324,7 @@ const BBALNSection = () => {
                   return (
                     <PoolItem key={boostedLP}>
                       <Typography fontSize={16} color="#FFF" style={{ whiteSpace: 'nowrap' }}>
-                        {boostedLP}
+                        {boostedLP.replace('/', ' / ')}
                       </Typography>
                       <Typography fontSize={14} style={{ whiteSpace: 'nowrap' }}>
                         {`${daoSources[boostedLP].workingBalance
