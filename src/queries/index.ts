@@ -12,7 +12,7 @@ import { SUPPORTED_TOKENS_LIST, SUPPORTED_TOKENS_MAP_BY_ADDRESS, TOKENS_OMITTED_
 import { getTimestampFrom } from 'pages/PerformanceDetails/utils';
 import { formatUnits } from 'utils';
 
-import { useBlockDetails } from './blockDetails';
+import { useBlockDetails, useDaoFundHoldings, usePOLData } from './blockDetails';
 
 const WEIGHT_CONST = 10 ** 18;
 
@@ -88,7 +88,9 @@ export const useEarningsDataQuery = (
         income: {
           loans: BigNumber;
           fund: BigNumber;
+          liquidity: { amount: BigNumber; value: BigNumber };
           swaps: { [key: string]: { amount: BigNumber; value: BigNumber } };
+          fees: { [key: string]: { amount: BigNumber; value: BigNumber } };
         };
         expenses: { [key: string]: { amount: BigNumber; value: BigNumber } };
         feesDistributed: BigNumber;
@@ -115,6 +117,51 @@ export const useEarningsDataQuery = (
           const balnFeesStart = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.BALN.address, blockStart.number);
           const balnFeesEnd = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.BALN.address, blockEnd.number);
 
+          const networkFeesStartRaw = await bnJs.DAOFund.getFeeEarnings(blockStart.number);
+          const networkFeesEndRaw = await bnJs.DAOFund.getFeeEarnings(blockEnd.number);
+
+          const liquidityStart = await bnJs.DAOFund.getBalnEarnings(blockStart.number);
+          const liquidityEnd = await bnJs.DAOFund.getBalnEarnings(blockEnd.number);
+
+          const networkFeesStart = Object.keys(networkFeesStartRaw).reduce((fees, contract) => {
+            const currencyAmount = CurrencyAmount.fromRawAmount(
+              SUPPORTED_TOKENS_MAP_BY_ADDRESS[contract],
+              networkFeesStartRaw[contract],
+            );
+            fees[contract] = {
+              value: new BigNumber(currencyAmount.toFixed()).times(rates[currencyAmount.currency.symbol!]),
+              amount: new BigNumber(currencyAmount.toFixed()),
+            };
+            return fees;
+          }, {});
+
+          const networkFeesEnd = Object.keys(networkFeesEndRaw).reduce((fees, contract) => {
+            const currencyAmount = CurrencyAmount.fromRawAmount(
+              SUPPORTED_TOKENS_MAP_BY_ADDRESS[contract],
+              networkFeesEndRaw[contract],
+            );
+            fees[contract] = {
+              value: new BigNumber(currencyAmount.toFixed()).times(rates[currencyAmount.currency.symbol!]),
+              amount: new BigNumber(currencyAmount.toFixed()),
+            };
+            return fees;
+          }, {});
+
+          const networkFeesIncome = Object.keys(networkFeesEnd).reduce((net, contract) => {
+            if (networkFeesStart[contract]) {
+              net[contract] = {
+                value: networkFeesEnd[contract].value.minus(networkFeesStart[contract].value),
+                amount: networkFeesEnd[contract].amount.minus(networkFeesStart[contract].amount),
+              };
+            } else {
+              net[contract] = {
+                value: networkFeesEnd[contract].value,
+                amount: networkFeesEnd[contract].amount,
+              };
+            }
+            return net;
+          }, {} as { [key: string]: { value: BigNumber; amount: BigNumber } });
+
           const bnUSDIncome = new BigNumber(formatUnits(bnUSDFeesEnd)).minus(
             new BigNumber(formatUnits(bnUSDFeesStart)),
           );
@@ -122,11 +169,20 @@ export const useEarningsDataQuery = (
           const balnIncome = new BigNumber(formatUnits(balnFeesEnd)).minus(new BigNumber(formatUnits(balnFeesStart)));
           const loansIncome = new BigNumber(formatUnits(loanFeesEnd)).minus(new BigNumber(formatUnits(loanFeesStart)));
           const fundIncome = new BigNumber(formatUnits(fundFeesEnd)).minus(new BigNumber(formatUnits(fundFeesStart)));
+          const liquidityIncome = {
+            amount: new BigNumber(formatUnits(liquidityEnd || 0)).minus(
+              new BigNumber(formatUnits(liquidityStart || 0)),
+            ),
+            value: new BigNumber(formatUnits(liquidityEnd || 0))
+              .minus(new BigNumber(formatUnits(liquidityStart || 0)))
+              .times(rates['BALN']),
+          };
 
           return {
             income: {
               loans: loansIncome,
               fund: fundIncome,
+              liquidity: liquidityIncome,
               swaps: {
                 BALN: {
                   amount: balnIncome,
@@ -141,6 +197,7 @@ export const useEarningsDataQuery = (
                   value: sICXIncome.times(rates['sICX']),
                 },
               },
+              fees: networkFeesIncome,
             },
             expenses: {
               BALN: {
@@ -282,7 +339,6 @@ export const useGovernanceNumOfStakersQuery = () => {
 
 export const useGovernanceInfo = () => {
   const dailyDistributionQuery = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
-  const daofundQuery = useBnJsContractQuery<any>(bnJs, 'DAOFund', 'getBalances', []);
 
   const totalBalnLockedQuery = useBnJsContractQuery<string>(bnJs, 'BBALN', 'getTotalLocked', []);
   const totalBBalnHoldersQuery = useBnJsContractQuery<string>(bnJs, 'BBALN', 'activeUsersCount', []);
@@ -294,22 +350,32 @@ export const useGovernanceInfo = () => {
   const totalBalnLocked = totalBalnLockedQuery.isSuccess && Number(totalBalnLockedQuery.data) / 10 ** 18;
   const totalBBalnHolders = totalBBalnHoldersQuery.isSuccess && Number(totalBBalnHoldersQuery.data);
 
+  const oneMinPeriod = 1000 * 60;
+  const now = Math.floor(new Date().getTime() / oneMinPeriod) * oneMinPeriod;
+
+  const { data: POLData } = usePOLData(now);
+  const { data: holdingsData } = useDaoFundHoldings(now);
+
   const ratesQuery = useRatesQuery();
   const rates = ratesQuery.data || {};
-  const daofund =
-    daofundQuery.isSuccess && ratesQuery.isSuccess
-      ? SUPPORTED_TOKENS_LIST.reduce((sum: BigNumber, token: Token) => {
-          return sum.plus(
-            BalancedJs.utils
-              .toIcx(daofundQuery.data[token.address] || '0', token.symbol!)
-              .times(rates[token.symbol!] || ZERO),
-          );
-        }, ZERO)
-      : null;
+
+  const holdings = holdingsData
+    ? Object.keys(holdingsData).reduce((total, contract) => {
+        const token = holdingsData[contract].currency.wrapped;
+        const curAmount = new BigNumber(holdingsData[contract].toFixed());
+        if (rates[token.symbol!]) {
+          return total + curAmount.times(rates[token.symbol!]).toNumber();
+        } else {
+          return total;
+        }
+      }, 0)
+    : 0;
+
+  const POLHoldings = POLData ? POLData.reduce((total, pool) => total + pool.liquidity.toNumber(), 0) : 0;
 
   return {
     dailyDistribution: dailyDistribution?.integerValue().toNumber(),
-    daofund: daofund?.integerValue().toNumber(),
+    daofund: holdings + POLHoldings,
     totalBALNLocked: totalBalnLocked,
     numOfHolders: totalBBalnHolders,
   };
@@ -854,5 +920,100 @@ export function useFundLimits(): UseQueryResult<{ [key: string]: CurrencyAmount<
 
       return limits;
     },
+  );
+}
+
+type Source = {
+  balance: BigNumber;
+  supply: BigNumber;
+  workingBalance: BigNumber;
+  workingSupply: BigNumber;
+  apy: number;
+};
+
+type DaoBBALNData = {
+  BBALNTotalSupply: BigNumber;
+  BBALNDaoHolding: BigNumber;
+  BALNDaoLocked: BigNumber;
+  BALNLockEnd: Date;
+  DAOSources: Source[];
+  DAORewards: { baln: CurrencyAmount<Token>; fees: Map<string, CurrencyAmount<Token>> };
+};
+
+export function useDaoBBALNData(): UseQueryResult<DaoBBALNData, Error> {
+  const oneMinPeriod = 1000 * 60;
+  const now = Math.floor(new Date().getTime() / oneMinPeriod) * oneMinPeriod;
+  const feesDistributedIn = [bnJs.sICX.address, bnJs.bnUSD.address, bnJs.BALN.address];
+  const allPairs = useAllPairs();
+
+  return useQuery(
+    `daoBBALNData${now}${!!allPairs}`,
+    async () => {
+      let daoBBALNData = {};
+
+      //total bBALN supply
+      const BBALNTotalSupplyRaw = await bnJs.BBALN.totalSupply();
+      const BBALNTotalSupply = new BigNumber(formatUnits(BBALNTotalSupplyRaw));
+      daoBBALNData['BBALNTotalSupply'] = BBALNTotalSupply;
+
+      //dao bBALN holding
+      const BBALNDaoHoldingRaw = await bnJs.BBALN.balanceOf(bnJs.DAOFund.address);
+      const BBALNDaoHolding = new BigNumber(formatUnits(BBALNDaoHoldingRaw));
+      daoBBALNData['BBALNDaoHolding'] = BBALNDaoHolding;
+
+      //dao BALN locked
+      const BALNDaoLockedRaw = await bnJs.BBALN.getLocked(bnJs.DAOFund.address);
+      const BALNDaoLocked = new BigNumber(formatUnits(BALNDaoLockedRaw.amount));
+      daoBBALNData['BALNDaoLocked'] = BALNDaoLocked;
+
+      //dao lock end
+      const BALNLockEnd = new Date(parseInt(BALNDaoLockedRaw.end, 16) / 1000);
+      daoBBALNData['BALNLockEnd'] = BALNLockEnd;
+
+      //dao sources
+      const DAOSourcesRaw = await bnJs.Rewards.getBoostData(bnJs.DAOFund.address);
+      const DAOSources = Object.keys(DAOSourcesRaw).reduce((sources, sourceName) => {
+        if (new BigNumber(DAOSourcesRaw[sourceName].balance).isGreaterThan(0)) {
+          const workingBalance = new BigNumber(DAOSourcesRaw[sourceName].workingBalance);
+          const balance = new BigNumber(DAOSourcesRaw[sourceName].balance);
+          const boost = workingBalance.dividedBy(balance);
+          const feesApy = allPairs && allPairs[sourceName] ? allPairs[sourceName].feesApy : 0;
+          const balnApy = allPairs && allPairs[sourceName] ? allPairs[sourceName].apy : 0;
+
+          const apy = boost.times(balnApy).plus(feesApy).times(100).dp(2);
+
+          sources[sourceName] = {
+            balance: balance,
+            supply: new BigNumber(DAOSourcesRaw[sourceName].supply),
+            workingBalance: workingBalance,
+            workingSupply: new BigNumber(DAOSourcesRaw[sourceName].workingSupply),
+            apy: apy,
+          };
+        }
+        return sources;
+      }, {});
+      daoBBALNData['DAOSources'] = DAOSources;
+
+      //unclaimed dao network fees
+      const rewardsFeesRaw = await bnJs.Dividends.getUnclaimedDividends(bnJs.DAOFund.address);
+      const rewardsFees: { [address in string]: CurrencyAmount<Token> } = feesDistributedIn.reduce((fees, address) => {
+        const currency = SUPPORTED_TOKENS_MAP_BY_ADDRESS[address];
+        fees[address] = CurrencyAmount.fromRawAmount(currency, rewardsFeesRaw[address]);
+        return fees;
+      }, {});
+      daoBBALNData['DAORewards'] = {};
+      daoBBALNData['DAORewards']['fees'] = rewardsFees;
+
+      //unclaimed baln rewards
+      const rewardsBalnRaw = await bnJs.Rewards.getBalnHolding(bnJs.DAOFund.address);
+      const rewardsBaln = CurrencyAmount.fromRawAmount(
+        SUPPORTED_TOKENS_MAP_BY_ADDRESS[bnJs.BALN.address],
+        rewardsBalnRaw,
+      );
+      daoBBALNData['DAORewards']['baln'] = rewardsBaln;
+
+      return daoBBALNData as DaoBBALNData;
+    },
+    { keepPreviousData: true, refetchOnReconnect: false, refetchInterval: undefined },
   );
 }

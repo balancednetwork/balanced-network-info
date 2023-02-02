@@ -1,11 +1,13 @@
 import { addresses } from '@balancednetwork/balanced-js';
 import { Currency, CurrencyAmount } from '@balancednetwork/sdk-core';
 import axios from 'axios';
-import { useWhitelistedTokensList } from 'queries';
+import BigNumber from 'bignumber.js';
+import { useRatesQuery, useWhitelistedTokensList } from 'queries';
 import { useQuery } from 'react-query';
 
 import bnJs from 'bnJs';
-import { SUPPORTED_TOKENS_LIST, NULL_CONTRACT_ADDRESS } from 'constants/tokens';
+import { SUPPORTED_PAIRS } from 'constants/pairs';
+import { SUPPORTED_TOKENS_LIST, NULL_CONTRACT_ADDRESS, SUPPORTED_TOKENS_MAP_BY_ADDRESS } from 'constants/tokens';
 
 const API_ENDPOINT = 'https://tracker.icon.community/api/v1/';
 
@@ -74,4 +76,60 @@ export const useStabilityFundHoldings = (timestamp: number) => {
       return holdings;
     },
   );
+};
+
+export const usePOLData = (timestamp: number) => {
+  const { data: rates } = useRatesQuery();
+  const { data: blockDetails } = useBlockDetails(timestamp);
+  const blockHeight = blockDetails?.number;
+  const pools = [2];
+
+  return useQuery(`POLData${blockHeight}with-${rates && Object.keys(rates).length}-rates`, async () => {
+    const poolDataSets = await Promise.all(
+      pools.map(async poolID => {
+        const balance = await bnJs.StakedLP.balanceOf(bnJs.DAOFund.address, poolID, blockHeight);
+        const poolStats = await bnJs.Dex.getPoolStats(poolID, blockHeight);
+
+        return {
+          poolID,
+          balance,
+          poolStats,
+        };
+      }),
+    );
+
+    return poolDataSets.map(dataSet => {
+      if (rates && SUPPORTED_TOKENS_MAP_BY_ADDRESS[dataSet.poolStats['quote_token']]) {
+        const LPBalanceDAO = new BigNumber(dataSet.balance).div(10 ** 18);
+        const LPBalanceTotal = new BigNumber(dataSet.poolStats['total_supply']).div(10 ** 18);
+        const DAOFraction = LPBalanceDAO.div(LPBalanceTotal);
+        const quoteAmount = new BigNumber(dataSet.poolStats['quote']).div(
+          10 ** parseInt(dataSet.poolStats['quote_decimals'], 16),
+        );
+        const baseAmount = new BigNumber(dataSet.poolStats['base']).div(
+          10 ** parseInt(dataSet.poolStats['base_decimals'], 16),
+        );
+        const quoteValue = quoteAmount.times(
+          rates[SUPPORTED_TOKENS_MAP_BY_ADDRESS[dataSet.poolStats['quote_token']].symbol!],
+        );
+        const poolLiquidity = quoteValue.times(2);
+        const poolData = {
+          id: dataSet.poolID,
+          liquidity: poolLiquidity.div(LPBalanceTotal).times(LPBalanceDAO),
+          pair: SUPPORTED_PAIRS.find(pair => pair.id === dataSet.poolID),
+          DAOQuoteAmount: quoteAmount.times(DAOFraction),
+          DAOBaseAmount: baseAmount.times(DAOFraction),
+        };
+        return poolData;
+      } else {
+        return {
+          id: null,
+          liquidity: new BigNumber(0),
+          pair: null,
+          DAOQuoteAmount: new BigNumber(0),
+          DAOBaseAmount: new BigNumber(0),
+        };
+      }
+    });
+  });
 };

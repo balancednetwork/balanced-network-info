@@ -1,11 +1,12 @@
 import React, { useCallback, useState } from 'react';
 
+import { Box } from 'rebass';
 import styled from 'styled-components';
 
 import { ReactComponent as QuestionIcon } from 'assets/icons/question.svg';
 import Tooltip from 'components/Tooltip';
 
-export const QuestionWrapper = styled.div`
+export const QuestionWrapper = styled(Box)`
   display: inline-flex;
   align-items: center;
   justify-content: center;

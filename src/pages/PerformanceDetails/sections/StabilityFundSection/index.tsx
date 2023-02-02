@@ -95,7 +95,7 @@ const StabilityFundSection = () => {
 
   return (
     <BoxPanel bg="bg2" mb={10}>
-      <Typography variant="h2">Stability fund</Typography>
+      <Typography variant="h2">Stability Fund</Typography>
       <ScrollHelper>
         <BalanceGrid>
           <GridItemHeader>Asset</GridItemHeader>
