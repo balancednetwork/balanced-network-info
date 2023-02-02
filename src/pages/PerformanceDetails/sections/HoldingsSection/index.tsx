@@ -55,7 +55,7 @@ const HoldingsSection = () => {
   const { data: POLCurrent } = usePOLData(now);
   const { data: POLPast } = usePOLData(selectedDate.valueOf());
 
-  const gridWidth = 850;
+  const gridWidth = 770;
 
   return (
     <BoxPanel bg="bg2" mb={10}>

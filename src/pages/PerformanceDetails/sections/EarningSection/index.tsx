@@ -35,9 +35,9 @@ import {
 
 export const IncomeGrid = styled.div`
   display: grid;
-  grid-template-columns: 4fr 3fr 3fr;
+  grid-template-columns: 3fr 3fr 3fr;
   align-items: stretch;
-  min-width: 800px;
+  min-width: 700px;
 `;
 
 export const StyledSkeleton = styled(Skeleton)`

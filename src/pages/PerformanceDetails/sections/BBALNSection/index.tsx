@@ -78,7 +78,7 @@ const BoostedBox = styled(Flex)`
     margin-bottom: 20px !important;
     &.no-border {
       border-right: 0;
-      margin-bottom: 0;
+      margin-bottom: 0 !important;
     }
   }
 `;
