@@ -54,14 +54,14 @@ export const earningPeriods: TimePeriods = {
     displayText: 'month',
     days: 30,
   },
-  threeMonths: {
-    displayText: '3 months',
-    days: 91,
-  },
-  sixMonths: {
-    displayText: '6 months',
-    days: 182,
-  },
+  // threeMonths: {
+  //   displayText: '3 months',
+  //   days: 91,
+  // },
+  // sixMonths: {
+  //   displayText: '6 months',
+  //   days: 182,
+  // },
 };
 
 const Loader = styled.span`
@@ -102,8 +102,9 @@ const Loader = styled.span`
 `;
 
 export const getTimestampFrom = (from: number = 0): number => {
-  const date = new Date();
-  return date.setDate(date.getDate() - from) * 1_000;
+  const fiveMinPeriod = 1000 * 300;
+  const now = new Date(Math.floor(new Date().getTime() / fiveMinPeriod) * fiveMinPeriod);
+  return now.setDate(now.getDate() - from);
 };
 
 interface ValueOrLoaderProps {
@@ -265,54 +266,21 @@ export const formatPercentage = percentage => {
 export const SkeletonPlaceholder = () => {
   return (
     <IncomeGrid>
-      <GridItemLight>
-        <StyledSkeleton animation="wave" />
-      </GridItemLight>
+      <GridItemLight>Balanced Dollar</GridItemLight>
       <GridItemLight>
         <StyledSkeleton animation="wave" width={100} />
       </GridItemLight>
       <GridItemLight>
         <StyledSkeleton animation="wave" width={100} />
       </GridItemLight>
-      <GridItemLight>
-        <StyledSkeleton animation="wave" />
-      </GridItemLight>
+      <GridItemLight>Balance Token</GridItemLight>
       <GridItemLight>
         <StyledSkeleton animation="wave" width={100} />
       </GridItemLight>
       <GridItemLight>
         <StyledSkeleton animation="wave" width={100} />
       </GridItemLight>
-      <GridItemLight>
-        <StyledSkeleton animation="wave" />
-      </GridItemLight>
-      <GridItemLight>
-        <StyledSkeleton animation="wave" width={100} />
-      </GridItemLight>
-      <GridItemLight>
-        <StyledSkeleton animation="wave" width={100} />
-      </GridItemLight>
-      <GridItemLight>
-        <StyledSkeleton animation="wave" />
-      </GridItemLight>
-      <GridItemLight>
-        <StyledSkeleton animation="wave" width={100} />
-      </GridItemLight>
-      <GridItemLight>
-        <StyledSkeleton animation="wave" width={100} />
-      </GridItemLight>
-      <GridItemLight>
-        <StyledSkeleton animation="wave" />
-      </GridItemLight>
-      <GridItemLight>
-        <StyledSkeleton animation="wave" width={100} />
-      </GridItemLight>
-      <GridItemLight>
-        <StyledSkeleton animation="wave" width={100} />
-      </GridItemLight>
-      <GridItemLight>
-        <StyledSkeleton animation="wave" />
-      </GridItemLight>
+      <GridItemLight>Staked ICX</GridItemLight>
       <GridItemLight>
         <StyledSkeleton animation="wave" width={100} />
       </GridItemLight>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { Currency } from '@balancednetwork/sdk-core';
 import BigNumber from 'bignumber.js';
-import { LAUNCH_DAY, ONE_DAY, useFundLimits } from 'queries';
+import { useFundLimits } from 'queries';
 import { useStabilityFundHoldings } from 'queries/blockDetails';
 import DatePicker from 'react-datepicker';
 import { Box, Flex, Text } from 'rebass/styled-components';
@@ -95,7 +95,7 @@ const StabilityFundSection = () => {
 
   return (
     <BoxPanel bg="bg2" mb={10}>
-      <Typography variant="h2">Stability fund</Typography>
+      <Typography variant="h2">Stability Fund</Typography>
       <ScrollHelper>
         <BalanceGrid>
           <GridItemHeader>Asset</GridItemHeader>
@@ -117,7 +117,7 @@ const StabilityFundSection = () => {
                 dateFormat="dd MMM yyyy"
                 popperClassName="datepicker-popper-wrap"
                 popperPlacement="bottom-end"
-                minDate={new Date((LAUNCH_DAY + ONE_DAY * 382) / 1000)}
+                minDate={new Date(2022, 7, 16)}
                 maxDate={new Date().setDate(new Date().getDate() - 1)}
                 customInput={<DatePickerInput />}
                 popperModifiers={[
@@ -144,7 +144,11 @@ const StabilityFundSection = () => {
             const prevAmount =
               holdingsPast && holdingsPast[contract] && new BigNumber(holdingsPast[contract].toFixed());
             const percentageChange =
-              prevAmount && new BigNumber(100).minus(prevAmount.times(100).div(curAmount)).toNumber();
+              prevAmount && curAmount.isGreaterThan(prevAmount)
+                ? new BigNumber(100).minus(prevAmount.times(100).div(curAmount)).toNumber()
+                : prevAmount && prevAmount.isGreaterThan(0)
+                ? curAmount.div(prevAmount).minus(1).times(100).toNumber()
+                : 0;
 
             if (curAmount) {
               totalCurrent += curAmount.toNumber();
@@ -158,51 +162,49 @@ const StabilityFundSection = () => {
             }
 
             return (
-              curAmount.isGreaterThan(0) && (
-                <BalanceGrid key={contract}>
-                  <GridItemToken>
-                    <Flex alignItems="center">
-                      <CurrencyLogo currency={token as Currency} size="40px" />
-                      <Box ml={2}>
-                        <Text color="text">{token.name}</Text>
-                        <Text color="text" opacity={0.75}>
-                          {token.symbol}
-                        </Text>
-                      </Box>
-                    </Flex>
-                  </GridItemToken>
-                  <GridItemToken>
-                    <Text color="text">
-                      {fundLimit && (
-                        <DisplayValueOrLoader
-                          value={new BigNumber(fundLimit.toFixed())}
-                          currencyRate={1}
-                          format="number"
-                        />
-                      )}
-                    </Text>
-                  </GridItemToken>
-                  <GridItemToken>
-                    <Text color="text">
-                      <DisplayValueOrLoader value={curAmount} currencyRate={1} format={'number'} />
-                      <Change percentage={percentageChange || 0}>{formatPercentage(percentageChange)}</Change>
-                    </Text>
-                  </GridItemToken>
-                  <GridItemToken>
-                    <Text color="text">
-                      {holdingsPast ? (
-                        holdingsPast[contract].greaterThan(0) ? (
-                          <DisplayValueOrLoader value={prevAmount} currencyRate={1} format={'number'} />
-                        ) : (
-                          '-'
-                        )
+              <BalanceGrid key={contract}>
+                <GridItemToken>
+                  <Flex alignItems="center">
+                    <CurrencyLogo currency={token as Currency} size="40px" />
+                    <Box ml={2}>
+                      <Text color="text">{token.name}</Text>
+                      <Text color="text" opacity={0.75}>
+                        {token.symbol}
+                      </Text>
+                    </Box>
+                  </Flex>
+                </GridItemToken>
+                <GridItemToken>
+                  <Text color="text">
+                    {fundLimit && (
+                      <DisplayValueOrLoader
+                        value={new BigNumber(fundLimit.toFixed())}
+                        currencyRate={1}
+                        format="number"
+                      />
+                    )}
+                  </Text>
+                </GridItemToken>
+                <GridItemToken>
+                  <Text color="text">
+                    <DisplayValueOrLoader value={curAmount} currencyRate={1} format={'number'} />
+                    <Change percentage={percentageChange || 0}>{formatPercentage(percentageChange)}</Change>
+                  </Text>
+                </GridItemToken>
+                <GridItemToken>
+                  <Text color="text">
+                    {holdingsPast ? (
+                      holdingsPast[contract].greaterThan(0) ? (
+                        <DisplayValueOrLoader value={prevAmount} currencyRate={1} format={'number'} />
                       ) : (
-                        <StyledSkeleton width={120} />
-                      )}
-                    </Text>
-                  </GridItemToken>
-                </BalanceGrid>
-              )
+                        '0'
+                      )
+                    ) : (
+                      <StyledSkeleton width={120} />
+                    )}
+                  </Text>
+                </GridItemToken>
+              </BalanceGrid>
             );
           })}
 

@@ -14,7 +14,7 @@ import { ReactComponent as DaoIcon } from 'assets/icons/dao.svg';
 import { ReactComponent as DistributionIcon } from 'assets/icons/distribution.svg';
 import { ReactComponent as FeesIcon } from 'assets/icons/fees.svg';
 import { ReactComponent as QuestionIcon } from 'assets/icons/question.svg';
-import { ReactComponent as StakersIcon } from 'assets/icons/staking2.svg';
+import { ReactComponent as StakersIcon } from 'assets/icons/staking-1.svg';
 import vault from 'assets/icons/vault.svg';
 import Footer from 'components/Footer';
 import Header from 'components/Header';
@@ -208,21 +208,34 @@ export function StatsPage() {
               <StatsItemData>
                 <Flex alignItems="center" justifyContent={['center', 'center', 'start']}>
                   <Typography fontWeight="normal" variant="h3" marginRight={'7px'}>
-                    {overviewInfo.BALNAPY ? getFormattedNumber(overviewInfo.BALNAPY, 'percent2') : <LoaderComponent />}
+                    {overviewInfo.bBALNAPY ? (
+                      getFormattedNumber(overviewInfo.bBALNAPY.toNumber(), 'percent2')
+                    ) : (
+                      <LoaderComponent />
+                    )}
                   </Typography>
-                  {overviewInfo.BALNAPY ? (
+                  {overviewInfo.monthlyFeesTotal ? (
                     <MouseoverTooltip
-                      width={270}
+                      width={300}
                       text={
                         <>
-                          Calculated from the network fees distributed to staked BALN holders in the last 30 days{' '}
-                          <strong style={{ whiteSpace: 'nowrap' }}>
-                            (
-                            {overviewInfo.monthlyFeesTotal
-                              ? getFormattedNumber(overviewInfo.monthlyFeesTotal, 'currency0')
-                              : '-'}
-                            ).
-                          </strong>
+                          <Typography>
+                            Calculated from the network fees distributed to bBALN holders over the last 30 days (
+                            <strong>${overviewInfo.monthlyFeesTotal.toFormat(0)}</strong>). Assumes the price of 1 bBALN
+                            is equivalent to 1 BALN locked for 4 years
+                            {overviewInfo.balnPrice ? (
+                              <strong>{` ($${overviewInfo.balnPrice.toFormat(2)})`}</strong>
+                            ) : (
+                              ''
+                            )}
+                            .
+                          </Typography>
+                          {overviewInfo.previousChunk && (
+                            <Typography mt={2}>
+                              Over the past month, {overviewInfo.previousChunkAmount} bBALN would have received{' '}
+                              <strong>${overviewInfo.previousChunk.toPrecision(3)}</strong>.
+                            </Typography>
+                          )}
                         </>
                       }
                       placement="top"
@@ -231,7 +244,7 @@ export function StatsPage() {
                     </MouseoverTooltip>
                   ) : null}
                 </Flex>
-                <Typography>BALN staking APY</Typography>
+                <Typography>bBALN APY</Typography>
               </StatsItemData>
             </StatsItem>
           </Stats>
@@ -271,17 +284,17 @@ export function StatsPage() {
 
             <StatsItem className="border-right">
               <StatsItemIcon>
-                <StakersIcon width={53} height={55} />
+                <StakersIcon opacity={1} width={53} height={55} />
               </StatsItemIcon>
               <StatsItemData>
                 <Typography fontWeight="normal" variant="h3">
-                  {governanceInfo.numOfStakers ? (
-                    getFormattedNumber(governanceInfo.numOfStakers, 'number')
+                  {governanceInfo.numOfHolders ? (
+                    getFormattedNumber(governanceInfo.numOfHolders, 'number')
                   ) : (
                     <LoaderComponent />
                   )}
                 </Typography>
-                <Typography>BALN stakers</Typography>
+                <Typography>bBALN holders</Typography>
               </StatsItemData>
             </StatsItem>
 
@@ -292,13 +305,13 @@ export function StatsPage() {
 
               <StatsItemData>
                 <Typography fontWeight="normal" variant="h3">
-                  {governanceInfo.totalStakedBALN ? (
-                    getFormattedNumber(governanceInfo.totalStakedBALN, 'number')
+                  {governanceInfo.totalBALNLocked ? (
+                    getFormattedNumber(governanceInfo.totalBALNLocked, 'number')
                   ) : (
                     <LoaderComponent />
                   )}{' '}
                 </Typography>
-                <Typography>BALN staked</Typography>
+                <Typography>BALN locked</Typography>
               </StatsItemData>
             </StatsItem>
 
