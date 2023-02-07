@@ -4,6 +4,8 @@ import { addresses } from '@balancednetwork/balanced-js';
 import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
 import { useContractMethodsDataQuery } from 'queries/backendv2';
+import useHistoryFor from 'queries/historicalData';
+import { getBitcoinCollateralParams } from 'queries/historicalData/predefinedOptions';
 import { useCollateralInfo, useLoanInfo, useRatesQuery } from 'queries/index';
 import { Flex, Box } from 'rebass/styled-components';
 import styled from 'styled-components';
@@ -78,8 +80,35 @@ export default function CollateralAndLoanSection() {
     }
   }, [collateralTVLHover, collateralInfo]);
 
+  const oneMinPeriod = 1000 * 60;
+  const now = Math.floor(new Date().getTime() / oneMinPeriod) * oneMinPeriod;
+
+  const { data: historyFor } = useHistoryFor(getBitcoinCollateralParams(now, 'week', 10));
+
   return (
     <ChartSection>
+      {/* <ChartPanel bg="bg2">
+        <Typography variant="h2" mb={1}>
+          New Collateral
+        </Typography>
+        <ChartContainer>
+          {historyFor ? (
+            <LineChart
+              data={historyFor}
+              height={DEFAULT_HEIGHT}
+              minHeight={DEFAULT_HEIGHT}
+              color={theme.colors.primary}
+              value={collateralTVLHover}
+              label={collateralLabel}
+              setValue={setCollateralTVLHover}
+              setLabel={setCollateralLabel}
+            />
+          ) : (
+            <Spinner size={75} />
+          )}
+        </ChartContainer>
+      </ChartPanel> */}
+
       <ChartPanel bg="bg2">
         <Typography variant="h2" mb={1}>
           Collateral

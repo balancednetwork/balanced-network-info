@@ -18,7 +18,7 @@ const SUPPORTED_TOKENS_LIST_WITHOUT_ICX = SUPPORTED_TOKENS_LIST.filter(
 const stabilityFundAddress = addresses[1].stabilityfund;
 const daoFundAddress = addresses[1].daofund;
 
-type BlockDetails = {
+export type BlockDetails = {
   timestamp: number;
   number: number;
 };
