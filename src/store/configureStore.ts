@@ -8,6 +8,7 @@ import { save, load } from 'redux-localstorage-simple';
 import createSagaMiddleware from 'redux-saga';
 
 import application from './application/reducer';
+import oracle from './oracle/reducer';
 import { createReducer } from './reducers';
 
 const PERSISTED_KEYS: string[] = [];
@@ -30,6 +31,7 @@ export function configureAppStore() {
   const store = configureStore({
     reducer: createReducer({
       application,
+      oracle,
     }),
     middleware: [
       ...getDefaultMiddleware({

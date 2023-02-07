@@ -585,8 +585,8 @@ export const useCollateralInfo = () => {
 };
 
 export const useLoanInfo = () => {
-  const totalLoansQuery = useBnJsContractQuery<string>(bnJs, 'bnUSD', 'totalSupply', []);
-  const totalLoans = totalLoansQuery.isSuccess ? BalancedJs.utils.toIcx(totalLoansQuery.data) : null;
+  const totalBnUSDQuery = useBnJsContractQuery<string>(bnJs, 'bnUSD', 'totalSupply', []);
+  const totalBnUSD = totalBnUSDQuery.isSuccess ? BalancedJs.utils.toIcx(totalBnUSDQuery.data) : null;
   const { data: balnAllocation } = useBnJsContractQuery<{ [key: string]: string }>(
     bnJs,
     'Rewards',
@@ -605,15 +605,15 @@ export const useLoanInfo = () => {
   const rates = ratesQuery.data || {};
 
   const loansAPY =
-    dailyRewards && totalLoans && rates['BALN']
-      ? dailyRewards.times(365).times(rates['BALN']).div(totalLoans.times(rates['bnUSD']))
+    dailyRewards && totalBnUSD && rates['BALN']
+      ? dailyRewards.times(365).times(rates['BALN']).div(totalBnUSD.times(rates['bnUSD']))
       : null;
 
   const borrowersQuery = useBnJsContractQuery<string>(bnJs, 'Loans', 'borrowerCount', []);
   const borrowers = borrowersQuery.isSuccess ? new BigNumber(borrowersQuery.data) : null;
 
   return {
-    totalLoans: totalLoans?.toNumber(),
+    totalBnUSD: totalBnUSD?.toNumber(),
     loansAPY: loansAPY?.toNumber(),
     dailyRewards: dailyRewards?.toNumber(),
     borrowers: borrowers?.toNumber(),
