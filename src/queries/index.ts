@@ -10,9 +10,12 @@ import { PairInfo, SUPPORTED_PAIRS } from 'constants/pairs';
 import QUERY_KEYS from 'constants/queryKeys';
 import { SUPPORTED_TOKENS_LIST, SUPPORTED_TOKENS_MAP_BY_ADDRESS, TOKENS_OMITTED_FROM_STATS } from 'constants/tokens';
 import { getTimestampFrom } from 'pages/PerformanceDetails/utils';
+import { useSupportedCollateralTokens } from 'store/collateral/hooks';
+import { useOraclePrices } from 'store/oracle/hooks';
 import { formatUnits } from 'utils';
 
 import { useBlockDetails, useDaoFundHoldings, usePOLData } from './blockDetails';
+import { useHistoryForStabilityFund } from './historicalData';
 
 const WEIGHT_CONST = 10 ** 18;
 
@@ -242,9 +245,9 @@ export const useStatsTotalTransactionsQuery = () => {
 
 export const useStatsTVL = () => {
   const dexTVL = useDexTVL();
-  const collateralInfo = useCollateralInfo();
+  const { data: collateralInfo } = useCollateralInfo();
 
-  if (dexTVL && collateralInfo && collateralInfo.totalCollateralTVL) return dexTVL + collateralInfo.totalCollateralTVL;
+  if (dexTVL && collateralInfo && collateralInfo.totalTVL) return dexTVL + collateralInfo.totalTVL;
 
   return;
 };
@@ -549,39 +552,58 @@ export const useAllTokens = () => {
 export const useCollateralInfo = () => {
   const rateQuery = useBnJsContractQuery<string>(bnJs, 'Staking', 'getTodayRate', []);
   const rate = rateQuery.isSuccess ? BalancedJs.utils.toIcx(rateQuery.data) : null;
+  const { data: supportedCollateralTokens } = useSupportedCollateralTokens();
+  const { data: historyForStabilityFund } = useHistoryForStabilityFund();
+  const oraclePrices = useOraclePrices();
 
-  const totalCollateralQuery = useBnJsContractQuery<string>(bnJs, 'sICX', 'balanceOf', [
-    'cx66d4d90f5f113eba575bf793570135f9b10cece1',
-  ]);
+  return useQuery(
+    `collateralInfo${oraclePrices && Object.values(oraclePrices).length}${
+      supportedCollateralTokens && Object.values(supportedCollateralTokens).length
+    }${historyForStabilityFund}`,
+    async () => {
+      const totalCollaterals: { [key in string]: { amount: number; value: number } } = {};
+      supportedCollateralTokens &&
+        oraclePrices &&
+        Object.keys(supportedCollateralTokens).forEach(async item => {
+          if (oraclePrices[item]) {
+            const cx = bnJs.getContract(supportedCollateralTokens[item]);
+            const amountRaw = await cx.balanceOf(bnJs.Loans.address);
+            const amount = new BigNumber(formatUnits(amountRaw, 18, 18)).toNumber();
 
-  const totalCollateral = totalCollateralQuery.isSuccess ? BalancedJs.utils.toIcx(totalCollateralQuery.data) : null;
+            totalCollaterals[item] = {
+              amount: amount,
+              value: oraclePrices[item].times(amount).toNumber(),
+            };
+          }
+        });
 
-  const ratesQuery = useRatesQuery();
-  const rates = ratesQuery.data || {};
+      const IISSInfo = await bnJs.IISS.getIISSInfo();
+      const PRepsInfo = await bnJs.IISS.getPReps();
 
-  // loan TVL
-  const totalCollateralTVL =
-    totalCollateralQuery.isSuccess && rates['sICX']
-      ? BalancedJs.utils.toIcx(totalCollateralQuery.data).times(rates['sICX'])
-      : null;
+      const totalDelegated = PRepsInfo ? new BigNumber(PRepsInfo?.totalDelegated) : undefined;
+      const stakingAPY =
+        IISSInfo && totalDelegated
+          ? new BigNumber(IISSInfo?.variable.Iglobal)
+              .times(new BigNumber(IISSInfo.variable.Ivoter).times(12))
+              .div(totalDelegated.times(100))
+              .toNumber()
+          : undefined;
 
-  const { data: IISSInfo } = useBnJsContractQuery<any>(bnJs, 'IISS', 'getIISSInfo', []);
-  const { data: PRepsInfo } = useBnJsContractQuery<any>(bnJs, 'IISS', 'getPReps', []);
-  const totalDelegated = PRepsInfo ? new BigNumber(PRepsInfo?.totalDelegated) : undefined;
-  const stakingAPY =
-    IISSInfo && totalDelegated
-      ? new BigNumber(IISSInfo?.variable.Iglobal)
-          .times(new BigNumber(IISSInfo.variable.Ivoter).times(12))
-          .div(totalDelegated.times(100))
-          .toNumber()
-      : undefined;
+      const stabilityFundTotal = historyForStabilityFund?.total[historyForStabilityFund.total.length - 1].value || 0;
+      const TVLTotal =
+        Object.keys(totalCollaterals).length &&
+        stabilityFundTotal &&
+        Object.values(totalCollaterals).reduce((TVL, collateral) => (TVL += collateral.value), 0) + stabilityFundTotal;
 
-  return {
-    totalCollateral: totalCollateral?.integerValue().toNumber(),
-    totalCollateralTVL: totalCollateralTVL?.integerValue().toNumber(),
-    rate: rate?.toNumber(),
-    stakingAPY: stakingAPY,
-  };
+      return {
+        totalCollaterals: totalCollaterals,
+        totalTVL: TVLTotal,
+        stabilityFundTotal: stabilityFundTotal,
+        rate: rate?.toNumber(),
+        stakingAPY: stakingAPY,
+      };
+    },
+  );
 };
 
 export const useLoanInfo = () => {

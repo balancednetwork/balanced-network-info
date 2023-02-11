@@ -113,16 +113,19 @@ export const formatYAxisNumber = (num: number | undefined, digits = 2, round = t
     return '<0.001';
   }
 
-  return numbro(num)
-    .format({
-      average: round,
-      mantissa: digits,
-      abbreviations: {
-        million: 'M',
-        billion: 'B',
-      },
-    })
-    .toUpperCase();
+  return (
+    // '$' +
+    numbro(num)
+      .format({
+        average: round,
+        mantissa: digits,
+        abbreviations: {
+          million: 'M',
+          billion: 'B',
+        },
+      })
+      .toUpperCase()
+  );
 };
 
 export const formatPriceChange = (percent: number) => {

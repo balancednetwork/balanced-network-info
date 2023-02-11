@@ -1,4 +1,4 @@
-export type Granularity = 'day' | 'week' | 'month';
+export type Granularity = 'daily' | 'weekly' | 'biweekly' | 'monthly';
 
 export type MethodParam = {
   isNumber: boolean;
@@ -26,12 +26,13 @@ export type Contract =
   | 'FeeHandler';
 
 export type HistoryForParams = {
-  contract: Contract;
+  contract?: Contract;
+  contractAddress?: string;
   method: string;
   methodParams?: MethodParam[];
   granularity: Granularity;
   startTime: number;
-  endTime: number;
-  transformation: (item: any) => any;
+  endTime?: number;
+  transformation: (item: any, optional?: any) => any;
   uniqueID?: number;
 };

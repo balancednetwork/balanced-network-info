@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { Fragment, useMemo } from 'react';
 
 import { useMedia } from 'react-use';
 import { Box, Flex } from 'rebass';
@@ -99,6 +99,11 @@ const GridWrap = styled.div`
   }
 `;
 
+export const predefinedCollateralTypes = Object.freeze({
+  ALL: 'All',
+  STABILITY_FUND: 'Stability Fund',
+});
+
 const CollateralTypeList = ({ width, setAnchor, anchor, setCollateral, ...rest }) => {
   const fundInfo = useStabilityFundTotal();
   const { data: tokensCollateralData } = useTokensCollateralData();
@@ -109,23 +114,26 @@ const CollateralTypeList = ({ width, setAnchor, anchor, setCollateral, ...rest }
     [tokensCollateralData],
   );
 
+  const handleCollateralSelect = collateral => {
+    setCollateral(collateral);
+    setAnchor(null);
+  };
+
   return (
     <Box p={'25px 0 5px'} width={width}>
-      {true ? (
-        <GridWrap>
-          <CollateralTypesGrid>
-            <CollateralTypesGridHeader>Collateral Type</CollateralTypesGridHeader>
-            {!isSmall && <CollateralTypesGridHeader>Value</CollateralTypesGridHeader>}
-          </CollateralTypesGrid>
-        </GridWrap>
-      ) : null}
+      <GridWrap>
+        <CollateralTypesGrid>
+          <CollateralTypesGridHeader>Collateral Type</CollateralTypesGridHeader>
+          {!isSmall && <CollateralTypesGridHeader>Value</CollateralTypesGridHeader>}
+        </CollateralTypesGrid>
+      </GridWrap>
 
       <GridWrap className={isSmall ? 'respo' : ''}>
-        <CollateralTypesGrid onClick={() => setCollateral('All')}>
+        <CollateralTypesGrid onClick={() => handleCollateralSelect(predefinedCollateralTypes.ALL)}>
           <CollateralTypesGridItem>
             <CollateralIcon icon="all" />
             <Typography fontSize={16} fontWeight="bold" className="white">
-              All
+              {predefinedCollateralTypes.ALL}
             </Typography>
           </CollateralTypesGridItem>
           <CollateralTypesGridItem className={isSmall ? 'respo' : ''}>
@@ -137,8 +145,8 @@ const CollateralTypeList = ({ width, setAnchor, anchor, setCollateral, ...rest }
         <Divider />
         {sortedTokensCollateral &&
           sortedTokensCollateral.map(item => (
-            <>
-              <CollateralTypesGrid onClick={() => setCollateral(item.symbol === 'sICX' ? 'ICON' : item.symbol)}>
+            <Fragment key={item.symbol}>
+              <CollateralTypesGrid onClick={() => handleCollateralSelect(item.symbol)}>
                 <CollateralTypesGridItem>
                   <CollateralIcon icon={item.symbol} />
                   <Typography fontSize={16} fontWeight="bold" className="white">
@@ -157,13 +165,13 @@ const CollateralTypeList = ({ width, setAnchor, anchor, setCollateral, ...rest }
                 </CollateralTypesGridItem>
               </CollateralTypesGrid>
               <Divider />
-            </>
+            </Fragment>
           ))}
-        <CollateralTypesGrid onClick={() => setCollateral('Stability Fund')}>
+        <CollateralTypesGrid onClick={() => handleCollateralSelect(predefinedCollateralTypes.STABILITY_FUND)}>
           <CollateralTypesGridItem>
             <CollateralIcon icon="Stability fund" />
             <Typography fontSize={16} fontWeight="bold" className="white">
-              Stability Fund
+              {predefinedCollateralTypes.STABILITY_FUND}
             </Typography>
           </CollateralTypesGridItem>
           <CollateralTypesGridItem className={isSmall ? 'respo' : ''}>

@@ -4,14 +4,14 @@
 
 import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
 import { createInjectorsEnhancer } from 'redux-injectors';
-import { save, load } from 'redux-localstorage-simple';
+// import { load } from 'redux-localstorage-simple';
 import createSagaMiddleware from 'redux-saga';
 
 import application from './application/reducer';
 import oracle from './oracle/reducer';
 import { createReducer } from './reducers';
 
-const PERSISTED_KEYS: string[] = [];
+// const PERSISTED_KEYS: string[] = [];
 
 export function configureAppStore() {
   const reduxSagaMonitorOptions = {};
@@ -37,10 +37,10 @@ export function configureAppStore() {
       ...getDefaultMiddleware({
         serializableCheck: false,
       }),
-      save({ states: PERSISTED_KEYS }),
+      // save({ states: PERSISTED_KEYS }),
       ...middlewares,
     ],
-    preloadedState: load({ states: PERSISTED_KEYS }),
+    // preloadedState: load({ states: PERSISTED_KEYS }),
     devTools: process.env.NODE_ENV !== 'production',
     enhancers,
   });
