@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 import useHistoryFor, { useHistoryForStabilityFund, useHistoryForTotal } from 'queries/historicalData';
 import { getCollateralParams } from 'queries/historicalData/predefinedOptions';
@@ -18,6 +18,8 @@ export default function Chart({
   setCollateralTVLHover,
   setCollateralLabel,
   setUserHovering,
+  setCollateralChange,
+  setTotalCollateral,
 }) {
   const theme = useTheme();
   const { data: collateralTokens } = useSupportedCollateralTokens();
@@ -40,6 +42,16 @@ export default function Chart({
   const { data: historyData } = useHistoryFor(params);
   const { data: historyDataStabilityFund } = useHistoryForStabilityFund();
   const { data: historyDataTotal } = useHistoryForTotal();
+
+  useEffect(() => {
+    if (historyDataTotal) {
+      const valueNow = historyDataTotal[historyDataTotal.length - 1].value;
+      const valuePrev = historyDataTotal[historyDataTotal.length - 2].value;
+
+      setCollateralChange(valueNow / valuePrev - 1);
+      setTotalCollateral(valueNow);
+    }
+  }, [historyDataTotal, setCollateralChange]);
 
   const isDataReady =
     (selectedCollateral === predefinedCollateralTypes.ALL && historyDataTotal) ||

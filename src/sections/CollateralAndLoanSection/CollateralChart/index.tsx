@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
 import { useCollateralInfo, useLoanInfo } from 'queries';
+import { DEFAULT_GRANULARITY, DEFAULT_GRANULARITY_FORMATTED } from 'queries/historicalData/dates';
 import { Flex } from 'rebass';
 
 import CollateralSelector from 'components/CollateralSelector';
@@ -10,7 +11,7 @@ import { predefinedCollateralTypes } from 'components/CollateralSelector/Collate
 import { ONE } from 'constants/number';
 import useWidth from 'hooks/useWidth';
 import { LoaderComponent } from 'pages/PerformanceDetails/utils';
-import { useStabilityFundTotal, useSupportedCollateralTokens, useTotalCollateral } from 'store/collateral/hooks';
+import { useStabilityFundTotal, useSupportedCollateralTokens } from 'store/collateral/hooks';
 import { useOraclePrices } from 'store/oracle/hooks';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
@@ -28,7 +29,6 @@ export default function CollateralChart({
   const { data: collateralInfo } = useCollateralInfo();
   const loanInfo = useLoanInfo();
   const { data: supportedCollaterals } = useSupportedCollateralTokens();
-  const totalCollateral = useTotalCollateral();
   const stabilityFundTotal = useStabilityFundTotal();
   const oraclePrices = useOraclePrices();
 
@@ -36,6 +36,9 @@ export default function CollateralChart({
   const [collateralLabel, setCollateralLabel] = React.useState<string | undefined>();
 
   const [userHovering, setUserHovering] = React.useState<boolean>(false);
+
+  const [totalCollateral, setTotalCollateral] = React.useState<undefined | number>();
+  const [collateralChange, setCollateralChange] = React.useState<undefined | number>();
 
   const collateralTVLInUSDHover = useMemo(
     () =>
@@ -86,7 +89,7 @@ export default function CollateralChart({
           </Flex>
         </Flex>
         <Typography variant="h3" mt={1} mb={1}>
-          {collateralInfo && `${collateralTVLInUSDHover}`}
+          {collateralInfo && collateralTVLHover && `${collateralTVLInUSDHover}`}
         </Typography>
       </Flex>
 
@@ -113,6 +116,8 @@ export default function CollateralChart({
         setCollateralTVLHover={setCollateralTVLHover}
         setCollateralLabel={setCollateralLabel}
         setUserHovering={setUserHovering}
+        setCollateralChange={setCollateralChange}
+        setTotalCollateral={setTotalCollateral}
       ></Chart>
 
       {/* Flexible chart footer */}
@@ -121,14 +126,14 @@ export default function CollateralChart({
           <>
             <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
               <Typography variant="p" fontSize="18px">
-                {supportedCollaterals ? Object.keys(supportedCollaterals).length : <LoaderComponent />}
+                {supportedCollaterals ? Object.keys(supportedCollaterals).length + 1 : <LoaderComponent />}
               </Typography>
               <Typography opacity={0.75}>Collateral types</Typography>
             </Flex>
             <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
               <Typography variant="p" fontSize="18px">
                 {totalCollateral && loanInfo.totalBnUSD ? (
-                  getFormattedNumber(totalCollateral.dividedBy(loanInfo.totalBnUSD).toNumber(), 'percent0')
+                  getFormattedNumber(totalCollateral / loanInfo.totalBnUSD, 'percent0')
                 ) : (
                   <LoaderComponent />
                 )}
@@ -136,10 +141,19 @@ export default function CollateralChart({
               <Typography opacity={0.75}>Collateral ratio</Typography>
             </Flex>
             <Flex flex={1} flexDirection="column" alignItems="center">
-              <Typography variant="p" fontSize="18px">
-                +12%**
-              </Typography>
-              <Typography opacity={0.75}>Last 7 days</Typography>
+              {collateralChange === undefined ? (
+                <LoaderComponent></LoaderComponent>
+              ) : collateralChange >= 0 ? (
+                <Typography fontSize={18} color="primaryBright">{`+ ${getFormattedNumber(
+                  collateralChange,
+                  'percent2',
+                )}`}</Typography>
+              ) : (
+                <Typography fontSize={18} color="alert">
+                  {getFormattedNumber(collateralChange, 'percent2').replace('-', '- ')}
+                </Typography>
+              )}
+              <Typography opacity={0.75}>Last {DEFAULT_GRANULARITY_FORMATTED[DEFAULT_GRANULARITY]}</Typography>
             </Flex>
           </>
         ) : selectedCollateral === 'Stability Fund' ? (

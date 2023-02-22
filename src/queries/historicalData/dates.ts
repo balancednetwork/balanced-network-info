@@ -13,4 +13,11 @@ export const DATE_DEFAULT = new Date(2021, 3, 26).getTime();
 
 export const DATE_STABILITY_FUND_LAUNCH = new Date(2022, 4, 13).getTime();
 
-export const DEFAULT_GRANULARITY: Granularity = 'weekly';
+export const DEFAULT_GRANULARITY: Granularity = 'biweekly';
+
+export const DEFAULT_GRANULARITY_FORMATTED: { [key in Granularity]: string } = {
+  daily: 'day',
+  weekly: '7 days',
+  biweekly: '14 days',
+  monthly: '30 days',
+};
