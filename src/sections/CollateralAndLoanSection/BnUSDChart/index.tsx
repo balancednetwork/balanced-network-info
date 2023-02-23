@@ -4,8 +4,10 @@ import { addresses } from '@balancednetwork/balanced-js';
 import dayjs from 'dayjs';
 import { useLoanInfo, useRatesQuery } from 'queries';
 import { useContractMethodsDataQuery } from 'queries/backendv2';
+import { useHistoryForBnUSDTotalSupply } from 'queries/historicalData';
 import { Flex } from 'rebass';
 
+import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
 import LineChart, { DEFAULT_HEIGHT } from 'components/LineChart';
 import Spinner from 'components/Spinner';
 import useTheme from 'hooks/useTheme';
@@ -14,6 +16,8 @@ import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
 
 import { ChartContainer, ChartPanel } from '..';
+import Chart from './Chart';
+import StabilityFundChart from './StabilityFundChart';
 
 export default function BnUSDChart({
   selectedCollateral,
@@ -22,15 +26,16 @@ export default function BnUSDChart({
   selectedCollateral: string;
   setCollateral: (string) => void;
 }) {
-  const theme = useTheme();
   const loanInfo = useLoanInfo();
   const ratesQuery = useRatesQuery();
   const rates = ratesQuery.data || {};
 
-  const { data: loansChartData } = useContractMethodsDataQuery(addresses[1].bnusd, 'totalSupply');
+  const [userHovering, setUserHovering] = React.useState<boolean>(false);
 
   const [loanTVLHover, setLoansTVLHover] = React.useState<number | undefined>();
   const [loanLabel, setLoanLabel] = React.useState<string | undefined>();
+  const [SFloanTVLHover, SFsetLoansTVLHover] = React.useState<number | undefined>();
+  const [SFloanLabel, SFsetLoanLabel] = React.useState<string | undefined>();
   React.useEffect(() => {
     if (!loanTVLHover && loanInfo) {
       setLoansTVLHover(loanInfo.totalBnUSD);
@@ -45,7 +50,7 @@ export default function BnUSDChart({
             Balanced Dollars
           </Typography>
           <Typography variant="p" color="text2" mr="auto" fontSize={18}>
-            {loanLabel ? <>{loanLabel}</> : <>{dayjs.utc().format('MMM D, YYYY')}</>}
+            {loanLabel ? <>{loanLabel}</> : SFloanLabel ? <>{SFloanLabel}</> : <>{dayjs.utc().format('MMM D, YYYY')}</>}
           </Typography>
         </Flex>
         <Flex flexDirection="column" alignItems={['start', 'end']} mb={1}>
@@ -61,22 +66,26 @@ export default function BnUSDChart({
           </Typography>
         </Flex>
       </Flex>
-      <ChartContainer>
-        {loansChartData ? (
-          <LineChart
-            data={loansChartData}
-            height={DEFAULT_HEIGHT}
-            minHeight={DEFAULT_HEIGHT}
-            color={theme.colors.primary}
-            value={loanTVLHover}
-            label={loanLabel}
-            setValue={setLoansTVLHover}
-            setLabel={setLoanLabel}
-          />
-        ) : (
-          <Spinner size={75} />
-        )}
-      </ChartContainer>
+
+      {selectedCollateral === predefinedCollateralTypes.STABILITY_FUND ? (
+        <StabilityFundChart
+          collateralTVLHover={SFloanTVLHover}
+          collateralLabel={SFloanLabel}
+          setCollateralTVLHover={SFsetLoansTVLHover}
+          setCollateralLabel={SFsetLoanLabel}
+          setUserHovering={setUserHovering}
+        ></StabilityFundChart>
+      ) : (
+        <Chart
+          selectedCollateral={selectedCollateral}
+          collateralTVLHover={loanTVLHover}
+          collateralLabel={loanLabel}
+          setCollateralTVLHover={setLoansTVLHover}
+          setCollateralLabel={setLoanLabel}
+          setUserHovering={setUserHovering}
+        ></Chart>
+      )}
+
       <Flex my={3} mx={-4}>
         <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
           <Typography variant="p" fontSize={[16, '18px']}>

@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 
-import useHistoryFor, { useHistoryForStabilityFund, useHistoryForTotal } from 'queries/historicalData';
-import { getCollateralParams } from 'queries/historicalData/predefinedOptions';
+import useHistoryFor, { useHistoryForBnUSDTotalSupply } from 'queries/historicalData';
+import { getMintedAgainstParams } from 'queries/historicalData/predefinedOptions';
 
 import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
 import LineChart, { DEFAULT_HEIGHT } from 'components/LineChart';
@@ -18,8 +18,6 @@ export default function Chart({
   setCollateralTVLHover,
   setCollateralLabel,
   setUserHovering,
-  setCollateralChange,
-  setTotalCollateral,
 }) {
   const theme = useTheme();
   const { data: collateralTokens } = useSupportedCollateralTokens();
@@ -28,10 +26,8 @@ export default function Chart({
     selectedCollateral === predefinedCollateralTypes.STABILITY_FUND;
 
   const params = useMemo(() => {
-    if (isPredefinedType) {
-      return getCollateralParams(selectedCollateral);
-    } else if (collateralTokens) {
-      return getCollateralParams(collateralTokens[selectedCollateral]);
+    if (!isPredefinedType && collateralTokens && collateralTokens[selectedCollateral]) {
+      return getMintedAgainstParams(selectedCollateral, collateralTokens[selectedCollateral]);
     }
   }, [isPredefinedType, selectedCollateral, collateralTokens]);
 
@@ -40,22 +36,10 @@ export default function Chart({
     selectedCollateral === predefinedCollateralTypes.STABILITY_FUND;
 
   const { data: historyData } = useHistoryFor(params);
-  const { data: historyDataStabilityFund } = useHistoryForStabilityFund();
-  const { data: historyDataTotal } = useHistoryForTotal();
-
-  useEffect(() => {
-    if (historyDataTotal) {
-      const valueNow = historyDataTotal[historyDataTotal.length - 1].value;
-      const valuePrev = historyDataTotal[historyDataTotal.length - 2].value;
-
-      setCollateralChange(valueNow / valuePrev - 1);
-      setTotalCollateral(valueNow);
-    }
-  }, [historyDataTotal, setCollateralChange, setTotalCollateral]);
+  const { data: historyForBnUSDTotalSupply } = useHistoryForBnUSDTotalSupply();
 
   const isDataReady =
-    (selectedCollateral === predefinedCollateralTypes.ALL && historyDataTotal) ||
-    (selectedCollateral === predefinedCollateralTypes.STABILITY_FUND && historyDataStabilityFund) ||
+    (selectedCollateral === predefinedCollateralTypes.ALL && historyForBnUSDTotalSupply) ||
     (!isPredefinedCollateral && historyData);
 
   return (
@@ -68,13 +52,7 @@ export default function Chart({
       >
         {isDataReady ? (
           <LineChart
-            data={
-              selectedCollateral === predefinedCollateralTypes.ALL
-                ? historyDataTotal
-                : selectedCollateral === predefinedCollateralTypes.STABILITY_FUND
-                ? historyDataStabilityFund?.total
-                : historyData
-            }
+            data={selectedCollateral === predefinedCollateralTypes.ALL ? historyForBnUSDTotalSupply : historyData}
             height={DEFAULT_HEIGHT}
             minHeight={DEFAULT_HEIGHT}
             color={theme.colors.primary}

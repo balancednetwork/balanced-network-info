@@ -7,6 +7,7 @@ export const DATES = {
   cx5b5a03cb525a1845d0af3a872d525b18a810acb0: new Date(2022, 8, 21).getTime(),
   //eth added to balanced collateral
   cx288d13e1b63563459a2ac6179f237711f6851cb5: new Date(2022, 11, 8).getTime(),
+  cx2609b924e33ef00b648a409245c7ea394c467824: new Date(2021, 3, 26).getTime(),
 };
 
 export const DATE_DEFAULT = new Date(2021, 3, 26).getTime();

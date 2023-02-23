@@ -73,7 +73,7 @@ export default function useHistoryFor(params: HistoryForParams | undefined): Use
             }),
           );
 
-          return dataSet.reverse();
+          return dataSet.filter(item => item).reverse();
         } catch (e) {
           console.error('useHistory fetch error: ', e);
         }
@@ -81,7 +81,6 @@ export default function useHistoryFor(params: HistoryForParams | undefined): Use
     },
     {
       keepPreviousData: true,
-      refetchOnWindowFocus: false,
     },
   );
 }
@@ -162,18 +161,35 @@ export function useHistoryForStabilityFund(
           };
         });
 
+        const stacked = IUSDCReversed.map((item, index) => {
+          const combinedItem = {
+            timestamp: item.timestamp,
+            IUSDC: item.value,
+          };
+
+          if (USDSReversed[index] && USDSReversed[index].timestamp === item.timestamp) {
+            combinedItem['USDS'] = USDSReversed[index].value;
+          }
+
+          if (BUSDReversed[index] && BUSDReversed[index].timestamp === item.timestamp) {
+            combinedItem['BUSD'] = BUSDReversed[index].value;
+          }
+
+          return combinedItem;
+        });
+
         return {
           IUSDC: filteredHistoryForIUSDC,
           USDS: filteredHistoryForUSDS,
           BUSD: filteredHistoryForBUSD,
           total: total.reverse(),
+          stacked: stacked.reverse(),
         };
       }
     },
     {
       enabled: successIUSDC && successBUSD && successUSDS,
       keepPreviousData: true,
-      refetchOnWindowFocus: false,
     },
   );
 }
@@ -272,7 +288,38 @@ export function useHistoryForTotal(
         historyForETHSuccess &&
         Object.keys(oraclePrices).length === supportedTokensCount,
       keepPreviousData: true,
-      refetchOnWindowFocus: false,
+    },
+  );
+}
+
+export function useHistoryForBnUSDTotalSupply(
+  granularity: Granularity = DEFAULT_GRANULARITY,
+  startTime?: number,
+  endTime?: number,
+) {
+  const fiveMinPeriod = 1000 * 300;
+  const now = Math.floor(new Date().getTime() / fiveMinPeriod) * fiveMinPeriod;
+
+  const startTimestamp = startTime || DATE_DEFAULT;
+  const endTimestamp = endTime || now;
+
+  const { data: historyForBnUSDTotal, isSuccess: historyForBnUSDTotalSuccess } = useHistoryFor({
+    contractAddress: bnJs.bnUSD.address,
+    method: 'totalSupply',
+    granularity: granularity,
+    startTime: startTimestamp,
+    endTime: endTimestamp,
+    transformation: item => new BigNumber(formatUnits(item, 18, 10)).toNumber(),
+  });
+
+  return useQuery(
+    `historyForBnUSDTotal${granularity}-${startTimestamp}-${endTimestamp}`,
+    () => {
+      return historyForBnUSDTotal;
+    },
+    {
+      enabled: historyForBnUSDTotalSuccess,
+      keepPreviousData: true,
     },
   );
 }

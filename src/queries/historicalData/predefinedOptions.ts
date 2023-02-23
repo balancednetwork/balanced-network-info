@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js';
 
 import bnJs from 'bnJs';
 import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
+import { SUPPORTED_TOKENS_MAP_BY_ADDRESS } from 'constants/tokens';
 import { formatUnits } from 'utils';
 
 import { DATES, DATE_DEFAULT, DEFAULT_GRANULARITY } from './dates';
@@ -25,26 +26,12 @@ export function getCollateralParams(
   collateralType: string,
   granularity: Granularity = DEFAULT_GRANULARITY,
   startTime?: number,
-): HistoryForParams {
+): HistoryForParams | undefined {
   switch (collateralType) {
     case predefinedCollateralTypes.ALL:
-      return {
-        contract: 'sICX',
-        method: 'balanceOf',
-        methodParams: [{ isNumber: false, value: bnJs.Loans.address }],
-        granularity: granularity,
-        startTime: startTime || DATE_DEFAULT,
-        transformation: item => new BigNumber(formatUnits(item, 18, 18)).toNumber(),
-      };
+      return;
     case predefinedCollateralTypes.STABILITY_FUND:
-      return {
-        contract: 'sICX',
-        method: 'balanceOf',
-        methodParams: [{ isNumber: false, value: bnJs.Loans.address }],
-        granularity: granularity,
-        startTime: startTime || DATE_DEFAULT,
-        transformation: item => new BigNumber(formatUnits(item, 18, 18)).toNumber(),
-      };
+      return;
     default:
       return {
         contract: collateralType === 'sICX' ? 'sICX' : undefined,
@@ -53,6 +40,32 @@ export function getCollateralParams(
         methodParams: [{ isNumber: false, value: bnJs.Loans.address }],
         granularity: granularity,
         startTime: startTime || DATES[collateralType] || DATE_DEFAULT,
+        transformation: item => new BigNumber(formatUnits(item, 18, 18)).toNumber(),
+      };
+  }
+}
+
+export function getMintedAgainstParams(
+  collateralType: string,
+  collateralAddress: string,
+  granularity: Granularity = DEFAULT_GRANULARITY,
+  startTime?: number,
+): HistoryForParams | undefined {
+  switch (collateralType) {
+    case predefinedCollateralTypes.ALL:
+      return;
+    case predefinedCollateralTypes.STABILITY_FUND:
+      return;
+    default:
+      return {
+        contract: 'Loans',
+        method: 'getTotalCollateralDebt',
+        methodParams: [
+          { isNumber: false, value: collateralType },
+          { isNumber: false, value: 'bnUSD' },
+        ],
+        granularity: granularity,
+        startTime: startTime || DATES[collateralAddress] || DATE_DEFAULT,
         transformation: item => new BigNumber(formatUnits(item, 18, 18)).toNumber(),
       };
   }
