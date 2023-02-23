@@ -3,7 +3,7 @@ import React, { Dispatch, SetStateAction, ReactNode } from 'react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { ContractMethodsDataType } from 'queries/backendv2';
-import { Flex } from 'rebass';
+import { Box, Flex } from 'rebass';
 import { ResponsiveContainer, XAxis, YAxis, Tooltip, AreaChart, Area } from 'recharts';
 import styled, { css } from 'styled-components';
 
@@ -53,6 +53,16 @@ const StyledTooltipContainer = styled(TooltipContainer)`
   `};
 `;
 
+const Dot = styled(Box)<{ color: string }>`
+  width: 2px;
+  height: 14px;
+  border-radius: 5px;
+  position: relative;
+  margin-right: 15px;
+  transform: translate3d(-6px, 4px, 0);
+  ${({ color }) => `background: ${color}`};
+`;
+
 const Chart = ({
   data,
   color = '#56B2A4',
@@ -78,16 +88,26 @@ const Chart = ({
         setLabel(formattedTime);
       }
 
+      if (setValue) {
+        setValue(
+          Math.round(payload[0].payload.IUSDC || 0) +
+            Math.round(payload[0].payload.USDS || 0) +
+            Math.round(payload[0].payload.BUSD || 0),
+        );
+      }
+
       return payload[0].payload.IUSDC ? (
         <StyledTooltipContainer>
           <Flex>
+            <Dot color="#2875ca"></Dot>
             {`${getFormattedNumber(payload[0].payload.IUSDC, 'number')}`}
             <Typography opacity={0.75} ml="5px">
               IUSDC
             </Typography>
           </Flex>
           {payload[0].payload.USDS ? (
-            <Flex>
+            <Flex mt="2px">
+              <Dot color="#ab00ff"></Dot>
               {`${getFormattedNumber(payload[0].payload.USDS, 'number')}`}
               <Typography opacity={0.75} ml="5px">
                 USDS
@@ -95,7 +115,8 @@ const Chart = ({
             </Flex>
           ) : null}
           {payload[0].payload.BUSD ? (
-            <Flex>
+            <Flex mt="2px">
+              <Dot color="#f0b90c"></Dot>
               {`${getFormattedNumber(payload[0].payload.BUSD, 'number')}`}
               <Typography opacity={0.75} ml="5px">
                 BUSD

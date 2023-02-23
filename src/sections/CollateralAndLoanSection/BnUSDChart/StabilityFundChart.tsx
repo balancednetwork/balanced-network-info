@@ -1,17 +1,10 @@
-import React, { useEffect, useMemo } from 'react';
+import React from 'react';
 
-import useHistoryFor, {
-  useHistoryForBnUSDTotalSupply,
-  useHistoryForStabilityFund,
-  useHistoryForTotal,
-} from 'queries/historicalData';
-import { getCollateralParams, getMintedAgainstParams } from 'queries/historicalData/predefinedOptions';
+import { useHistoryForStabilityFund } from 'queries/historicalData';
 
-import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
 import MultiLineChart, { DEFAULT_HEIGHT } from 'components/MultiLineChart';
 import Spinner from 'components/Spinner';
 import useTheme from 'hooks/useTheme';
-import { useSupportedCollateralTokens } from 'store/collateral/hooks';
 
 import { ChartContainer } from '..';
 
@@ -20,20 +13,18 @@ export default function Chart({
   collateralLabel,
   setCollateralTVLHover,
   setCollateralLabel,
-  setUserHovering,
+  setTotalStabilityFundBnUSD,
 }) {
   const theme = useTheme();
-  const { data: collateralTokens } = useSupportedCollateralTokens();
   const { data: historyDataStabilityFund } = useHistoryForStabilityFund();
+
+  React.useEffect(() => {
+    setTotalStabilityFundBnUSD(historyDataStabilityFund?.total[historyDataStabilityFund?.total.length - 1].value);
+  }, [historyDataStabilityFund, setTotalStabilityFundBnUSD]);
 
   return (
     <>
-      <ChartContainer
-        onMouseEnter={() => setUserHovering(true)}
-        onMouseLeave={() => setUserHovering(false)}
-        onTouchStart={() => setUserHovering(true)}
-        onTouchEnd={() => setUserHovering(false)}
-      >
+      <ChartContainer>
         {historyDataStabilityFund ? (
           <MultiLineChart
             data={historyDataStabilityFund.stacked}

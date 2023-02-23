@@ -17,6 +17,7 @@ export default function Chart({
   collateralLabel,
   setCollateralTVLHover,
   setCollateralLabel,
+  setTotalBnUSD,
   setUserHovering,
 }) {
   const theme = useTheme();
@@ -41,6 +42,18 @@ export default function Chart({
   const isDataReady =
     (selectedCollateral === predefinedCollateralTypes.ALL && historyForBnUSDTotalSupply) ||
     (!isPredefinedCollateral && historyData);
+
+  React.useEffect(() => {
+    if (isDataReady) {
+      if (selectedCollateral === predefinedCollateralTypes.ALL) {
+        setTotalBnUSD(
+          historyForBnUSDTotalSupply && historyForBnUSDTotalSupply[historyForBnUSDTotalSupply.length - 1].value,
+        );
+      } else if (!isPredefinedCollateral) {
+        setTotalBnUSD(historyData && historyData[historyData.length - 1].value);
+      }
+    }
+  });
 
   return (
     <>

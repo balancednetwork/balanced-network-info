@@ -46,7 +46,7 @@ export default function CollateralAndLoanSection() {
   return (
     <ChartSection>
       <CollateralChart selectedCollateral={selectedCollateral} setCollateral={setCollateral}></CollateralChart>
-      <BnUSDChart selectedCollateral={selectedCollateral} setCollateral={setCollateral}></BnUSDChart>
+      <BnUSDChart selectedCollateral={selectedCollateral}></BnUSDChart>
     </ChartSection>
   );
 }
