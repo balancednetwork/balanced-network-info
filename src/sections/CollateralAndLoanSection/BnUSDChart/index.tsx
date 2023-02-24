@@ -86,7 +86,7 @@ export default function BnUSDChart({ selectedCollateral }: { selectedCollateral:
               <Typography variant="p" fontSize={[16, '18px']}>
                 {fundInfo ? getFormattedNumber(fundInfo.feesGenerated, 'price') : <LoaderComponent />}
               </Typography>
-              <Typography opacity={0.75}>Fees earned</Typography>
+              <Typography opacity={0.75}>Earned past month</Typography>
             </Flex>
           </>
         ) : (
