@@ -18,6 +18,7 @@ import { getFormattedNumber } from 'utils/formatter';
 
 import { ChartPanel } from '..';
 import Chart from './Chart';
+import StabilityFundChart from './StabilityFundChart';
 
 export default function CollateralChart({
   selectedCollateral,
@@ -38,6 +39,7 @@ export default function CollateralChart({
   const [userHovering, setUserHovering] = React.useState<boolean>(false);
 
   const [totalCollateral, setTotalCollateral] = React.useState<undefined | number>();
+  const [totalStabilityFundBnUSD, setTotalStabilityFundBnUSD] = React.useState<undefined | number>();
   const [collateralChange, setCollateralChange] = React.useState<undefined | number>();
 
   const collateralTVLInUSDHover = useMemo(
@@ -59,8 +61,8 @@ export default function CollateralChart({
       if (selectedCollateral === predefinedCollateralTypes.ALL && collateralInfo.totalTVL) {
         setCollateralTVLHover(collateralInfo.totalTVL);
       } else if (selectedCollateral === predefinedCollateralTypes.STABILITY_FUND) {
-        if (collateralInfo.stabilityFundTotal) {
-          setCollateralTVLHover(collateralInfo.stabilityFundTotal);
+        if (totalStabilityFundBnUSD) {
+          setCollateralTVLHover(totalStabilityFundBnUSD);
         }
       } else {
         if (collateralInfo.totalCollaterals[selectedCollateral]) {
@@ -68,7 +70,7 @@ export default function CollateralChart({
         }
       }
     }
-  }, [collateralInfo, selectedCollateral, userHovering]);
+  }, [collateralInfo, selectedCollateral, userHovering, totalStabilityFundBnUSD]);
 
   const [ref, width] = useWidth();
 
@@ -109,16 +111,27 @@ export default function CollateralChart({
           )}
       </Flex>
 
-      <Chart
-        selectedCollateral={selectedCollateral}
-        collateralTVLHover={collateralTVLHover}
-        collateralLabel={collateralLabel}
-        setCollateralTVLHover={setCollateralTVLHover}
-        setCollateralLabel={setCollateralLabel}
-        setUserHovering={setUserHovering}
-        setCollateralChange={setCollateralChange}
-        setTotalCollateral={setTotalCollateral}
-      ></Chart>
+      {selectedCollateral === predefinedCollateralTypes.STABILITY_FUND ? (
+        <StabilityFundChart
+          collateralTVLHover={collateralTVLHover}
+          collateralLabel={collateralLabel}
+          setCollateralTVLHover={setCollateralTVLHover}
+          setCollateralLabel={setCollateralLabel}
+          setTotalStabilityFundBnUSD={setTotalStabilityFundBnUSD}
+          setUserHovering={setUserHovering}
+        ></StabilityFundChart>
+      ) : (
+        <Chart
+          selectedCollateral={selectedCollateral}
+          collateralTVLHover={collateralTVLHover}
+          collateralLabel={collateralLabel}
+          setCollateralTVLHover={setCollateralTVLHover}
+          setCollateralLabel={setCollateralLabel}
+          setUserHovering={setUserHovering}
+          setCollateralChange={setCollateralChange}
+          setTotalCollateral={setTotalCollateral}
+        ></Chart>
+      )}
 
       {/* Flexible chart footer */}
       <Flex my={3}>

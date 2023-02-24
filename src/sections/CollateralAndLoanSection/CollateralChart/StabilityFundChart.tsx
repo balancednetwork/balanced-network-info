@@ -14,6 +14,7 @@ export default function Chart({
   setCollateralTVLHover,
   setCollateralLabel,
   setTotalStabilityFundBnUSD,
+  setUserHovering,
 }) {
   const theme = useTheme();
   const { data: historyDataStabilityFund } = useHistoryForStabilityFund();
@@ -24,7 +25,12 @@ export default function Chart({
 
   return (
     <>
-      <ChartContainer>
+      <ChartContainer
+        onMouseEnter={() => setUserHovering(true)}
+        onMouseLeave={() => setUserHovering(false)}
+        onTouchStart={() => setUserHovering(true)}
+        onTouchEnd={() => setUserHovering(false)}
+      >
         {historyDataStabilityFund ? (
           <MultiLineChart
             data={historyDataStabilityFund.stacked}

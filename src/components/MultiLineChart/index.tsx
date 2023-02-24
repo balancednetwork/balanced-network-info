@@ -54,7 +54,7 @@ const StyledTooltipContainer = styled(TooltipContainer)`
 `;
 
 const Dot = styled(Box)<{ color: string }>`
-  width: 2px;
+  width: 5px;
   height: 14px;
   border-radius: 5px;
   position: relative;
