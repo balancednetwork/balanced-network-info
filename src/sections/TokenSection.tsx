@@ -1,7 +1,7 @@
 import React, { createRef, forwardRef } from 'react';
 
 import { Skeleton } from '@material-ui/lab';
-import { MetaToken, useAllTokens } from 'queries';
+import { MetaToken, useAllTokensOLD } from 'queries';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled, { css } from 'styled-components';
 
@@ -228,7 +228,7 @@ const TokenItem = forwardRef(({ token, isLast }: TokenItemProps, ref) => (
 ));
 
 export default React.memo(function TokenSection() {
-  const allTokens = useAllTokens();
+  const allTokens = useAllTokensOLD();
   const { sortBy, handleSortSelect, sortData } = useSort({ key: 'name', order: 'ASC' });
 
   return (

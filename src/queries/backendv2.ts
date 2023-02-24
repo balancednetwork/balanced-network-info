@@ -3,6 +3,8 @@ import { useQuery } from 'react-query';
 
 const API_ENDPOINT = 'https://balanced.icon.community/api/v1/';
 
+const API_ENDPOINT_VULTR = 'https://balanced.mainnet.sng.vultr.icon.community/api/v1/';
+
 export type ContractMethodsDataType = {
   address: string;
   timestamp: number;
@@ -41,3 +43,20 @@ export const useContractMethodsDataQuery = (
     },
   );
 };
+
+export function useAllTokens(mapBy?: 'symbol' | 'address') {
+  return useQuery(`allTokens${mapBy}`, async () => {
+    const response = await axios.get(`${API_ENDPOINT_VULTR}tokens`);
+
+    if (response.status === 200) {
+      if (mapBy) {
+        return response.data.reduce((allTokens, item) => {
+          allTokens[item[mapBy]] = item;
+          return allTokens;
+        }, {});
+      } else {
+        return response.data;
+      }
+    }
+  });
+}

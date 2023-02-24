@@ -1,5 +1,6 @@
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
+import { useAllTokens } from 'queries/backendv2';
 import { BlockDetails } from 'queries/blockDetails';
 import { useQuery, UseQueryResult } from 'react-query';
 
@@ -202,6 +203,9 @@ export function useHistoryForTotal(
   const fiveMinPeriod = 1000 * 300;
   const now = Math.floor(new Date().getTime() / fiveMinPeriod) * fiveMinPeriod;
   const oraclePrices = useOraclePrices();
+  const { data: allTokens } = useAllTokens('address');
+
+  console.log(allTokens);
 
   const startTimestamp = startTime || DATE_DEFAULT;
   const endTimestamp = endTime || now;

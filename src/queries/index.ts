@@ -535,7 +535,7 @@ export const useAllTokensQuery = () => {
   return useQuery<{ timestamp: number; tokens: { [key in string]: MetaToken } }>('useAllTokensQuery', fetch);
 };
 
-export const useAllTokens = () => {
+export const useAllTokensOLD = () => {
   const holdersQuery = useAllTokensHoldersQuery();
   const allTokensQuery = useAllTokensQuery();
 

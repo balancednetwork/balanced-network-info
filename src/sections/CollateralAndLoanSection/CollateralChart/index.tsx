@@ -157,12 +157,12 @@ export default function CollateralChart({
               {collateralChange === undefined ? (
                 <LoaderComponent></LoaderComponent>
               ) : collateralChange >= 0 ? (
-                <Typography fontSize={18} color="primaryBright">{`+ ${getFormattedNumber(
+                <Typography fontSize={18} color="text">{`+ ${getFormattedNumber(
                   collateralChange,
                   'percent2',
                 )}`}</Typography>
               ) : (
-                <Typography fontSize={18} color="alert">
+                <Typography fontSize={18} color="text">
                   {getFormattedNumber(collateralChange, 'percent2').replace('-', '- ')}
                 </Typography>
               )}
