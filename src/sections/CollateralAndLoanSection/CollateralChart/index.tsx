@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
 import { useCollateralInfo, useLoanInfo } from 'queries';
 import { DEFAULT_GRANULARITY, DEFAULT_GRANULARITY_FORMATTED } from 'queries/historicalData/dates';
+import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 
 import CollateralSelector from 'components/CollateralSelector';
@@ -73,6 +74,7 @@ export default function CollateralChart({
   }, [collateralInfo, selectedCollateral, userHovering, totalStabilityFundBnUSD]);
 
   const [ref, width] = useWidth();
+  const isExtraSmall = useMedia('(max-width: 480px)');
 
   return (
     <ChartPanel bg="bg2">
@@ -95,7 +97,7 @@ export default function CollateralChart({
         </Typography>
       </Flex>
 
-      <Flex>
+      <Flex mb={1}>
         <Typography variant="p" color="text2" fontSize={18}>
           {collateralLabel ? <>{collateralLabel}</> : <>{dayjs.utc().format('MMM D, YYYY')}</>}
         </Typography>
@@ -134,7 +136,7 @@ export default function CollateralChart({
       )}
 
       {/* Flexible chart footer */}
-      <Flex my={3}>
+      <Flex my={3} flexWrap="wrap">
         {selectedCollateral === 'All' ? (
           <>
             <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
@@ -143,7 +145,7 @@ export default function CollateralChart({
               </Typography>
               <Typography opacity={0.75}>Collateral types</Typography>
             </Flex>
-            <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
+            <Flex flex={1} flexDirection="column" alignItems="center" className={isExtraSmall ? '' : 'border-right'}>
               <Typography variant="p" fontSize="18px">
                 {totalCollateral && loanInfo.totalBnUSD ? (
                   getFormattedNumber(totalCollateral / loanInfo.totalBnUSD, 'percent0')
@@ -153,7 +155,13 @@ export default function CollateralChart({
               </Typography>
               <Typography opacity={0.75}>Collateral ratio</Typography>
             </Flex>
-            <Flex flex={1} flexDirection="column" alignItems="center">
+            <Flex
+              flex={isExtraSmall ? null : 1}
+              mt={isExtraSmall ? '20px' : 0}
+              flexDirection="column"
+              alignItems="center"
+              width={isExtraSmall ? '100%' : 'auto'}
+            >
               {collateralChange === undefined ? (
                 <LoaderComponent></LoaderComponent>
               ) : collateralChange >= 0 ? (
@@ -196,13 +204,19 @@ export default function CollateralChart({
               </Typography>
               <Typography opacity={0.75}>Staking APY</Typography>
             </Flex>
-            <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
+            <Flex flex={1} flexDirection="column" alignItems="center" className={isExtraSmall ? '' : 'border-right'}>
               <Typography variant="p" fontSize="18px">
                 {collateralInfo?.rate ? getFormattedNumber(collateralInfo.rate, 'number4') : <LoaderComponent />}
               </Typography>
               <Typography opacity={0.75}>sICX / ICX price</Typography>
             </Flex>
-            <Flex flex={1} flexDirection="column" alignItems="center">
+            <Flex
+              flex={isExtraSmall ? null : 1}
+              mt={isExtraSmall ? '20px' : 0}
+              flexDirection="column"
+              alignItems="center"
+              width={isExtraSmall ? '100%' : 'auto'}
+            >
               <Typography variant="p" fontSize="18px">
                 count**
               </Typography>

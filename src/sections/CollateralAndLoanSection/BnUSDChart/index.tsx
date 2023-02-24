@@ -1,9 +1,11 @@
 import React from 'react';
 
 import dayjs from 'dayjs';
-import { useLoanInfo } from 'queries';
+import { useFundInfo, useLoanInfo } from 'queries';
+import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 
+import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
 import { LoaderComponent } from 'pages/PerformanceDetails/utils';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
@@ -13,6 +15,7 @@ import Chart from './Chart';
 
 export default function BnUSDChart({ selectedCollateral }: { selectedCollateral: string }) {
   const loanInfo = useLoanInfo();
+  const { data: fundInfo } = useFundInfo();
 
   const [userHovering, setUserHovering] = React.useState<boolean>(false);
 
@@ -26,6 +29,8 @@ export default function BnUSDChart({ selectedCollateral }: { selectedCollateral:
       setBnUSDHover(totalBnUSD);
     }
   }, [bnUSDHover, totalBnUSD, userHovering]);
+
+  const isExtraSmall = useMedia('(max-width: 480px)');
 
   return (
     <ChartPanel bg="bg2">
@@ -55,25 +60,63 @@ export default function BnUSDChart({ selectedCollateral }: { selectedCollateral:
         setUserHovering={setUserHovering}
       ></Chart>
 
-      <Flex my={3} mx={-4}>
-        <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
-          <Typography variant="p" fontSize={[16, '18px']}>
-            {loanInfo.loansAPY ? getFormattedNumber(loanInfo.loansAPY, 'percent2') : <LoaderComponent />}
-          </Typography>
-          <Typography opacity={0.75}>Borrow APY</Typography>
-        </Flex>
-        <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
-          <Typography variant="p" fontSize={[16, '18px']}>
-            {loanInfo.dailyRewards ? getFormattedNumber(loanInfo.dailyRewards, 'number') : <LoaderComponent />} BALN
-          </Typography>
-          <Typography opacity={0.75}>Daily rewards</Typography>
-        </Flex>
-        <Flex flex={1} flexDirection="column" alignItems="center">
-          <Typography variant="p" fontSize={[16, '18px']}>
-            {loanInfo.borrowers ? getFormattedNumber(loanInfo.borrowers, 'number') : <LoaderComponent />}
-          </Typography>
-          <Typography opacity={0.75}>Borrowers</Typography>
-        </Flex>
+      {/* flexible footer */}
+      <Flex my={3} flexWrap="wrap">
+        {selectedCollateral === predefinedCollateralTypes.STABILITY_FUND ? (
+          <>
+            <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
+              <Typography variant="p" fontSize={[16, '18px']}>
+                {fundInfo ? `${fundInfo.feeIn}%` : <LoaderComponent />}
+              </Typography>
+              <Typography opacity={0.75}>bnUSD in fee</Typography>
+            </Flex>
+            <Flex flex={1} flexDirection="column" alignItems="center" className={isExtraSmall ? '' : 'border-right'}>
+              <Typography variant="p" fontSize={[16, '18px']}>
+                {fundInfo ? `${fundInfo.feeOut}%` : <LoaderComponent />}
+              </Typography>
+              <Typography opacity={0.75}>bnUSD out fee</Typography>
+            </Flex>
+            <Flex
+              flex={isExtraSmall ? null : 1}
+              mt={isExtraSmall ? '20px' : 0}
+              flexDirection="column"
+              alignItems="center"
+              width={isExtraSmall ? '100%' : 'auto'}
+            >
+              <Typography variant="p" fontSize={[16, '18px']}>
+                {fundInfo ? getFormattedNumber(fundInfo.feesGenerated, 'price') : <LoaderComponent />}
+              </Typography>
+              <Typography opacity={0.75}>Fees earned</Typography>
+            </Flex>
+          </>
+        ) : (
+          <>
+            <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
+              <Typography variant="p" fontSize={[16, '18px']}>
+                {loanInfo.loansAPY ? getFormattedNumber(loanInfo.loansAPY, 'percent2') : <LoaderComponent />}
+              </Typography>
+              <Typography opacity={0.75}>Borrow APY</Typography>
+            </Flex>
+            <Flex flex={1} flexDirection="column" alignItems="center" className={isExtraSmall ? '' : 'border-right'}>
+              <Typography variant="p" fontSize={[16, '18px']}>
+                {loanInfo.dailyRewards ? getFormattedNumber(loanInfo.dailyRewards, 'number') : <LoaderComponent />} BALN
+              </Typography>
+              <Typography opacity={0.75}>Daily rewards</Typography>
+            </Flex>
+            <Flex
+              flex={isExtraSmall ? null : 1}
+              mt={isExtraSmall ? '20px' : 0}
+              flexDirection="column"
+              alignItems="center"
+              width={isExtraSmall ? '100%' : 'auto'}
+            >
+              <Typography variant="p" fontSize={[16, '18px']}>
+                {loanInfo.borrowers ? getFormattedNumber(loanInfo.borrowers, 'number') : <LoaderComponent />}
+              </Typography>
+              <Typography opacity={0.75}>Borrowers</Typography>
+            </Flex>
+          </>
+        )}
       </Flex>
     </ChartPanel>
   );

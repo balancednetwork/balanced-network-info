@@ -1,6 +1,7 @@
 import React, { createRef, forwardRef } from 'react';
 
 import { useAllPairs, useAllPairsTotal } from 'queries';
+import { isMobile } from 'react-device-detect';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
@@ -80,7 +81,10 @@ const StyledSkeleton = styled(Skeleton)`
 `;
 
 const QuestionWrapper = styled(Box)`
-  margin: 0 5px 0 5px;
+  width: 0;
+  margin: 0 5px;
+  overflow: hidden;
+  display: inline;
 `;
 
 function TotalIcon() {
@@ -219,28 +223,30 @@ export default function PairSection() {
                 })
               }
             >
-              <MouseoverTooltip
-                width={330}
-                text={
-                  <>
-                    <Typography>
-                      The BALN APY is calculated from the USD value of BALN rewards allocated to a pool. Your rate will
-                      vary based on the amount of bBALN you hold.
-                    </Typography>
-                    <Typography marginTop={'20px'}>
-                      The fee APY is calculated from the swap fees earned by a pool in the last 30 days.
-                    </Typography>
-                    <Typography marginTop={'20px'} color={theme.colors.text1} fontSize={14}>
-                      Impermanent loss is not factored in.
-                    </Typography>
-                  </>
-                }
-                placement="top"
-              >
-                <QuestionWrapper onClick={e => e.stopPropagation()}>
-                  <QuestionIcon className="header-tooltip" width={14} />
-                </QuestionWrapper>
-              </MouseoverTooltip>
+              {!isMobile && (
+                <MouseoverTooltip
+                  width={330}
+                  text={
+                    <>
+                      <Typography>
+                        The BALN APY is calculated from the USD value of BALN rewards allocated to a pool. Your rate
+                        will vary based on the amount of bBALN you hold.
+                      </Typography>
+                      <Typography marginTop={'20px'}>
+                        The fee APY is calculated from the swap fees earned by a pool in the last 30 days.
+                      </Typography>
+                      <Typography marginTop={'20px'} color={theme.colors.text1} fontSize={14}>
+                        Impermanent loss is not factored in.
+                      </Typography>
+                    </>
+                  }
+                  placement="top"
+                >
+                  <QuestionWrapper onClick={e => e.stopPropagation()}>
+                    <QuestionIcon className="header-tooltip" width={14} />
+                  </QuestionWrapper>
+                </MouseoverTooltip>
+              )}
               APY
             </HeaderText>
             <HeaderText

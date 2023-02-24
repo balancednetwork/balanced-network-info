@@ -945,6 +945,37 @@ export function useFundLimits(): UseQueryResult<{ [key: string]: CurrencyAmount<
   );
 }
 
+export function useFundInfo() {
+  const fiveMinPeriod = 1000 * 300;
+  const now = Math.floor(new Date().getTime() / fiveMinPeriod) * fiveMinPeriod;
+  const { data: blockThen, isSuccess: blockHeightSuccess } = useBlockDetails(
+    new Date(now).setDate(new Date().getDate() - 30),
+  );
+
+  return useQuery(
+    'fundInfo',
+    async () => {
+      const feeIn = await bnJs.StabilityFund.getFeeIn();
+      const feeOut = await bnJs.StabilityFund.getFeeOut();
+
+      const fundFeesNow = await bnJs.FeeHandler.getStabilityFundFeesAccrued();
+      const fundFeesThen = await bnJs.FeeHandler.getStabilityFundFeesAccrued(blockThen?.number);
+
+      return {
+        feeIn: Number(formatUnits(feeIn, 18, 2)),
+        feeOut: Number(formatUnits(feeOut, 18, 2)),
+        feesGenerated: new BigNumber(formatUnits(fundFeesNow))
+          .minus(new BigNumber(formatUnits(fundFeesThen)))
+          .toNumber(),
+      };
+    },
+    {
+      enabled: blockHeightSuccess,
+      keepPreviousData: true,
+    },
+  );
+}
+
 type Source = {
   balance: BigNumber;
   supply: BigNumber;
