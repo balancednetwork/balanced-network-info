@@ -159,10 +159,7 @@ export const useEarningsDataQuery = (
           blockStart.timestamp < OLD_FEES_DISTRIBUTION_SWITCH_DATE &&
           OLD_FEES_DISTRIBUTION_SWITCH_DATE < blockEnd.timestamp
         ) {
-          //////////////////////////////////////////
-          /////////////////////////////////////////
-          ////////////////////////////////////////
-
+          // Split earning periods to before and after distribution ratio switch
           try {
             const loanFeesStartBefore = await bnJs.FeeHandler.getLoanFeesAccrued(blockStart.number);
             const loanFeesEndBefore = await bnJs.FeeHandler.getLoanFeesAccrued(FEES_SWITCH_BLOCK_HEIGHT);
@@ -331,11 +328,8 @@ export const useEarningsDataQuery = (
           } catch (e) {
             console.error('Error calculating dao earnings: ', e);
           }
-
-          //////////////////////////////////////////
-          /////////////////////////////////////////
-          ////////////////////////////////////////
         } else {
+          //Calculate earning periods without distribution ratio switch
           try {
             const loanFeesStart = await bnJs.FeeHandler.getLoanFeesAccrued(blockStart.number);
             const loanFeesEnd = await bnJs.FeeHandler.getLoanFeesAccrued(blockEnd.number);
