@@ -69,7 +69,10 @@ export const useRatesQuery = () => {
 };
 
 const API_ENDPOINT = process.env.NODE_ENV === 'production' ? 'https://balanced.sudoblock.io/api/v1' : '/api/v1';
-const PERCENTAGE_DISTRIBUTED = new BigNumber(0.6);
+const PERCENTAGE_DISTRIBUTED_OLD = new BigNumber(0.6);
+const PERCENTAGE_DISTRIBUTED = new BigNumber(0.3);
+const OLD_FEES_DISTRIBUTION_SWITCH_DATE = new Date('February 22, 2023 05:13:26').getTime() * 1_000;
+const FEES_SWITCH_BLOCK_HEIGHT = 62242760;
 
 export const LAUNCH_DAY = 1619398800000000;
 export const ONE_DAY = 86400000000;
@@ -100,127 +103,362 @@ export const useEarningsDataQuery = (
     `${cacheItem}${blockStart && blockStart.number}${blockEnd && blockEnd.number}${rates && Object.keys(rates).length}`,
     async () => {
       if (blockStart?.number && blockEnd?.number && rates) {
-        try {
-          const loanFeesStart = await bnJs.FeeHandler.getLoanFeesAccrued(blockStart.number);
-          const loanFeesEnd = await bnJs.FeeHandler.getLoanFeesAccrued(blockEnd.number);
+        const networkFeesStartRaw = await bnJs.DAOFund.getFeeEarnings(blockStart.number);
+        const networkFeesEndRaw = await bnJs.DAOFund.getFeeEarnings(blockEnd.number);
 
-          const fundFeesStart = await bnJs.FeeHandler.getStabilityFundFeesAccrued(blockStart.number);
-          const fundFeesEnd = await bnJs.FeeHandler.getStabilityFundFeesAccrued(blockEnd.number);
+        const liquidityStart = await bnJs.DAOFund.getBalnEarnings(blockStart.number);
+        const liquidityEnd = await bnJs.DAOFund.getBalnEarnings(blockEnd.number);
 
-          //swap fees
-          const bnUSDFeesStart = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.bnUSD.address, blockStart.number);
-          const bnUSDFeesEnd = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.bnUSD.address, blockEnd.number);
-
-          const sICXFeesStart = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.sICX.address, blockStart.number);
-          const sICXFeesEnd = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.sICX.address, blockEnd.number);
-
-          const balnFeesStart = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.BALN.address, blockStart.number);
-          const balnFeesEnd = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.BALN.address, blockEnd.number);
-
-          const networkFeesStartRaw = await bnJs.DAOFund.getFeeEarnings(blockStart.number);
-          const networkFeesEndRaw = await bnJs.DAOFund.getFeeEarnings(blockEnd.number);
-
-          const liquidityStart = await bnJs.DAOFund.getBalnEarnings(blockStart.number);
-          const liquidityEnd = await bnJs.DAOFund.getBalnEarnings(blockEnd.number);
-
-          const networkFeesStart = Object.keys(networkFeesStartRaw).reduce((fees, contract) => {
-            const currencyAmount = CurrencyAmount.fromRawAmount(
-              SUPPORTED_TOKENS_MAP_BY_ADDRESS[contract],
-              networkFeesStartRaw[contract],
-            );
-            fees[contract] = {
-              value: new BigNumber(currencyAmount.toFixed()).times(rates[currencyAmount.currency.symbol!]),
-              amount: new BigNumber(currencyAmount.toFixed()),
-            };
-            return fees;
-          }, {});
-
-          const networkFeesEnd = Object.keys(networkFeesEndRaw).reduce((fees, contract) => {
-            const currencyAmount = CurrencyAmount.fromRawAmount(
-              SUPPORTED_TOKENS_MAP_BY_ADDRESS[contract],
-              networkFeesEndRaw[contract],
-            );
-            fees[contract] = {
-              value: new BigNumber(currencyAmount.toFixed()).times(rates[currencyAmount.currency.symbol!]),
-              amount: new BigNumber(currencyAmount.toFixed()),
-            };
-            return fees;
-          }, {});
-
-          const networkFeesIncome = Object.keys(networkFeesEnd).reduce((net, contract) => {
-            if (networkFeesStart[contract]) {
-              net[contract] = {
-                value: networkFeesEnd[contract].value.minus(networkFeesStart[contract].value),
-                amount: networkFeesEnd[contract].amount.minus(networkFeesStart[contract].amount),
-              };
-            } else {
-              net[contract] = {
-                value: networkFeesEnd[contract].value,
-                amount: networkFeesEnd[contract].amount,
-              };
-            }
-            return net;
-          }, {} as { [key: string]: { value: BigNumber; amount: BigNumber } });
-
-          const bnUSDIncome = new BigNumber(formatUnits(bnUSDFeesEnd)).minus(
-            new BigNumber(formatUnits(bnUSDFeesStart)),
+        const networkFeesStart = Object.keys(networkFeesStartRaw).reduce((fees, contract) => {
+          const currencyAmount = CurrencyAmount.fromRawAmount(
+            SUPPORTED_TOKENS_MAP_BY_ADDRESS[contract],
+            networkFeesStartRaw[contract],
           );
-          const sICXIncome = new BigNumber(formatUnits(sICXFeesEnd)).minus(new BigNumber(formatUnits(sICXFeesStart)));
-          const balnIncome = new BigNumber(formatUnits(balnFeesEnd)).minus(new BigNumber(formatUnits(balnFeesStart)));
-          const loansIncome = new BigNumber(formatUnits(loanFeesEnd)).minus(new BigNumber(formatUnits(loanFeesStart)));
-          const fundIncome = new BigNumber(formatUnits(fundFeesEnd)).minus(new BigNumber(formatUnits(fundFeesStart)));
-          const liquidityIncome = {
-            amount: new BigNumber(formatUnits(liquidityEnd || 0)).minus(
-              new BigNumber(formatUnits(liquidityStart || 0)),
-            ),
-            value: new BigNumber(formatUnits(liquidityEnd || 0))
-              .minus(new BigNumber(formatUnits(liquidityStart || 0)))
-              .times(rates['BALN']),
+          fees[contract] = {
+            value: new BigNumber(currencyAmount.toFixed()).times(rates[currencyAmount.currency.symbol!]),
+            amount: new BigNumber(currencyAmount.toFixed()),
           };
+          return fees;
+        }, {});
 
-          return {
-            income: {
-              loans: loansIncome,
-              fund: fundIncome,
-              liquidity: liquidityIncome,
-              swaps: {
+        const networkFeesEnd = Object.keys(networkFeesEndRaw).reduce((fees, contract) => {
+          const currencyAmount = CurrencyAmount.fromRawAmount(
+            SUPPORTED_TOKENS_MAP_BY_ADDRESS[contract],
+            networkFeesEndRaw[contract],
+          );
+          fees[contract] = {
+            value: new BigNumber(currencyAmount.toFixed()).times(rates[currencyAmount.currency.symbol!]),
+            amount: new BigNumber(currencyAmount.toFixed()),
+          };
+          return fees;
+        }, {});
+
+        const networkFeesIncome = Object.keys(networkFeesEnd).reduce((net, contract) => {
+          if (networkFeesStart[contract]) {
+            net[contract] = {
+              value: networkFeesEnd[contract].value.minus(networkFeesStart[contract].value),
+              amount: networkFeesEnd[contract].amount.minus(networkFeesStart[contract].amount),
+            };
+          } else {
+            net[contract] = {
+              value: networkFeesEnd[contract].value,
+              amount: networkFeesEnd[contract].amount,
+            };
+          }
+          return net;
+        }, {} as { [key: string]: { value: BigNumber; amount: BigNumber } });
+
+        const liquidityIncome = {
+          amount: new BigNumber(formatUnits(liquidityEnd || 0)).minus(new BigNumber(formatUnits(liquidityStart || 0))),
+          value: new BigNumber(formatUnits(liquidityEnd || 0))
+            .minus(new BigNumber(formatUnits(liquidityStart || 0)))
+            .times(rates['BALN']),
+        };
+
+        if (
+          blockStart.timestamp < OLD_FEES_DISTRIBUTION_SWITCH_DATE &&
+          OLD_FEES_DISTRIBUTION_SWITCH_DATE < blockEnd.timestamp
+        ) {
+          // Split earning periods to before and after distribution ratio switch
+          try {
+            const loanFeesStartBefore = await bnJs.FeeHandler.getLoanFeesAccrued(blockStart.number);
+            const loanFeesEndBefore = await bnJs.FeeHandler.getLoanFeesAccrued(FEES_SWITCH_BLOCK_HEIGHT);
+            const loanFeesStartAfter = await bnJs.FeeHandler.getLoanFeesAccrued(FEES_SWITCH_BLOCK_HEIGHT + 1);
+            const loanFeesEndAfter = await bnJs.FeeHandler.getLoanFeesAccrued(blockEnd.number);
+
+            const fundFeesStartBefore = await bnJs.FeeHandler.getStabilityFundFeesAccrued(blockStart.number);
+            const fundFeesEndBefore = await bnJs.FeeHandler.getStabilityFundFeesAccrued(FEES_SWITCH_BLOCK_HEIGHT);
+            const fundFeesStartAfter = await bnJs.FeeHandler.getStabilityFundFeesAccrued(FEES_SWITCH_BLOCK_HEIGHT + 1);
+            const fundFeesEndAfter = await bnJs.FeeHandler.getStabilityFundFeesAccrued(blockEnd.number);
+
+            //swap fees
+            const bnUSDFeesStartBefore = await bnJs.FeeHandler.getSwapFeesAccruedByToken(
+              bnJs.bnUSD.address,
+              blockStart.number,
+            );
+            const bnUSDFeesEndBefore = await bnJs.FeeHandler.getSwapFeesAccruedByToken(
+              bnJs.bnUSD.address,
+              FEES_SWITCH_BLOCK_HEIGHT,
+            );
+            const bnUSDFeesStartAfter = await bnJs.FeeHandler.getSwapFeesAccruedByToken(
+              bnJs.bnUSD.address,
+              FEES_SWITCH_BLOCK_HEIGHT + 1,
+            );
+            const bnUSDFeesEndAfter = await bnJs.FeeHandler.getSwapFeesAccruedByToken(
+              bnJs.bnUSD.address,
+              blockEnd.number,
+            );
+
+            const sICXFeesStartBefore = await bnJs.FeeHandler.getSwapFeesAccruedByToken(
+              bnJs.sICX.address,
+              blockStart.number,
+            );
+            const sICXFeesEndBefore = await bnJs.FeeHandler.getSwapFeesAccruedByToken(
+              bnJs.sICX.address,
+              FEES_SWITCH_BLOCK_HEIGHT,
+            );
+            const sICXFeesStartAfter = await bnJs.FeeHandler.getSwapFeesAccruedByToken(
+              bnJs.sICX.address,
+              FEES_SWITCH_BLOCK_HEIGHT + 1,
+            );
+            const sICXFeesEndAfter = await bnJs.FeeHandler.getSwapFeesAccruedByToken(
+              bnJs.sICX.address,
+              blockEnd.number,
+            );
+
+            const balnFeesStartBefore = await bnJs.FeeHandler.getSwapFeesAccruedByToken(
+              bnJs.BALN.address,
+              blockStart.number,
+            );
+            const balnFeesEndBefore = await bnJs.FeeHandler.getSwapFeesAccruedByToken(
+              bnJs.BALN.address,
+              FEES_SWITCH_BLOCK_HEIGHT,
+            );
+            const balnFeesStartAfter = await bnJs.FeeHandler.getSwapFeesAccruedByToken(
+              bnJs.BALN.address,
+              FEES_SWITCH_BLOCK_HEIGHT + 1,
+            );
+            const balnFeesEndAfter = await bnJs.FeeHandler.getSwapFeesAccruedByToken(
+              bnJs.BALN.address,
+              blockEnd.number,
+            );
+
+            const bnUSDIncomeBefore = new BigNumber(formatUnits(bnUSDFeesEndBefore)).minus(
+              new BigNumber(formatUnits(bnUSDFeesStartBefore)),
+            );
+            const bnUSDIncomeAfter = new BigNumber(formatUnits(bnUSDFeesEndAfter)).minus(
+              new BigNumber(formatUnits(bnUSDFeesStartAfter)),
+            );
+            const sICXIncomeBefore = new BigNumber(formatUnits(sICXFeesEndBefore)).minus(
+              new BigNumber(formatUnits(sICXFeesStartBefore)),
+            );
+            const sICXIncomeAfter = new BigNumber(formatUnits(sICXFeesEndAfter)).minus(
+              new BigNumber(formatUnits(sICXFeesStartAfter)),
+            );
+            const balnIncomeBefore = new BigNumber(formatUnits(balnFeesEndBefore)).minus(
+              new BigNumber(formatUnits(balnFeesStartBefore)),
+            );
+            const balnIncomeAfter = new BigNumber(formatUnits(balnFeesEndAfter)).minus(
+              new BigNumber(formatUnits(balnFeesStartAfter)),
+            );
+            const loansIncomeBefore = new BigNumber(formatUnits(loanFeesEndBefore)).minus(
+              new BigNumber(formatUnits(loanFeesStartBefore)),
+            );
+            const loansIncomeAfter = new BigNumber(formatUnits(loanFeesEndAfter)).minus(
+              new BigNumber(formatUnits(loanFeesStartAfter)),
+            );
+            const fundIncomeBefore = new BigNumber(formatUnits(fundFeesEndBefore)).minus(
+              new BigNumber(formatUnits(fundFeesStartBefore)),
+            );
+            const fundIncomeAfter = new BigNumber(formatUnits(fundFeesEndAfter)).minus(
+              new BigNumber(formatUnits(fundFeesStartAfter)),
+            );
+
+            return {
+              income: {
+                loans: loansIncomeBefore.plus(loansIncomeAfter),
+                fund: fundIncomeBefore.plus(fundIncomeAfter),
+                liquidity: liquidityIncome,
+                swaps: {
+                  BALN: {
+                    amount: balnIncomeBefore.plus(balnIncomeAfter),
+                    value: balnIncomeBefore.plus(balnIncomeAfter).times(rates['BALN']),
+                  },
+                  bnUSD: {
+                    amount: bnUSDIncomeBefore.plus(bnUSDIncomeAfter),
+                    value: bnUSDIncomeBefore.plus(bnUSDIncomeAfter),
+                  },
+                  sICX: {
+                    amount: sICXIncomeBefore.plus(sICXIncomeAfter),
+                    value: sICXIncomeBefore.plus(sICXIncomeAfter).times(rates['sICX']),
+                  },
+                },
+                fees: networkFeesIncome,
+              },
+              expenses: {
                 BALN: {
-                  amount: balnIncome,
-                  value: balnIncome.times(rates['BALN']),
+                  amount: balnIncomeBefore
+                    .times(PERCENTAGE_DISTRIBUTED_OLD)
+                    .plus(balnIncomeAfter.times(PERCENTAGE_DISTRIBUTED)),
+                  value: balnIncomeBefore
+                    .times(PERCENTAGE_DISTRIBUTED_OLD)
+                    .plus(balnIncomeAfter.times(PERCENTAGE_DISTRIBUTED))
+                    .times(rates['BALN']),
                 },
                 bnUSD: {
-                  amount: bnUSDIncome,
-                  value: bnUSDIncome,
+                  amount: bnUSDIncomeBefore
+                    .plus(loansIncomeBefore)
+                    .plus(fundIncomeBefore)
+                    .times(PERCENTAGE_DISTRIBUTED_OLD)
+                    .plus(bnUSDIncomeAfter.plus(loansIncomeAfter).plus(fundIncomeAfter).times(PERCENTAGE_DISTRIBUTED)),
+                  value: bnUSDIncomeBefore
+                    .plus(loansIncomeBefore)
+                    .plus(fundIncomeBefore)
+                    .times(PERCENTAGE_DISTRIBUTED_OLD)
+                    .plus(bnUSDIncomeAfter.plus(loansIncomeAfter).plus(fundIncomeAfter).times(PERCENTAGE_DISTRIBUTED)),
                 },
                 sICX: {
-                  amount: sICXIncome,
-                  value: sICXIncome.times(rates['sICX']),
+                  amount: sICXIncomeBefore
+                    .times(PERCENTAGE_DISTRIBUTED_OLD)
+                    .plus(sICXIncomeAfter.times(PERCENTAGE_DISTRIBUTED)),
+                  value: sICXIncomeBefore
+                    .times(PERCENTAGE_DISTRIBUTED_OLD)
+                    .plus(sICXIncomeAfter.times(PERCENTAGE_DISTRIBUTED))
+                    .times(rates['sICX']),
                 },
               },
-              fees: networkFeesIncome,
-            },
-            expenses: {
-              BALN: {
-                amount: balnIncome.times(PERCENTAGE_DISTRIBUTED),
-                value: balnIncome.times(rates['BALN']).times(PERCENTAGE_DISTRIBUTED),
+              feesDistributed: balnIncomeBefore
+                .times(PERCENTAGE_DISTRIBUTED_OLD)
+                .plus(balnIncomeAfter.times(PERCENTAGE_DISTRIBUTED))
+                .times(rates['BALN'])
+                .plus(
+                  sICXIncomeBefore
+                    .times(PERCENTAGE_DISTRIBUTED_OLD)
+                    .plus(sICXIncomeAfter.times(PERCENTAGE_DISTRIBUTED))
+                    .times(rates['sICX']),
+                )
+                .plus(
+                  bnUSDIncomeBefore
+                    .plus(loansIncomeBefore)
+                    .plus(fundIncomeBefore)
+                    .times(PERCENTAGE_DISTRIBUTED_OLD)
+                    .plus(bnUSDIncomeAfter.plus(loansIncomeAfter).plus(fundIncomeAfter).times(PERCENTAGE_DISTRIBUTED)),
+                ),
+            };
+          } catch (e) {
+            console.error('Error calculating dao earnings: ', e);
+          }
+        } else {
+          //Calculate earning periods without distribution ratio switch
+          try {
+            const loanFeesStart = await bnJs.FeeHandler.getLoanFeesAccrued(blockStart.number);
+            const loanFeesEnd = await bnJs.FeeHandler.getLoanFeesAccrued(blockEnd.number);
+
+            const fundFeesStart = await bnJs.FeeHandler.getStabilityFundFeesAccrued(blockStart.number);
+            const fundFeesEnd = await bnJs.FeeHandler.getStabilityFundFeesAccrued(blockEnd.number);
+
+            //swap fees
+            const bnUSDFeesStart = await bnJs.FeeHandler.getSwapFeesAccruedByToken(
+              bnJs.bnUSD.address,
+              blockStart.number,
+            );
+            const bnUSDFeesEnd = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.bnUSD.address, blockEnd.number);
+
+            const sICXFeesStart = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.sICX.address, blockStart.number);
+            const sICXFeesEnd = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.sICX.address, blockEnd.number);
+
+            const balnFeesStart = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.BALN.address, blockStart.number);
+            const balnFeesEnd = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.BALN.address, blockEnd.number);
+
+            const bnUSDIncome = new BigNumber(formatUnits(bnUSDFeesEnd)).minus(
+              new BigNumber(formatUnits(bnUSDFeesStart)),
+            );
+            const sICXIncome = new BigNumber(formatUnits(sICXFeesEnd)).minus(new BigNumber(formatUnits(sICXFeesStart)));
+            const balnIncome = new BigNumber(formatUnits(balnFeesEnd)).minus(new BigNumber(formatUnits(balnFeesStart)));
+            const loansIncome = new BigNumber(formatUnits(loanFeesEnd)).minus(
+              new BigNumber(formatUnits(loanFeesStart)),
+            );
+            const fundIncome = new BigNumber(formatUnits(fundFeesEnd)).minus(new BigNumber(formatUnits(fundFeesStart)));
+
+            return {
+              income: {
+                loans: loansIncome,
+                fund: fundIncome,
+                liquidity: liquidityIncome,
+                swaps: {
+                  BALN: {
+                    amount: balnIncome,
+                    value: balnIncome.times(rates['BALN']),
+                  },
+                  bnUSD: {
+                    amount: bnUSDIncome,
+                    value: bnUSDIncome,
+                  },
+                  sICX: {
+                    amount: sICXIncome,
+                    value: sICXIncome.times(rates['sICX']),
+                  },
+                },
+                fees: networkFeesIncome,
               },
-              bnUSD: {
-                amount: bnUSDIncome.plus(loansIncome).plus(fundIncome).times(PERCENTAGE_DISTRIBUTED),
-                value: bnUSDIncome.plus(loansIncome).plus(fundIncome).times(PERCENTAGE_DISTRIBUTED),
+              expenses: {
+                BALN: {
+                  amount: balnIncome.times(
+                    OLD_FEES_DISTRIBUTION_SWITCH_DATE > blockStart.timestamp
+                      ? PERCENTAGE_DISTRIBUTED_OLD
+                      : PERCENTAGE_DISTRIBUTED,
+                  ),
+                  value: balnIncome
+                    .times(rates['BALN'])
+                    .times(
+                      OLD_FEES_DISTRIBUTION_SWITCH_DATE > blockStart.timestamp
+                        ? PERCENTAGE_DISTRIBUTED_OLD
+                        : PERCENTAGE_DISTRIBUTED,
+                    ),
+                },
+                bnUSD: {
+                  amount: bnUSDIncome
+                    .plus(loansIncome)
+                    .plus(fundIncome)
+                    .times(
+                      OLD_FEES_DISTRIBUTION_SWITCH_DATE > blockStart.timestamp
+                        ? PERCENTAGE_DISTRIBUTED_OLD
+                        : PERCENTAGE_DISTRIBUTED,
+                    ),
+                  value: bnUSDIncome
+                    .plus(loansIncome)
+                    .plus(fundIncome)
+                    .times(
+                      OLD_FEES_DISTRIBUTION_SWITCH_DATE > blockStart.timestamp
+                        ? PERCENTAGE_DISTRIBUTED_OLD
+                        : PERCENTAGE_DISTRIBUTED,
+                    ),
+                },
+                sICX: {
+                  amount: sICXIncome.times(
+                    OLD_FEES_DISTRIBUTION_SWITCH_DATE > blockStart.timestamp
+                      ? PERCENTAGE_DISTRIBUTED_OLD
+                      : PERCENTAGE_DISTRIBUTED,
+                  ),
+                  value: sICXIncome
+                    .times(rates['sICX'])
+                    .times(
+                      OLD_FEES_DISTRIBUTION_SWITCH_DATE > blockStart.timestamp
+                        ? PERCENTAGE_DISTRIBUTED_OLD
+                        : PERCENTAGE_DISTRIBUTED,
+                    ),
+                },
               },
-              sICX: {
-                amount: sICXIncome.times(PERCENTAGE_DISTRIBUTED),
-                value: sICXIncome.times(rates['sICX']).times(PERCENTAGE_DISTRIBUTED),
-              },
-            },
-            feesDistributed: balnIncome
-              .times(rates['BALN'])
-              .times(PERCENTAGE_DISTRIBUTED)
-              .plus(sICXIncome.times(rates['sICX']).times(PERCENTAGE_DISTRIBUTED))
-              .plus(bnUSDIncome.plus(loansIncome).plus(fundIncome).times(PERCENTAGE_DISTRIBUTED)),
-          };
-        } catch (e) {
-          console.error('Error calculating dao earnings: ', e);
+              feesDistributed: balnIncome
+                .times(rates['BALN'])
+                .times(
+                  OLD_FEES_DISTRIBUTION_SWITCH_DATE > blockStart.timestamp
+                    ? PERCENTAGE_DISTRIBUTED_OLD
+                    : PERCENTAGE_DISTRIBUTED,
+                )
+                .plus(
+                  sICXIncome
+                    .times(rates['sICX'])
+                    .times(
+                      OLD_FEES_DISTRIBUTION_SWITCH_DATE > blockStart.timestamp
+                        ? PERCENTAGE_DISTRIBUTED_OLD
+                        : PERCENTAGE_DISTRIBUTED,
+                    ),
+                )
+                .plus(
+                  bnUSDIncome
+                    .plus(loansIncome)
+                    .plus(fundIncome)
+                    .times(
+                      OLD_FEES_DISTRIBUTION_SWITCH_DATE > blockStart.timestamp
+                        ? PERCENTAGE_DISTRIBUTED_OLD
+                        : PERCENTAGE_DISTRIBUTED,
+                    ),
+                ),
+            };
+          } catch (e) {
+            console.error('Error calculating dao earnings: ', e);
+          }
         }
       }
     },
