@@ -69,7 +69,9 @@ export const useRatesQuery = () => {
 };
 
 const API_ENDPOINT = process.env.NODE_ENV === 'production' ? 'https://balanced.sudoblock.io/api/v1' : '/api/v1';
-const PERCENTAGE_DISTRIBUTED = new BigNumber(0.6);
+const PERCENTAGE_DISTRIBUTED_OLD = new BigNumber(0.6);
+const PERCENTAGE_DISTRIBUTED = new BigNumber(0.3);
+const OLD_FEES_DISTRIBUTION_SWITCH_DATE = new Date('February 22, 2023 05:13:26').getTime() * 1_000;
 
 export const LAUNCH_DAY = 1619398800000000;
 export const ONE_DAY = 86400000000;
@@ -94,6 +96,7 @@ export const useEarningsDataQuery = (
         };
         expenses: { [key: string]: { amount: BigNumber; value: BigNumber } };
         feesDistributed: BigNumber;
+        bBalnForecast: BigNumber;
       }
     | undefined
   >(
@@ -201,19 +204,79 @@ export const useEarningsDataQuery = (
             },
             expenses: {
               BALN: {
-                amount: balnIncome.times(PERCENTAGE_DISTRIBUTED),
-                value: balnIncome.times(rates['BALN']).times(PERCENTAGE_DISTRIBUTED),
+                amount: balnIncome.times(
+                  OLD_FEES_DISTRIBUTION_SWITCH_DATE > blockStart.timestamp
+                    ? PERCENTAGE_DISTRIBUTED_OLD
+                    : PERCENTAGE_DISTRIBUTED,
+                ),
+                value: balnIncome
+                  .times(rates['BALN'])
+                  .times(
+                    OLD_FEES_DISTRIBUTION_SWITCH_DATE > blockStart.timestamp
+                      ? PERCENTAGE_DISTRIBUTED_OLD
+                      : PERCENTAGE_DISTRIBUTED,
+                  ),
               },
               bnUSD: {
-                amount: bnUSDIncome.plus(loansIncome).plus(fundIncome).times(PERCENTAGE_DISTRIBUTED),
-                value: bnUSDIncome.plus(loansIncome).plus(fundIncome).times(PERCENTAGE_DISTRIBUTED),
+                amount: bnUSDIncome
+                  .plus(loansIncome)
+                  .plus(fundIncome)
+                  .times(
+                    OLD_FEES_DISTRIBUTION_SWITCH_DATE > blockStart.timestamp
+                      ? PERCENTAGE_DISTRIBUTED_OLD
+                      : PERCENTAGE_DISTRIBUTED,
+                  ),
+                value: bnUSDIncome
+                  .plus(loansIncome)
+                  .plus(fundIncome)
+                  .times(
+                    OLD_FEES_DISTRIBUTION_SWITCH_DATE > blockStart.timestamp
+                      ? PERCENTAGE_DISTRIBUTED_OLD
+                      : PERCENTAGE_DISTRIBUTED,
+                  ),
               },
               sICX: {
-                amount: sICXIncome.times(PERCENTAGE_DISTRIBUTED),
-                value: sICXIncome.times(rates['sICX']).times(PERCENTAGE_DISTRIBUTED),
+                amount: sICXIncome.times(
+                  OLD_FEES_DISTRIBUTION_SWITCH_DATE > blockStart.timestamp
+                    ? PERCENTAGE_DISTRIBUTED_OLD
+                    : PERCENTAGE_DISTRIBUTED,
+                ),
+                value: sICXIncome
+                  .times(rates['sICX'])
+                  .times(
+                    OLD_FEES_DISTRIBUTION_SWITCH_DATE > blockStart.timestamp
+                      ? PERCENTAGE_DISTRIBUTED_OLD
+                      : PERCENTAGE_DISTRIBUTED,
+                  ),
               },
             },
             feesDistributed: balnIncome
+              .times(rates['BALN'])
+              .times(
+                OLD_FEES_DISTRIBUTION_SWITCH_DATE > blockStart.timestamp
+                  ? PERCENTAGE_DISTRIBUTED_OLD
+                  : PERCENTAGE_DISTRIBUTED,
+              )
+              .plus(
+                sICXIncome
+                  .times(rates['sICX'])
+                  .times(
+                    OLD_FEES_DISTRIBUTION_SWITCH_DATE > blockStart.timestamp
+                      ? PERCENTAGE_DISTRIBUTED_OLD
+                      : PERCENTAGE_DISTRIBUTED,
+                  ),
+              )
+              .plus(
+                bnUSDIncome
+                  .plus(loansIncome)
+                  .plus(fundIncome)
+                  .times(
+                    OLD_FEES_DISTRIBUTION_SWITCH_DATE > blockStart.timestamp
+                      ? PERCENTAGE_DISTRIBUTED_OLD
+                      : PERCENTAGE_DISTRIBUTED,
+                  ),
+              ),
+            bBalnForecast: balnIncome
               .times(rates['BALN'])
               .times(PERCENTAGE_DISTRIBUTED)
               .plus(sICXIncome.times(rates['sICX']).times(PERCENTAGE_DISTRIBUTED))
@@ -303,7 +366,7 @@ export const useOverviewInfo = () => {
   const earningsDataQuery = useEarningsDataQuery(getTimestampFrom(30), getTimestampFrom(0));
 
   //bBALN apy
-  const assumedYearlyDistribution = earningsDataQuery?.data?.feesDistributed.times(12);
+  const assumedYearlyDistribution = earningsDataQuery?.data?.bBalnForecast.times(12);
   const bBALNSupplyQuery = useBnJsContractQuery<string>(bnJs, 'BBALN', 'totalSupply', []);
   const bBALNSupply = bBALNSupplyQuery.isSuccess && new BigNumber(formatUnits(bBALNSupplyQuery.data));
   const bBALNAPY =
@@ -325,7 +388,7 @@ export const useOverviewInfo = () => {
     previousChunk:
       bBALNSupply &&
       earningsDataQuery?.data &&
-      new BigNumber(previousChunkAmount).dividedBy(bBALNSupply).times(earningsDataQuery?.data?.feesDistributed),
+      new BigNumber(previousChunkAmount).dividedBy(bBALNSupply).times(earningsDataQuery?.data?.bBalnForecast),
     previousChunkAmount: previousChunkAmount,
   };
 };
