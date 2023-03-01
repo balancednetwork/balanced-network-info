@@ -2,7 +2,6 @@ import BigNumber from 'bignumber.js';
 
 import bnJs from 'bnJs';
 import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
-import { SUPPORTED_TOKENS_MAP_BY_ADDRESS } from 'constants/tokens';
 import { formatUnits } from 'utils';
 
 import { DATES, DATE_DEFAULT, DEFAULT_GRANULARITY } from './dates';

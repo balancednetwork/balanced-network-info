@@ -136,7 +136,7 @@ export default function CollateralChart({
       )}
 
       {/* Flexible chart footer */}
-      <Flex my={3} flexWrap="wrap">
+      <Flex my={3} mx={-4} flexWrap="wrap">
         {selectedCollateral === 'All' ? (
           <>
             <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">

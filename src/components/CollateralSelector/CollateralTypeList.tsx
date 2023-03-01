@@ -120,7 +120,7 @@ const CollateralTypeList = ({ width, setAnchor, anchor, setCollateral, ...rest }
   };
 
   return (
-    <Box p={'25px 0 5px'} width={width}>
+    <Box p={'25px 0 5px'} width={width} className="collateral-dropdown">
       <GridWrap>
         <CollateralTypesGrid>
           <CollateralTypesGridHeader>Collateral Type</CollateralTypesGridHeader>

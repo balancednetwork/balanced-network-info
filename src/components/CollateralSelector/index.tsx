@@ -35,7 +35,7 @@ const CollateralSelector = ({ width, containerRef, collateral, setCollateral }) 
   };
 
   const closeDropdown = e => {
-    if (!e.target.classList.contains('search-field')) {
+    if (!e.target.closest('.collateral-dropdown')) {
       setAnchor(null);
     }
   };
