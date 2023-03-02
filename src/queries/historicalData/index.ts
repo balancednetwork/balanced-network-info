@@ -203,9 +203,6 @@ export function useHistoryForTotal(
   const fiveMinPeriod = 1000 * 300;
   const now = Math.floor(new Date().getTime() / fiveMinPeriod) * fiveMinPeriod;
   const oraclePrices = useOraclePrices();
-  const { data: allTokens } = useAllTokens('address');
-
-  console.log(allTokens);
 
   const startTimestamp = startTime || DATE_DEFAULT;
   const endTimestamp = endTime || now;

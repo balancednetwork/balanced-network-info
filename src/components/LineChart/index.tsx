@@ -44,7 +44,7 @@ export type LineChartProps = {
 
 const Chart = ({
   data,
-  color = '#56B2A4',
+  color = '#2ca9b7',
   value,
   label,
   setValue,
@@ -55,6 +55,7 @@ const Chart = ({
   bottomRight,
   minHeight = DEFAULT_HEIGHT,
   isPredefined,
+  customId,
   ...rest
 }: LineChartProps | any) => {
   const theme = useTheme();
