@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
-import { useCollateralInfo, useLoanInfo } from 'queries';
+import { useCollateralInfo, useLoanInfo, useBorrowersInfo } from 'queries';
 import { DEFAULT_GRANULARITY, DEFAULT_GRANULARITY_FORMATTED } from 'queries/historicalData/dates';
 import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
@@ -30,6 +30,7 @@ export default function CollateralChart({
 }) {
   const { data: collateralInfo } = useCollateralInfo();
   const loanInfo = useLoanInfo();
+  const { data: borrowersInfo } = useBorrowersInfo();
   const { data: supportedCollaterals } = useSupportedCollateralTokens();
   const stabilityFundTotal = useStabilityFundTotal();
   const oraclePrices = useOraclePrices();
@@ -218,7 +219,7 @@ export default function CollateralChart({
               width={isExtraSmall ? '100%' : 'auto'}
             >
               <Typography variant="p" fontSize="18px">
-                count**
+                {borrowersInfo ? getFormattedNumber(borrowersInfo['sICX'], 'number') : <LoaderComponent />}
               </Typography>
               <Typography opacity={0.75}>Suppliers</Typography>
             </Flex>
@@ -237,7 +238,11 @@ export default function CollateralChart({
             </Flex>
             <Flex flex={1} flexDirection="column" alignItems="center">
               <Typography variant="p" fontSize="18px">
-                count**
+                {borrowersInfo && borrowersInfo[selectedCollateral] ? (
+                  getFormattedNumber(borrowersInfo[selectedCollateral], 'number')
+                ) : (
+                  <LoaderComponent />
+                )}
               </Typography>
               <Typography opacity={0.75}>Suppliers</Typography>
             </Flex>

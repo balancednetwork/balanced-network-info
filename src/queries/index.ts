@@ -1070,3 +1070,41 @@ export function useDaoBBALNData(): UseQueryResult<DaoBBALNData, Error> {
     { keepPreviousData: true, refetchOnReconnect: false, refetchInterval: undefined },
   );
 }
+
+export function useBorrowersInfo() {
+  const { data: collateralTokens, isSuccess: collateralTokensSuccess } = useSupportedCollateralTokens();
+
+  return useQuery<{ [key in string]: number }, Error>(
+    `borrowersInfo`,
+    async () => {
+      if (collateralTokens) {
+        const collateralSymbols = Object.keys(collateralTokens);
+        const collateralAddresses = Object.values(collateralTokens);
+
+        const cds: CallData[] = collateralAddresses.map(address => ({
+          target: bnJs.Loans.address,
+          method: 'getBorrowerCount',
+          params: [address],
+        }));
+
+        const data = await bnJs.Multicall.getAggregateData(cds);
+
+        let total = 0;
+        const result = data.reduce((borrowersInfo, item, index) => {
+          const borrowers = parseInt(item, 16);
+          borrowersInfo[collateralSymbols[index]] = borrowers;
+          total += borrowers;
+          return borrowersInfo;
+        }, {} as { [key in string]: number });
+
+        result['total'] = total;
+
+        return result;
+      }
+    },
+    {
+      keepPreviousData: true,
+      enabled: collateralTokensSuccess,
+    },
+  );
+}
