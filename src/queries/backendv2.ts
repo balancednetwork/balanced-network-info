@@ -114,7 +114,6 @@ export function useAllPairs() {
     [],
   );
 
-  const PROVIDERS_LP_FEE_SHARE = 0.5;
   const MIN_LIQUIDITY_TO_INCLUDE = 1000;
 
   return useQuery<Pair[]>(
@@ -129,15 +128,22 @@ export function useAllPairs() {
         try {
           const pairs = response.data.map(item => {
             const liquidity = item['base_supply'] * item['base_price'] + item['quote_supply'] * item['quote_price'];
-            const fees24h =
+            const fees24hProviders =
               item['base_lp_fees_24h'] * item['base_price'] + item['quote_lp_fees_24h'] * item['quote_price'];
-            const fees30d =
+            const fees24hBaln =
+              item['base_baln_fees_24h'] * item['base_price'] + item['quote_baln_fees_24h'] * item['quote_price'];
+            const fees30dProviders =
               item['base_lp_fees_30d'] * item['base_price'] + item['quote_lp_fees_30d'] * item['quote_price'];
+            const fees30dBaln =
+              item['base_baln_fees_30d'] * item['base_price'] + item['quote_baln_fees_30d'] * item['quote_price'];
             const volume24h =
               item['base_volume_24h'] * item['base_price'] + item['quote_volume_24h'] * item['quote_price'];
             const volume30d =
               item['base_volume_30d'] * item['base_price'] + item['quote_volume_30d'] * item['quote_price'];
-            const feesApy = liquidity > 0 ? (fees30d * 12 * PROVIDERS_LP_FEE_SHARE) / liquidity : 0;
+
+            const fees24h = fees24hProviders + fees24hBaln;
+            const fees30d = fees30dProviders + fees30dBaln;
+            const feesApy = liquidity > 0 ? (fees30dProviders * 12) / liquidity : 0;
 
             const incentivisedPair = incentivisedPairs.find(incentivisedPair => incentivisedPair.name === item.name);
 
@@ -198,6 +204,25 @@ export function useAllPairsById() {
     },
   );
 }
+export function useAllPairsByName() {
+  const { data: allPairs, isSuccess: allPairsSuccess } = useAllPairs();
+
+  return useQuery<{ [key in string]: Pair } | undefined>(
+    'allPairsByName',
+    () => {
+      if (allPairs) {
+        return allPairs.reduce((allPairs, item) => {
+          allPairs[item['name']] = item;
+          return allPairs;
+        }, {});
+      }
+    },
+    {
+      keepPreviousData: true,
+      enabled: allPairsSuccess,
+    },
+  );
+}
 
 export const useAllPairsTotal = () => {
   const { data: allPairs, isSuccess: allPairsSuccess } = useAllPairs();
@@ -227,11 +252,11 @@ export const useAllPairsTotal = () => {
 export function useTokenPrices() {
   const { data: allTokens, isSuccess: allTokensSuccess } = useAllTokens();
 
-  return useQuery(
+  return useQuery<{ [key in string]: BigNumber }>(
     `tokenPrices${allTokens}`,
     () => {
       return allTokens.reduce((tokens, item) => {
-        tokens[item['symbol']] = item.price;
+        tokens[item['symbol']] = new BigNumber(item.price);
         return tokens;
       }, {});
     },

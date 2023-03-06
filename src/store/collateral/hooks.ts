@@ -3,12 +3,13 @@ import { useMemo } from 'react';
 import { addresses, CallData } from '@balancednetwork/balanced-js';
 import BigNumber from 'bignumber.js';
 import { useFundLimits, useWhitelistedTokensList } from 'queries';
+import { useTokenPrices } from 'queries/backendv2';
 import { useStabilityFundHoldings } from 'queries/blockDetails';
 import { useQuery, UseQueryResult } from 'react-query';
 
 import bnJs from 'bnJs';
 import { NETWORK_ID } from 'constants/config';
-import { useOraclePrices } from 'store/oracle/hooks';
+import { ONE } from 'constants/number';
 import { formatUnits } from 'utils';
 
 type CollateralData = {
@@ -20,10 +21,10 @@ type CollateralData = {
 export function useTokensCollateralData(): UseQueryResult<CollateralData[]> {
   const { data: tvls } = useTokensCollateralTVLs();
   const { data: supportedTokens } = useSupportedCollateralTokens();
-  const oraclePrices = useOraclePrices();
+  const { data: tokenPrices, isSuccess: tokenPricesQuerySuccess } = useTokenPrices();
 
   return useQuery(
-    `collateralData${tvls ? tvls.length : ''}${oraclePrices ? Object.keys(oraclePrices).length : ''}`,
+    `collateralData${tvls ? tvls.length : ''}`,
     async () => {
       const data = await (tvls &&
         supportedTokens &&
@@ -35,12 +36,16 @@ export function useTokensCollateralData(): UseQueryResult<CollateralData[]> {
             return {
               symbol,
               amount: collateralAmount,
-              tvl: collateralAmount.times(oraclePrices[symbol]),
+              tvl: collateralAmount.times((tokenPrices && tokenPrices[symbol]) || ONE),
             };
           }),
         ));
 
       return data;
+    },
+    {
+      keepPreviousData: true,
+      enabled: tokenPricesQuerySuccess,
     },
   );
 }

@@ -1,11 +1,10 @@
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import { useAllTokens } from 'queries/backendv2';
+import { useAllTokens, useTokenPrices } from 'queries/backendv2';
 import { BlockDetails } from 'queries/blockDetails';
 import { useQuery, UseQueryResult } from 'react-query';
 
 import bnJs from 'bnJs';
-import { useOraclePrices } from 'store/oracle/hooks';
 import { formatUnits } from 'utils';
 
 import { DATES, DATE_DEFAULT, DATE_STABILITY_FUND_LAUNCH, DEFAULT_GRANULARITY } from './dates';
@@ -202,12 +201,10 @@ export function useHistoryForTotal(
 ) {
   const fiveMinPeriod = 1000 * 300;
   const now = Math.floor(new Date().getTime() / fiveMinPeriod) * fiveMinPeriod;
-  const oraclePrices = useOraclePrices();
+  const { data: tokenPrices, isSuccess: tokenPricesQuerySuccess } = useTokenPrices();
 
   const startTimestamp = startTime || DATE_DEFAULT;
   const endTimestamp = endTime || now;
-
-  const supportedTokensCount = 4;
 
   const { data: historyForStabilityFund, isSuccess: historyForStabilityFundSuccess } = useHistoryForStabilityFund(
     granularity,
@@ -243,29 +240,23 @@ export function useHistoryForTotal(
   });
 
   return useQuery(
-    `historyForTotal${granularity}-${startTimestamp}-${endTimestamp}-${Object.keys(oraclePrices).length}`,
+    `historyForTotal${granularity}-${startTimestamp}-${endTimestamp}`,
     () => {
-      if (
-        historyForStabilityFund &&
-        historyForSICX &&
-        historyForETH &&
-        historyForBTCB &&
-        Object.keys(oraclePrices).length === supportedTokensCount
-      ) {
+      if (historyForStabilityFund && historyForSICX && historyForETH && historyForBTCB && tokenPrices) {
         const sICXHistoryReversed = historyForSICX.slice().reverse();
         const ETHHistoryReversed = historyForETH.slice().reverse();
         const BTCBHistoryReversed = historyForBTCB.slice().reverse();
         const fundHistoryReversed = historyForStabilityFund.total.slice().reverse();
 
         const total = sICXHistoryReversed.map((item, index) => {
-          let currentTotal = oraclePrices['sICX'].times(item.value);
+          let currentTotal = tokenPrices['sICX'].times(item.value);
 
           if (ETHHistoryReversed[index] && ETHHistoryReversed[index].timestamp === item.timestamp) {
-            currentTotal = currentTotal.plus(oraclePrices['ETH'].times(ETHHistoryReversed[index].value));
+            currentTotal = currentTotal.plus(tokenPrices['ETH'].times(ETHHistoryReversed[index].value));
           }
 
           if (BTCBHistoryReversed[index] && BTCBHistoryReversed[index].timestamp === item.timestamp) {
-            currentTotal = currentTotal.plus(oraclePrices['BTCB'].times(BTCBHistoryReversed[index].value));
+            currentTotal = currentTotal.plus(tokenPrices['BTCB'].times(BTCBHistoryReversed[index].value));
           }
 
           if (fundHistoryReversed[index] && fundHistoryReversed[index].timestamp === item.timestamp) {
@@ -287,7 +278,7 @@ export function useHistoryForTotal(
         historyForSICXSuccess &&
         historyForBTCBSuccess &&
         historyForETHSuccess &&
-        Object.keys(oraclePrices).length === supportedTokensCount,
+        tokenPricesQuerySuccess,
       keepPreviousData: true,
     },
   );

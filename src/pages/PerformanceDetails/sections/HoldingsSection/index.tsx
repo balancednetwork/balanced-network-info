@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Currency } from '@balancednetwork/sdk-core';
 import BigNumber from 'bignumber.js';
 import { useRatesQuery, LAUNCH_DAY } from 'queries';
+import { useTokenPrices } from 'queries/backendv2';
 import { useDaoFundHoldings, usePOLData } from 'queries/blockDetails';
 import DatePicker from 'react-datepicker';
 import { Box, Flex, Text } from 'rebass/styled-components';
@@ -36,9 +37,7 @@ export const DatePickerInput = ({ ...props }) => <input type="text" {...props} r
 
 const HoldingsSection = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() - 1)));
-
-  const ratesQuery = useRatesQuery();
-  const { data: rates } = ratesQuery;
+  const { data: tokenPrices } = useTokenPrices();
 
   let totalCurrent = 0;
   let totalPast = 0;
@@ -111,11 +110,11 @@ const HoldingsSection = () => {
                 ? curAmount.div(prevAmount).minus(1).times(100).toNumber()
                 : 0;
 
-            if (rates && rates[token.symbol!] && curAmount) {
-              totalCurrent += curAmount.times(rates[token.symbol!]).toNumber();
+            if (tokenPrices && tokenPrices[token.symbol!] && curAmount) {
+              totalCurrent += curAmount.times(tokenPrices[token.symbol!]).toNumber();
             }
-            if (rates && rates[token.symbol!] && prevAmount) {
-              totalPast += prevAmount.times(rates[token.symbol!]).toNumber();
+            if (tokenPrices && tokenPrices[token.symbol!] && prevAmount) {
+              totalPast += prevAmount.times(tokenPrices[token.symbol!]).toNumber();
             }
 
             return (
@@ -134,8 +133,8 @@ const HoldingsSection = () => {
                   </GridItemToken>
                   <GridItemToken>
                     <Text color="text">
-                      {rates && rates[token.symbol!] && (
-                        <DisplayValueOrLoader value={curAmount} currencyRate={rates[token.symbol!].toNumber()} />
+                      {tokenPrices && tokenPrices[token.symbol!] && (
+                        <DisplayValueOrLoader value={curAmount} currencyRate={tokenPrices[token.symbol!].toNumber()} />
                       )}
 
                       <Change percentage={percentageChange ?? 0}>{formatPercentage(percentageChange)}</Change>
@@ -151,7 +150,7 @@ const HoldingsSection = () => {
                         holdingsPast[contract].greaterThan(0) ? (
                           <DisplayValueOrLoader
                             value={prevAmount}
-                            currencyRate={rates && rates[token.symbol!].toNumber()}
+                            currencyRate={tokenPrices && tokenPrices[token.symbol!].toNumber()}
                           />
                         ) : (
                           '-'

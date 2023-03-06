@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
 import { useCollateralInfo, useLoanInfo, useBorrowersInfo } from 'queries';
+import { useTokenPrices } from 'queries/backendv2';
 import { DEFAULT_GRANULARITY, DEFAULT_GRANULARITY_FORMATTED } from 'queries/historicalData/dates';
 import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
@@ -13,7 +14,6 @@ import { ONE } from 'constants/number';
 import useWidth from 'hooks/useWidth';
 import { LoaderComponent } from 'pages/PerformanceDetails/utils';
 import { useStabilityFundTotal, useSupportedCollateralTokens } from 'store/collateral/hooks';
-import { useOraclePrices } from 'store/oracle/hooks';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
 
@@ -33,7 +33,7 @@ export default function CollateralChart({
   const { data: borrowersInfo } = useBorrowersInfo();
   const { data: supportedCollaterals } = useSupportedCollateralTokens();
   const stabilityFundTotal = useStabilityFundTotal();
-  const oraclePrices = useOraclePrices();
+  const { data: tokenPrices } = useTokenPrices();
 
   const [collateralTVLHover, setCollateralTVLHover] = React.useState<number | undefined>();
   const [collateralLabel, setCollateralLabel] = React.useState<string | undefined>();
@@ -48,13 +48,13 @@ export default function CollateralChart({
     () =>
       getFormattedNumber(
         new BigNumber(collateralTVLHover || '0')
-          .times(oraclePrices[selectedCollateral] || ONE)
+          .times((tokenPrices && tokenPrices[selectedCollateral]) || ONE)
           .integerValue()
           .toNumber(),
         'currency0',
       ),
 
-    [selectedCollateral, oraclePrices, collateralTVLHover],
+    [selectedCollateral, tokenPrices, collateralTVLHover],
   );
 
   //update chart collateral amount and value if user is not hovering over the chart
@@ -228,8 +228,8 @@ export default function CollateralChart({
           <>
             <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
               <Typography variant="p" fontSize="18px">
-                {oraclePrices && oraclePrices[selectedCollateral] ? (
-                  `$${oraclePrices[selectedCollateral].toFormat(2)}`
+                {tokenPrices && tokenPrices[selectedCollateral] ? (
+                  `$${tokenPrices[selectedCollateral].toFormat(2)}`
                 ) : (
                   <LoaderComponent />
                 )}

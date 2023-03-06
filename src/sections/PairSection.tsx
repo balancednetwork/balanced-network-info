@@ -18,7 +18,7 @@ import { getFormattedNumber } from 'utils/formatter';
 
 import { HeaderText, StyledSkeleton as Skeleton } from './TokenSection';
 
-const MAX_BOOST = 2.5;
+export const MAX_BOOST = 2.5;
 
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;

@@ -5,16 +5,14 @@ import BigNumber from 'bignumber.js';
 import { useQuery, UseQueryResult } from 'react-query';
 
 import bnJs from 'bnJs';
-import { ZERO } from 'constants/number';
 import { PairInfo, SUPPORTED_PAIRS } from 'constants/pairs';
 import QUERY_KEYS from 'constants/queryKeys';
 import { SUPPORTED_TOKENS_LIST, SUPPORTED_TOKENS_MAP_BY_ADDRESS, TOKENS_OMITTED_FROM_STATS } from 'constants/tokens';
 import { getTimestampFrom } from 'pages/PerformanceDetails/utils';
 import { useSupportedCollateralTokens } from 'store/collateral/hooks';
-import { useOraclePrices } from 'store/oracle/hooks';
 import { formatUnits } from 'utils';
 
-import { useAllPairsTotal, useTokenPrices } from './backendv2';
+import { useAllPairsByName, useAllPairsTotal, useTokenPrices } from './backendv2';
 import { useBlockDetails, useDaoFundHoldings, usePOLData } from './blockDetails';
 import { useHistoryForStabilityFund } from './historicalData';
 
@@ -90,7 +88,7 @@ export const useEarningsDataQuery = (
 ) => {
   const { data: blockStart } = useBlockDetails(start);
   const { data: blockEnd } = useBlockDetails(end);
-  const { data: rates } = useRatesQuery();
+  const { data: rates } = useTokenPrices();
 
   return useQuery<
     | {
@@ -522,8 +520,6 @@ export const usePlatformDayQuery = () => {
 export const useOverviewInfo = () => {
   const { data: rates, isSuccess: ratesQuerySuccess } = useTokenPrices();
 
-  console.log(rates);
-
   // TVL
   const tvl = useStatsTVL();
 
@@ -603,21 +599,20 @@ export const useGovernanceInfo = () => {
 
   const { data: POLData } = usePOLData(now);
   const { data: holdingsData } = useDaoFundHoldings(now);
+  const { data: tokenPrices } = useTokenPrices();
 
-  const ratesQuery = useRatesQuery();
-  const rates = ratesQuery.data || {};
-
-  const holdings = holdingsData
-    ? Object.keys(holdingsData).reduce((total, contract) => {
-        const token = holdingsData[contract].currency.wrapped;
-        const curAmount = new BigNumber(holdingsData[contract].toFixed());
-        if (rates[token.symbol!]) {
-          return total + curAmount.times(rates[token.symbol!]).toNumber();
-        } else {
-          return total;
-        }
-      }, 0)
-    : 0;
+  const holdings =
+    holdingsData && tokenPrices
+      ? Object.keys(holdingsData).reduce((total, contract) => {
+          const token = holdingsData[contract].currency.wrapped;
+          const curAmount = new BigNumber(holdingsData[contract].toFixed());
+          if (tokenPrices[token.symbol!]) {
+            return total + curAmount.times(tokenPrices[token.symbol!]).toNumber();
+          } else {
+            return total;
+          }
+        }, 0)
+      : 0;
 
   const POLHoldings = POLData ? POLData.reduce((total, pool) => total + pool.liquidity.toNumber(), 0) : 0;
 
@@ -799,25 +794,25 @@ export const useCollateralInfo = () => {
   const rate = rateQuery.isSuccess ? BalancedJs.utils.toIcx(rateQuery.data) : null;
   const { data: supportedCollateralTokens } = useSupportedCollateralTokens();
   const { data: historyForStabilityFund } = useHistoryForStabilityFund();
-  const oraclePrices = useOraclePrices();
+  const { data: tokenPrices, isSuccess: tokenPricesQuerySuccess } = useTokenPrices();
 
   return useQuery(
-    `collateralInfo${oraclePrices && Object.values(oraclePrices).length}${
+    `collateralInfo${tokenPricesQuerySuccess}${
       supportedCollateralTokens && Object.values(supportedCollateralTokens).length
     }${historyForStabilityFund}`,
     async () => {
       const totalCollaterals: { [key in string]: { amount: number; value: number } } = {};
       supportedCollateralTokens &&
-        oraclePrices &&
+        tokenPrices &&
         Object.keys(supportedCollateralTokens).forEach(async item => {
-          if (oraclePrices[item]) {
+          if (tokenPrices[item]) {
             const cx = bnJs.getContract(supportedCollateralTokens[item]);
             const amountRaw = await cx.balanceOf(bnJs.Loans.address);
             const amount = new BigNumber(formatUnits(amountRaw, 18, 18)).toNumber();
 
             totalCollaterals[item] = {
               amount: amount,
-              value: oraclePrices[item].times(amount).toNumber(),
+              value: tokenPrices[item].times(amount).toNumber(),
             };
           }
         });
@@ -868,12 +863,11 @@ export const useLoanInfo = () => {
       ? BalancedJs.utils.toIcx(dailyDistributionQuery.data).times(loansBalnAllocation)
       : null;
 
-  const ratesQuery = useRatesQuery();
-  const rates = ratesQuery.data || {};
+  const { data: tokenPrices } = useTokenPrices();
 
   const loansAPY =
-    dailyRewards && totalBnUSD && rates['BALN']
-      ? dailyRewards.times(365).times(rates['BALN']).div(totalBnUSD.times(rates['bnUSD']))
+    dailyRewards && totalBnUSD && tokenPrices
+      ? dailyRewards.times(365).times(tokenPrices['BALN']).div(totalBnUSD.times(tokenPrices['bnUSD']))
       : null;
 
   const borrowersQuery = useBnJsContractQuery<string>(bnJs, 'Loans', 'borrowerCount', []);
@@ -1221,10 +1215,10 @@ export function useDaoBBALNData(): UseQueryResult<DaoBBALNData, Error> {
   const oneMinPeriod = 1000 * 60;
   const now = Math.floor(new Date().getTime() / oneMinPeriod) * oneMinPeriod;
   const feesDistributedIn = [bnJs.sICX.address, bnJs.bnUSD.address, bnJs.BALN.address];
-  const allPairs = useAllPairs_DEPRECATED();
+  const { data: allPairs, isSuccess: allPairsQuerySuccess } = useAllPairsByName();
 
   return useQuery(
-    `daoBBALNData${now}${!!allPairs}`,
+    `daoBBALNData${now}`,
     async () => {
       let daoBBALNData = {};
 
@@ -1254,8 +1248,8 @@ export function useDaoBBALNData(): UseQueryResult<DaoBBALNData, Error> {
           const workingBalance = new BigNumber(DAOSourcesRaw[sourceName].workingBalance);
           const balance = new BigNumber(DAOSourcesRaw[sourceName].balance);
           const boost = workingBalance.dividedBy(balance);
-          const feesApy = allPairs && allPairs[sourceName] ? allPairs[sourceName].feesApy : 0;
-          const balnApy = allPairs && allPairs[sourceName] ? allPairs[sourceName].apy : 0;
+          const feesApy = allPairs && allPairs[sourceName] ? allPairs[sourceName].feesApy || 0 : 0;
+          const balnApy = allPairs && allPairs[sourceName] ? allPairs[sourceName].balnApy || 0 : 0;
 
           const apy = boost.times(balnApy).plus(feesApy).times(100).dp(2);
 
@@ -1291,7 +1285,7 @@ export function useDaoBBALNData(): UseQueryResult<DaoBBALNData, Error> {
 
       return daoBBALNData as DaoBBALNData;
     },
-    { keepPreviousData: true, refetchOnReconnect: false, refetchInterval: undefined },
+    { keepPreviousData: true, refetchOnReconnect: false, refetchInterval: undefined, enabled: allPairsQuerySuccess },
   );
 }
 

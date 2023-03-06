@@ -7,6 +7,7 @@ import { Flex } from 'rebass';
 
 import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
 import { LoaderComponent } from 'pages/PerformanceDetails/utils';
+import { MAX_BOOST } from 'sections/PairSection';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
 
@@ -82,7 +83,14 @@ export default function BnUSDChart({ selectedCollateral }: { selectedCollateral:
           <>
             <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
               <Typography variant="p" fontSize={[16, '18px']}>
-                {loanInfo.loansAPY ? getFormattedNumber(loanInfo.loansAPY, 'percent2') : <LoaderComponent />}
+                {loanInfo.loansAPY ? (
+                  `${getFormattedNumber(loanInfo.loansAPY, 'percent2')} - ${getFormattedNumber(
+                    loanInfo.loansAPY * MAX_BOOST,
+                    'percent2',
+                  )}`
+                ) : (
+                  <LoaderComponent />
+                )}
               </Typography>
               <Typography opacity={0.75}>Borrow APY</Typography>
             </Flex>
