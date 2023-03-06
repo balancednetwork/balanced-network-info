@@ -221,8 +221,8 @@ const HoldingsSection = () => {
                       <Flex alignItems="center">
                         <Box sx={{ minWidth: '95px' }}>
                           <PoolLogo
-                            baseCurrency={currentPool.pair.baseToken}
-                            quoteCurrency={currentPool.pair.quoteToken}
+                            baseCurrency={currentPool.pair.baseToken.address}
+                            quoteCurrency={currentPool.pair.quoteToken.address}
                           />
                         </Box>
                         <Text

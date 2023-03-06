@@ -1,17 +1,15 @@
-import React, { createRef, forwardRef } from 'react';
+import React from 'react';
 
-import { useAllPairs, useAllPairsTotal } from 'queries';
+import { Pair, useAllPairsById, useAllPairsTotal } from 'queries/backendv2';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
 import { ReactComponent as QuestionIcon } from 'assets/icons/question.svg';
 import { ReactComponent as SigmaIcon } from 'assets/icons/sigma.svg';
-import AnimateList from 'components/AnimatedList';
 import Divider from 'components/Divider';
 import { BoxPanel } from 'components/Panel';
 import PoolLogo, { IconWrapper, PoolLogoWrapper } from 'components/shared/PoolLogo';
 import { MouseoverTooltip } from 'components/Tooltip';
-import { PairInfo } from 'constants/pairs';
 import useSort from 'hooks/useSort';
 import useTheme from 'hooks/useTheme';
 import { Typography } from 'theme';
@@ -31,7 +29,7 @@ const DashGrid = styled(Box)`
   display: grid;
   gap: 1em;
   align-items: center;
-  grid-template-columns: 2fr repeat(5, 1fr);
+  grid-template-columns: 2fr repeat(4, 1fr);
   ${({ theme }) => theme.mediaWidth.upToLarge`
     grid-template-columns: 1.2fr 0.5fr repeat(4, 1fr);
   `}
@@ -115,9 +113,6 @@ const SkeletonPairPlaceholder = () => {
         <StyledSkeleton width={50} />
       </DataText>
       <DataText>
-        <StyledSkeleton width={70} />
-      </DataText>
-      <DataText>
         <StyledSkeleton width={100} />
       </DataText>
       <DataText>
@@ -130,63 +125,75 @@ const SkeletonPairPlaceholder = () => {
   );
 };
 
-type PairItemProps = {
-  pair: PairInfo & {
-    tvl: number;
-    apy: number;
-    feesApy: number;
-    apyTotal: number;
-    participant: number;
-    volume: number;
-    fees: number;
-  };
-};
+// type PairItemProps = {
+//   pair: PairInfo & {
+//     tvl: number;
+//     apy: number;
+//     feesApy: number;
+//     apyTotal: number;
+//     participant: number;
+//     volume: number;
+//     fees: number;
+//   };
+// };
 
-const PairItem = forwardRef(({ pair }: PairItemProps, ref) => (
+const PairItem = ({
+  id,
+  name,
+  baseAddress,
+  quoteAddress,
+  liquidity,
+  fees24h,
+  fees30d,
+  volume24h,
+  volume30d,
+  feesApy,
+  balnApy,
+}: Pair) => (
   <>
-    <DashGrid my={2} ref={ref}>
+    <DashGrid my={2}>
       <DataText minWidth={'220px'}>
         <Flex alignItems="center">
           <Box sx={{ minWidth: '95px' }}>
-            <PoolLogo baseCurrency={pair.baseToken} quoteCurrency={pair.quoteToken} />
+            <PoolLogo baseCurrency={baseAddress} quoteCurrency={quoteAddress} />
           </Box>
-          <Text ml={2}>{`${pair.baseCurrencyKey} / ${pair.quoteCurrencyKey}`}</Text>
+          <Text ml={2}>{name}</Text>
         </Flex>
       </DataText>
       <DataText className="apy-column">
         {' '}
-        {pair.apy && (
+        {balnApy && (
           <APYItem>
             <Typography color="#d5d7db" fontSize={14} marginRight={'5px'}>
               BALN:
             </Typography>
-            {`${getFormattedNumber(pair.apy, 'percent2')} - ${getFormattedNumber(pair.apy * MAX_BOOST, 'percent2')}`}
+            {`${getFormattedNumber(balnApy, 'percent2')} - ${getFormattedNumber(balnApy * MAX_BOOST, 'percent2')}`}
           </APYItem>
         )}
-        {pair.feesApy !== 0 && (
+        {feesApy !== 0 && (
           <APYItem>
             <Typography color="#d5d7db" fontSize={14} marginRight={'5px'}>
               Fees:
             </Typography>
-            {getFormattedNumber(pair.feesApy, 'percent2')}
+            {getFormattedNumber(feesApy, 'percent2')}
           </APYItem>
         )}
-        {!pair.feesApy && !pair.apy && '-'}
+        {!feesApy && '-'}
+        {/* {!pair.feesApy && !pair.apy && '-'} */}
       </DataText>
-
-      <DataText>{getFormattedNumber(pair.participant, 'number')}</DataText>
-      <DataText>{getFormattedNumber(pair.tvl, 'currency0')}</DataText>
-      <DataText>{pair.volume ? getFormattedNumber(pair.volume, 'currency0') : '-'}</DataText>
-      <DataText>{pair.fees ? getFormattedNumber(pair.fees, 'currency0') : '-'}</DataText>
+      <DataText>{getFormattedNumber(liquidity, 'currency0')}</DataText>
+      <DataText>{volume24h ? getFormattedNumber(volume24h, 'currency0') : '-'}</DataText>
+      <DataText>{fees24h ? getFormattedNumber(fees24h, 'currency0') : '-'}</DataText>
     </DashGrid>
     <Divider />
   </>
-));
+);
 
 export default function PairSection() {
-  const allPairs = useAllPairs();
-  const total = useAllPairsTotal();
-  const { sortBy, handleSortSelect, sortData } = useSort({ key: 'apyTotal', order: 'DESC' });
+  // const allPairs = useAllPairs_DEPRECATED();
+  const { data: allPairs } = useAllPairsById();
+  const { data: pairsTotal } = useAllPairsTotal();
+  const { sortBy, handleSortSelect, sortData } = useSort({ key: 'liquidity', order: 'DESC' });
   const theme = useTheme();
 
   return (
@@ -245,21 +252,10 @@ export default function PairSection() {
             </HeaderText>
             <HeaderText
               role="button"
-              className={sortBy.key === 'participant' ? sortBy.order : ''}
+              className={sortBy.key === 'liquidity' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
-                  key: 'participant',
-                })
-              }
-            >
-              PARTICIPANTS
-            </HeaderText>
-            <HeaderText
-              role="button"
-              className={sortBy.key === 'tvl' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'tvl',
+                  key: 'liquidity',
                 })
               }
             >
@@ -267,10 +263,10 @@ export default function PairSection() {
             </HeaderText>
             <HeaderText
               role="button"
-              className={sortBy.key === 'volume' ? sortBy.order : ''}
+              className={sortBy.key === 'volume24h' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
-                  key: 'volume',
+                  key: 'volume24h',
                 })
               }
             >
@@ -278,10 +274,10 @@ export default function PairSection() {
             </HeaderText>
             <HeaderText
               role="button"
-              className={sortBy.key === 'fees' ? sortBy.order : ''}
+              className={sortBy.key === 'fees24h' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
-                  key: 'fees',
+                  key: 'fees24h',
                 })
               }
             >
@@ -290,11 +286,7 @@ export default function PairSection() {
           </DashGrid>
 
           {allPairs ? (
-            <AnimateList>
-              {sortData(Object.values(allPairs)).map(pair => (
-                <PairItem key={`${pair.baseCurrencyKey}${pair.quoteCurrencyKey}`} ref={createRef()} pair={pair} />
-              ))}
-            </AnimateList>
+            sortData(Object.values(allPairs)).map(pair => <PairItem key={pair.name} {...pair} />)
           ) : (
             <>
               <SkeletonPairPlaceholder />
@@ -321,7 +313,7 @@ export default function PairSection() {
             </>
           )}
 
-          {total && (
+          {pairsTotal && (
             <DashGrid my={2}>
               <FooterText minWidth={'220px'}>
                 <Flex alignItems="center">
@@ -332,10 +324,9 @@ export default function PairSection() {
                 </Flex>
               </FooterText>
               <FooterText minWidth={'190px'}>–</FooterText>
-              <FooterText>{getFormattedNumber(total.participant, 'number')}</FooterText>
-              <FooterText>{getFormattedNumber(total.tvl, 'currency0')}</FooterText>
-              <FooterText>{getFormattedNumber(total.volume, 'currency0')}</FooterText>
-              <FooterText>{getFormattedNumber(total.fees, 'currency0')}</FooterText>
+              <FooterText>{getFormattedNumber(pairsTotal.tvl, 'currency0')}</FooterText>
+              <FooterText>{getFormattedNumber(pairsTotal.volume, 'currency0')}</FooterText>
+              <FooterText>{getFormattedNumber(pairsTotal.fees, 'currency0')}</FooterText>
             </DashGrid>
           )}
         </List>

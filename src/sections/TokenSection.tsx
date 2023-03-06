@@ -1,14 +1,14 @@
-import React, { createRef, forwardRef } from 'react';
+import React from 'react';
 
 import { Skeleton } from '@material-ui/lab';
-import { MetaToken, useAllTokens } from 'queries';
+import { MetaToken } from 'queries';
+import { useAllTokensByAddress } from 'queries/backendv2';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled, { css } from 'styled-components';
 
-import AnimateList from 'components/AnimatedList';
 import Divider from 'components/Divider';
 import { BoxPanel } from 'components/Panel';
-import CurrencyLogo from 'components/shared/CurrencyLogo';
+import { CurrencyLogoFromURI } from 'components/shared/CurrencyLogo';
 import useSort from 'hooks/useSort';
 import { Typography } from 'theme';
 import { formatPriceChange, getFormattedNumber } from 'utils/formatter';
@@ -191,13 +191,13 @@ type TokenItemProps = {
   isLast: boolean;
 };
 
-const TokenItem = forwardRef(({ token, isLast }: TokenItemProps, ref) => (
+const TokenItem = ({ token, isLast }: TokenItemProps) => (
   <>
-    <DashGrid my={4} ref={ref}>
+    <DashGrid my={4}>
       <DataText>
         <Flex alignItems="center">
           <Box sx={{ minWidth: '50px' }}>
-            <CurrencyLogo currency={token.info} size="40px" />
+            <CurrencyLogoFromURI address={token.address} size="40px" />
           </Box>
           <Box ml={2} sx={{ minWidth: '160px' }}>
             <Text>{token.name}</Text>
@@ -209,27 +209,27 @@ const TokenItem = forwardRef(({ token, isLast }: TokenItemProps, ref) => (
       <DataText>
         <Flex alignItems="flex-end" flexDirection="column">
           <Typography variant="p">{getFormattedNumber(token.price, 'price')}</Typography>
-          <Typography variant="p" color={token.priceChange >= 0 ? 'primary' : 'alert'}>
-            {formatPriceChange(token.priceChange)}
+          <Typography variant="p" color={token.price >= token.price_24h ? 'primary' : 'alert'}>
+            {formatPriceChange(((token.price - token.price_24h) / token.price_24h) * 100)}
           </Typography>
         </Flex>
       </DataText>
       <DataText>
         <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
-          <Typography variant="p">{getFormattedNumber(token.marketCap, 'currency0')}</Typography>
+          <Typography variant="p">{getFormattedNumber(token.market_cap, 'currency0')}</Typography>
           <Typography variant="p" color="text1">
-            {getFormattedNumber(token.totalSupply, 'number')} {token.symbol}
+            {getFormattedNumber(token.total_supply, 'number')} {token.symbol}
           </Typography>
         </Flex>
       </DataText>
     </DashGrid>
     {!isLast && <Divider />}
   </>
-));
+);
 
 export default React.memo(function TokenSection() {
-  const allTokens = useAllTokens();
-  const { sortBy, handleSortSelect, sortData } = useSort({ key: 'name', order: 'ASC' });
+  const { data: allTokens } = useAllTokensByAddress();
+  const { sortBy, handleSortSelect, sortData } = useSort({ key: 'market_cap', order: 'DESC' });
 
   return (
     <BoxPanel bg="bg2">
@@ -274,10 +274,10 @@ export default React.memo(function TokenSection() {
             </HeaderText>
             <HeaderText
               role="button"
-              className={sortBy.key === 'marketCap' ? sortBy.order : ''}
+              className={sortBy.key === 'market_cap' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
-                  key: 'marketCap',
+                  key: 'market_cap',
                 })
               }
             >
@@ -286,11 +286,9 @@ export default React.memo(function TokenSection() {
           </DashGrid>
 
           {allTokens ? (
-            <AnimateList>
-              {sortData(Object.values(allTokens)).map((token, index, arr) => (
-                <TokenItem key={token.symbol} ref={createRef()} token={token} isLast={index === arr.length - 1} />
-              ))}
-            </AnimateList>
+            sortData(Object.values(allTokens)).map((token, index, arr) => (
+              <TokenItem key={token.symbol} token={token} isLast={index === arr.length - 1} />
+            ))
           ) : (
             <>
               <SkeletonTokenPlaceholder />

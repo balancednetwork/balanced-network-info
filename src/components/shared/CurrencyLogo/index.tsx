@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 
 import { Currency } from '@balancednetwork/sdk-core';
+import { useAllTokensByAddress } from 'queries/backendv2';
 import styled from 'styled-components';
 
 import ICONLogo from 'assets/images/icon-logo.png';
@@ -52,4 +53,22 @@ export default function CurrencyLogo({
   }
 
   return <StyledLogo size={size} srcs={srcs} alt={`${currency?.symbol ?? 'token'} logo`} style={style} {...rest} />;
+}
+
+export function CurrencyLogoFromURI({
+  address,
+  size = '24px',
+  style,
+  ...rest
+}: {
+  address?: string;
+  size?: string;
+  style?: React.CSSProperties;
+}) {
+  const { data: allTokens } = useAllTokensByAddress();
+
+  if (allTokens && address && allTokens[address] && allTokens[address].logo_uri) {
+    return <StyledLogo size={size} srcs={[allTokens[address].logo_uri]} style={style} {...rest} />;
+  }
+  return <StyledLogo size={size} srcs={[]} style={style} {...rest} />;
 }

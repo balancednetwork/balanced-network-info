@@ -5,6 +5,8 @@ export type SortingType = {
   order?: 'ASC' | 'DESC';
 };
 
+const CUSTOM_SORT_KEYS = ['apyTotal'];
+
 export default function useSort(initialState: SortingType) {
   const [sortBy, setSortBy] = useState<SortingType>(initialState);
 
@@ -20,7 +22,7 @@ export default function useSort(initialState: SortingType) {
   const sortData = data => {
     const dataToSort = [...data];
 
-    if (Object.keys(dataToSort[0]).indexOf(sortBy.key) < 0) {
+    if (Object.keys(dataToSort[0]).indexOf(sortBy.key) < 0 && CUSTOM_SORT_KEYS.indexOf(sortBy.key) < 0) {
       console.error("sorting key doesn't match any key in sorting items");
       return dataToSort;
     }
@@ -28,8 +30,8 @@ export default function useSort(initialState: SortingType) {
     if (sortBy.order === 'DESC') {
       if (sortBy.key === 'apyTotal') {
         dataToSort.sort((a, b) => {
-          if (a['feesApy'] + (a['apy'] || 0) * 2.5 > b['feesApy'] + (b['apy'] || 0) * 2.5) return -1;
-          if (a['feesApy'] + (a['apy'] || 0) * 2.5 < b['feesApy'] + (b['apy'] || 0) * 2.5) return 1;
+          if (a['feesApy'] + (a['balnApy'] || 0) * 2.5 > b['feesApy'] + (b['balnApy'] || 0) * 2.5) return -1;
+          if (a['feesApy'] + (a['balnApy'] || 0) * 2.5 < b['feesApy'] + (b['balnApy'] || 0) * 2.5) return 1;
           return 0;
         });
       } else {
@@ -44,8 +46,8 @@ export default function useSort(initialState: SortingType) {
     } else {
       if (sortBy.key === 'apyTotal') {
         dataToSort.sort((a, b) => {
-          if (a['feesApy'] + (a['apy'] || 0) * 2.5 < b['feesApy'] + (b['apy'] || 0) * 2.5) return -1;
-          if (a['feesApy'] + (a['apy'] || 0) * 2.5 > b['feesApy'] + (b['apy'] || 0) * 2.5) return 1;
+          if (a['feesApy'] + (a['balnApy'] || 0) * 2.5 < b['feesApy'] + (b['balnApy'] || 0) * 2.5) return -1;
+          if (a['feesApy'] + (a['balnApy'] || 0) * 2.5 > b['feesApy'] + (b['balnApy'] || 0) * 2.5) return 1;
           return 0;
         });
       } else {

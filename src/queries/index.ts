@@ -12,6 +12,7 @@ import { SUPPORTED_TOKENS_LIST, SUPPORTED_TOKENS_MAP_BY_ADDRESS, TOKENS_OMITTED_
 import { getTimestampFrom } from 'pages/PerformanceDetails/utils';
 import { formatUnits } from 'utils';
 
+import { useAllPairsTotal, useTokenPrices } from './backendv2';
 import { useBlockDetails, useDaoFundHoldings, usePOLData } from './blockDetails';
 
 const WEIGHT_CONST = 10 ** 18;
@@ -45,9 +46,11 @@ export type MetaToken = {
   name: string;
   symbol: string;
   price: number;
-  priceChange: number;
-  totalSupply: number;
-  marketCap: number;
+  price_24h: number;
+  total_supply: number;
+  market_cap: number;
+  logo_uri?: string;
+  address: string;
 };
 
 type DataPeriod = '24h' | '30d';
@@ -482,25 +485,30 @@ export const useStatsTVL = () => {
   const dexTVL = useDexTVL();
   const collateralInfo = useCollateralInfo();
 
+  console.log('tvl dex', dexTVL);
+  console.log('tvl coll', collateralInfo);
+
   if (dexTVL && collateralInfo && collateralInfo.totalCollateralTVL) return dexTVL + collateralInfo.totalCollateralTVL;
 
   return;
 };
 
 const useEarnedFeesQuery = () => {
-  return useQuery<{ [key in string]: BigNumber }>('stats/dividends-fees', async () => {
-    const { data }: { data: { [key in string]: string } } = await axios.get(`${API_ENDPOINT}/stats/dividends-fees`);
+  return useQuery<{ [key in string]: BigNumber } | void>('stats/dividends-fees', async () => {
+    // const { data }: { data: { [key in string]: string } } = await axios.get(`${API_ENDPOINT}/stats/dividends-fees`);
 
-    const t: { [key in string]: BigNumber } = {};
-    Object.keys(data).forEach(address => {
-      if (SUPPORTED_TOKENS_MAP_BY_ADDRESS[address]) {
-        t[SUPPORTED_TOKENS_MAP_BY_ADDRESS[address].symbol!] = BalancedJs.utils.toIcx(
-          data[address]['total'],
-          SUPPORTED_TOKENS_MAP_BY_ADDRESS[address].symbol!,
-        );
-      }
-    });
-    return t;
+    // const t: { [key in string]: BigNumber } = {};
+    // Object.keys(data).forEach(address => {
+    //   if (SUPPORTED_TOKENS_MAP_BY_ADDRESS[address]) {
+    //     t[SUPPORTED_TOKENS_MAP_BY_ADDRESS[address].symbol!] = BalancedJs.utils.toIcx(
+    //       data[address]['total'],
+    //       SUPPORTED_TOKENS_MAP_BY_ADDRESS[address].symbol!,
+    //     );
+    //   }
+    // });
+    // return t;
+
+    return;
   });
 };
 
@@ -512,8 +520,9 @@ export const usePlatformDayQuery = () => {
 };
 
 export const useOverviewInfo = () => {
-  const ratesQuery = useRatesQuery();
-  const rates = ratesQuery.data;
+  const { data: rates, isSuccess: ratesQuerySuccess } = useTokenPrices();
+
+  console.log(rates);
 
   // TVL
   const tvl = useStatsTVL();
@@ -521,19 +530,20 @@ export const useOverviewInfo = () => {
   // fees
   const feesQuery = useEarnedFeesQuery();
   let totalFees: BigNumber | undefined;
-  if (feesQuery.isSuccess && ratesQuery.isSuccess && rates) {
-    const fees = feesQuery.data;
-    totalFees = SUPPORTED_TOKENS_LIST.reduce((sum: BigNumber, token: Token) => {
-      return fees[token.symbol!] && rates[token.symbol!]
-        ? sum.plus(fees[token.symbol!].times(rates[token.symbol!]))
-        : sum;
-    }, ZERO);
-  }
+  // TODO
+  // if (feesQuery.isSuccess && ratesQuerySuccess && rates) {
+  //   const fees = feesQuery.data;
+  //   totalFees = SUPPORTED_TOKENS_LIST.reduce((sum: BigNumber, token: Token) => {
+  //     return fees[token.symbol!] && rates[token.symbol!]
+  //       ? sum.plus(fees[token.symbol!].times(rates[token.symbol!]))
+  //       : sum;
+  //   }, ZERO);
+  // }
 
   // baln marketcap
   const totalSupplyQuery = useBnJsContractQuery<string>(bnJs, 'BALN', 'totalSupply', []);
   let BALNMarketCap: BigNumber | undefined;
-  if (totalSupplyQuery.isSuccess && ratesQuery.isSuccess && rates) {
+  if (totalSupplyQuery.isSuccess && ratesQuerySuccess && rates) {
     BALNMarketCap = BalancedJs.utils.toIcx(totalSupplyQuery.data).times(rates['BALN']);
   }
 
@@ -770,7 +780,7 @@ export const useAllTokensQuery = () => {
   return useQuery<{ timestamp: number; tokens: { [key in string]: MetaToken } }>('useAllTokensQuery', fetch);
 };
 
-export const useAllTokens = () => {
+export const useAllTokens_DEPRECATED = () => {
   const holdersQuery = useAllTokensHoldersQuery();
   const allTokensQuery = useAllTokensQuery();
 
@@ -1033,12 +1043,10 @@ export const useAllPairsData = (
 };
 
 export const useDexTVL = () => {
-  const tvls = useAllPairsTVL();
+  const { data: pairsTotal } = useAllPairsTotal();
 
-  if (tvls) {
-    return SUPPORTED_PAIRS.reduce((sum: number, pair) => {
-      return sum + tvls[pair.name];
-    }, 0);
+  if (pairsTotal) {
+    return pairsTotal.tvl;
   }
 
   return;
@@ -1057,7 +1065,7 @@ export const useAllPairsParticipantQuery = () => {
   });
 };
 
-export const useAllPairs = () => {
+export const useAllPairs_DEPRECATED = () => {
   const apys = useAllPairsAPY();
   const tvls = useAllPairsTVL();
   const data = useAllPairsData();
@@ -1105,25 +1113,6 @@ export const useAllPairs = () => {
     });
     return t;
   } else return null;
-};
-
-export const useAllPairsTotal = () => {
-  const allPairs = useAllPairs();
-
-  if (allPairs) {
-    return Object.values(allPairs).reduce(
-      (total, pair) => {
-        total.participant += pair.participant;
-        total.tvl += pair.tvl;
-        total.volume += pair.volume ? pair.volume : 0;
-        total.fees += pair.fees ? pair.fees : 0;
-        return total;
-      },
-      { participant: 0, tvl: 0, volume: 0, fees: 0 },
-    );
-  }
-
-  return;
 };
 
 export const useWhitelistedTokensList = () => {
@@ -1182,7 +1171,7 @@ export function useDaoBBALNData(): UseQueryResult<DaoBBALNData, Error> {
   const oneMinPeriod = 1000 * 60;
   const now = Math.floor(new Date().getTime() / oneMinPeriod) * oneMinPeriod;
   const feesDistributedIn = [bnJs.sICX.address, bnJs.bnUSD.address, bnJs.BALN.address];
-  const allPairs = useAllPairs();
+  const allPairs = useAllPairs_DEPRECATED();
 
   return useQuery(
     `daoBBALNData${now}${!!allPairs}`,

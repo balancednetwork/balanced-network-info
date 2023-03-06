@@ -132,7 +132,6 @@ const StyledArrowLink = styled(Link)`
 
 export function StatsPage() {
   const overviewInfo = useOverviewInfo();
-  const governanceInfo = useGovernanceInfo();
 
   return (
     <Container>
@@ -247,92 +246,9 @@ export function StatsPage() {
           </Stats>
         </BoxPanel>
 
-        <CollateralAndLoanSection />
-
         <TokenSection />
 
         <PairSection />
-
-        <BoxPanel bg="bg2" mb={10}>
-          <Flex flexWrap="wrap" mb={5}>
-            <Typography variant="h2" mr={3}>
-              Governance
-            </Typography>
-            <StyledArrowLink to={LINKS.performanceDetails}>Performance details</StyledArrowLink>
-          </Flex>
-
-          <Stats>
-            <StatsItem className="border-right">
-              <StatsItemIcon>
-                <DaoIcon width={53} height={55} />
-              </StatsItemIcon>
-
-              <StatsItemData>
-                <Typography fontWeight="normal" variant="h3">
-                  {governanceInfo.daofund ? (
-                    getFormattedNumber(governanceInfo.daofund, 'currency0')
-                  ) : (
-                    <LoaderComponent />
-                  )}
-                </Typography>
-                <Typography>DAO fund</Typography>
-              </StatsItemData>
-            </StatsItem>
-
-            <StatsItem className="border-right">
-              <StatsItemIcon>
-                <StakersIcon opacity={1} width={53} height={55} />
-              </StatsItemIcon>
-              <StatsItemData>
-                <Typography fontWeight="normal" variant="h3">
-                  {governanceInfo.numOfHolders ? (
-                    getFormattedNumber(governanceInfo.numOfHolders, 'number')
-                  ) : (
-                    <LoaderComponent />
-                  )}
-                </Typography>
-                <Typography>bBALN holders</Typography>
-              </StatsItemData>
-            </StatsItem>
-
-            <StatsItem className="border-right">
-              <StatsItemIcon>
-                <ChartIcon width={53} height={55} />
-              </StatsItemIcon>
-
-              <StatsItemData>
-                <Typography fontWeight="normal" variant="h3">
-                  {governanceInfo.totalBALNLocked ? (
-                    getFormattedNumber(governanceInfo.totalBALNLocked, 'number')
-                  ) : (
-                    <LoaderComponent />
-                  )}{' '}
-                </Typography>
-                <Typography>BALN locked</Typography>
-              </StatsItemData>
-            </StatsItem>
-
-            <StatsItem>
-              <StatsItemIcon>
-                <DistributionIcon width={53} height={55} />
-              </StatsItemIcon>
-
-              <StatsItemData>
-                <Typography fontWeight="normal" variant="h3">
-                  {governanceInfo.dailyDistribution ? (
-                    getFormattedNumber(governanceInfo.dailyDistribution, 'number')
-                  ) : (
-                    <LoaderComponent />
-                  )}{' '}
-                  <Typography as="span" fontWeight="normal" color="text1">
-                    BALN
-                  </Typography>
-                </Typography>
-                <Typography>Today's distribution</Typography>
-              </StatsItemData>
-            </StatsItem>
-          </Stats>
-        </BoxPanel>
       </StatsLayout>
 
       <Divider />
