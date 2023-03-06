@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import Popover, { PopoverProps } from '../Popover';
 
-const TooltipContainer = styled.div<{ width?: number }>`
+export const TooltipContainer = styled.div<{ width?: number }>`
   width: 100%;
   max-width: ${({ width }) => (width ? `${width}px` : `240px`)};
   padding: 12px 1rem;

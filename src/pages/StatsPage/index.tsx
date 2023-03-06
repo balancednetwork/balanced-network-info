@@ -25,6 +25,7 @@ import { LoaderComponent } from 'pages/PerformanceDetails/utils';
 import CollateralAndLoanSection from 'sections/CollateralAndLoanSection';
 import PairSection from 'sections/PairSection';
 import TokenSection from 'sections/TokenSection';
+import { useFetchOraclePrices } from 'store/oracle/hooks';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
 
@@ -131,6 +132,8 @@ const StyledArrowLink = styled(Link)`
 `;
 
 export function StatsPage() {
+  useFetchOraclePrices();
+
   const overviewInfo = useOverviewInfo();
 
   return (

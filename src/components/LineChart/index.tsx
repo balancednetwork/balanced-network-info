@@ -44,7 +44,7 @@ export type LineChartProps = {
 
 const Chart = ({
   data,
-  color = '#56B2A4',
+  color = '#2ca9b7',
   value,
   label,
   setValue,
@@ -54,8 +54,10 @@ const Chart = ({
   bottomLeft,
   bottomRight,
   minHeight = DEFAULT_HEIGHT,
+  isPredefined,
+  customId,
   ...rest
-}: LineChartProps) => {
+}: LineChartProps | any) => {
   const theme = useTheme();
   const parsedValue = value;
 
@@ -83,7 +85,7 @@ const Chart = ({
         >
           <defs>
             <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={color} stopOpacity={0.15} />
+              <stop offset="0%" stopColor={color} stopOpacity={0.5} />
               <stop offset="100%" stopColor={color} stopOpacity={0} />
             </linearGradient>
           </defs>

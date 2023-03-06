@@ -1205,10 +1205,10 @@
     lodash "^4.17.19"
     to-fast-properties "^2.0.0"
 
-"@balancednetwork/balanced-js@1.2.8":
-  version "1.2.8"
-  resolved "https://registry.yarnpkg.com/@balancednetwork/balanced-js/-/balanced-js-1.2.8.tgz#135325739f48f016db3428d38f5bf5b84a3afb33"
-  integrity sha512-CLXzvAOxkn+7cK4+HYheNJTaEiLrtPZxHxgL8w1E5CgSevbkxWqExLThbjbLCExzoynYI+XH2hTmxwvzBXyj9w==
+"@balancednetwork/balanced-js@1.2.11":
+  version "1.2.11"
+  resolved "https://registry.yarnpkg.com/@balancednetwork/balanced-js/-/balanced-js-1.2.11.tgz#324f4577c7f7810416247e5583a00425d77fd8e0"
+  integrity sha512-Xm3HrL/h3CkAvLxRZqtir2pbeZLPeVsvBPU8OS2M/ekHcGeZhHXe1Mnqs5LXi89YorbmJw1p7Z6E+4S3Xw7e+A==
   dependencies:
     "@balancednetwork/hw-app-icx" "^1.0.6"
     bignumber.js "9.0.1"
