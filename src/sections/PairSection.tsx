@@ -32,7 +32,7 @@ const DashGrid = styled(Box)`
   align-items: center;
   grid-template-columns: 2fr repeat(4, 1fr);
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: 1.2fr 0.5fr repeat(4, 1fr);
+    grid-template-columns: 1.2fr 0.5fr repeat(3, 1fr);
   `}
   > * {
     justify-content: flex-end;
