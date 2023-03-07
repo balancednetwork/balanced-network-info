@@ -194,7 +194,6 @@ const PairItem = ({
 );
 
 export default function PairSection() {
-  // const allPairs = useAllPairs_DEPRECATED();
   const { data: allPairs } = useAllPairsById();
   const { data: pairsTotal } = useAllPairsTotal();
   const { sortBy, handleSortSelect, sortData } = useSort({ key: 'liquidity', order: 'DESC' });

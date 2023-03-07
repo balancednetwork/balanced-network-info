@@ -50,7 +50,7 @@ export const useContractMethodsDataQuery = (
 };
 
 export function useAllTokens() {
-  const MIN_MARKETCAP_TO_INCLUDE = 5000;
+  const MIN_LIQUIDITY_TO_INCLUDE = 10;
 
   return useQuery(
     `allTokens`,
@@ -63,7 +63,7 @@ export function useAllTokens() {
             item['market_cap'] = item.total_supply * item.price;
             return item;
           })
-          .filter(item => item['market_cap'] > MIN_MARKETCAP_TO_INCLUDE);
+          .filter(item => item['liquidity'] > MIN_LIQUIDITY_TO_INCLUDE);
       }
     },
     {
@@ -153,11 +153,11 @@ export function useAllPairs() {
               baseAddress: item['base_address'],
               quoteAddress: item['quote_address'],
               liquidity,
-              fees24h,
-              fees30d,
+              fees24h: fees24h || 0,
+              fees30d: fees30d || 0,
               volume24h,
               volume30d,
-              feesApy,
+              feesApy: feesApy || 0,
             };
 
             if (incentivisedPair) {

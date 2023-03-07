@@ -67,6 +67,10 @@ export function CurrencyLogoFromURI({
 }) {
   const { data: allTokens } = useAllTokensByAddress();
 
+  if (address === 'ICX') {
+    return <StyledICONLogo src={ICONLogo} alt="icon logo" size={size} style={style} {...rest} />;
+  }
+
   if (allTokens && address && allTokens[address] && allTokens[address].logo_uri) {
     return <StyledLogo size={size} srcs={[allTokens[address].logo_uri]} style={style} {...rest} />;
   }
