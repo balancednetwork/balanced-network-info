@@ -129,18 +129,6 @@ const SkeletonPairPlaceholder = () => {
   );
 };
 
-// type PairItemProps = {
-//   pair: PairInfo & {
-//     tvl: number;
-//     apy: number;
-//     feesApy: number;
-//     apyTotal: number;
-//     participant: number;
-//     volume: number;
-//     fees: number;
-//   };
-// };
-
 const PairItem = ({
   id,
   name,
@@ -210,10 +198,10 @@ export default function PairSection() {
             <HeaderText
               minWidth={'220px'}
               role="button"
-              className={sortBy.key === 'baseCurrencyKey' ? sortBy.order : ''}
+              className={sortBy.key === 'name' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
-                  key: 'baseCurrencyKey',
+                  key: 'name',
                 })
               }
             >

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { Currency } from '@balancednetwork/sdk-core';
 import BigNumber from 'bignumber.js';
-import { useRatesQuery, LAUNCH_DAY } from 'queries';
+import { LAUNCH_DAY } from 'queries';
 import { useTokenPrices } from 'queries/backendv2';
 import { useDaoFundHoldings, usePOLData } from 'queries/blockDetails';
 import DatePicker from 'react-datepicker';

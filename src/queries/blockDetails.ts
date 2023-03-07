@@ -2,7 +2,7 @@ import { addresses } from '@balancednetwork/balanced-js';
 import { Currency, CurrencyAmount } from '@balancednetwork/sdk-core';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import { useRatesQuery, useWhitelistedTokensList } from 'queries';
+import { useWhitelistedTokensList } from 'queries';
 import { useQuery } from 'react-query';
 
 import bnJs from 'bnJs';

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import { useAllTokens, useTokenPrices } from 'queries/backendv2';
+import { useTokenPrices } from 'queries/backendv2';
 import { BlockDetails } from 'queries/blockDetails';
 import { useQuery, UseQueryResult } from 'react-query';
 

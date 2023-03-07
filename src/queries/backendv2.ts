@@ -6,8 +6,6 @@ import { useQuery } from 'react-query';
 import bnJs from 'bnJs';
 import { formatUnits } from 'utils';
 
-// const API_ENDPOINT = 'https://balanced.icon.community/api/v1/';
-const API_ENDPOINT = 'https://balanced.TEMPORARY_OFF';
 const API_ENDPOINT_VULTR = 'https://balanced.mainnet.sng.vultr.icon.community/api/v1/';
 
 export type ContractMethodsDataType = {
@@ -34,7 +32,7 @@ export const useContractMethodsDataQuery = (
     `historicalQuery|${skip}|${limit}|${contract}|${method}|${days_ago}|${start_timestamp}|${end_timestamp}`,
     async () => {
       const { data } = await axios.get(
-        `${API_ENDPOINT}contract-methods?skip=${skip}&limit=${limit}&address=${contract}&method=${method}${
+        `${API_ENDPOINT_VULTR}contract-methods?skip=${skip}&limit=${limit}&address=${contract}&method=${method}${
           days_ago ? `&days_ago=${days_ago}` : ''
         }${start_timestamp ? `&start_timestamp=${start_timestamp}` : ''}${
           end_timestamp ? `&end_timestamp=${end_timestamp}` : ''
