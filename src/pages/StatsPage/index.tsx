@@ -25,7 +25,6 @@ import { LoaderComponent } from 'pages/PerformanceDetails/utils';
 import CollateralAndLoanSection from 'sections/CollateralAndLoanSection';
 import PairSection from 'sections/PairSection';
 import TokenSection from 'sections/TokenSection';
-import { useFetchOraclePrices } from 'store/oracle/hooks';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
 
@@ -192,9 +191,9 @@ export function StatsPage() {
 
               <StatsItemData>
                 <Typography fontWeight="normal" variant="h3">
-                  {overviewInfo.fees ? getFormattedNumber(overviewInfo.fees, 'currency0') : <LoaderComponent />}
+                  {overviewInfo.earned ? getFormattedNumber(overviewInfo.earned, 'currency0') : <LoaderComponent />}
                 </Typography>
-                <Typography>Total fees earned</Typography>
+                <Typography>Earned past month</Typography>
               </StatsItemData>
             </StatsItem>
             {/* Baln staking info */}

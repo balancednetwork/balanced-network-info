@@ -491,25 +491,6 @@ export const useStatsTVL = () => {
   return;
 };
 
-const useEarnedFeesQuery = () => {
-  return useQuery<{ [key in string]: BigNumber } | void>('stats/dividends-fees', async () => {
-    // const { data }: { data: { [key in string]: string } } = await axios.get(`${API_ENDPOINT}/stats/dividends-fees`);
-
-    // const t: { [key in string]: BigNumber } = {};
-    // Object.keys(data).forEach(address => {
-    //   if (SUPPORTED_TOKENS_MAP_BY_ADDRESS[address]) {
-    //     t[SUPPORTED_TOKENS_MAP_BY_ADDRESS[address].symbol!] = BalancedJs.utils.toIcx(
-    //       data[address]['total'],
-    //       SUPPORTED_TOKENS_MAP_BY_ADDRESS[address].symbol!,
-    //     );
-    //   }
-    // });
-    // return t;
-
-    return;
-  });
-};
-
 export const usePlatformDayQuery = () => {
   return useQuery<number>(QUERY_KEYS.PlatformDay, async () => {
     const res = await bnJs.Governance.getDay();
@@ -522,19 +503,6 @@ export const useOverviewInfo = () => {
 
   // TVL
   const tvl = useStatsTVL();
-
-  // fees
-  const feesQuery = useEarnedFeesQuery();
-  let totalFees: BigNumber | undefined;
-  // TODO
-  // if (feesQuery.isSuccess && ratesQuerySuccess && rates) {
-  //   const fees = feesQuery.data;
-  //   totalFees = SUPPORTED_TOKENS_LIST.reduce((sum: BigNumber, token: Token) => {
-  //     return fees[token.symbol!] && rates[token.symbol!]
-  //       ? sum.plus(fees[token.symbol!].times(rates[token.symbol!]))
-  //       : sum;
-  //   }, ZERO);
-  // }
 
   // baln marketcap
   const totalSupplyQuery = useBnJsContractQuery<string>(bnJs, 'BALN', 'totalSupply', []);
@@ -558,10 +526,29 @@ export const useOverviewInfo = () => {
 
   const previousChunkAmount = 100;
 
+  const earnedPastMonth =
+    earningsDataQuery.isSuccess && earningsDataQuery.data
+      ? earningsDataQuery.data.income.loans
+          .plus(earningsDataQuery.data.income.fund)
+          .plus(earningsDataQuery.data.income.liquidity.value)
+          .plus(
+            Object.values(earningsDataQuery.data.income.fees).reduce(
+              (total, fee) => total.plus(fee.value),
+              new BigNumber(0),
+            ),
+          )
+          .plus(
+            Object.values(earningsDataQuery.data.income.swaps).reduce(
+              (total, swap) => total.plus(swap.value),
+              new BigNumber(0),
+            ),
+          )
+      : undefined;
+
   return {
     TVL: tvl,
     BALNMarketCap: BALNMarketCap?.integerValue().toNumber(),
-    fees: totalFees?.integerValue().toNumber(),
+    earned: earnedPastMonth?.toNumber(),
     platformDay: platformDay,
     monthlyFeesTotal: earningsDataQuery?.data?.feesDistributed,
     bBALNAPY: bBALNAPY,
