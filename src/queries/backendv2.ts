@@ -106,17 +106,17 @@ export function useAllPairs() {
   const { data: allTokens } = useAllTokensByAddress();
   const { data: incentivisedPairs } = useIncentivisedPairs();
   const { data: dailyDistributionRaw } = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
+  const balnPrice: number = allTokens ? allTokens[bnJs.BALN.address].price : 0;
 
   const MIN_LIQUIDITY_TO_INCLUDE = 1000;
 
   return useQuery<Pair[]>(
-    `allPairs-${incentivisedPairs && incentivisedPairs.length}-${dailyDistributionRaw}`,
+    `allPairs-${incentivisedPairs && incentivisedPairs.length}-${dailyDistributionRaw}-${balnPrice}`,
     async () => {
       const response = await axios.get(`${API_ENDPOINT}pools`);
 
       if (response.status === 200) {
         const dailyDistribution = dailyDistributionRaw && new BigNumber(formatUnits(dailyDistributionRaw, 18, 4));
-        const balnPrice: number = allTokens ? allTokens[bnJs.BALN.address].price : 1;
 
         try {
           const pairs = response.data.map(item => {
