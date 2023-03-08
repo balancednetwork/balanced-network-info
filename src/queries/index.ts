@@ -12,7 +12,14 @@ import { getTimestampFrom } from 'pages/PerformanceDetails/utils';
 import { useSupportedCollateralTokens } from 'store/collateral/hooks';
 import { formatUnits } from 'utils';
 
-import { useAllPairsByName, useAllPairsTotal, useAllTokens, useAllTokensByAddress, useTokenPrices } from './backendv2';
+import {
+  useAllPairsByName,
+  useAllPairsIncentivisedByName,
+  useAllPairsTotal,
+  useAllTokens,
+  useAllTokensByAddress,
+  useTokenPrices,
+} from './backendv2';
 import { useBlockDetails, useDaoFundHoldings, usePOLData, useStabilityFundHoldings } from './blockDetails';
 import { useHistoryForStabilityFund } from './historicalData';
 
@@ -864,7 +871,7 @@ export function useDaoBBALNData(): UseQueryResult<DaoBBALNData, Error> {
   const oneMinPeriod = 1000 * 60;
   const now = Math.floor(new Date().getTime() / oneMinPeriod) * oneMinPeriod;
   const feesDistributedIn = [bnJs.sICX.address, bnJs.bnUSD.address, bnJs.BALN.address];
-  const { data: allPairs, isSuccess: allPairsQuerySuccess } = useAllPairsByName();
+  const { data: allPairs, isSuccess: allPairsQuerySuccess } = useAllPairsIncentivisedByName();
 
   return useQuery(
     `daoBBALNData${now}`,

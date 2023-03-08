@@ -103,18 +103,10 @@ export type Pair = {
 };
 
 export function useAllPairs() {
-  const { data: allTokens } = useAllTokensByAddress();
-  const { data: incentivisedPairs } = useIncentivisedPairs();
-  const { data: dailyDistributionRaw } = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
-  const balnPrice: number = allTokens ? allTokens[bnJs.BALN.address].price : 0;
-  const dailyDistribution = dailyDistributionRaw && new BigNumber(formatUnits(dailyDistributionRaw, 18, 4));
-
   const MIN_LIQUIDITY_TO_INCLUDE = 1000;
 
   return useQuery<Pair[]>(
-    `allPairs-${incentivisedPairs ? incentivisedPairs.length : 0}-${
-      dailyDistribution ? dailyDistribution.toFixed(2) : 0
-    }-${balnPrice}`,
+    `allPairs`,
     async () => {
       const response = await axios.get(`${API_ENDPOINT}pools`);
 
@@ -139,9 +131,6 @@ export function useAllPairs() {
             const fees30d = fees30dProviders + fees30dBaln;
             const feesApy = liquidity > 0 ? (fees30dProviders * 12) / liquidity : 0;
 
-            const incentivisedPair =
-              incentivisedPairs && incentivisedPairs.find(incentivisedPair => incentivisedPair.name === item.name);
-
             const pair: Pair = {
               id: item['pool_id'],
               name: item['name'],
@@ -155,15 +144,6 @@ export function useAllPairs() {
               feesApy: feesApy || 0,
             };
 
-            if (incentivisedPair && dailyDistribution) {
-              pair['balnApy'] = dailyDistribution
-                .times(new BigNumber(incentivisedPair.rewards.toFixed(4)))
-                .times(365)
-                .times(balnPrice)
-                .div(liquidity)
-                .toNumber();
-            }
-
             return pair;
           });
 
@@ -176,6 +156,82 @@ export function useAllPairs() {
     {
       keepPreviousData: true,
       refetchInterval: 4000,
+    },
+  );
+}
+
+export function useAllPairsIncentivised() {
+  const { data: allPairs } = useAllPairs();
+  const { data: allTokens } = useAllTokensByAddress();
+  const { data: incentivisedPairs } = useIncentivisedPairs();
+  const { data: dailyDistributionRaw } = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
+  const balnPrice: number = allTokens ? allTokens[bnJs.BALN.address].price : 0;
+  const dailyDistribution = dailyDistributionRaw && new BigNumber(formatUnits(dailyDistributionRaw, 18, 4));
+
+  return useQuery<Pair[] | undefined>(
+    `allPairsIncentivised-${allPairs ? allPairs.length : 0}-${incentivisedPairs ? incentivisedPairs.length : 0}-${
+      dailyDistribution ? dailyDistribution.toFixed(2) : 0
+    }-${balnPrice}`,
+    () => {
+      if (allPairs) {
+        return allPairs.map(item => {
+          const incentivisedPair =
+            incentivisedPairs && incentivisedPairs.find(incentivisedPair => incentivisedPair.name === item.name);
+
+          if (incentivisedPair && dailyDistribution) {
+            item['balnApy'] = dailyDistribution
+              .times(new BigNumber(incentivisedPair.rewards.toFixed(4)))
+              .times(365)
+              .times(balnPrice)
+              .div(item.liquidity)
+              .toNumber();
+
+            return item;
+          }
+          return item;
+        });
+      }
+    },
+    {
+      keepPreviousData: true,
+    },
+  );
+}
+
+export function useAllPairsIncentivisedById() {
+  const { data: allPairs } = useAllPairsIncentivised();
+
+  return useQuery<{ [key in string]: Pair } | undefined>(
+    `allPairsIncentivisedById-${allPairs ? allPairs.length : 0}`,
+    () => {
+      if (allPairs) {
+        return allPairs.reduce((allPairs, item) => {
+          allPairs[item['id']] = item;
+          return allPairs;
+        }, {});
+      }
+    },
+    {
+      keepPreviousData: true,
+    },
+  );
+}
+
+export function useAllPairsIncentivisedByName() {
+  const { data: allPairs } = useAllPairsIncentivised();
+
+  return useQuery<{ [key in string]: Pair } | undefined>(
+    `allPairsIncentivisedByName-${allPairs ? allPairs.length : 0}`,
+    () => {
+      if (allPairs) {
+        return allPairs.reduce((allPairs, item) => {
+          allPairs[item['name']] = item;
+          return allPairs;
+        }, {});
+      }
+    },
+    {
+      keepPreviousData: true,
     },
   );
 }

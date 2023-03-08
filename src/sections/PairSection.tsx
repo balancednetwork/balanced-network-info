@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Pair, useAllPairsById, useAllPairsTotal } from 'queries/backendv2';
+import { Pair, useAllPairsById, useAllPairsIncentivisedById, useAllPairsTotal } from 'queries/backendv2';
 import { isMobile } from 'react-device-detect';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
@@ -181,7 +181,7 @@ const PairItem = ({
 );
 
 export default function PairSection() {
-  const { data: allPairs } = useAllPairsById();
+  const { data: allPairs } = useAllPairsIncentivisedById();
   const { data: pairsTotal } = useAllPairsTotal();
   const { sortBy, handleSortSelect, sortData } = useSort({ key: 'liquidity', order: 'DESC' });
   const theme = useTheme();
