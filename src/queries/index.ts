@@ -50,6 +50,7 @@ export type MetaToken = {
   price_24h: number;
   total_supply: number;
   market_cap: number;
+  liquidity: number;
   logo_uri?: string;
   address: string;
 };

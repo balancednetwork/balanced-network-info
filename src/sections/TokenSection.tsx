@@ -15,7 +15,7 @@ import { formatPriceChange, getFormattedNumber } from 'utils/formatter';
 
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
-  min-width: 620px;
+  min-width: 785px;
   overflow: hidden;
 `;
 
@@ -23,9 +23,9 @@ const DashGrid = styled(Box)`
   display: grid;
   gap: 1em;
   align-items: center;
-  grid-template-columns: 2fr repeat(3, 1fr);
+  grid-template-columns: 6fr 4fr 4fr 3fr 3fr;
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
   `}
 
   > * {
@@ -154,21 +154,18 @@ const SkeletonTokenPlaceholder = () => {
             <StyledSkeleton variant="circle" width={40} height={40} />
           </Box>
           <Box ml={2} sx={{ minWidth: '160px' }}>
-            <StyledSkeleton width={160} />
+            <StyledSkeleton width={130} />
             <StyledSkeleton width={70} />
           </Box>
         </Flex>
       </DataText>
       <DataText>
-        <StyledSkeleton width={90} />
-      </DataText>
-      <DataText>
         <Flex alignItems="flex-end" flexDirection="column">
           <Typography variant="p">
-            <StyledSkeleton width={90} />
+            <StyledSkeleton width={80} />
           </Typography>
           <Typography variant="p">
-            <StyledSkeleton width={90} />
+            <StyledSkeleton width={80} />
           </Typography>
         </Flex>
       </DataText>
@@ -181,6 +178,12 @@ const SkeletonTokenPlaceholder = () => {
             <StyledSkeleton width={160} />
           </Typography>
         </Flex>
+      </DataText>
+      <DataText>
+        <StyledSkeleton width={110} />
+      </DataText>
+      <DataText>
+        <StyledSkeleton width={90} />
       </DataText>
     </DashGrid>
   );
@@ -205,7 +208,6 @@ const TokenItem = ({ token, isLast }: TokenItemProps) => (
           </Box>
         </Flex>
       </DataText>
-      <DataText>{token.symbol === 'ICX' ? '–' : getFormattedNumber(token.holders, 'number')}</DataText>
       <DataText>
         <Flex alignItems="flex-end" flexDirection="column">
           <Typography variant="p">{getFormattedNumber(token.price, 'price')}</Typography>
@@ -222,6 +224,8 @@ const TokenItem = ({ token, isLast }: TokenItemProps) => (
           </Typography>
         </Flex>
       </DataText>
+      <DataText>{`$${getFormattedNumber(token.liquidity, 'number')}`}</DataText>
+      <DataText>{token.symbol === 'ICX' ? '–' : getFormattedNumber(token.holders, 'number')}</DataText>
     </DashGrid>
     {!isLast && <Divider />}
   </>
@@ -252,17 +256,6 @@ export default React.memo(function TokenSection() {
             </HeaderText>
             <HeaderText
               role="button"
-              className={sortBy.key === 'holders' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'holders',
-                })
-              }
-            >
-              HOLDERS
-            </HeaderText>
-            <HeaderText
-              role="button"
               className={sortBy.key === 'price' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
@@ -282,6 +275,28 @@ export default React.memo(function TokenSection() {
               }
             >
               MARKETCAP
+            </HeaderText>
+            <HeaderText
+              role="button"
+              className={sortBy.key === 'liquidity' ? sortBy.order : ''}
+              onClick={() =>
+                handleSortSelect({
+                  key: 'liquidity',
+                })
+              }
+            >
+              LIQUIDITY
+            </HeaderText>
+            <HeaderText
+              role="button"
+              className={sortBy.key === 'holders' ? sortBy.order : ''}
+              onClick={() =>
+                handleSortSelect({
+                  key: 'holders',
+                })
+              }
+            >
+              HOLDERS
             </HeaderText>
           </DashGrid>
 
