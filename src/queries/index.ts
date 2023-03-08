@@ -460,12 +460,12 @@ export const useEarningsDataQuery = (
 };
 
 export const useStatsTVL = () => {
-  const dexTVL = useDexTVL();
+  const { data: pairsTotal } = useAllPairsTotal();
   const { data: collateralInfo } = useCollateralInfo();
 
-  if (dexTVL && collateralInfo && collateralInfo.totalTVL) return dexTVL + collateralInfo.totalTVL;
-
-  return;
+  if (pairsTotal && collateralInfo && collateralInfo.totalTVL) {
+    return pairsTotal.tvl + collateralInfo.totalTVL;
+  }
 };
 
 export const usePlatformDayQuery = () => {
@@ -477,8 +477,6 @@ export const usePlatformDayQuery = () => {
 
 export const useOverviewInfo = () => {
   const { data: rates, isSuccess: ratesQuerySuccess } = useTokenPrices();
-
-  // TVL
   const tvl = useStatsTVL();
 
   // baln marketcap
@@ -767,16 +765,6 @@ export const useLoanInfo = () => {
     dailyRewards: dailyRewards?.toNumber(),
     borrowers: borrowers?.toNumber(),
   };
-};
-
-export const useDexTVL = () => {
-  const { data: pairsTotal } = useAllPairsTotal();
-
-  if (pairsTotal) {
-    return pairsTotal.tvl;
-  }
-
-  return;
 };
 
 export const useAllPairsParticipantQuery = () => {
