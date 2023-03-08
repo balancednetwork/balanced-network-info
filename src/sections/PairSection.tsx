@@ -1,17 +1,16 @@
-import React, { createRef, forwardRef } from 'react';
+import React from 'react';
 
-import { useAllPairs, useAllPairsTotal } from 'queries';
+import { Pair, useAllPairsById, useAllPairsIncentivisedById, useAllPairsTotal } from 'queries/backendv2';
+import { isMobile } from 'react-device-detect';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
 import { ReactComponent as QuestionIcon } from 'assets/icons/question.svg';
 import { ReactComponent as SigmaIcon } from 'assets/icons/sigma.svg';
-import AnimateList from 'components/AnimatedList';
 import Divider from 'components/Divider';
 import { BoxPanel } from 'components/Panel';
 import PoolLogo, { IconWrapper, PoolLogoWrapper } from 'components/shared/PoolLogo';
 import { MouseoverTooltip } from 'components/Tooltip';
-import { PairInfo } from 'constants/pairs';
 import useSort from 'hooks/useSort';
 import useTheme from 'hooks/useTheme';
 import { Typography } from 'theme';
@@ -19,7 +18,7 @@ import { getFormattedNumber } from 'utils/formatter';
 
 import { HeaderText, StyledSkeleton as Skeleton } from './TokenSection';
 
-const MAX_BOOST = 2.5;
+export const MAX_BOOST = 2.5;
 
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
@@ -31,9 +30,9 @@ const DashGrid = styled(Box)`
   display: grid;
   gap: 1em;
   align-items: center;
-  grid-template-columns: 2fr repeat(5, 1fr);
+  grid-template-columns: 2fr repeat(4, 1fr);
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: 1.2fr 0.5fr repeat(4, 1fr);
+    grid-template-columns: 1.2fr 0.5fr repeat(3, 1fr);
   `}
   > * {
     justify-content: flex-end;
@@ -80,7 +79,10 @@ const StyledSkeleton = styled(Skeleton)`
 `;
 
 const QuestionWrapper = styled(Box)`
-  margin: 0 5px 0 5px;
+  width: 0;
+  margin: 0 5px;
+  overflow: hidden;
+  display: inline;
 `;
 
 function TotalIcon() {
@@ -115,9 +117,6 @@ const SkeletonPairPlaceholder = () => {
         <StyledSkeleton width={50} />
       </DataText>
       <DataText>
-        <StyledSkeleton width={70} />
-      </DataText>
-      <DataText>
         <StyledSkeleton width={100} />
       </DataText>
       <DataText>
@@ -130,63 +129,61 @@ const SkeletonPairPlaceholder = () => {
   );
 };
 
-type PairItemProps = {
-  pair: PairInfo & {
-    tvl: number;
-    apy: number;
-    feesApy: number;
-    apyTotal: number;
-    participant: number;
-    volume: number;
-    fees: number;
-  };
-};
-
-const PairItem = forwardRef(({ pair }: PairItemProps, ref) => (
+const PairItem = ({
+  id,
+  name,
+  baseAddress,
+  quoteAddress,
+  liquidity,
+  fees24h,
+  fees30d,
+  volume24h,
+  volume30d,
+  feesApy,
+  balnApy,
+}: Pair) => (
   <>
-    <DashGrid my={2} ref={ref}>
+    <DashGrid my={2}>
       <DataText minWidth={'220px'}>
         <Flex alignItems="center">
           <Box sx={{ minWidth: '95px' }}>
-            <PoolLogo baseCurrency={pair.baseToken} quoteCurrency={pair.quoteToken} />
+            <PoolLogo baseCurrency={baseAddress} quoteCurrency={quoteAddress} />
           </Box>
-          <Text ml={2}>{`${pair.baseCurrencyKey} / ${pair.quoteCurrencyKey}`}</Text>
+          <Text ml={2}>{name}</Text>
         </Flex>
       </DataText>
       <DataText className="apy-column">
         {' '}
-        {pair.apy && (
+        {balnApy ? (
           <APYItem>
             <Typography color="#d5d7db" fontSize={14} marginRight={'5px'}>
               BALN:
             </Typography>
-            {`${getFormattedNumber(pair.apy, 'percent2')} - ${getFormattedNumber(pair.apy * MAX_BOOST, 'percent2')}`}
+            {`${getFormattedNumber(balnApy, 'percent2')} - ${getFormattedNumber(balnApy * MAX_BOOST, 'percent2')}`}
           </APYItem>
-        )}
-        {pair.feesApy !== 0 && (
+        ) : null}
+        {feesApy !== 0 ? (
           <APYItem>
             <Typography color="#d5d7db" fontSize={14} marginRight={'5px'}>
               Fees:
             </Typography>
-            {getFormattedNumber(pair.feesApy, 'percent2')}
+            {getFormattedNumber(feesApy, 'percent2')}
           </APYItem>
-        )}
-        {!pair.feesApy && !pair.apy && '-'}
+        ) : null}
+        {!feesApy && !balnApy && '-'}
       </DataText>
-
-      <DataText>{getFormattedNumber(pair.participant, 'number')}</DataText>
-      <DataText>{getFormattedNumber(pair.tvl, 'currency0')}</DataText>
-      <DataText>{pair.volume ? getFormattedNumber(pair.volume, 'currency0') : '-'}</DataText>
-      <DataText>{pair.fees ? getFormattedNumber(pair.fees, 'currency0') : '-'}</DataText>
+      <DataText>{getFormattedNumber(liquidity, 'currency0')}</DataText>
+      <DataText>{volume24h ? getFormattedNumber(volume24h, 'currency0') : '-'}</DataText>
+      <DataText>{fees24h ? getFormattedNumber(fees24h, 'currency0') : '-'}</DataText>
     </DashGrid>
     <Divider />
   </>
-));
+);
 
 export default function PairSection() {
-  const allPairs = useAllPairs();
-  const total = useAllPairsTotal();
-  const { sortBy, handleSortSelect, sortData } = useSort({ key: 'apyTotal', order: 'DESC' });
+  const { data: allPairs } = useAllPairsIncentivisedById();
+  const { data: pairsTotal } = useAllPairsTotal();
+  const { sortBy, handleSortSelect, sortData } = useSort({ key: 'liquidity', order: 'DESC' });
   const theme = useTheme();
 
   return (
@@ -200,10 +197,10 @@ export default function PairSection() {
             <HeaderText
               minWidth={'220px'}
               role="button"
-              className={sortBy.key === 'baseCurrencyKey' ? sortBy.order : ''}
+              className={sortBy.key === 'name' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
-                  key: 'baseCurrencyKey',
+                  key: 'name',
                 })
               }
             >
@@ -219,47 +216,38 @@ export default function PairSection() {
                 })
               }
             >
-              <MouseoverTooltip
-                width={330}
-                text={
-                  <>
-                    <Typography>
-                      The BALN APY is calculated from the USD value of BALN rewards allocated to a pool. Your rate will
-                      vary based on the amount of bBALN you hold.
-                    </Typography>
-                    <Typography marginTop={'20px'}>
-                      The fee APY is calculated from the swap fees earned by a pool in the last 30 days.
-                    </Typography>
-                    <Typography marginTop={'20px'} color={theme.colors.text1} fontSize={14}>
-                      Impermanent loss is not factored in.
-                    </Typography>
-                  </>
-                }
-                placement="top"
-              >
-                <QuestionWrapper onClick={e => e.stopPropagation()}>
-                  <QuestionIcon className="header-tooltip" width={14} />
-                </QuestionWrapper>
-              </MouseoverTooltip>
+              {!isMobile && (
+                <MouseoverTooltip
+                  width={330}
+                  text={
+                    <>
+                      <Typography>
+                        The BALN APY is calculated from the USD value of BALN rewards allocated to a pool. Your rate
+                        will vary based on the amount of bBALN you hold.
+                      </Typography>
+                      <Typography marginTop={'20px'}>
+                        The fee APY is calculated from the swap fees earned by a pool in the last 30 days.
+                      </Typography>
+                      <Typography marginTop={'20px'} color={theme.colors.text1} fontSize={14}>
+                        Impermanent loss is not factored in.
+                      </Typography>
+                    </>
+                  }
+                  placement="top"
+                >
+                  <QuestionWrapper onClick={e => e.stopPropagation()}>
+                    <QuestionIcon className="header-tooltip" width={14} />
+                  </QuestionWrapper>
+                </MouseoverTooltip>
+              )}
               APY
             </HeaderText>
             <HeaderText
               role="button"
-              className={sortBy.key === 'participant' ? sortBy.order : ''}
+              className={sortBy.key === 'liquidity' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
-                  key: 'participant',
-                })
-              }
-            >
-              PARTICIPANTS
-            </HeaderText>
-            <HeaderText
-              role="button"
-              className={sortBy.key === 'tvl' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'tvl',
+                  key: 'liquidity',
                 })
               }
             >
@@ -267,10 +255,10 @@ export default function PairSection() {
             </HeaderText>
             <HeaderText
               role="button"
-              className={sortBy.key === 'volume' ? sortBy.order : ''}
+              className={sortBy.key === 'volume24h' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
-                  key: 'volume',
+                  key: 'volume24h',
                 })
               }
             >
@@ -278,10 +266,10 @@ export default function PairSection() {
             </HeaderText>
             <HeaderText
               role="button"
-              className={sortBy.key === 'fees' ? sortBy.order : ''}
+              className={sortBy.key === 'fees24h' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
-                  key: 'fees',
+                  key: 'fees24h',
                 })
               }
             >
@@ -290,11 +278,7 @@ export default function PairSection() {
           </DashGrid>
 
           {allPairs ? (
-            <AnimateList>
-              {sortData(Object.values(allPairs)).map(pair => (
-                <PairItem key={`${pair.baseCurrencyKey}${pair.quoteCurrencyKey}`} ref={createRef()} pair={pair} />
-              ))}
-            </AnimateList>
+            sortData(Object.values(allPairs)).map(pair => <PairItem key={pair.name} {...pair} />)
           ) : (
             <>
               <SkeletonPairPlaceholder />
@@ -321,7 +305,7 @@ export default function PairSection() {
             </>
           )}
 
-          {total && (
+          {pairsTotal && (
             <DashGrid my={2}>
               <FooterText minWidth={'220px'}>
                 <Flex alignItems="center">
@@ -332,10 +316,9 @@ export default function PairSection() {
                 </Flex>
               </FooterText>
               <FooterText minWidth={'190px'}>–</FooterText>
-              <FooterText>{getFormattedNumber(total.participant, 'number')}</FooterText>
-              <FooterText>{getFormattedNumber(total.tvl, 'currency0')}</FooterText>
-              <FooterText>{getFormattedNumber(total.volume, 'currency0')}</FooterText>
-              <FooterText>{getFormattedNumber(total.fees, 'currency0')}</FooterText>
+              <FooterText>{getFormattedNumber(pairsTotal.tvl, 'currency0')}</FooterText>
+              <FooterText>{getFormattedNumber(pairsTotal.volume, 'currency0')}</FooterText>
+              <FooterText>{getFormattedNumber(pairsTotal.fees, 'currency0')}</FooterText>
             </DashGrid>
           )}
         </List>

@@ -1,21 +1,21 @@
-import React, { createRef, forwardRef } from 'react';
+import React from 'react';
 
 import { Skeleton } from '@material-ui/lab';
-import { MetaToken, useAllTokens } from 'queries';
+import { MetaToken } from 'queries';
+import { useAllTokensByAddress } from 'queries/backendv2';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled, { css } from 'styled-components';
 
-import AnimateList from 'components/AnimatedList';
 import Divider from 'components/Divider';
 import { BoxPanel } from 'components/Panel';
-import CurrencyLogo from 'components/shared/CurrencyLogo';
+import { CurrencyLogoFromURI } from 'components/shared/CurrencyLogo';
 import useSort from 'hooks/useSort';
 import { Typography } from 'theme';
 import { formatPriceChange, getFormattedNumber } from 'utils/formatter';
 
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
-  min-width: 620px;
+  min-width: 840px;
   overflow: hidden;
 `;
 
@@ -23,9 +23,9 @@ const DashGrid = styled(Box)`
   display: grid;
   gap: 1em;
   align-items: center;
-  grid-template-columns: 2fr repeat(3, 1fr);
+  grid-template-columns: 6fr 4fr 4fr 3fr 3fr;
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: 2fr 2fr 3fr 2fr 2fr;
   `}
 
   > * {
@@ -154,21 +154,18 @@ const SkeletonTokenPlaceholder = () => {
             <StyledSkeleton variant="circle" width={40} height={40} />
           </Box>
           <Box ml={2} sx={{ minWidth: '160px' }}>
-            <StyledSkeleton width={160} />
+            <StyledSkeleton width={130} />
             <StyledSkeleton width={70} />
           </Box>
         </Flex>
       </DataText>
       <DataText>
-        <StyledSkeleton width={90} />
-      </DataText>
-      <DataText>
         <Flex alignItems="flex-end" flexDirection="column">
           <Typography variant="p">
-            <StyledSkeleton width={90} />
+            <StyledSkeleton width={80} />
           </Typography>
           <Typography variant="p">
-            <StyledSkeleton width={90} />
+            <StyledSkeleton width={80} />
           </Typography>
         </Flex>
       </DataText>
@@ -182,6 +179,12 @@ const SkeletonTokenPlaceholder = () => {
           </Typography>
         </Flex>
       </DataText>
+      <DataText>
+        <StyledSkeleton width={110} />
+      </DataText>
+      <DataText>
+        <StyledSkeleton width={90} />
+      </DataText>
     </DashGrid>
   );
 };
@@ -191,45 +194,46 @@ type TokenItemProps = {
   isLast: boolean;
 };
 
-const TokenItem = forwardRef(({ token, isLast }: TokenItemProps, ref) => (
+const TokenItem = ({ token, isLast }: TokenItemProps) => (
   <>
-    <DashGrid my={4} ref={ref}>
+    <DashGrid my={4}>
       <DataText>
         <Flex alignItems="center">
           <Box sx={{ minWidth: '50px' }}>
-            <CurrencyLogo currency={token.info} size="40px" />
+            <CurrencyLogoFromURI address={token.address} size="40px" />
           </Box>
           <Box ml={2} sx={{ minWidth: '160px' }}>
-            <Text>{token.name}</Text>
+            <Text>{token.name.replace(' TOKEN', ' Token')}</Text>
             <Text color="text1">{token.symbol}</Text>
           </Box>
         </Flex>
       </DataText>
-      <DataText>{token.symbol === 'ICX' ? '–' : getFormattedNumber(token.holders, 'number')}</DataText>
       <DataText>
         <Flex alignItems="flex-end" flexDirection="column">
           <Typography variant="p">{getFormattedNumber(token.price, 'price')}</Typography>
-          <Typography variant="p" color={token.priceChange >= 0 ? 'primary' : 'alert'}>
-            {formatPriceChange(token.priceChange)}
+          <Typography variant="p" color={token.price >= token.price_24h ? 'primary' : 'alert'}>
+            {formatPriceChange(((token.price - token.price_24h) / token.price_24h) * 100)}
           </Typography>
         </Flex>
       </DataText>
       <DataText>
         <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
-          <Typography variant="p">{getFormattedNumber(token.marketCap, 'currency0')}</Typography>
+          <Typography variant="p">{getFormattedNumber(token.market_cap, 'currency0')}</Typography>
           <Typography variant="p" color="text1">
-            {getFormattedNumber(token.totalSupply, 'number')} {token.symbol}
+            {getFormattedNumber(token.total_supply, 'number')} {token.symbol}
           </Typography>
         </Flex>
       </DataText>
+      <DataText>{`$${getFormattedNumber(token.liquidity, 'number')}`}</DataText>
+      <DataText>{token.symbol === 'ICX' ? '–' : getFormattedNumber(token.holders, 'number')}</DataText>
     </DashGrid>
     {!isLast && <Divider />}
   </>
-));
+);
 
 export default React.memo(function TokenSection() {
-  const allTokens = useAllTokens();
-  const { sortBy, handleSortSelect, sortData } = useSort({ key: 'name', order: 'ASC' });
+  const { data: allTokens } = useAllTokensByAddress();
+  const { sortBy, handleSortSelect, sortData } = useSort({ key: 'market_cap', order: 'DESC' });
 
   return (
     <BoxPanel bg="bg2">
@@ -252,17 +256,6 @@ export default React.memo(function TokenSection() {
             </HeaderText>
             <HeaderText
               role="button"
-              className={sortBy.key === 'holders' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'holders',
-                })
-              }
-            >
-              HOLDERS
-            </HeaderText>
-            <HeaderText
-              role="button"
               className={sortBy.key === 'price' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
@@ -274,23 +267,43 @@ export default React.memo(function TokenSection() {
             </HeaderText>
             <HeaderText
               role="button"
-              className={sortBy.key === 'marketCap' ? sortBy.order : ''}
+              className={sortBy.key === 'market_cap' ? sortBy.order : ''}
               onClick={() =>
                 handleSortSelect({
-                  key: 'marketCap',
+                  key: 'market_cap',
                 })
               }
             >
               MARKETCAP
             </HeaderText>
+            <HeaderText
+              role="button"
+              className={sortBy.key === 'liquidity' ? sortBy.order : ''}
+              onClick={() =>
+                handleSortSelect({
+                  key: 'liquidity',
+                })
+              }
+            >
+              LIQUIDITY
+            </HeaderText>
+            <HeaderText
+              role="button"
+              className={sortBy.key === 'holders' ? sortBy.order : ''}
+              onClick={() =>
+                handleSortSelect({
+                  key: 'holders',
+                })
+              }
+            >
+              HOLDERS
+            </HeaderText>
           </DashGrid>
 
           {allTokens ? (
-            <AnimateList>
-              {sortData(Object.values(allTokens)).map((token, index, arr) => (
-                <TokenItem key={token.symbol} ref={createRef()} token={token} isLast={index === arr.length - 1} />
-              ))}
-            </AnimateList>
+            sortData(Object.values(allTokens)).map((token, index, arr) => (
+              <TokenItem key={token.symbol} token={token} isLast={index === arr.length - 1} />
+            ))
           ) : (
             <>
               <SkeletonTokenPlaceholder />

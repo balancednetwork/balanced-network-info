@@ -191,9 +191,9 @@ export function StatsPage() {
 
               <StatsItemData>
                 <Typography fontWeight="normal" variant="h3">
-                  {overviewInfo.fees ? getFormattedNumber(overviewInfo.fees, 'currency0') : <LoaderComponent />}
+                  {overviewInfo.earned ? getFormattedNumber(overviewInfo.earned, 'currency0') : <LoaderComponent />}
                 </Typography>
-                <Typography>Total fees earned</Typography>
+                <Typography>Earned past month</Typography>
               </StatsItemData>
             </StatsItem>
             {/* Baln staking info */}
