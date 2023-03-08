@@ -105,24 +105,20 @@ export type Pair = {
 export function useAllPairs() {
   const { data: allTokens } = useAllTokensByAddress();
   const { data: incentivisedPairs } = useIncentivisedPairs();
-  const { data: dailyDistributionRaw, isSuccess: distributionQuerySuccess } = useBnJsContractQuery<string>(
-    bnJs,
-    'Rewards',
-    'getEmission',
-    [],
-  );
+  const { data: dailyDistributionRaw } = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
   const balnPrice: number = allTokens ? allTokens[bnJs.BALN.address].price : 0;
+  const dailyDistribution = dailyDistributionRaw && new BigNumber(formatUnits(dailyDistributionRaw, 18, 4));
 
   const MIN_LIQUIDITY_TO_INCLUDE = 1000;
 
   return useQuery<Pair[]>(
-    `allPairs-${incentivisedPairs ? incentivisedPairs.length : 0}-${balnPrice}`,
+    `allPairs-${incentivisedPairs ? incentivisedPairs.length : 0}-${
+      dailyDistribution ? dailyDistribution.toFixed(2) : 0
+    }-${balnPrice}`,
     async () => {
       const response = await axios.get(`${API_ENDPOINT}pools`);
 
       if (response.status === 200) {
-        const dailyDistribution = dailyDistributionRaw && new BigNumber(formatUnits(dailyDistributionRaw, 18, 4));
-
         try {
           const pairs = response.data.map(item => {
             const liquidity = item['base_supply'] * item['base_price'] + item['quote_supply'] * item['quote_price'];
@@ -179,7 +175,6 @@ export function useAllPairs() {
     },
     {
       keepPreviousData: true,
-      enabled: distributionQuerySuccess,
     },
   );
 }
