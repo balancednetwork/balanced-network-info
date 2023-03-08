@@ -12,7 +12,7 @@ import { getTimestampFrom } from 'pages/PerformanceDetails/utils';
 import { useSupportedCollateralTokens } from 'store/collateral/hooks';
 import { formatUnits } from 'utils';
 
-import { useAllPairsByName, useAllPairsTotal, useTokenPrices } from './backendv2';
+import { useAllPairsByName, useAllPairsTotal, useAllTokens, useAllTokensByAddress, useTokenPrices } from './backendv2';
 import { useBlockDetails, useDaoFundHoldings, usePOLData, useStabilityFundHoldings } from './blockDetails';
 import { useHistoryForStabilityFund } from './historicalData';
 
@@ -476,15 +476,12 @@ export const usePlatformDayQuery = () => {
 };
 
 export const useOverviewInfo = () => {
-  const { data: rates, isSuccess: ratesQuerySuccess } = useTokenPrices();
+  const { data: allTokens } = useAllTokensByAddress();
   const tvl = useStatsTVL();
 
-  // baln marketcap
-  const totalSupplyQuery = useBnJsContractQuery<string>(bnJs, 'BALN', 'totalSupply', []);
-  let BALNMarketCap: BigNumber | undefined;
-  if (totalSupplyQuery.isSuccess && ratesQuerySuccess && rates) {
-    BALNMarketCap = BalancedJs.utils.toIcx(totalSupplyQuery.data).times(rates['BALN']);
-  }
+  const balnPrice = allTokens && allTokens[bnJs.BALN.address].price;
+  const BALNMarketCap =
+    allTokens && new BigNumber(allTokens[bnJs.BALN.address].price * allTokens[bnJs.BALN.address].total_supply);
 
   const { data: platformDay } = usePlatformDayQuery();
   const earningsDataQuery = useEarningsDataQuery(getTimestampFrom(30), getTimestampFrom(0));
@@ -496,8 +493,8 @@ export const useOverviewInfo = () => {
   const bBALNAPY =
     assumedYearlyDistribution &&
     bBALNSupply &&
-    rates &&
-    assumedYearlyDistribution.div(bBALNSupply.times(rates['BALN']));
+    balnPrice &&
+    assumedYearlyDistribution.div(bBALNSupply.times(balnPrice));
 
   const previousChunkAmount = 100;
 
@@ -527,7 +524,7 @@ export const useOverviewInfo = () => {
     platformDay: platformDay,
     monthlyFeesTotal: earningsDataQuery?.data?.feesDistributed,
     bBALNAPY: bBALNAPY,
-    balnPrice: rates && rates['BALN'],
+    balnPrice: new BigNumber(balnPrice || 0),
     previousChunk:
       bBALNSupply &&
       earningsDataQuery?.data &&
