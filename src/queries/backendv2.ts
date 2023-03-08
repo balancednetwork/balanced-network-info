@@ -111,7 +111,7 @@ export function useAllPairs() {
   const MIN_LIQUIDITY_TO_INCLUDE = 1000;
 
   return useQuery<Pair[]>(
-    `allPairs-${incentivisedPairs && incentivisedPairs.length}-${dailyDistributionRaw}-${balnPrice}`,
+    `allPairs-${incentivisedPairs ? incentivisedPairs.length : 0}-${dailyDistributionRaw}-${balnPrice}`,
     async () => {
       const response = await axios.get(`${API_ENDPOINT}pools`);
 
