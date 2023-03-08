@@ -175,6 +175,7 @@ export function useAllPairs() {
     },
     {
       keepPreviousData: true,
+      refetchInterval: 4000,
     },
   );
 }
