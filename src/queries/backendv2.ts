@@ -103,14 +103,9 @@ export type Pair = {
 };
 
 export function useAllPairs() {
-  const { data: allTokens, isSuccess: allTokensSuccess } = useAllTokensByAddress();
-  const { data: incentivisedPairs, isSuccess: incentivisedPairsSuccess } = useIncentivisedPairs();
-  const { data: dailyDistributionRaw, isSuccess: dailyDistributionSuccess } = useBnJsContractQuery<string>(
-    bnJs,
-    'Rewards',
-    'getEmission',
-    [],
-  );
+  const { data: allTokens } = useAllTokensByAddress();
+  const { data: incentivisedPairs } = useIncentivisedPairs();
+  const { data: dailyDistributionRaw } = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
 
   const MIN_LIQUIDITY_TO_INCLUDE = 1000;
 
@@ -119,9 +114,9 @@ export function useAllPairs() {
     async () => {
       const response = await axios.get(`${API_ENDPOINT}pools`);
 
-      if (response.status === 200 && incentivisedPairs && dailyDistributionRaw && allTokens) {
-        const dailyDistribution = new BigNumber(formatUnits(dailyDistributionRaw, 18, 4));
-        const balnPrice: number = allTokens[bnJs.BALN.address].price;
+      if (response.status === 200) {
+        const dailyDistribution = dailyDistributionRaw && new BigNumber(formatUnits(dailyDistributionRaw, 18, 4));
+        const balnPrice: number = allTokens ? allTokens[bnJs.BALN.address].price : 1;
 
         try {
           const pairs = response.data.map(item => {
@@ -143,7 +138,8 @@ export function useAllPairs() {
             const fees30d = fees30dProviders + fees30dBaln;
             const feesApy = liquidity > 0 ? (fees30dProviders * 12) / liquidity : 0;
 
-            const incentivisedPair = incentivisedPairs.find(incentivisedPair => incentivisedPair.name === item.name);
+            const incentivisedPair =
+              incentivisedPairs && incentivisedPairs.find(incentivisedPair => incentivisedPair.name === item.name);
 
             const pair: Pair = {
               id: item['pool_id'],
@@ -158,7 +154,7 @@ export function useAllPairs() {
               feesApy: feesApy || 0,
             };
 
-            if (incentivisedPair) {
+            if (incentivisedPair && dailyDistribution) {
               pair['balnApy'] = dailyDistribution
                 .times(new BigNumber(incentivisedPair.rewards.toFixed(4)))
                 .times(365)
@@ -178,7 +174,6 @@ export function useAllPairs() {
     },
     {
       keepPreviousData: true,
-      enabled: incentivisedPairsSuccess && dailyDistributionSuccess && allTokensSuccess,
     },
   );
 }
