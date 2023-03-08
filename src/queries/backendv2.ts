@@ -48,7 +48,7 @@ export const useContractMethodsDataQuery = (
 };
 
 export function useAllTokens() {
-  const MIN_LIQUIDITY_TO_INCLUDE = 9;
+  const MIN_LIQUIDITY_TO_INCLUDE = 500;
 
   return useQuery(
     `allTokens`,
