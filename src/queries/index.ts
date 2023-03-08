@@ -13,7 +13,7 @@ import { useSupportedCollateralTokens } from 'store/collateral/hooks';
 import { formatUnits } from 'utils';
 
 import { useAllPairsByName, useAllPairsTotal, useTokenPrices } from './backendv2';
-import { useBlockDetails, useDaoFundHoldings, usePOLData } from './blockDetails';
+import { useBlockDetails, useDaoFundHoldings, usePOLData, useStabilityFundHoldings } from './blockDetails';
 import { useHistoryForStabilityFund } from './historicalData';
 
 const WEIGHT_CONST = 10 ** 18;
@@ -673,17 +673,22 @@ export const useIncentivisedPairs = (): UseQueryResult<{ name: string; id: numbe
 };
 
 export const useCollateralInfo = () => {
+  const oneMinPeriod = 1000 * 60;
+  const now = Math.floor(new Date().getTime() / oneMinPeriod) * oneMinPeriod;
   const rateQuery = useBnJsContractQuery<string>(bnJs, 'Staking', 'getTodayRate', []);
   const rate = rateQuery.isSuccess ? BalancedJs.utils.toIcx(rateQuery.data) : null;
   const { data: supportedCollateralTokens } = useSupportedCollateralTokens();
-  const { data: historyForStabilityFund } = useHistoryForStabilityFund();
+  const { data: stabilityFundHoldings } = useStabilityFundHoldings(now);
   const { data: tokenPrices, isSuccess: tokenPricesQuerySuccess } = useTokenPrices();
 
   return useQuery(
     `collateralInfo${tokenPricesQuerySuccess}${
       supportedCollateralTokens && Object.values(supportedCollateralTokens).length
-    }${historyForStabilityFund}`,
+    }${stabilityFundHoldings}`,
     async () => {
+      const totalStabilityFund = stabilityFundHoldings
+        ? Object.values(stabilityFundHoldings).reduce((total, holding) => (total += Number(holding.toFixed())), 0)
+        : 0;
       const totalCollaterals: { [key in string]: { amount: number; value: number } } = {};
       supportedCollateralTokens &&
         tokenPrices &&
@@ -712,16 +717,15 @@ export const useCollateralInfo = () => {
               .toNumber()
           : undefined;
 
-      const stabilityFundTotal = historyForStabilityFund?.total[historyForStabilityFund.total.length - 1].value || 0;
       const TVLTotal =
         Object.keys(totalCollaterals).length &&
-        stabilityFundTotal &&
-        Object.values(totalCollaterals).reduce((TVL, collateral) => (TVL += collateral.value), 0) + stabilityFundTotal;
+        totalStabilityFund &&
+        Object.values(totalCollaterals).reduce((TVL, collateral) => (TVL += collateral.value), 0) + totalStabilityFund;
 
       return {
         totalCollaterals: totalCollaterals,
         totalTVL: TVLTotal,
-        stabilityFundTotal: stabilityFundTotal,
+        stabilityFundTotal: totalStabilityFund,
         rate: rate?.toNumber(),
         stakingAPY: stakingAPY,
       };

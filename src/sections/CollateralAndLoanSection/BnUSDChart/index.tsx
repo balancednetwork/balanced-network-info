@@ -1,7 +1,7 @@
 import React from 'react';
 
 import dayjs from 'dayjs';
-import { useBorrowersInfo, useFundInfo, useLoanInfo } from 'queries';
+import { useBorrowersInfo, useCollateralInfo, useFundInfo, useLoanInfo } from 'queries';
 import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 
@@ -14,10 +14,12 @@ import { getFormattedNumber } from 'utils/formatter';
 import { ChartPanel } from '..';
 import Chart from './Chart';
 
-export default function BnUSDChart({ selectedCollateral }: { selectedCollateral: string }) {
+export default function BnUSDChart() {
+  // export default function BnUSDChart({ selectedCollateral }: { selectedCollateral: string }) {
   const loanInfo = useLoanInfo();
-  const { data: fundInfo } = useFundInfo();
+  // const { data: fundInfo } = useFundInfo();
   const { data: borrowersInfo } = useBorrowersInfo();
+  const { data: collateralInfo } = useCollateralInfo();
 
   const [userHovering, setUserHovering] = React.useState<boolean>(false);
 
@@ -32,7 +34,7 @@ export default function BnUSDChart({ selectedCollateral }: { selectedCollateral:
     }
   }, [bnUSDHover, totalBnUSD, userHovering]);
 
-  const isExtraSmall = useMedia('(max-width: 480px)');
+  const isExtraSmall = useMedia('(max-width: 600px)');
 
   return (
     <ChartPanel bg="bg2">
@@ -52,8 +54,16 @@ export default function BnUSDChart({ selectedCollateral }: { selectedCollateral:
         </Flex>
       </Flex>
 
-      <Chart
+      {/* <Chart
         selectedCollateral={selectedCollateral}
+        collateralTVLHover={bnUSDHover}
+        collateralLabel={bnUSDLabel}
+        setCollateralTVLHover={setBnUSDHover}
+        setCollateralLabel={setBnUSDLabel}
+        setTotalBnUSD={setTotalBnUSD}
+        setUserHovering={setUserHovering}
+      ></Chart> */}
+      <Chart
         collateralTVLHover={bnUSDHover}
         collateralLabel={bnUSDLabel}
         setCollateralTVLHover={setBnUSDHover}
@@ -62,8 +72,71 @@ export default function BnUSDChart({ selectedCollateral }: { selectedCollateral:
         setUserHovering={setUserHovering}
       ></Chart>
 
-      {/* flexible footer */}
       <Flex my={3} mx={-4} flexWrap="wrap">
+        <Flex
+          flex={isExtraSmall ? null : 1}
+          flexDirection="column"
+          alignItems="center"
+          width={isExtraSmall ? '50%' : 'auto'}
+          className="border-right"
+        >
+          <Typography variant="p" fontSize={[16, '18px']}>
+            {loanInfo.loansAPY ? (
+              `${getFormattedNumber(loanInfo.loansAPY, 'percent2')} - ${getFormattedNumber(
+                loanInfo.loansAPY * MAX_BOOST,
+                'percent2',
+              )}`
+            ) : (
+              <LoaderComponent />
+            )}
+          </Typography>
+          <Typography opacity={0.75}>Borrow APY</Typography>
+        </Flex>
+        <Flex
+          flex={isExtraSmall ? null : 1}
+          flexDirection="column"
+          alignItems="center"
+          width={isExtraSmall ? '50%' : 'auto'}
+          className={isExtraSmall ? '' : 'border-right'}
+        >
+          <Typography variant="p" fontSize={[16, '18px']}>
+            {loanInfo.dailyRewards ? getFormattedNumber(loanInfo.dailyRewards, 'number') : <LoaderComponent />} BALN
+          </Typography>
+          <Typography opacity={0.75}>Daily rewards</Typography>
+        </Flex>
+        <Flex
+          flex={isExtraSmall ? null : 1}
+          mt={isExtraSmall ? '20px' : 0}
+          flexDirection="column"
+          alignItems="center"
+          width={isExtraSmall ? '50%' : 'auto'}
+          className="border-right"
+        >
+          <Typography variant="p" fontSize={[16, '18px']}>
+            {borrowersInfo ? getFormattedNumber(borrowersInfo.total, 'number') : <LoaderComponent />}
+          </Typography>
+          <Typography opacity={0.75}>Borrowers</Typography>
+        </Flex>
+        <Flex
+          flex={isExtraSmall ? null : 1}
+          mt={isExtraSmall ? '20px' : 0}
+          flexDirection="column"
+          alignItems="center"
+          width={isExtraSmall ? '50%' : 'auto'}
+        >
+          <Typography variant="p" fontSize={[16, '18px']}>
+            {collateralInfo && collateralInfo.totalTVL ? (
+              `$${getFormattedNumber(collateralInfo.totalTVL, 'number')}`
+            ) : (
+              <LoaderComponent />
+            )}
+          </Typography>
+          <Typography opacity={0.75}>Total collateral</Typography>
+        </Flex>
+      </Flex>
+
+      {/* flexible footer */}
+      {/* <Flex my={3} mx={-4} flexWrap="wrap">
         {selectedCollateral === predefinedCollateralTypes.STABILITY_FUND ? (
           <>
             <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
@@ -129,7 +202,7 @@ export default function BnUSDChart({ selectedCollateral }: { selectedCollateral:
             </Flex>
           </>
         )}
-      </Flex>
+      </Flex> */}
     </ChartPanel>
   );
 }
