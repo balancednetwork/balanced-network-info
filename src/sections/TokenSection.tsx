@@ -15,7 +15,7 @@ import { formatPriceChange, getFormattedNumber } from 'utils/formatter';
 
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
-  min-width: 785px;
+  min-width: 840px;
   overflow: hidden;
 `;
 
@@ -25,7 +25,7 @@ const DashGrid = styled(Box)`
   align-items: center;
   grid-template-columns: 6fr 4fr 4fr 3fr 3fr;
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: 2fr 2fr 3fr 2fr 2fr;
   `}
 
   > * {
@@ -203,7 +203,7 @@ const TokenItem = ({ token, isLast }: TokenItemProps) => (
             <CurrencyLogoFromURI address={token.address} size="40px" />
           </Box>
           <Box ml={2} sx={{ minWidth: '160px' }}>
-            <Text>{token.name}</Text>
+            <Text>{token.name.replace(' TOKEN', ' Token')}</Text>
             <Text color="text1">{token.symbol}</Text>
           </Box>
         </Flex>
