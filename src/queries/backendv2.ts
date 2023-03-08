@@ -6,7 +6,7 @@ import { useQuery } from 'react-query';
 import bnJs from 'bnJs';
 import { formatUnits } from 'utils';
 
-const API_ENDPOINT_VULTR = 'https://balanced.mainnet.sng.vultr.icon.community/api/v1/';
+const API_ENDPOINT = 'https://balanced.icon.community/api/v1/';
 
 export type ContractMethodsDataType = {
   address: string;
@@ -32,7 +32,7 @@ export const useContractMethodsDataQuery = (
     `historicalQuery|${skip}|${limit}|${contract}|${method}|${days_ago}|${start_timestamp}|${end_timestamp}`,
     async () => {
       const { data } = await axios.get(
-        `${API_ENDPOINT_VULTR}contract-methods?skip=${skip}&limit=${limit}&address=${contract}&method=${method}${
+        `${API_ENDPOINT}contract-methods?skip=${skip}&limit=${limit}&address=${contract}&method=${method}${
           days_ago ? `&days_ago=${days_ago}` : ''
         }${start_timestamp ? `&start_timestamp=${start_timestamp}` : ''}${
           end_timestamp ? `&end_timestamp=${end_timestamp}` : ''
@@ -53,7 +53,7 @@ export function useAllTokens() {
   return useQuery(
     `allTokens`,
     async () => {
-      const response = await axios.get(`${API_ENDPOINT_VULTR}tokens`);
+      const response = await axios.get(`${API_ENDPOINT}tokens`);
 
       if (response.status === 200) {
         return response.data
@@ -117,7 +117,7 @@ export function useAllPairs() {
   return useQuery<Pair[]>(
     `allPairs-${incentivisedPairs && incentivisedPairs.length}-${dailyDistributionRaw}`,
     async () => {
-      const response = await axios.get(`${API_ENDPOINT_VULTR}pools`);
+      const response = await axios.get(`${API_ENDPOINT}pools`);
 
       if (response.status === 200 && incentivisedPairs && dailyDistributionRaw && allTokens) {
         const dailyDistribution = new BigNumber(formatUnits(dailyDistributionRaw, 18, 4));
