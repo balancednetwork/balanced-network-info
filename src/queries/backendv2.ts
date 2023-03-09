@@ -93,6 +93,8 @@ export type Pair = {
   name: string;
   baseAddress: string;
   quoteAddress: string;
+  baseSymbol: string;
+  quoteSymbol: string;
   liquidity: number;
   fees24h: number;
   fees30d: number;
@@ -136,6 +138,8 @@ export function useAllPairs() {
               name: item['name'],
               baseAddress: item['base_address'],
               quoteAddress: item['quote_address'],
+              baseSymbol: item['base_symbol'],
+              quoteSymbol: item['quote_symbol'],
               liquidity,
               fees24h: fees24h || 0,
               fees30d: fees30d || 0,

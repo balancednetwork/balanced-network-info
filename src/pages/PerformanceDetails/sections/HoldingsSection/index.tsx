@@ -212,6 +212,9 @@ const HoldingsSection = () => {
               totalPastPOL += poolPast.liquidity.toNumber();
             }
 
+            const baseDecimalDisplay = currentPool.DAOBaseAmount.isGreaterThan(100) ? 0 : 2;
+            const QUOTEDecimalDisplay = currentPool.DAOQuoteAmount.isGreaterThan(100) ? 0 : 2;
+
             return (
               currentPool.liquidity.isGreaterThan(0) && (
                 <BalanceGrid minWidth={gridWidth} key={currentPool.id}>
@@ -220,13 +223,11 @@ const HoldingsSection = () => {
                       <Flex alignItems="center">
                         <Box sx={{ minWidth: '95px' }}>
                           <PoolLogo
-                            baseCurrency={currentPool.pair.baseToken.address}
-                            quoteCurrency={currentPool.pair.quoteToken.address}
+                            baseCurrency={currentPool.pair.baseAddress}
+                            quoteCurrency={currentPool.pair.quoteAddress}
                           />
                         </Box>
-                        <Text
-                          ml={2}
-                        >{`${currentPool.pair.baseCurrencyKey} / ${currentPool.pair.quoteCurrencyKey}`}</Text>
+                        <Text ml={2}>{`${currentPool.pair.baseSymbol} / ${currentPool.pair.quoteSymbol}`}</Text>
                       </Flex>
                     )}
                   </GridItemToken>
@@ -235,9 +236,11 @@ const HoldingsSection = () => {
                       <DisplayValueOrLoader value={currentPool.liquidity} currencyRate={1} />
                       <Change percentage={percentageChange ?? 0}>{formatPercentage(percentageChange)}</Change>
                     </Text>
-                    <Text color="text2">{`${currentPool.DAOBaseAmount.toFormat(0)} ${
-                      currentPool.pair?.baseCurrencyKey
-                    } / ${currentPool.DAOQuoteAmount.toFormat(0)} ${currentPool.pair?.quoteCurrencyKey}`}</Text>
+                    <Text color="text2">{`${currentPool.DAOBaseAmount.toFormat(baseDecimalDisplay)} ${
+                      currentPool.pair?.baseSymbol
+                    } / ${currentPool.DAOQuoteAmount.toFormat(QUOTEDecimalDisplay)} ${
+                      currentPool.pair?.quoteSymbol
+                    }`}</Text>
                   </GridItemToken>
                   <GridItemToken>
                     {POLPast && poolPast ? (
@@ -246,9 +249,11 @@ const HoldingsSection = () => {
                           <Text color="text">
                             <DisplayValueOrLoader value={poolPast.liquidity} currencyRate={1} />
                           </Text>
-                          <Text color="text2">{`${poolPast.DAOBaseAmount.toFormat(0)} ${
-                            poolPast.pair?.baseCurrencyKey
-                          } / ${poolPast.DAOQuoteAmount.toFormat(0)} ${poolPast.pair?.quoteCurrencyKey}`}</Text>
+                          <Text color="text2">{`${poolPast.DAOBaseAmount.toFormat(baseDecimalDisplay)} ${
+                            poolPast.pair?.baseSymbol
+                          } / ${poolPast.DAOQuoteAmount.toFormat(QUOTEDecimalDisplay)} ${
+                            poolPast.pair?.quoteSymbol
+                          }`}</Text>
                         </>
                       ) : (
                         '-'
