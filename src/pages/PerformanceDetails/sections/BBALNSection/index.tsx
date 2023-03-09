@@ -222,8 +222,8 @@ const BBALNSection = () => {
             </Typography>
             <Flex mt={2} flexDirection="column">
               {daoBBALNData ? (
-                Object.values(daoBBALNData.DAORewards.fees).map(feeItem => (
-                  <Flex alignItems="center">
+                Object.values(daoBBALNData.DAORewards.fees).map((feeItem, index) => (
+                  <Flex alignItems="center" key={index}>
                     <Typography fontSize={16} color="text">
                       {feeItem.toFixed(2, { groupSeparator: ',' })}
                     </Typography>
