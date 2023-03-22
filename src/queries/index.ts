@@ -13,6 +13,7 @@ import { useSupportedCollateralTokens } from 'store/collateral/hooks';
 import { formatUnits } from 'utils';
 
 import {
+  useAllCollateralData,
   useAllPairsByName,
   useAllPairsIncentivisedByName,
   useAllPairsTotal,
@@ -470,8 +471,8 @@ export const useStatsTVL = () => {
   const { data: pairsTotal } = useAllPairsTotal();
   const { data: collateralInfo } = useCollateralInfo();
 
-  if (pairsTotal && collateralInfo && collateralInfo.totalTVL) {
-    return pairsTotal.tvl + collateralInfo.totalTVL;
+  if (pairsTotal && collateralInfo) {
+    return pairsTotal.tvl + collateralInfo.collateralData.current.total.value;
   }
 };
 
@@ -680,58 +681,36 @@ export const useCollateralInfo = () => {
   const now = Math.floor(new Date().getTime() / oneMinPeriod) * oneMinPeriod;
   const rateQuery = useBnJsContractQuery<string>(bnJs, 'Staking', 'getTodayRate', []);
   const rate = rateQuery.isSuccess ? BalancedJs.utils.toIcx(rateQuery.data) : null;
-  const { data: supportedCollateralTokens } = useSupportedCollateralTokens();
-  const { data: stabilityFundHoldings } = useStabilityFundHoldings(now);
-  const { data: tokenPrices, isSuccess: tokenPricesQuerySuccess } = useTokenPrices();
+  const { data: collateralData, isSuccess: collateralDataQuerySuccess } = useAllCollateralData();
 
   return useQuery(
-    `collateralInfo${tokenPricesQuerySuccess}${
-      supportedCollateralTokens && Object.values(supportedCollateralTokens).length
-    }${stabilityFundHoldings}`,
+    `collateralInfoAt${now}`,
     async () => {
-      const totalStabilityFund = stabilityFundHoldings
-        ? Object.values(stabilityFundHoldings).reduce((total, holding) => (total += Number(holding.toFixed())), 0)
-        : 0;
-      const totalCollaterals: { [key in string]: { amount: number; value: number } } = {};
-      supportedCollateralTokens &&
-        tokenPrices &&
-        Object.keys(supportedCollateralTokens).forEach(async item => {
-          if (tokenPrices[item]) {
-            const cx = bnJs.getContract(supportedCollateralTokens[item]);
-            const amountRaw = await cx.balanceOf(bnJs.Loans.address);
-            const amount = new BigNumber(formatUnits(amountRaw, 18, 18)).toNumber();
+      if (collateralData) {
+        const IISSInfo = await bnJs.IISS.getIISSInfo();
+        const PRepsInfo = await bnJs.IISS.getPReps();
 
-            totalCollaterals[item] = {
-              amount: amount,
-              value: tokenPrices[item].times(amount).toNumber(),
-            };
-          }
-        });
+        const totalDelegated = PRepsInfo ? new BigNumber(PRepsInfo?.totalDelegated) : undefined;
+        const stakingAPY =
+          IISSInfo && totalDelegated
+            ? new BigNumber(IISSInfo?.variable.Iglobal)
+                .times(new BigNumber(IISSInfo.variable.Ivoter).times(12))
+                .div(totalDelegated.times(100))
+                .toNumber()
+            : undefined;
 
-      const IISSInfo = await bnJs.IISS.getIISSInfo();
-      const PRepsInfo = await bnJs.IISS.getPReps();
+        const tvl = collateralData.current.total.value;
 
-      const totalDelegated = PRepsInfo ? new BigNumber(PRepsInfo?.totalDelegated) : undefined;
-      const stakingAPY =
-        IISSInfo && totalDelegated
-          ? new BigNumber(IISSInfo?.variable.Iglobal)
-              .times(new BigNumber(IISSInfo.variable.Ivoter).times(12))
-              .div(totalDelegated.times(100))
-              .toNumber()
-          : undefined;
-
-      const TVLTotal =
-        Object.keys(totalCollaterals).length &&
-        totalStabilityFund &&
-        Object.values(totalCollaterals).reduce((TVL, collateral) => (TVL += collateral.value), 0) + totalStabilityFund;
-
-      return {
-        totalCollaterals: totalCollaterals,
-        totalTVL: TVLTotal,
-        stabilityFundTotal: totalStabilityFund,
-        rate: rate?.toNumber(),
-        stakingAPY: stakingAPY,
-      };
+        return {
+          collateralData,
+          rate: rate?.toNumber(),
+          stakingAPY: stakingAPY,
+        };
+      }
+    },
+    {
+      enabled: collateralDataQuerySuccess,
+      keepPreviousData: true,
     },
   );
 };

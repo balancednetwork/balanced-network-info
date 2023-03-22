@@ -321,3 +321,203 @@ export function useTokenPrices() {
     },
   );
 }
+
+function trimStartingZeroValues(array: any[]): any[] {
+  return array.filter((item, index) => item && array[Math.min(index + 1, array.length - 1)].value !== 0);
+}
+
+function setTimeToMs(array: any[]): any[] {
+  return array.map(item => {
+    item.timestamp *= 1_000;
+    return item;
+  });
+}
+
+type CollateralData = {
+  series: { [key in string]: { timestamp: number; value: number; IUSDC?: number; USDS?: number; BUSD?: number }[] };
+  current: { [key in string]: { amount: number; value: number } };
+};
+
+export function useAllCollateralData() {
+  const { data: tokenPrices, isSuccess: isTokenQuerySucces } = useTokenPrices();
+
+  return useQuery(
+    `allCollateralDataBE`,
+    async () => {
+      if (tokenPrices) {
+        const result: CollateralData = {
+          series: {},
+          current: {},
+        };
+        const responseSICX = await axios.get(
+          `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_sICX_balance`,
+        );
+        const responseETH = await axios.get(
+          `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_ETH_balance`,
+        );
+        const responseBTCB = await axios.get(
+          `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_BTCB_balance`,
+        );
+        const responseFundBUSD = await axios.get(
+          `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=stability_BUSD_balance`,
+        );
+        const responseFundIUSDC = await axios.get(
+          `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=stability_IUSDC_balance`,
+        );
+        const responseFundUSDS = await axios.get(
+          `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=stability_USDS_balance`,
+        );
+
+        try {
+          const seriesSICX = setTimeToMs(trimStartingZeroValues(responseSICX.data));
+          const seriesETH = setTimeToMs(trimStartingZeroValues(responseETH.data));
+          const seriesBTCB = setTimeToMs(trimStartingZeroValues(responseBTCB.data));
+          const seriesFundBUSD = setTimeToMs(trimStartingZeroValues(responseFundBUSD.data));
+          const seriesFundIUSDC = setTimeToMs(trimStartingZeroValues(responseFundIUSDC.data));
+          const seriesFundUSDS = setTimeToMs(trimStartingZeroValues(responseFundUSDS.data));
+
+          const seriesFundBUSDReversed = seriesFundBUSD.slice().reverse();
+          const seriesFundIUSDCReversed = seriesFundIUSDC.slice().reverse();
+          const seriesFundUSDSReversed = seriesFundUSDS.slice().reverse();
+
+          console.log('iusdc ', seriesFundIUSDCReversed);
+          console.log('busd', seriesFundBUSDReversed);
+          console.log('usds', seriesFundUSDSReversed);
+
+          const seriesFundTotalReversed = seriesFundUSDSReversed.map((item, index) => {
+            let currentTotal = item.value;
+
+            if (seriesFundIUSDCReversed[index] && seriesFundIUSDCReversed[index].timestamp === item.timestamp) {
+              currentTotal += seriesFundIUSDCReversed[index].value;
+            }
+
+            if (seriesFundBUSDReversed[index] && seriesFundBUSDReversed[index].timestamp === item.timestamp) {
+              currentTotal += seriesFundBUSDReversed[index].value;
+            }
+
+            return {
+              timestamp: item.timestamp,
+              value: Math.floor(currentTotal),
+            };
+          });
+
+          const seriesFundTotalStacked = seriesFundIUSDCReversed.map((item, index) => {
+            const combinedItem = {
+              timestamp: item.timestamp,
+              IUSDC: item.value,
+              value: 0,
+            };
+
+            if (seriesFundUSDSReversed[index]) {
+              combinedItem['USDS'] = seriesFundUSDSReversed[index].value;
+            }
+
+            if (seriesFundBUSDReversed[index]) {
+              combinedItem['BUSD'] = seriesFundBUSDReversed[index].value;
+            }
+
+            return combinedItem;
+          });
+
+          const seriesSICXReversed = seriesSICX.slice().reverse();
+          const seriesETHReversed = seriesETH.slice().reverse();
+          const seriesBTCBReversed = seriesBTCB.slice().reverse();
+
+          const seriesTotalReversed = seriesSICXReversed.map((item, index) => {
+            let currentTotal = tokenPrices['sICX'].times(item.value);
+
+            if (seriesETHReversed[index]) {
+              currentTotal = currentTotal.plus(tokenPrices['ETH'].times(seriesETHReversed[index].value));
+            }
+
+            if (seriesBTCBReversed[index]) {
+              currentTotal = currentTotal.plus(tokenPrices['BTCB'].times(seriesBTCBReversed[index].value));
+            }
+
+            if (seriesFundTotalReversed[index]) {
+              currentTotal = currentTotal.plus(seriesFundTotalReversed[index].value);
+            }
+
+            return {
+              timestamp: item.timestamp,
+              value: Math.floor(currentTotal.toNumber()),
+            };
+          });
+
+          result.series['sICX'] = seriesSICX;
+          result.series['ETH'] = seriesETH;
+          result.series['BTCB'] = seriesBTCB;
+          result.series['fundBUSD'] = seriesFundBUSD;
+          result.series['fundIUSDC'] = seriesFundIUSDC;
+          result.series['fundUSDS'] = seriesFundUSDS;
+          result.series['fundTotal'] = seriesFundTotalReversed.reverse();
+          result.series['fundTotalStacked'] = seriesFundTotalStacked.reverse();
+          result.series['total'] = seriesTotalReversed.reverse();
+
+          result.current['sICX'] = {
+            amount: seriesSICX[seriesSICX.length - 1].value,
+            value: tokenPrices['sICX'].times(seriesSICX[seriesSICX.length - 1].value).toNumber(),
+          };
+          result.current['ETH'] = {
+            amount: seriesETH[seriesETH.length - 1].value,
+            value: tokenPrices['ETH'].times(seriesETH[seriesETH.length - 1].value).toNumber(),
+          };
+          result.current['BTCB'] = {
+            amount: seriesBTCB[seriesBTCB.length - 1].value,
+            value: tokenPrices['BTCB'].times(seriesBTCB[seriesBTCB.length - 1].value).toNumber(),
+          };
+          result.current['fundTotal'] = {
+            amount: result.series['fundTotal'][result.series['fundTotal'].length - 1].value,
+            value: result.series['fundTotal'][result.series['fundTotal'].length - 1].value,
+          };
+          result.current['total'] = {
+            amount: result.series['total'][result.series['total'].length - 1].value,
+            value: result.series['total'][result.series['total'].length - 1].value,
+          };
+
+          console.log(result);
+
+          return result;
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    },
+    {
+      enabled: isTokenQuerySucces,
+      keepPreviousData: true,
+      refetchOnWindowFocus: false,
+    },
+  );
+}
+
+export function useCollateralDataFor(daysBack: number) {
+  const { data: collateralData, isSuccess: collateralDataQuerySuccess } = useAllCollateralData();
+
+  function trimDays(array) {
+    if (array.length <= daysBack) {
+      return array;
+    } else {
+      return array.slice().slice(1 - (daysBack + 1));
+    }
+  }
+
+  return useQuery(
+    `collateralDataFor-${daysBack}-days`,
+    () => {
+      if (collateralData) {
+        const copy = JSON.parse(JSON.stringify(collateralData));
+        const trimmedSeries = Object.keys(copy.series).reduce((trimmed, current) => {
+          trimmed[current] = trimDays(copy.series[current]);
+          return trimmed;
+        }, {});
+        copy.series = trimmedSeries;
+        return copy;
+      }
+    },
+    {
+      enabled: collateralDataQuerySuccess,
+      keepPreviousData: true,
+    },
+  );
+}

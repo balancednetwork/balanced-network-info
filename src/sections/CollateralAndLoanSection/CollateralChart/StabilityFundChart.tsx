@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useHistoryForStabilityFund } from 'queries/historicalData';
+import { useCollateralDataFor } from 'queries/backendv2';
 
 import MultiLineChart, { DEFAULT_HEIGHT } from 'components/MultiLineChart';
 import Spinner from 'components/Spinner';
@@ -11,17 +11,18 @@ import { ChartContainer } from '..';
 export default function Chart({
   collateralTVLHover,
   collateralLabel,
+  selectedTimeFrame,
   setCollateralTVLHover,
   setCollateralLabel,
   setTotalStabilityFundBnUSD,
   setUserHovering,
 }) {
   const theme = useTheme();
-  const { data: historyDataStabilityFund } = useHistoryForStabilityFund();
+  const { data: collateralData } = useCollateralDataFor(selectedTimeFrame.days);
 
   React.useEffect(() => {
-    setTotalStabilityFundBnUSD(historyDataStabilityFund?.total[historyDataStabilityFund?.total.length - 1].value);
-  }, [historyDataStabilityFund, setTotalStabilityFundBnUSD]);
+    setTotalStabilityFundBnUSD(collateralData?.current.fundTotal.value);
+  }, [collateralData, setTotalStabilityFundBnUSD]);
 
   return (
     <>
@@ -31,9 +32,9 @@ export default function Chart({
         onTouchStart={() => setUserHovering(true)}
         onTouchEnd={() => setUserHovering(false)}
       >
-        {historyDataStabilityFund ? (
+        {collateralData ? (
           <MultiLineChart
-            data={historyDataStabilityFund.stacked}
+            data={collateralData.series.fundTotalStacked}
             height={DEFAULT_HEIGHT}
             minHeight={DEFAULT_HEIGHT}
             color={theme.colors.primary}

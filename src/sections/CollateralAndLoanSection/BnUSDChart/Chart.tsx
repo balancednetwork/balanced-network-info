@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { useContractMethodsDataQuery } from 'queries/backendv2';
+import { useAllCollateralData, useContractMethodsDataQuery } from 'queries/backendv2';
 
 import bnJs from 'bnJs';
 import LineChart, { DEFAULT_HEIGHT } from 'components/LineChart';
