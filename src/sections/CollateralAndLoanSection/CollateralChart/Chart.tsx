@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 
-import { useAllCollateralData, useCollateralDataFor } from 'queries/backendv2';
+import { useCollateralDataFor } from 'queries/backendv2';
 
 import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
 import LineChart, { DEFAULT_HEIGHT } from 'components/LineChart';
@@ -8,7 +8,6 @@ import Spinner from 'components/Spinner';
 import useTheme from 'hooks/useTheme';
 
 import { ChartContainer } from '..';
-import { timeFrames } from '../TimeFrameSelector';
 
 export default function Chart({
   selectedCollateral,

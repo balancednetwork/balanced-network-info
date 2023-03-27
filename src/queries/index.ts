@@ -1,28 +1,24 @@
 import { addresses, BalancedJs, CallData } from '@balancednetwork/balanced-js';
 import { CurrencyAmount, Token, Fraction } from '@balancednetwork/sdk-core';
-import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { useQuery, UseQueryResult } from 'react-query';
 
 import bnJs from 'bnJs';
-import { PairInfo, SUPPORTED_PAIRS } from 'constants/pairs';
+import { SUPPORTED_PAIRS } from 'constants/pairs';
 import QUERY_KEYS from 'constants/queryKeys';
-import { SUPPORTED_TOKENS_LIST, SUPPORTED_TOKENS_MAP_BY_ADDRESS, TOKENS_OMITTED_FROM_STATS } from 'constants/tokens';
+import { SUPPORTED_TOKENS_LIST, SUPPORTED_TOKENS_MAP_BY_ADDRESS } from 'constants/tokens';
 import { getTimestampFrom } from 'pages/PerformanceDetails/utils';
 import { useSupportedCollateralTokens } from 'store/collateral/hooks';
 import { formatUnits } from 'utils';
 
 import {
   useAllCollateralData,
-  useAllPairsByName,
   useAllPairsIncentivisedByName,
   useAllPairsTotal,
-  useAllTokens,
   useAllTokensByAddress,
   useTokenPrices,
 } from './backendv2';
-import { useBlockDetails, useDaoFundHoldings, usePOLData, useStabilityFundHoldings } from './blockDetails';
-import { useHistoryForStabilityFund } from './historicalData';
+import { useBlockDetails, useDaoFundHoldings, usePOLData } from './blockDetails';
 
 const WEIGHT_CONST = 10 ** 18;
 
@@ -63,7 +59,7 @@ export type MetaToken = {
   address: string;
 };
 
-type DataPeriod = '24h' | '30d';
+// type DataPeriod = '24h' | '30d';
 
 const PERCENTAGE_DISTRIBUTED_OLD = new BigNumber(0.6);
 const PERCENTAGE_DISTRIBUTED = new BigNumber(0.3);
@@ -698,8 +694,6 @@ export const useCollateralInfo = () => {
                 .div(totalDelegated.times(100))
                 .toNumber()
             : undefined;
-
-        const tvl = collateralData.current.total.value;
 
         return {
           collateralData,

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import dayjs from 'dayjs';
-import { useBorrowersInfo, useCollateralInfo, useFundInfo, useLoanInfo } from 'queries';
+import { useBorrowersInfo, useFundInfo, useLoanInfo } from 'queries';
 import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 
@@ -23,9 +23,7 @@ export default function BnUSDChart({
   selectedTimeFrame: CollateralChartTimeFrame;
 }) {
   const loanInfo = useLoanInfo();
-  // const { data: fundInfo } = useFundInfo();
   const { data: borrowersInfo } = useBorrowersInfo();
-  const { data: collateralInfo } = useCollateralInfo();
   const { data: fundInfo } = useFundInfo();
 
   const [userHovering, setUserHovering] = React.useState<boolean>(false);
@@ -74,6 +72,8 @@ export default function BnUSDChart({
       <Chart
         collateralTVLHover={bnUSDHover}
         collateralLabel={bnUSDLabel}
+        selectedCollateral={selectedCollateral}
+        selectedTimeFrame={selectedTimeFrame}
         setCollateralTVLHover={setBnUSDHover}
         setCollateralLabel={setBnUSDLabel}
         setTotalBnUSD={setTotalBnUSD}

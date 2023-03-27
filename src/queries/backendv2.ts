@@ -4,6 +4,7 @@ import { useBnJsContractQuery, useIncentivisedPairs } from 'queries';
 import { useQuery } from 'react-query';
 
 import bnJs from 'bnJs';
+import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
 import { formatUnits } from 'utils';
 
 const API_ENDPOINT = 'https://balanced.icon.community/api/v1/';
@@ -323,7 +324,11 @@ export function useTokenPrices() {
 }
 
 function trimStartingZeroValues(array: any[]): any[] {
-  return array.filter((item, index) => item && array[Math.min(index + 1, array.length - 1)].value !== 0);
+  if (array) {
+    return array.filter((item, index) => item && array[Math.min(index + 1, array.length - 1)].value !== 0);
+  } else {
+    return [];
+  }
 }
 
 function setTimeToMs(array: any[]): any[] {
@@ -339,7 +344,7 @@ type CollateralData = {
 };
 
 export function useAllCollateralData() {
-  const { data: tokenPrices, isSuccess: isTokenQuerySucces } = useTokenPrices();
+  const { data: tokenPrices, isSuccess: isTokenQuerySuccess } = useTokenPrices();
 
   return useQuery(
     `allCollateralDataBE`,
@@ -379,10 +384,6 @@ export function useAllCollateralData() {
           const seriesFundBUSDReversed = seriesFundBUSD.slice().reverse();
           const seriesFundIUSDCReversed = seriesFundIUSDC.slice().reverse();
           const seriesFundUSDSReversed = seriesFundUSDS.slice().reverse();
-
-          console.log('iusdc ', seriesFundIUSDCReversed);
-          console.log('busd', seriesFundBUSDReversed);
-          console.log('usds', seriesFundUSDSReversed);
 
           const seriesFundTotalReversed = seriesFundUSDSReversed.map((item, index) => {
             let currentTotal = item.value;
@@ -484,7 +485,7 @@ export function useAllCollateralData() {
       }
     },
     {
-      enabled: isTokenQuerySucces,
+      enabled: isTokenQuerySuccess,
       keepPreviousData: true,
       refetchOnWindowFocus: false,
     },
@@ -505,18 +506,90 @@ export function useCollateralDataFor(daysBack: number) {
   return useQuery(
     `collateralDataFor-${daysBack}-days`,
     () => {
-      if (collateralData) {
-        const copy = JSON.parse(JSON.stringify(collateralData));
-        const trimmedSeries = Object.keys(copy.series).reduce((trimmed, current) => {
-          trimmed[current] = trimDays(copy.series[current]);
-          return trimmed;
-        }, {});
-        copy.series = trimmedSeries;
-        return copy;
+      if (daysBack === -1) {
+        return collateralData;
+      } else {
+        if (collateralData) {
+          const copy = JSON.parse(JSON.stringify(collateralData));
+          const trimmedSeries = Object.keys(copy.series).reduce((trimmed, current) => {
+            trimmed[current] = trimDays(copy.series[current]);
+            return trimmed;
+          }, {});
+          copy.series = trimmedSeries;
+          return copy;
+        }
       }
     },
     {
       enabled: collateralDataQuerySuccess,
+      keepPreviousData: true,
+    },
+  );
+}
+
+export function useAllDebtData() {
+  return useQuery('allDebtDataBE', async () => {
+    const responseSICX = await axios.get(
+      `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_collateral_debt_sICX_bnusd`,
+    );
+    const responseETH = await axios.get(
+      `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_collateral_debt_ETH_bnusd`,
+    );
+    const responseBTCB = await axios.get(
+      `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_collateral_debt_BTCB_bnusd`,
+    );
+    const responseTotal = await axios.get(
+      `${API_ENDPOINT}contract-methods?skip=0&limit=1000&address=${bnJs.bnUSD.address}&method=totalSupply`,
+    );
+
+    try {
+      const seriesSICX = responseSICX.data && setTimeToMs(trimStartingZeroValues(responseSICX.data));
+      const seriesETH = responseSICX.data && setTimeToMs(trimStartingZeroValues(responseETH.data));
+      const seriesBTCB = responseSICX.data && setTimeToMs(trimStartingZeroValues(responseBTCB.data));
+      const seriesTotal = responseTotal.data && setTimeToMs(trimStartingZeroValues(responseTotal.data));
+
+      return {
+        sICX: seriesSICX,
+        ETH: seriesETH,
+        BTCB: seriesBTCB,
+        [predefinedCollateralTypes.ALL]: seriesTotal,
+      };
+    } catch (e) {
+      console.error(e);
+    }
+  });
+}
+
+export function useDebtDataFor(daysBack: number) {
+  const { data: debtData, isSuccess: debtDataQuerySuccess } = useAllDebtData();
+
+  function trimDays(array) {
+    if (array.length <= daysBack) {
+      return array;
+    } else {
+      return array.slice().slice(1 - (daysBack + 1));
+    }
+  }
+
+  return useQuery(
+    `collateralDebtFor-${daysBack}-days`,
+    () => {
+      if (daysBack === -1) {
+        return debtData;
+      } else {
+        if (debtData) {
+          let copy = JSON.parse(JSON.stringify(debtData));
+          const trimmedSeries = Object.keys(copy).reduce((trimmed, current) => {
+            trimmed[current] = trimDays(copy[current]);
+            return trimmed;
+          }, {});
+          copy = trimmedSeries;
+          return copy;
+        }
+      }
+    },
+    {
+      enabled: debtDataQuerySuccess,
       keepPreviousData: true,
     },
   );

@@ -1,16 +1,13 @@
 import React from 'react';
 
-import { Flex } from 'rebass';
 import styled from 'styled-components';
-
-import { Typography } from 'theme';
 
 export type CollateralChartTimeFrame = {
   displayName: string;
   days: number;
 };
 
-export type TimeFrame = 'WEEK' | 'MONTH' | 'QUARTER_YEAR' | 'HALF_YEAR';
+export type TimeFrame = 'WEEK' | 'MONTH' | 'QUARTER_YEAR' | 'HALF_YEAR' | 'YEAR';
 
 export const timeFrames: { [key in TimeFrame]: CollateralChartTimeFrame } = Object.freeze({
   WEEK: {
@@ -28,6 +25,10 @@ export const timeFrames: { [key in TimeFrame]: CollateralChartTimeFrame } = Obje
   HALF_YEAR: {
     displayName: '6 months',
     days: 182,
+  },
+  YEAR: {
+    displayName: 'year',
+    days: 365,
   },
 });
 
@@ -63,9 +64,6 @@ export default function TimeFrameSelector({
 }) {
   return (
     <TimeFramesWrap>
-      {/* <Typography fontSize={16} mr={1} width="auto">
-        Over the past{' '}
-      </Typography> */}
       {Object.values(timeFrames).map(item => (
         <TimeFrameButton isActive={item.days === selected.days} key={item.days} onClick={() => setSelected(item)}>
           {item.displayName}

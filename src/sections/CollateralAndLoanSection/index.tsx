@@ -44,7 +44,7 @@ export default function CollateralAndLoanSection() {
   const [selectedCollateral, setSelectedCollateral] = useState<string>(predefinedCollateralTypes.ALL);
   const setCollateral = useCallback(collateral => setSelectedCollateral(collateral), [setSelectedCollateral]);
 
-  const [selectedTimeFrame, setSelectedTimeFrame] = useState<CollateralChartTimeFrame>(timeFrames.WEEK);
+  const [selectedTimeFrame, setSelectedTimeFrame] = useState<CollateralChartTimeFrame>(timeFrames.QUARTER_YEAR);
 
   return (
     <ChartSection>
