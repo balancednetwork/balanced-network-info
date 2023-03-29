@@ -42,7 +42,7 @@ const CollateralSelector = ({ width, containerRef, collateral, setCollateral }) 
 
   return (
     <>
-      <Wrap onClick={handleToggle} style={{ position: 'relative', marginRight: '13px' }}>
+      <Wrap onClick={handleToggle} style={{ position: 'relative', marginRight: '11px' }}>
         <UnderlineText>{collateral}</UnderlineText>
         <div ref={arrowRef} style={{ display: 'inline-block' }}>
           <StyledArrowDownIcon />

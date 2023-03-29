@@ -6,6 +6,7 @@ import { useCollateralInfo, useLoanInfo, useBorrowersInfo } from 'queries';
 import { useTokenPrices } from 'queries/backendv2';
 import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
+import styled from 'styled-components';
 
 import CollateralSelector from 'components/CollateralSelector';
 import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
@@ -20,6 +21,30 @@ import { ChartPanel } from '..';
 import TimeFrameSelector, { CollateralChartTimeFrame } from '../TimeFrameSelector';
 import Chart from './Chart';
 import StabilityFundChart from './StabilityFundChart';
+
+const CollateralControlWrap = styled(Flex)`
+  flex-direction: column;
+
+  .colon {
+    display: none;
+  }
+
+  @media screen and (min-width: 500px) {
+    flex-direction: row;
+    align-items: center;
+
+    .colon {
+      display: inline;
+    }
+  }
+`;
+
+const SelectorsWrap = styled(Flex)`
+  margin: 5px 0 !important;
+  @media screen and (min-width: 500px) {
+    margin: 0 !important;
+  }
+`;
 
 export default function CollateralChart({
   selectedCollateral,
@@ -85,18 +110,20 @@ export default function CollateralChart({
     <ChartPanel bg="bg2">
       <Flex flexDirection={['column', 'row']} ref={ref}>
         <Flex mr="auto" flexDirection="column" alignItems="center">
-          <Flex alignItems="center" mb={1}>
+          <CollateralControlWrap mb={1}>
             <Typography variant="h2" mr={2} mb="2px">
-              Collateral:
+              Collateral<span className="colon">:</span>
             </Typography>
-            <CollateralSelector
-              width={width}
-              containerRef={ref.current}
-              collateral={selectedCollateral === 'sICX' ? 'ICON' : selectedCollateral}
-              setCollateral={setCollateral}
-            />{' '}
-            <TimeFrameSelector selected={selectedTimeFrame} setSelected={setSelectedTimeFrame} />
-          </Flex>
+            <SelectorsWrap>
+              <CollateralSelector
+                width={width}
+                containerRef={ref.current}
+                collateral={selectedCollateral === 'sICX' ? 'ICON' : selectedCollateral}
+                setCollateral={setCollateral}
+              />
+              <TimeFrameSelector selected={selectedTimeFrame} setSelected={setSelectedTimeFrame} />
+            </SelectorsWrap>
+          </CollateralControlWrap>
         </Flex>
         <Typography variant="h3" mt={1} mb={1}>
           {collateralInfo && collateralTVLHover && `${collateralTVLInUSDHover}`}

@@ -22,7 +22,7 @@ export const ChartSection = styled(Box)`
   justify-content: space-between;
   flex-direction: row;
   column-gap: 50px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.mediaWidth.upToLarge`
     flex-direction: column;
     row-gap: 50px;
   `}

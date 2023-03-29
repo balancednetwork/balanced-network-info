@@ -39,12 +39,12 @@ export const timeFrames: { [key in TimeFrame]: CollateralChartTimeFrame } = Obje
 
 const TimeFrameItemList = styled.ul`
   list-style-type: none;
-  padding: 10px;
+  padding: 5px;
   margin: 0;
 `;
 
 const TimeFrameItem = styled.li`
-  padding: 5px 10px;
+  padding: 7px 12px;
   font-size: 14px;
   color: ${({ theme }) => theme.colors.text};
   transition: all ease 0.3s;
@@ -84,7 +84,7 @@ export default function TimeFrameSelector({
     <>
       <Wrap onClick={handleToggle} style={{ position: 'relative' }}>
         <UnderlineText>{selected.displayName}</UnderlineText>
-        <div ref={arrowRef} style={{ display: 'inline-block' }}>
+        <div ref={arrowRef} style={{ display: 'inline-block', width: '19px' }}>
           <StyledArrowDownIcon />
         </div>
       </Wrap>
@@ -94,7 +94,7 @@ export default function TimeFrameSelector({
           anchorEl={anchor}
           arrowEl={arrowRef.current}
           placement="bottom"
-          offset={[0, 8]}
+          offset={[0, 14]}
         >
           <TimeFrameItemList>
             {Object.values(timeFrames).map(
