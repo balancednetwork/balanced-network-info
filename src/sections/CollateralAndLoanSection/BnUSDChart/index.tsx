@@ -55,16 +55,6 @@ export default function BnUSDChart({
         <Flex flexDirection="column" alignItems={['start', 'end']} mb={1}></Flex>
       </Flex>
 
-      <Typography fontSize={16} margin="10px 0 15px">
-        bnUSD supply
-        {selectedCollateral !== predefinedCollateralTypes.ALL ? ` backed by ${selectedCollateral}` : ''}
-        {selectedCollateral !== predefinedCollateralTypes.ALL &&
-        selectedCollateral !== predefinedCollateralTypes.STABILITY_FUND
-          ? ' collateral '
-          : ' '}
-        over the past {selectedTimeFrame.displayName}.
-      </Typography>
-
       <Typography variant="p" color="text2" mr="auto" fontSize={18}>
         {bnUSDLabel ? <>{bnUSDLabel}</> : <>{dayjs.utc().format('MMM D, YYYY')}</>}
       </Typography>
@@ -82,7 +72,7 @@ export default function BnUSDChart({
 
       {/* flexible footer */}
       <Flex my={3} mx={-4} flexWrap="wrap">
-        {selectedCollateral === predefinedCollateralTypes.STABILITY_FUND ? (
+        {/* {selectedCollateral === predefinedCollateralTypes.STABILITY_FUND ? (
           <>
             <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
               <Typography variant="p" fontSize={[16, '18px']}>
@@ -146,7 +136,40 @@ export default function BnUSDChart({
               <Typography opacity={0.75}>Daily rewards</Typography>
             </Flex>
           </>
-        )}
+        )} */}
+        <>
+          <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
+            <Typography variant="p" fontSize={[16, '18px']}>
+              {loanInfo.loansAPY ? (
+                `${getFormattedNumber(loanInfo.loansAPY, 'percent2')} - ${getFormattedNumber(
+                  loanInfo.loansAPY * MAX_BOOST,
+                  'percent2',
+                )}`
+              ) : (
+                <LoaderComponent />
+              )}
+            </Typography>
+            <Typography opacity={0.75}>Borrow APY</Typography>
+          </Flex>
+          <Flex flex={1} flexDirection="column" alignItems="center" className={isExtraSmall ? '' : 'border-right'}>
+            <Typography variant="p" fontSize={[16, '18px']}>
+              {loanInfo.dailyRewards ? getFormattedNumber(loanInfo.dailyRewards, 'number') : <LoaderComponent />} BALN
+            </Typography>
+            <Typography opacity={0.75}>Daily rewards</Typography>
+          </Flex>
+          <Flex
+            flex={isExtraSmall ? null : 1}
+            mt={isExtraSmall ? '20px' : 0}
+            flexDirection="column"
+            alignItems="center"
+            width={isExtraSmall ? '100%' : 'auto'}
+          >
+            <Typography variant="p" fontSize={[16, '18px']}>
+              {borrowersInfo ? getFormattedNumber(borrowersInfo.total, 'number') : <LoaderComponent />}
+            </Typography>
+            <Typography opacity={0.75}>Borrowers</Typography>
+          </Flex>
+        </>
       </Flex>
     </ChartPanel>
   );

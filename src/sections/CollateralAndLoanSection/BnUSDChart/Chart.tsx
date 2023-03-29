@@ -19,17 +19,21 @@ export default function Chart({
   setUserHovering,
 }) {
   const { data: debtData } = useDebtDataFor(selectedTimeFrame.days);
-  const { data: collateralData } = useCollateralDataFor(selectedTimeFrame.days);
+  // const { data: collateralData } = useCollateralDataFor(selectedTimeFrame.days);
 
-  console.log('debtData', debtData);
+  // console.log('debtData', debtData);
+
+  // const data = useMemo(() => {
+  //   if (selectedCollateral === predefinedCollateralTypes.STABILITY_FUND) {
+  //     return collateralData?.series.fundTotal;
+  //   } else {
+  //     return debtData?.[selectedCollateral];
+  //   }
+  // }, [debtData, collateralData, selectedCollateral]);
 
   const data = useMemo(() => {
-    if (selectedCollateral === predefinedCollateralTypes.STABILITY_FUND) {
-      return collateralData?.series.fundTotal;
-    } else {
-      return debtData?.[selectedCollateral];
-    }
-  }, [debtData, collateralData, selectedCollateral]);
+    return debtData?.['All'];
+  }, [debtData]);
 
   useEffect(() => {
     if (data && data[data.length - 1]) {

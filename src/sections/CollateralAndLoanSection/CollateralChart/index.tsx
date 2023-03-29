@@ -94,16 +94,13 @@ export default function CollateralChart({
               containerRef={ref.current}
               collateral={selectedCollateral === 'sICX' ? 'ICON' : selectedCollateral}
               setCollateral={setCollateral}
-            />
+            />{' '}
+            <TimeFrameSelector selected={selectedTimeFrame} setSelected={setSelectedTimeFrame} />
           </Flex>
         </Flex>
         <Typography variant="h3" mt={1} mb={1}>
           {collateralInfo && collateralTVLHover && `${collateralTVLInUSDHover}`}
         </Typography>
-      </Flex>
-
-      <Flex>
-        <TimeFrameSelector selected={selectedTimeFrame} setSelected={setSelectedTimeFrame} />
       </Flex>
 
       <Flex mb={1}>

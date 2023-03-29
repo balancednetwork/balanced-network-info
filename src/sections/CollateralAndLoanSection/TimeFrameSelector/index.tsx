@@ -1,6 +1,11 @@
 import React from 'react';
 
+import ClickAwayListener from 'react-click-away-listener';
 import styled from 'styled-components';
+
+import { Wrap } from 'components/CollateralSelector';
+import { StyledArrowDownIcon, UnderlineText } from 'components/DropdownText';
+import { DropdownPopper } from 'components/Popover';
 
 export type CollateralChartTimeFrame = {
   displayName: string;
@@ -32,26 +37,21 @@ export const timeFrames: { [key in TimeFrame]: CollateralChartTimeFrame } = Obje
   },
 });
 
-const TimeFramesWrap = styled.div`
-  display: flex;
-  align-items: center;
-  margin: 10px 0 14px;
+const TimeFrameItemList = styled.ul`
+  list-style-type: none;
+  padding: 10px;
+  margin: 0;
 `;
 
-const TimeFrameButton = styled.button<{ isActive: boolean }>`
-  padding: 1px 12px 2px;
+const TimeFrameItem = styled.li`
+  padding: 5px 10px;
   font-size: 14px;
   color: ${({ theme }) => theme.colors.text};
-  margin-right: 5px;
-  border-radius: 8px;
-  border: 0;
-  background: ${({ isActive, theme }) => (isActive ? theme.colors.primary : theme.colors.bg3)};
-  cursor: ${({ isActive }) => (isActive ? 'default' : 'pointer')};
-  pointer-events: ${({ isActive }) => (isActive ? 'none' : 'all')};
   transition: all ease 0.3s;
+  cursor: pointer;
 
   &:hover {
-    background: ${({ theme }) => theme.colors.primary};
+    color: ${({ theme }) => theme.colors.primary};
   }
 `;
 
@@ -62,13 +62,52 @@ export default function TimeFrameSelector({
   selected: CollateralChartTimeFrame;
   setSelected: (CollateralChartTimeFrame) => void;
 }) {
+  const [anchor, setAnchor] = React.useState<HTMLElement | null>(null);
+  const arrowRef = React.useRef(null);
+
+  const handleToggle = (e: React.MouseEvent<HTMLElement>) => {
+    setAnchor(anchor ? null : arrowRef.current);
+  };
+
+  const closeDropdown = e => {
+    if (!e.target.closest('.collateral-dropdown')) {
+      setAnchor(null);
+    }
+  };
+
+  const handleClick = (item: CollateralChartTimeFrame) => {
+    setSelected(item);
+    setAnchor(null);
+  };
+
   return (
-    <TimeFramesWrap>
-      {Object.values(timeFrames).map(item => (
-        <TimeFrameButton isActive={item.days === selected.days} key={item.days} onClick={() => setSelected(item)}>
-          {item.displayName}
-        </TimeFrameButton>
-      ))}
-    </TimeFramesWrap>
+    <>
+      <Wrap onClick={handleToggle} style={{ position: 'relative' }}>
+        <UnderlineText>{selected.displayName}</UnderlineText>
+        <div ref={arrowRef} style={{ display: 'inline-block' }}>
+          <StyledArrowDownIcon />
+        </div>
+      </Wrap>
+      <ClickAwayListener onClickAway={e => closeDropdown(e)}>
+        <DropdownPopper
+          show={Boolean(anchor)}
+          anchorEl={anchor}
+          arrowEl={arrowRef.current}
+          placement="bottom"
+          offset={[0, 8]}
+        >
+          <TimeFrameItemList>
+            {Object.values(timeFrames).map(
+              item =>
+                selected.days !== item.days && (
+                  <TimeFrameItem key={item.days} onClick={() => handleClick(item)}>
+                    {item.displayName}
+                  </TimeFrameItem>
+                ),
+            )}
+          </TimeFrameItemList>
+        </DropdownPopper>
+      </ClickAwayListener>
+    </>
   );
 }

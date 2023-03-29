@@ -160,8 +160,28 @@ const CollateralTypeList = ({ width, setAnchor, anchor, setCollateral, ...rest }
           </CollateralTypesGridItem>
         </CollateralTypesGrid>
         <Divider />
+
+        <CollateralTypesGrid onClick={() => handleCollateralSelect(predefinedCollateralTypes.STABILITY_FUND)}>
+          <CollateralTypesGridItem>
+            <CollateralIcon icon="Stability fund" />
+            <Typography fontSize={16} fontWeight="bold" className="white">
+              {predefinedCollateralTypes.STABILITY_FUND}
+            </Typography>
+          </CollateralTypesGridItem>
+          <CollateralTypesGridItem className={isSmall ? 'respo' : ''}>
+            <Typography className="white" fontSize={16}>
+              {collateralData ? (
+                `$${getFormattedNumber(collateralData.current['fundTotal'].amount, 'number')}`
+              ) : (
+                <StyledSkeleton width={120} animation="wave" />
+              )}
+            </Typography>
+          </CollateralTypesGridItem>
+        </CollateralTypesGrid>
+        <Divider />
+
         {sortedTokensCollateral &&
-          sortedTokensCollateral.map(item => (
+          sortedTokensCollateral.map((item, index) => (
             <Fragment key={item.symbol}>
               <CollateralTypesGrid onClick={() => handleCollateralSelect(item.symbol)}>
                 <CollateralTypesGridItem>
@@ -181,26 +201,9 @@ const CollateralTypeList = ({ width, setAnchor, anchor, setCollateral, ...rest }
                   </Flex>
                 </CollateralTypesGridItem>
               </CollateralTypesGrid>
-              <Divider />
+              {index !== sortedTokensCollateral.length - 1 && <Divider />}
             </Fragment>
           ))}
-        <CollateralTypesGrid onClick={() => handleCollateralSelect(predefinedCollateralTypes.STABILITY_FUND)}>
-          <CollateralTypesGridItem>
-            <CollateralIcon icon="Stability fund" />
-            <Typography fontSize={16} fontWeight="bold" className="white">
-              {predefinedCollateralTypes.STABILITY_FUND}
-            </Typography>
-          </CollateralTypesGridItem>
-          <CollateralTypesGridItem className={isSmall ? 'respo' : ''}>
-            <Typography className="white" fontSize={16}>
-              {collateralData ? (
-                `$${getFormattedNumber(collateralData.current['fundTotal'].amount, 'number')}`
-              ) : (
-                <StyledSkeleton width={120} animation="wave" />
-              )}
-            </Typography>
-          </CollateralTypesGridItem>
-        </CollateralTypesGrid>
       </GridWrap>
     </Box>
   );
