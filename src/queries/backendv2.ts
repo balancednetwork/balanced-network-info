@@ -181,7 +181,7 @@ export function useAllPairsIncentivised() {
       if (allPairs) {
         return allPairs.map(item => {
           const incentivisedPair =
-            incentivisedPairs && incentivisedPairs.find(incentivisedPair => incentivisedPair.name === item.name);
+            incentivisedPairs && incentivisedPairs.find(incentivisedPair => incentivisedPair.id === parseInt(item.id));
 
           if (incentivisedPair && dailyDistribution) {
             item['balnApy'] = dailyDistribution
