@@ -119,6 +119,7 @@ export const formatYAxisNumber = (num: number | undefined, digits = 2, round = t
       .format({
         average: round,
         mantissa: digits,
+        trimMantissa: true,
         abbreviations: {
           million: 'M',
           billion: 'B',

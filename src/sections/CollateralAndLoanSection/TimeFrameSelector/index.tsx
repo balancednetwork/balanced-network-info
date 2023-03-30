@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { Wrap } from 'components/CollateralSelector';
 import { StyledArrowDownIcon, UnderlineText } from 'components/DropdownText';
 import { DropdownPopper } from 'components/Popover';
+import { Typography } from 'theme';
 
 export type CollateralChartTimeFrame = {
   displayName: string;
@@ -83,10 +84,12 @@ export default function TimeFrameSelector({
   return (
     <>
       <Wrap onClick={handleToggle} style={{ position: 'relative' }}>
-        <UnderlineText>{selected.displayName}</UnderlineText>
-        <div ref={arrowRef} style={{ display: 'inline-block', width: '19px' }}>
-          <StyledArrowDownIcon />
-        </div>
+        <Typography fontSize={16}>
+          <UnderlineText>{selected.displayName}</UnderlineText>
+          <div ref={arrowRef} style={{ display: 'inline-block', width: '19px' }}>
+            <StyledArrowDownIcon />
+          </div>
+        </Typography>
       </Wrap>
       <ClickAwayListener onClickAway={e => closeDropdown(e)}>
         <DropdownPopper

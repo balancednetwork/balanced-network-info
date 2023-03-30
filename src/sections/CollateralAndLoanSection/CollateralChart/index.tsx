@@ -218,7 +218,7 @@ export default function CollateralChart({
               <Typography variant="p" fontSize="18px">
                 {stabilityFundTotal ? stabilityFundTotal.tokenCount : <LoaderComponent />}
               </Typography>
-              <Typography opacity={0.75}>Stable coins</Typography>
+              <Typography opacity={0.75}>Stablecoins</Typography>
             </Flex>
             <Flex flex={1} flexDirection="column" alignItems="center">
               <Typography variant="p" fontSize="18px">

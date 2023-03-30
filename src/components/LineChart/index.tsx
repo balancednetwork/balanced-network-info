@@ -103,7 +103,7 @@ const Chart = ({
             tickLine={false}
             orientation="right"
             tick={{ stroke: 'white' }}
-            tickFormatter={value => formatYAxisNumber(value, 0)}
+            tickFormatter={value => formatYAxisNumber(value, value > 100 ? 1 : 2)}
             width={20}
           />
 
