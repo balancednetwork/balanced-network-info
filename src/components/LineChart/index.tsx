@@ -74,7 +74,7 @@ const Chart = ({
           data={data}
           margin={{
             top: 5,
-            right: 30,
+            right: 35,
             left: 20,
             bottom: 5,
           }}
@@ -95,7 +95,7 @@ const Chart = ({
             tickLine={false}
             minTickGap={10}
             tick={{ stroke: theme.colors.text1, fontSize: '14px' }}
-            tickFormatter={time => dayjs(time).format('DD')}
+            tickFormatter={time => dayjs(time).format('DD/MM')}
           />
           <YAxis
             dataKey="value"
