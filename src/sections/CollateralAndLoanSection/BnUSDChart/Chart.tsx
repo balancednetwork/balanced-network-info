@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo } from 'react';
 
-import { useCollateralDataFor, useDebtDataFor } from 'queries/backendv2';
+import { useDebtDataFor } from 'queries/backendv2';
 
-import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
 import LineChart, { DEFAULT_HEIGHT } from 'components/LineChart';
 import Spinner from 'components/Spinner';
 
 import { ChartContainer } from '..';
+
+const MemoizedLineChart = React.memo(LineChart);
 
 export default function Chart({
   collateralTVLHover,
@@ -19,17 +20,6 @@ export default function Chart({
   setUserHovering,
 }) {
   const { data: debtData } = useDebtDataFor(selectedTimeFrame.days);
-  // const { data: collateralData } = useCollateralDataFor(selectedTimeFrame.days);
-
-  // console.log('debtData', debtData);
-
-  // const data = useMemo(() => {
-  //   if (selectedCollateral === predefinedCollateralTypes.STABILITY_FUND) {
-  //     return collateralData?.series.fundTotal;
-  //   } else {
-  //     return debtData?.[selectedCollateral];
-  //   }
-  // }, [debtData, collateralData, selectedCollateral]);
 
   const data = useMemo(() => {
     return debtData?.['All'];
@@ -50,7 +40,7 @@ export default function Chart({
         onTouchEnd={() => setUserHovering(false)}
       >
         {data ? (
-          <LineChart
+          <MemoizedLineChart
             data={data}
             height={DEFAULT_HEIGHT}
             minHeight={DEFAULT_HEIGHT}
@@ -58,6 +48,7 @@ export default function Chart({
             label={collateralLabel}
             setValue={setCollateralTVLHover}
             setLabel={setCollateralLabel}
+            customId={'bnUSDChart'}
           />
         ) : (
           <Spinner size={75} />

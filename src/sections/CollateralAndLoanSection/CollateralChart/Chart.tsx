@@ -61,6 +61,7 @@ export default function Chart({
             label={collateralLabel}
             setValue={setCollateralTVLHover}
             setLabel={setCollateralLabel}
+            customId={'collateralChart'}
           />
         ) : (
           <Spinner size={75} />

@@ -33,6 +33,22 @@ export default function BnUSDChart({
 
   const [totalBnUSD, setTotalBnUSD] = React.useState<undefined | number>();
 
+  const cbSetUserHovering = React.useCallback(bool => {
+    setUserHovering(bool);
+  }, []);
+
+  const cbSetBnUSDHover = React.useCallback((value: number | undefined) => {
+    setBnUSDHover(value);
+  }, []);
+
+  const cbSetBnUSDLabel = React.useCallback((value: string | undefined) => {
+    setBnUSDLabel(value);
+  }, []);
+
+  const cbSetTotalBnUSD = React.useCallback((value: number | undefined) => {
+    setTotalBnUSD(value);
+  }, []);
+
   React.useEffect(() => {
     if (!userHovering) {
       setBnUSDHover(totalBnUSD);
@@ -64,10 +80,10 @@ export default function BnUSDChart({
         collateralLabel={bnUSDLabel}
         selectedCollateral={selectedCollateral}
         selectedTimeFrame={selectedTimeFrame}
-        setCollateralTVLHover={setBnUSDHover}
-        setCollateralLabel={setBnUSDLabel}
-        setTotalBnUSD={setTotalBnUSD}
-        setUserHovering={setUserHovering}
+        setCollateralTVLHover={cbSetBnUSDHover}
+        setCollateralLabel={cbSetBnUSDLabel}
+        setTotalBnUSD={cbSetTotalBnUSD}
+        setUserHovering={cbSetUserHovering}
       ></Chart>
 
       {/* flexible footer */}
