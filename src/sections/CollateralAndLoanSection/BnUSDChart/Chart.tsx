@@ -1,52 +1,35 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
-import { useContractMethodsDataQuery } from 'queries/backendv2';
+import { useDebtDataFor } from 'queries/backendv2';
 
-import bnJs from 'bnJs';
 import LineChart, { DEFAULT_HEIGHT } from 'components/LineChart';
 import Spinner from 'components/Spinner';
 
 import { ChartContainer } from '..';
 
+const MemoizedLineChart = React.memo(LineChart);
+
 export default function Chart({
   collateralTVLHover,
   collateralLabel,
+  selectedTimeFrame,
+  selectedCollateral,
   setCollateralTVLHover,
   setCollateralLabel,
   setTotalBnUSD,
   setUserHovering,
 }) {
-  // const { data: collateralTokens } = useSupportedCollateralTokens();
-  // const isPredefinedType =
-  //   selectedCollateral === predefinedCollateralTypes.ALL ||
-  //   selectedCollateral === predefinedCollateralTypes.STABILITY_FUND;
+  const { data: debtData } = useDebtDataFor(selectedTimeFrame.days);
 
-  // const params = useMemo(() => {
-  //   if (!isPredefinedType && collateralTokens && collateralTokens[selectedCollateral]) {
-  //     return getMintedAgainstParams(selectedCollateral, collateralTokens[selectedCollateral]);
-  //   }
-  // }, [isPredefinedType, selectedCollateral, collateralTokens]);
-
-  // const { data: historyData } = useHistoryFor(params);
-  // const { data: historyForBnUSDTotalSupply } = useHistoryForBnUSDTotalSupply();
-  // const { data: historyForStabilityFund } = useHistoryForStabilityFund();
-
-  // const data = useMemo(
-  //   () =>
-  //     selectedCollateral === predefinedCollateralTypes.ALL
-  //       ? historyForBnUSDTotalSupply
-  //       : selectedCollateral === predefinedCollateralTypes.STABILITY_FUND && historyForStabilityFund
-  //       ? historyForStabilityFund.total
-  //       : historyData,
-  //   [historyData, historyForBnUSDTotalSupply, historyForStabilityFund, selectedCollateral],
-  // );
-  const { data: bnUSDChartData } = useContractMethodsDataQuery(bnJs.bnUSD.address, 'totalSupply');
+  const data = useMemo(() => {
+    return debtData?.['All'];
+  }, [debtData]);
 
   useEffect(() => {
-    if (bnUSDChartData) {
-      setTotalBnUSD(bnUSDChartData[bnUSDChartData.length - 1].value);
+    if (data && data[data.length - 1]) {
+      setTotalBnUSD(data[data.length - 1].value);
     }
-  }, [bnUSDChartData, setTotalBnUSD]);
+  }, [data, setTotalBnUSD]);
 
   return (
     <>
@@ -56,15 +39,16 @@ export default function Chart({
         onTouchStart={() => setUserHovering(true)}
         onTouchEnd={() => setUserHovering(false)}
       >
-        {bnUSDChartData ? (
-          <LineChart
-            data={bnUSDChartData}
+        {data ? (
+          <MemoizedLineChart
+            data={data}
             height={DEFAULT_HEIGHT}
             minHeight={DEFAULT_HEIGHT}
             value={collateralTVLHover}
             label={collateralLabel}
             setValue={setCollateralTVLHover}
             setLabel={setCollateralLabel}
+            customId={'bnUSDChart'}
           />
         ) : (
           <Spinner size={75} />

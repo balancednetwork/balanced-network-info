@@ -172,14 +172,14 @@ const Chart = ({
             tickLine={false}
             minTickGap={10}
             tick={{ stroke: theme.colors.text1, fontSize: '14px' }}
-            tickFormatter={time => dayjs(time).format('DD')}
+            tickFormatter={time => dayjs(time).format('DD/MM')}
           />
           <YAxis
             axisLine={false}
             tickLine={false}
             orientation="right"
             tick={{ stroke: 'white' }}
-            tickFormatter={value => formatYAxisNumber(value, 0)}
+            tickFormatter={value => formatYAxisNumber(value, value > 100 ? 1 : 2)}
             width={20}
           />
 

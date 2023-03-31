@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Pair, useAllPairsById, useAllPairsIncentivisedById, useAllPairsTotal } from 'queries/backendv2';
+import { Pair, useAllPairsIncentivisedById, useAllPairsTotal } from 'queries/backendv2';
 import { isMobile } from 'react-device-detect';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled from 'styled-components';

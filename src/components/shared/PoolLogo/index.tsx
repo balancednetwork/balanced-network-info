@@ -1,10 +1,9 @@
 import React from 'react';
 
-import { Currency } from '@balancednetwork/sdk-core';
 import { Box } from 'rebass/styled-components';
 import styled from 'styled-components';
 
-import CurrencyLogo, { CurrencyLogoFromURI } from '../CurrencyLogo';
+import { CurrencyLogoFromURI } from '../CurrencyLogo';
 
 export const IconWrapper = styled(Box)`
   width: 48px;

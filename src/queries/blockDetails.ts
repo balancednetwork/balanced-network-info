@@ -6,10 +6,9 @@ import { useWhitelistedTokensList } from 'queries';
 import { useQuery } from 'react-query';
 
 import bnJs from 'bnJs';
-import { SUPPORTED_PAIRS } from 'constants/pairs';
-import { SUPPORTED_TOKENS_LIST, NULL_CONTRACT_ADDRESS, SUPPORTED_TOKENS_MAP_BY_ADDRESS } from 'constants/tokens';
+import { SUPPORTED_TOKENS_LIST, NULL_CONTRACT_ADDRESS } from 'constants/tokens';
 
-import { useAllPairs, useAllTokensByAddress, useTokenPrices } from './backendv2';
+import { useAllPairs, useAllTokensByAddress } from './backendv2';
 
 const API_ENDPOINT = 'https://tracker.icon.community/api/v1/';
 

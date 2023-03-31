@@ -1,13 +1,11 @@
 import React, { useEffect, useMemo } from 'react';
 
-import useHistoryFor, { useHistoryForStabilityFund, useHistoryForTotal } from 'queries/historicalData';
-import { getCollateralParams } from 'queries/historicalData/predefinedOptions';
+import { useCollateralDataFor } from 'queries/backendv2';
 
 import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
 import LineChart, { DEFAULT_HEIGHT } from 'components/LineChart';
 import Spinner from 'components/Spinner';
 import useTheme from 'hooks/useTheme';
-import { useSupportedCollateralTokens } from 'store/collateral/hooks';
 
 import { ChartContainer } from '..';
 
@@ -15,6 +13,7 @@ export default function Chart({
   selectedCollateral,
   collateralTVLHover,
   collateralLabel,
+  selectedTimeFrame,
   setCollateralTVLHover,
   setCollateralLabel,
   setUserHovering,
@@ -22,41 +21,27 @@ export default function Chart({
   setTotalCollateral,
 }) {
   const theme = useTheme();
-  const { data: collateralTokens } = useSupportedCollateralTokens();
-  const isPredefinedType =
-    selectedCollateral === predefinedCollateralTypes.ALL ||
-    selectedCollateral === predefinedCollateralTypes.STABILITY_FUND;
+  const { data: collateralData } = useCollateralDataFor(selectedTimeFrame.days);
 
-  const params = useMemo(() => {
-    if (isPredefinedType) {
-      return getCollateralParams(selectedCollateral);
-    } else if (collateralTokens) {
-      return getCollateralParams(collateralTokens[selectedCollateral]);
+  const seriesData = useMemo(() => {
+    if (selectedCollateral === predefinedCollateralTypes.ALL) {
+      return collateralData?.series.total;
+    } else {
+      return collateralData?.series[selectedCollateral];
     }
-  }, [isPredefinedType, selectedCollateral, collateralTokens]);
+  }, [collateralData, selectedCollateral]);
 
-  const isPredefinedCollateral =
-    selectedCollateral === predefinedCollateralTypes.ALL ||
-    selectedCollateral === predefinedCollateralTypes.STABILITY_FUND;
-
-  const { data: historyData } = useHistoryFor(params);
-  const { data: historyDataStabilityFund } = useHistoryForStabilityFund();
-  const { data: historyDataTotal } = useHistoryForTotal();
+  const seriesTotal = collateralData?.series.total;
 
   useEffect(() => {
-    if (historyDataTotal) {
-      const valueNow = historyDataTotal[historyDataTotal.length - 1].value;
-      const valuePrev = historyDataTotal[historyDataTotal.length - 2].value;
+    if (seriesTotal) {
+      const valueNow = seriesTotal[seriesTotal.length - 1].value;
+      const valuePrev = seriesTotal[seriesTotal.length - 7].value;
 
       setCollateralChange(valueNow / valuePrev - 1);
       setTotalCollateral(valueNow);
     }
-  }, [historyDataTotal, setCollateralChange, setTotalCollateral]);
-
-  const isDataReady =
-    (selectedCollateral === predefinedCollateralTypes.ALL && historyDataTotal) ||
-    (selectedCollateral === predefinedCollateralTypes.STABILITY_FUND && historyDataStabilityFund) ||
-    (!isPredefinedCollateral && historyData);
+  }, [seriesTotal, setCollateralChange, setTotalCollateral]);
 
   return (
     <>
@@ -66,15 +51,9 @@ export default function Chart({
         onTouchStart={() => setUserHovering(true)}
         onTouchEnd={() => setUserHovering(false)}
       >
-        {isDataReady ? (
+        {seriesData ? (
           <LineChart
-            data={
-              selectedCollateral === predefinedCollateralTypes.ALL
-                ? historyDataTotal
-                : selectedCollateral === predefinedCollateralTypes.STABILITY_FUND
-                ? historyDataStabilityFund?.total
-                : historyData
-            }
+            data={seriesData}
             height={DEFAULT_HEIGHT}
             minHeight={DEFAULT_HEIGHT}
             color={theme.colors.primary}
@@ -82,6 +61,7 @@ export default function Chart({
             label={collateralLabel}
             setValue={setCollateralTVLHover}
             setLabel={setCollateralLabel}
+            customId={'collateralChart'}
           />
         ) : (
           <Spinner size={75} />

@@ -4,9 +4,9 @@ import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
 import { useCollateralInfo, useLoanInfo, useBorrowersInfo } from 'queries';
 import { useTokenPrices } from 'queries/backendv2';
-import { DEFAULT_GRANULARITY, DEFAULT_GRANULARITY_FORMATTED } from 'queries/historicalData/dates';
 import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
+import styled from 'styled-components';
 
 import CollateralSelector from 'components/CollateralSelector';
 import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
@@ -18,14 +18,43 @@ import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
 
 import { ChartPanel } from '..';
+import TimeFrameSelector, { CollateralChartTimeFrame } from '../TimeFrameSelector';
 import Chart from './Chart';
 import StabilityFundChart from './StabilityFundChart';
 
+const CollateralControlWrap = styled(Flex)`
+  flex-direction: column;
+
+  .colon {
+    display: none;
+  }
+
+  @media screen and (min-width: 500px) {
+    flex-direction: row;
+    align-items: center;
+
+    .colon {
+      display: inline;
+    }
+  }
+`;
+
+const SelectorsWrap = styled(Flex)`
+  margin: 5px 0 !important;
+  @media screen and (min-width: 500px) {
+    margin: 0 !important;
+  }
+`;
+
 export default function CollateralChart({
   selectedCollateral,
+  selectedTimeFrame,
   setCollateral,
+  setSelectedTimeFrame,
 }: {
   selectedCollateral: string;
+  selectedTimeFrame: CollateralChartTimeFrame;
+  setSelectedTimeFrame: (timeFrame) => void;
   setCollateral: (string) => void;
 }) {
   const { data: collateralInfo } = useCollateralInfo();
@@ -60,15 +89,15 @@ export default function CollateralChart({
   //update chart collateral amount and value if user is not hovering over the chart
   React.useEffect(() => {
     if (!userHovering && collateralInfo) {
-      if (selectedCollateral === predefinedCollateralTypes.ALL && collateralInfo.totalTVL) {
-        setCollateralTVLHover(collateralInfo.totalTVL);
+      if (selectedCollateral === predefinedCollateralTypes.ALL) {
+        setCollateralTVLHover(collateralInfo.collateralData.current.total.value);
       } else if (selectedCollateral === predefinedCollateralTypes.STABILITY_FUND) {
         if (totalStabilityFundBnUSD) {
           setCollateralTVLHover(totalStabilityFundBnUSD);
         }
       } else {
-        if (collateralInfo.totalCollaterals[selectedCollateral]) {
-          setCollateralTVLHover(collateralInfo.totalCollaterals[selectedCollateral].amount);
+        if (collateralInfo.collateralData.current[selectedCollateral]) {
+          setCollateralTVLHover(collateralInfo.collateralData.current[selectedCollateral].amount);
         }
       }
     }
@@ -81,17 +110,20 @@ export default function CollateralChart({
     <ChartPanel bg="bg2">
       <Flex flexDirection={['column', 'row']} ref={ref}>
         <Flex mr="auto" flexDirection="column" alignItems="center">
-          <Flex alignItems="center" mb={1}>
+          <CollateralControlWrap mb={1}>
             <Typography variant="h2" mr={2} mb="2px">
-              Collateral:
+              Collateral<span className="colon">:</span>
             </Typography>
-            <CollateralSelector
-              width={width}
-              containerRef={ref.current}
-              collateral={selectedCollateral === 'sICX' ? 'ICON' : selectedCollateral}
-              setCollateral={setCollateral}
-            />
-          </Flex>
+            <SelectorsWrap>
+              <CollateralSelector
+                width={width}
+                containerRef={ref.current}
+                collateral={selectedCollateral === 'sICX' ? 'ICON' : selectedCollateral}
+                setCollateral={setCollateral}
+              />
+              <TimeFrameSelector selected={selectedTimeFrame} setSelected={setSelectedTimeFrame} />
+            </SelectorsWrap>
+          </CollateralControlWrap>
         </Flex>
         <Typography variant="h3" mt={1} mb={1}>
           {collateralInfo && collateralTVLHover && `${collateralTVLInUSDHover}`}
@@ -118,6 +150,7 @@ export default function CollateralChart({
         <StabilityFundChart
           collateralTVLHover={collateralTVLHover}
           collateralLabel={collateralLabel}
+          selectedTimeFrame={selectedTimeFrame}
           setCollateralTVLHover={setCollateralTVLHover}
           setCollateralLabel={setCollateralLabel}
           setTotalStabilityFundBnUSD={setTotalStabilityFundBnUSD}
@@ -128,6 +161,7 @@ export default function CollateralChart({
           selectedCollateral={selectedCollateral}
           collateralTVLHover={collateralTVLHover}
           collateralLabel={collateralLabel}
+          selectedTimeFrame={selectedTimeFrame}
           setCollateralTVLHover={setCollateralTVLHover}
           setCollateralLabel={setCollateralLabel}
           setUserHovering={setUserHovering}
@@ -175,7 +209,7 @@ export default function CollateralChart({
                   {getFormattedNumber(collateralChange, 'percent2').replace('-', '- ')}
                 </Typography>
               )}
-              <Typography opacity={0.75}>Last {DEFAULT_GRANULARITY_FORMATTED[DEFAULT_GRANULARITY]}</Typography>
+              <Typography opacity={0.75}>Last week</Typography>
             </Flex>
           </>
         ) : selectedCollateral === 'Stability Fund' ? (
@@ -184,7 +218,7 @@ export default function CollateralChart({
               <Typography variant="p" fontSize="18px">
                 {stabilityFundTotal ? stabilityFundTotal.tokenCount : <LoaderComponent />}
               </Typography>
-              <Typography opacity={0.75}>Stable coins</Typography>
+              <Typography opacity={0.75}>Stablecoins</Typography>
             </Flex>
             <Flex flex={1} flexDirection="column" alignItems="center">
               <Typography variant="p" fontSize="18px">

@@ -40,6 +40,7 @@ export type LineChartProps = {
   topRight?: ReactNode | undefined;
   bottomLeft?: ReactNode | undefined;
   bottomRight?: ReactNode | undefined;
+  customId?: string;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 const Chart = ({
@@ -74,7 +75,7 @@ const Chart = ({
           data={data}
           margin={{
             top: 5,
-            right: 30,
+            right: 35,
             left: 20,
             bottom: 5,
           }}
@@ -84,7 +85,7 @@ const Chart = ({
           }}
         >
           <defs>
-            <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id={`gradient${customId}`} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor={color} stopOpacity={0.5} />
               <stop offset="100%" stopColor={color} stopOpacity={0} />
             </linearGradient>
@@ -95,7 +96,7 @@ const Chart = ({
             tickLine={false}
             minTickGap={10}
             tick={{ stroke: theme.colors.text1, fontSize: '14px' }}
-            tickFormatter={time => dayjs(time).format('DD')}
+            tickFormatter={time => dayjs(time).format('DD/MM')}
           />
           <YAxis
             dataKey="value"
@@ -103,7 +104,7 @@ const Chart = ({
             tickLine={false}
             orientation="right"
             tick={{ stroke: 'white' }}
-            tickFormatter={value => formatYAxisNumber(value, 0)}
+            tickFormatter={value => formatYAxisNumber(value, value > 100 ? 1 : 2)}
             width={20}
           />
 
@@ -118,7 +119,7 @@ const Chart = ({
               if (setLabel && label !== formattedTime) setLabel(formattedTime);
             }}
           />
-          <Area dataKey="value" type="monotone" stroke={color} fill="url(#gradient)" strokeWidth={2} />
+          <Area dataKey="value" type="monotone" stroke={color} fill={`url(#gradient${customId})`} strokeWidth={2} />
         </AreaChart>
       </ResponsiveContainer>
       <RowBetween>

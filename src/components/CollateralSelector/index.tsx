@@ -4,11 +4,12 @@ import ClickAwayListener from 'react-click-away-listener';
 import styled from 'styled-components';
 
 import { StyledArrowDownIcon, UnderlineText } from 'components/DropdownText';
+import { Typography } from 'theme';
 
 import { DropdownPopper } from '../Popover';
 import CollateralTypeList from './CollateralTypeList';
 
-const Wrap = styled.span`
+export const Wrap = styled.span`
   transform: translate3d(0, 3px, 0);
   cursor: pointer;
   font-size: 18px;
@@ -42,11 +43,13 @@ const CollateralSelector = ({ width, containerRef, collateral, setCollateral }) 
 
   return (
     <>
-      <Wrap onClick={handleToggle} style={{ position: 'relative' }}>
-        <UnderlineText>{collateral}</UnderlineText>
-        <div ref={arrowRef} style={{ display: 'inline-block' }}>
-          <StyledArrowDownIcon />
-        </div>
+      <Wrap onClick={handleToggle} style={{ position: 'relative', marginRight: '11px' }}>
+        <Typography fontSize={16}>
+          <UnderlineText>{collateral}</UnderlineText>
+          <div ref={arrowRef} style={{ display: 'inline-block' }}>
+            <StyledArrowDownIcon />
+          </div>
+        </Typography>
       </Wrap>
       <ClickAwayListener onClickAway={e => closeDropdown(e)}>
         <DropdownPopper
