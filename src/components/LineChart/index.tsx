@@ -106,6 +106,7 @@ const Chart = ({
             tick={{ stroke: 'white' }}
             tickFormatter={value => formatYAxisNumber(value, value > 100 ? 1 : 2)}
             width={20}
+            domain={['auto', 'auto']}
           />
 
           <Tooltip
