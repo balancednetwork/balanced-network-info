@@ -62,7 +62,7 @@ export function useAllTokens() {
             item['market_cap'] = item.total_supply * item.price;
             return item;
           })
-          .filter(item => item['liquidity'] > MIN_LIQUIDITY_TO_INCLUDE);
+          .filter(item => item['liquidity'] > MIN_LIQUIDITY_TO_INCLUDE || item['address'] === 'ICX');
       }
     },
     {
@@ -152,7 +152,7 @@ export function useAllPairs() {
             return pair;
           });
 
-          return pairs.filter(item => item.liquidity >= MIN_LIQUIDITY_TO_INCLUDE);
+          return pairs.filter(item => item.liquidity >= MIN_LIQUIDITY_TO_INCLUDE || item.name === 'sICX/ICX');
         } catch (e) {
           console.error('Error while working with fetched pools data: ', e);
         }
