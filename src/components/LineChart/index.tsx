@@ -103,10 +103,11 @@ const Chart = ({
             axisLine={false}
             tickLine={false}
             orientation="right"
-            tick={{ stroke: 'white' }}
+            tick={{ stroke: theme.colors.text1, fontSize: '14px' }}
             tickFormatter={value => formatYAxisNumber(value, value > 100 ? 1 : 2)}
             width={20}
             domain={['auto', 'auto']}
+            padding={{ top: 10, bottom: 25 }}
           />
 
           <Tooltip
