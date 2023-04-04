@@ -155,22 +155,27 @@ const PairItem = ({
       <DataText className="apy-column">
         {' '}
         {balnApy ? (
-          <APYItem>
-            <Typography color="#d5d7db" fontSize={14} marginRight={'5px'}>
-              BALN:
-            </Typography>
-            {`${getFormattedNumber(balnApy, 'percent2')} - ${getFormattedNumber(balnApy * MAX_BOOST, 'percent2')}`}
-          </APYItem>
+          liquidity < 1000 ? null : (
+            <APYItem>
+              <Typography color="#d5d7db" fontSize={14} marginRight={'5px'}>
+                BALN:
+              </Typography>
+              {`${getFormattedNumber(balnApy, 'percent2')} - ${getFormattedNumber(balnApy * MAX_BOOST, 'percent2')}`}
+            </APYItem>
+          )
         ) : null}
         {feesApy !== 0 ? (
-          <APYItem>
-            <Typography color="#d5d7db" fontSize={14} marginRight={'5px'}>
-              Fees:
-            </Typography>
-            {getFormattedNumber(feesApy, 'percent2')}
-          </APYItem>
+          liquidity < 1000 ? (
+            '–'
+          ) : (
+            <APYItem>
+              <Typography color="#d5d7db" fontSize={14} marginRight={'5px'}>
+                Fees:
+              </Typography>
+              {getFormattedNumber(feesApy, 'percent2')}
+            </APYItem>
+          )
         ) : null}
-        {!feesApy && !balnApy && '-'}
       </DataText>
       <DataText>{getFormattedNumber(liquidity, 'currency0')}</DataText>
       <DataText>{volume24h ? getFormattedNumber(volume24h, 'currency0') : '-'}</DataText>
