@@ -1,3 +1,4 @@
+import { Fraction } from '@balancednetwork/sdk-core';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { useBnJsContractQuery, useIncentivisedPairs } from 'queries';
@@ -103,6 +104,7 @@ export type Pair = {
   volume30d: number;
   feesApy: number;
   balnApy?: number;
+  totalSupply: number;
 };
 
 export function useAllPairs() {
@@ -147,6 +149,7 @@ export function useAllPairs() {
               volume24h,
               volume30d,
               feesApy: feesApy || 0,
+              totalSupply: item['total_supply'],
             };
 
             return pair;
@@ -184,12 +187,17 @@ export function useAllPairsIncentivised() {
             incentivisedPairs && incentivisedPairs.find(incentivisedPair => incentivisedPair.id === parseInt(item.id));
 
           if (incentivisedPair && dailyDistribution) {
+            const stakedRatio =
+              incentivisedPair.id !== 1
+                ? new Fraction(incentivisedPair.totalStaked, item['totalSupply'])
+                : new Fraction(1);
             item['balnApy'] = dailyDistribution
               .times(new BigNumber(incentivisedPair.rewards.toFixed(4)))
               .times(365)
               .times(balnPrice)
-              .div(item.liquidity)
+              .div(new BigNumber(stakedRatio.toFixed(18)).times(item.liquidity))
               .toNumber();
+            item['stakedRatio'] = stakedRatio;
 
             return item;
           }
