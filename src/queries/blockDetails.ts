@@ -91,19 +91,20 @@ export const usePOLData = (timestamp: number) => {
     async () => {
       const poolDataSets = await Promise.all(
         pools.map(async poolID => {
-          const balance = await bnJs.StakedLP.balanceOf(bnJs.DAOFund.address, poolID, blockHeight);
+          const balanceUnstaked = await bnJs.Dex.balanceOf(bnJs.DAOFund.address, poolID, blockHeight);
+          const balanceStaked = await bnJs.StakedLP.balanceOf(bnJs.DAOFund.address, poolID, blockHeight);
           const poolStats = await bnJs.Dex.getPoolStats(poolID, blockHeight);
 
           return {
             poolID,
-            balance,
+            balance: new BigNumber(balanceUnstaked).plus(new BigNumber(balanceStaked)).div(10 ** 18),
             poolStats,
           };
         }),
       );
 
       return poolDataSets.map(dataSet => {
-        const LPBalanceDAO = new BigNumber(dataSet.balance).div(10 ** 18);
+        const LPBalanceDAO = dataSet.balance;
         const LPBalanceTotal = new BigNumber(dataSet.poolStats['total_supply']).div(10 ** 18);
         const DAOFraction = LPBalanceDAO.div(LPBalanceTotal);
         const quoteAmount = new BigNumber(dataSet.poolStats['quote']).div(
