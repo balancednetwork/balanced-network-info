@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { Currency } from '@balancednetwork/sdk-core';
 import BigNumber from 'bignumber.js';
@@ -12,6 +12,7 @@ import styled from 'styled-components';
 import { BoxPanel } from 'components/Panel';
 import CurrencyLogo from 'components/shared/CurrencyLogo';
 import PoolLogo from 'components/shared/PoolLogo';
+import { HIGH_PRICE_ASSET_DP } from 'constants/tokens';
 import { DatePickerWrap, DisplayValueOrLoader, formatPercentage } from 'pages/PerformanceDetails/utils';
 import { Typography } from 'theme';
 
@@ -56,6 +57,29 @@ const HoldingsSection = () => {
 
   const gridWidth = 770;
 
+  const filteredSortedHoldingsKeys = useMemo(() => {
+    if (holdingsCurrent && tokenPrices) {
+      return Object.keys(holdingsCurrent)
+        .filter(contract => {
+          const token = holdingsCurrent[contract].currency.wrapped;
+          const currentAmount = new BigNumber(holdingsCurrent[contract].toFixed());
+          const currentValue = tokenPrices ? currentAmount.times(tokenPrices[token.symbol!]).toNumber() : 0;
+          return currentValue >= 1000;
+        })
+        .sort((a, b) => {
+          const tokenA = holdingsCurrent[a].currency.wrapped;
+          const currentAmountA = new BigNumber(holdingsCurrent[a].toFixed());
+          const currentValueA = tokenPrices ? currentAmountA.times(tokenPrices[tokenA.symbol!]).toNumber() : 0;
+          const tokenB = holdingsCurrent[b].currency.wrapped;
+          const currentAmountB = new BigNumber(holdingsCurrent[b].toFixed());
+          const currentValueB = tokenPrices ? currentAmountB.times(tokenPrices[tokenB.symbol!]).toNumber() : 0;
+          return currentValueB - currentValueA;
+        });
+    } else {
+      return [];
+    }
+  }, [holdingsCurrent, tokenPrices]);
+
   return (
     <BoxPanel bg="bg2" mb={10}>
       <Typography variant="h2">Holdings</Typography>
@@ -98,9 +122,10 @@ const HoldingsSection = () => {
           </GridItemHeader>
         </BalanceGrid>
         {holdingsCurrent &&
-          Object.keys(holdingsCurrent).map(contract => {
+          tokenPrices &&
+          filteredSortedHoldingsKeys.map(contract => {
             const token = holdingsCurrent[contract].currency.wrapped;
-            const curAmount = new BigNumber(holdingsCurrent[contract].toFixed());
+            const curAmount = new BigNumber(holdingsCurrent[contract].toFixed(4));
             const prevAmount =
               holdingsPast && holdingsPast[contract] && new BigNumber(holdingsPast[contract].toFixed());
             const percentageChange =
@@ -110,10 +135,9 @@ const HoldingsSection = () => {
                 ? curAmount.div(prevAmount).minus(1).times(100).toNumber()
                 : 0;
 
-            if (tokenPrices && tokenPrices[token.symbol!] && curAmount) {
-              totalCurrent += curAmount.times(tokenPrices[token.symbol!]).toNumber();
-            }
-            if (tokenPrices && tokenPrices[token.symbol!] && prevAmount) {
+            totalCurrent += curAmount.times(tokenPrices[token.symbol!]).toNumber();
+
+            if (prevAmount) {
               totalPast += prevAmount.times(tokenPrices[token.symbol!]).toNumber();
             }
 
@@ -137,10 +161,16 @@ const HoldingsSection = () => {
                         <DisplayValueOrLoader value={curAmount} currencyRate={tokenPrices[token.symbol!].toNumber()} />
                       )}
 
-                      <Change percentage={percentageChange ?? 0}>{formatPercentage(percentageChange)}</Change>
+                      <Change percentage={percentageChange ?? 0}>
+                        {Math.abs(percentageChange) >= 0.01 && formatPercentage(percentageChange)}
+                      </Change>
                     </Text>
                     <Text color="text" opacity={0.75}>
-                      <DisplayValueOrLoader value={curAmount} currencyRate={1} format={'number'} />
+                      <DisplayValueOrLoader
+                        value={curAmount}
+                        currencyRate={1}
+                        format={HIGH_PRICE_ASSET_DP[contract] ? 'number4' : 'number'}
+                      />
                       {` ${token.symbol}`}
                     </Text>
                   </GridItemToken>
@@ -163,7 +193,11 @@ const HoldingsSection = () => {
                       {holdingsPast ? (
                         holdingsPast[contract].greaterThan(0) ? (
                           <>
-                            <DisplayValueOrLoader value={prevAmount} currencyRate={1} format={'number'} />
+                            <DisplayValueOrLoader
+                              value={prevAmount}
+                              currencyRate={1}
+                              format={HIGH_PRICE_ASSET_DP[contract] ? 'number4' : 'number'}
+                            />
                             {` ${token.symbol}`}
                           </>
                         ) : null
@@ -234,7 +268,9 @@ const HoldingsSection = () => {
                   <GridItemToken>
                     <Text color="text">
                       <DisplayValueOrLoader value={currentPool.liquidity} currencyRate={1} />
-                      <Change percentage={percentageChange ?? 0}>{formatPercentage(percentageChange)}</Change>
+                      <Change percentage={percentageChange ?? 0}>
+                        {Math.abs(percentageChange) >= 0.01 && formatPercentage(percentageChange)}
+                      </Change>
                     </Text>
                     <Text color="text2">{`${currentPool.DAOBaseAmount.toFormat(baseDecimalDisplay)} ${
                       currentPool.pair?.baseSymbol

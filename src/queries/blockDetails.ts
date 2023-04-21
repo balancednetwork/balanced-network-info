@@ -1,5 +1,7 @@
+import { useMemo } from 'react';
+
 import { addresses } from '@balancednetwork/balanced-js';
-import { Currency, CurrencyAmount } from '@balancednetwork/sdk-core';
+import { Currency, CurrencyAmount, Token } from '@balancednetwork/sdk-core';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { useWhitelistedTokensList } from 'queries';
@@ -8,7 +10,7 @@ import { useQuery } from 'react-query';
 import bnJs from 'bnJs';
 import { SUPPORTED_TOKENS_LIST, NULL_CONTRACT_ADDRESS } from 'constants/tokens';
 
-import { useAllPairs, useAllTokensByAddress } from './backendv2';
+import { useAllPairs, useAllTokens, useAllTokensByAddress } from './backendv2';
 
 const API_ENDPOINT = 'https://tracker.icon.community/api/v1/';
 
@@ -34,25 +36,42 @@ export const useBlockDetails = (timestamp: number) => {
 
 export const useDaoFundHoldings = (timestamp: number) => {
   const { data: blockDetails } = useBlockDetails(timestamp);
+  const { data: allTokens, isSuccess: allTokensQuerySuccess } = useAllTokens();
   const blockHeight = blockDetails?.number;
 
-  return useQuery<{ [key: string]: CurrencyAmount<Currency> }>(`daoFundHoldings${blockHeight}`, async () => {
-    const currencyAmounts: CurrencyAmount<Currency>[] = await Promise.all(
-      SUPPORTED_TOKENS_LIST_WITHOUT_ICX.map(async token => {
-        try {
-          const contract = bnJs.getContract(token.address);
-          const balance = await contract.balanceOf(daoFundAddress, blockHeight);
-          return CurrencyAmount.fromRawAmount(token, balance);
-        } catch (e) {
-          console.error(e);
-          return CurrencyAmount.fromRawAmount(token, 0);
-        }
-      }),
-    );
-    const holdings = {};
-    currencyAmounts.forEach(currencyAmount => (holdings[currencyAmount.currency.wrapped.address] = currencyAmount));
-    return holdings;
-  });
+  const filteredTokens = useMemo(() => {
+    if (allTokens) {
+      return allTokens.filter(token => token.address !== 'ICX');
+    } else {
+      return [];
+    }
+  }, [allTokens]);
+
+  return useQuery<{ [key: string]: CurrencyAmount<Currency> }>(
+    `daoFundHoldings${blockHeight}-tokens${filteredTokens.length}`,
+    async () => {
+      const currencyAmounts: CurrencyAmount<Currency>[] = await Promise.all(
+        filteredTokens.map(async tokenData => {
+          const token = new Token(1, tokenData.address, tokenData.decimals, tokenData.symbol, tokenData.name);
+          try {
+            const contract = bnJs.getContract(token.address);
+            const balance = await contract.balanceOf(daoFundAddress, blockHeight);
+            return CurrencyAmount.fromRawAmount(token, balance);
+          } catch (e) {
+            console.error(e);
+            return CurrencyAmount.fromRawAmount(token, 0);
+          }
+        }),
+      );
+      const holdings = {};
+      currencyAmounts.forEach(currencyAmount => (holdings[currencyAmount.currency.wrapped.address] = currencyAmount));
+      return holdings;
+    },
+    {
+      keepPreviousData: true,
+      enabled: allTokensQuerySuccess,
+    },
+  );
 };
 
 export const useStabilityFundHoldings = (timestamp: number) => {
