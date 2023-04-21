@@ -124,7 +124,7 @@ export const DisplayValueOrLoader = ({
     return typeof value === 'number' ? (
       <>{getFormattedNumber(value * currencyRate, format)}</>
     ) : (
-      <>{getFormattedNumber(value.integerValue().toNumber() * currencyRate, format)}</>
+      <>{getFormattedNumber(value.toNumber() * currencyRate, format)}</>
     );
   } else {
     return useDotsLoader ? <LoaderComponent /> : <StyledSkeleton animation="wave" width={100} />;
