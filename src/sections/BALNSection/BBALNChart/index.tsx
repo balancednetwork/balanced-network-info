@@ -131,7 +131,7 @@ export default function BBALNChart() {
       </ChartWrap>
 
       <ChartInfo>
-        <ChartInfoItem>
+        <ChartInfoItem border>
           <Typography fontSize={18} color="text">
             {bbalnHolders ? bbalnHolders.toFormat(0) : <LoaderComponent />}
           </Typography>

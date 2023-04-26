@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { useOverviewInfo } from 'queries';
 import { useMedia } from 'react-use';
 import { Box, Flex } from 'rebass';
 import { Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
@@ -81,10 +80,11 @@ export const ChartInfo = styled(Flex)`
 
   @media all and (min-width: 500px) {
     flex-flow: row;
+    flex-wrap: wrap;
   }
 `;
 
-export const ChartInfoItem = styled(Flex)`
+export const ChartInfoItem = styled(Flex)<{ border?: boolean; smaller?: boolean }>`
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -96,24 +96,30 @@ export const ChartInfoItem = styled(Flex)`
     width: 50%;
   }
 
-  &:first-of-type {
-    &:before {
-      content: '';
-      position: absolute;
-      top: 100%;
-      right: 15px;
-      width: calc(100% - 30px);
-      height: 1px;
-      background-color: ${({ theme }) => theme.colors.divider};
-
-      @media all and (min-width: 500px) {
-        top: 19px;
-        right: 0;
-        height: calc(100% - 38px);
-        width: 1px;
-      }
-    }
+  @media all and (min-width: 700px) {
+    ${({ smaller }) => smaller && 'width: 33.3333%;'};
   }
+
+  ${({ border }) =>
+    border &&
+    css`
+      &:before {
+        content: '';
+        position: absolute;
+        top: 100%;
+        right: 15px;
+        width: calc(100% - 30px);
+        height: 1px;
+        background-color: ${({ theme }) => theme.colors.divider};
+
+        @media all and (min-width: 500px) {
+          top: 19px;
+          right: 0;
+          height: calc(100% - 38px);
+          width: 1px;
+        }
+      }
+    `};
 
   p:first-of-type {
     margin-bottom: 5px;
@@ -252,7 +258,7 @@ export default function DistributionChart() {
         )}
       </ChartWrap>
       <ChartInfo>
-        <ChartInfoItem>
+        <ChartInfoItem border>
           <Typography fontSize={18} color="text">
             {emissions ? emissions.toFormat(0) : <LoaderComponent />}
             {' BALN'}

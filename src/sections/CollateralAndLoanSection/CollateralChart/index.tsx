@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import { useCollateralInfo, useLoanInfo, useBorrowersInfo } from 'queries';
 import { useTokenPrices } from 'queries/backendv2';
 import { useMedia } from 'react-use';
-import { Flex } from 'rebass';
+import { Box, Flex } from 'rebass';
 import styled from 'styled-components';
 
 import CollateralSelector from 'components/CollateralSelector';
@@ -13,7 +13,7 @@ import { predefinedCollateralTypes } from 'components/CollateralSelector/Collate
 import { ONE } from 'constants/number';
 import useWidth from 'hooks/useWidth';
 import { LoaderComponent } from 'pages/PerformanceDetails/utils';
-import { ChartSection, ChartWrap } from 'sections/BALNSection/DistributionChart';
+import { ChartInfo, ChartInfoItem, ChartSection } from 'sections/BALNSection/DistributionChart';
 import { useStabilityFundTotal, useSupportedCollateralTokens } from 'store/collateral/hooks';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
@@ -94,7 +94,8 @@ export default function CollateralChart({
   }, [collateralInfo, selectedCollateral, userHovering, totalStabilityFundBnUSD]);
 
   const [ref, width] = useWidth();
-  const isExtraSmall = useMedia('(max-width: 480px)');
+  const isSmall = useMedia('(max-width: 699px)');
+  const isExtraSmall = useMedia('(max-width: 499px)');
 
   return (
     <ChartSection border bigger>
@@ -132,42 +133,43 @@ export default function CollateralChart({
             </Typography>
           )}
       </Flex>
-
-      {selectedCollateral === predefinedCollateralTypes.STABILITY_FUND ? (
-        <StabilityFundChart
-          collateralTVLHover={collateralTVLHover}
-          collateralLabel={collateralLabel}
-          selectedTimeFrame={selectedTimeFrame}
-          setCollateralTVLHover={setCollateralTVLHover}
-          setCollateralLabel={setCollateralLabel}
-          setTotalStabilityFundBnUSD={setTotalStabilityFundBnUSD}
-          setUserHovering={setUserHovering}
-        ></StabilityFundChart>
-      ) : (
-        <Chart
-          selectedCollateral={selectedCollateral}
-          collateralTVLHover={collateralTVLHover}
-          collateralLabel={collateralLabel}
-          selectedTimeFrame={selectedTimeFrame}
-          setCollateralTVLHover={setCollateralTVLHover}
-          setCollateralLabel={setCollateralLabel}
-          setUserHovering={setUserHovering}
-          setCollateralChange={setCollateralChange}
-          setTotalCollateral={setTotalCollateral}
-        ></Chart>
-      )}
+      <Box mb="15px">
+        {selectedCollateral === predefinedCollateralTypes.STABILITY_FUND ? (
+          <StabilityFundChart
+            collateralTVLHover={collateralTVLHover}
+            collateralLabel={collateralLabel}
+            selectedTimeFrame={selectedTimeFrame}
+            setCollateralTVLHover={setCollateralTVLHover}
+            setCollateralLabel={setCollateralLabel}
+            setTotalStabilityFundBnUSD={setTotalStabilityFundBnUSD}
+            setUserHovering={setUserHovering}
+          ></StabilityFundChart>
+        ) : (
+          <Chart
+            selectedCollateral={selectedCollateral}
+            collateralTVLHover={collateralTVLHover}
+            collateralLabel={collateralLabel}
+            selectedTimeFrame={selectedTimeFrame}
+            setCollateralTVLHover={setCollateralTVLHover}
+            setCollateralLabel={setCollateralLabel}
+            setUserHovering={setUserHovering}
+            setCollateralChange={setCollateralChange}
+            setTotalCollateral={setTotalCollateral}
+          ></Chart>
+        )}
+      </Box>
 
       {/* Flexible chart footer */}
-      <Flex my={3} mx={-4} flexWrap="wrap">
+      <ChartInfo>
         {selectedCollateral === 'All' ? (
           <>
-            <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
+            <ChartInfoItem smaller border>
               <Typography variant="p" fontSize="18px">
                 {supportedCollaterals ? Object.keys(supportedCollaterals).length + 1 : <LoaderComponent />}
               </Typography>
-              <Typography opacity={0.75}>Collateral types</Typography>
-            </Flex>
-            <Flex flex={1} flexDirection="column" alignItems="center" className={isExtraSmall ? '' : 'border-right'}>
+              <Typography color="text1">Collateral types</Typography>
+            </ChartInfoItem>
+            <ChartInfoItem smaller border={!isSmall || isExtraSmall}>
               <Typography variant="p" fontSize="18px">
                 {totalCollateral && loanInfo.totalBnUSD ? (
                   getFormattedNumber(totalCollateral / loanInfo.totalBnUSD, 'percent0')
@@ -175,14 +177,14 @@ export default function CollateralChart({
                   <LoaderComponent />
                 )}
               </Typography>
-              <Typography opacity={0.75}>Collateral ratio</Typography>
-            </Flex>
-            <Flex
-              flex={isExtraSmall ? null : 1}
-              mt={isExtraSmall ? '20px' : 0}
+              <Typography color="text1">Collateral ratio</Typography>
+            </ChartInfoItem>
+            <ChartInfoItem
+              smaller
+              flex={isSmall ? null : 1}
               flexDirection="column"
               alignItems="center"
-              width={isExtraSmall ? '100%' : 'auto'}
+              width={isSmall ? '100%' : 'auto'}
             >
               {collateralChange === undefined ? (
                 <LoaderComponent></LoaderComponent>
@@ -196,27 +198,27 @@ export default function CollateralChart({
                   {getFormattedNumber(collateralChange, 'percent2').replace('-', '- ')}
                 </Typography>
               )}
-              <Typography opacity={0.75}>Last week</Typography>
-            </Flex>
+              <Typography color="text1">Last week</Typography>
+            </ChartInfoItem>
           </>
         ) : selectedCollateral === 'Stability Fund' ? (
           <>
-            <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
+            <ChartInfoItem border>
               <Typography variant="p" fontSize="18px">
                 {stabilityFundTotal ? stabilityFundTotal.tokenCount : <LoaderComponent />}
               </Typography>
-              <Typography opacity={0.75}>Stablecoins</Typography>
-            </Flex>
-            <Flex flex={1} flexDirection="column" alignItems="center">
+              <Typography color="text1">Stablecoins</Typography>
+            </ChartInfoItem>
+            <ChartInfoItem flex={1} flexDirection="column" alignItems="center">
               <Typography variant="p" fontSize="18px">
                 {stabilityFundTotal ? `$${stabilityFundTotal.maxLimit?.toFormat(0)}` : <LoaderComponent />}
               </Typography>
-              <Typography opacity={0.75}>Maximum limit</Typography>
-            </Flex>
+              <Typography color="text1">Maximum limit</Typography>
+            </ChartInfoItem>
           </>
         ) : selectedCollateral === 'sICX' ? (
           <>
-            <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
+            <ChartInfoItem smaller border>
               <Typography variant="p" fontSize="18px">
                 {collateralInfo?.stakingAPY ? (
                   getFormattedNumber(collateralInfo?.stakingAPY, 'percent2')
@@ -224,30 +226,30 @@ export default function CollateralChart({
                   <LoaderComponent />
                 )}
               </Typography>
-              <Typography opacity={0.75}>Staking APY</Typography>
-            </Flex>
-            <Flex flex={1} flexDirection="column" alignItems="center" className={isExtraSmall ? '' : 'border-right'}>
+              <Typography color="text1">Staking APY</Typography>
+            </ChartInfoItem>
+            <ChartInfoItem smaller border={!isSmall || isExtraSmall}>
               <Typography variant="p" fontSize="18px">
                 {collateralInfo?.rate ? getFormattedNumber(collateralInfo.rate, 'number4') : <LoaderComponent />}
               </Typography>
-              <Typography opacity={0.75}>sICX / ICX price</Typography>
-            </Flex>
-            <Flex
-              flex={isExtraSmall ? null : 1}
-              mt={isExtraSmall ? '20px' : 0}
+              <Typography color="text1">sICX / ICX price</Typography>
+            </ChartInfoItem>
+            <ChartInfoItem
+              smaller
+              flex={isSmall ? null : 1}
               flexDirection="column"
               alignItems="center"
-              width={isExtraSmall ? '100%' : 'auto'}
+              width={isSmall ? '100%' : 'auto'}
             >
               <Typography variant="p" fontSize="18px">
                 {borrowersInfo ? getFormattedNumber(borrowersInfo['sICX'], 'number') : <LoaderComponent />}
               </Typography>
-              <Typography opacity={0.75}>Suppliers</Typography>
-            </Flex>
+              <Typography color="text1">Suppliers</Typography>
+            </ChartInfoItem>
           </>
         ) : (
           <>
-            <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
+            <ChartInfoItem border>
               <Typography variant="p" fontSize="18px">
                 {tokenPrices && tokenPrices[selectedCollateral] ? (
                   `$${tokenPrices[selectedCollateral].toFormat(2)}`
@@ -256,8 +258,8 @@ export default function CollateralChart({
                 )}
               </Typography>
               <Typography opacity={0.75}>{selectedCollateral} price</Typography>
-            </Flex>
-            <Flex flex={1} flexDirection="column" alignItems="center">
+            </ChartInfoItem>
+            <ChartInfoItem flex={1} flexDirection="column" alignItems="center">
               <Typography variant="p" fontSize="18px">
                 {borrowersInfo && borrowersInfo[selectedCollateral] ? (
                   getFormattedNumber(borrowersInfo[selectedCollateral], 'number')
@@ -266,10 +268,10 @@ export default function CollateralChart({
                 )}
               </Typography>
               <Typography opacity={0.75}>Suppliers</Typography>
-            </Flex>
+            </ChartInfoItem>
           </>
         )}
-      </Flex>
+      </ChartInfo>
     </ChartSection>
   );
 }

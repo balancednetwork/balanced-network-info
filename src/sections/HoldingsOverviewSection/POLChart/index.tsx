@@ -82,7 +82,7 @@ export default function POLChart() {
       </ChartWrap>
 
       <ChartInfo>
-        <ChartInfoItem>
+        <ChartInfoItem border>
           <Typography fontSize={18} color="text">
             {daoFundNow ? `$${getFormattedNumber(daoFundNow.POLHoldings, 'number')}` : <LoaderComponent />}
           </Typography>

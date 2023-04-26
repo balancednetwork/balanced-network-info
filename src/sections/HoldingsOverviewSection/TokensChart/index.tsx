@@ -140,7 +140,7 @@ export default function TokensChart() {
       </ChartWrap>
 
       <ChartInfo>
-        <ChartInfoItem>
+        <ChartInfoItem border>
           <Typography fontSize={18} color="text">
             {daoFundNow ? `$${getFormattedNumber(daoFundNow.holdings, 'number')}` : <LoaderComponent />}
           </Typography>
