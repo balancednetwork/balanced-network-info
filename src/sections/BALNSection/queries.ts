@@ -149,14 +149,14 @@ export function useBALNRatioData() {
       if (!totalSupply || !totalLocked) return [];
       return [
         {
-          name: 'Available',
-          value: parseFloat(totalSupply.minus(totalLocked).toFixed(4)),
-          fill: CHART_COLORS[1],
-        },
-        {
           name: 'Locked',
           value: parseFloat(totalLocked.toFixed(4)),
           fill: CHART_COLORS[0],
+        },
+        {
+          name: 'Available',
+          value: parseFloat(totalSupply.minus(totalLocked).toFixed(4)),
+          fill: CHART_COLORS[1],
         },
       ];
     },

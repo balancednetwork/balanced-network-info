@@ -539,7 +539,7 @@ export const useOverviewInfo = () => {
 
 export const useGovernanceInfo = () => {
   const { data: platformDay } = usePlatformDayQuery();
-  const proposalSampleSize = 10;
+  const proposalSampleSize = 20;
 
   return useQuery(`governanceOverview-${platformDay ? platformDay : 0}`, async () => {
     if (platformDay) {
@@ -558,7 +558,11 @@ export const useGovernanceInfo = () => {
           parseInt(proposal['start day'], 16) <= platformDay &&
           parseInt(proposal['end day'], 16) > platformDay,
       ).length;
+
       const participations = latestProposals
+        .filter(proposal => proposal.status !== 'Active' && proposal.status !== 'Cancelled')
+        .sort((a, b) => b.id - a.id)
+        .splice(0, 10)
         .map(proposal => {
           const votedYes = parseInt(proposal['for'], 16);
           const votedNo = parseInt(proposal['against'], 16);
