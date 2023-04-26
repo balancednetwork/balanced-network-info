@@ -56,15 +56,6 @@ export function useBALNDistributionQuery() {
   );
 }
 
-const dummies = [
-  { name: 'Group A', value: 400, fill: '#55A7B5' },
-  { name: 'Group B', value: 300, fill: '#3F7D92' },
-  { name: 'Group C', value: 300, fill: '#244965' },
-  { name: 'Group D', value: 200, fill: '#14294A' },
-  { name: 'Group E', value: 278 },
-  { name: 'Group F', value: 189 },
-];
-
 export function useEmissions() {
   return useQuery(
     'getEmissions',

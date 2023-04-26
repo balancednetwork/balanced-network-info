@@ -13,34 +13,24 @@ import { predefinedCollateralTypes } from 'components/CollateralSelector/Collate
 import { ONE } from 'constants/number';
 import useWidth from 'hooks/useWidth';
 import { LoaderComponent } from 'pages/PerformanceDetails/utils';
+import { ChartSection, ChartWrap } from 'sections/BALNSection/DistributionChart';
 import { useStabilityFundTotal, useSupportedCollateralTokens } from 'store/collateral/hooks';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
 
-import { ChartPanel } from '..';
-import TimeFrameSelector, { CollateralChartTimeFrame } from '../TimeFrameSelector';
+import { CollateralChartTimeFrame } from '../TimeFrameSelector';
 import Chart from './Chart';
 import StabilityFundChart from './StabilityFundChart';
 
 const CollateralControlWrap = styled(Flex)`
-  flex-direction: column;
-
-  .colon {
-    display: none;
-  }
-
-  @media screen and (min-width: 500px) {
-    flex-direction: row;
-    align-items: center;
-
-    .colon {
-      display: inline;
-    }
-  }
+  flex-direction: row;
+  align-items: center;
 `;
 
 const SelectorsWrap = styled(Flex)`
   margin: 5px 0 !important;
+  padding-bottom: 6px;
+  padding-top: 4px;
   @media screen and (min-width: 500px) {
     margin: 0 !important;
   }
@@ -107,12 +97,12 @@ export default function CollateralChart({
   const isExtraSmall = useMedia('(max-width: 480px)');
 
   return (
-    <ChartPanel bg="bg2">
+    <ChartSection border bigger>
       <Flex flexDirection={['column', 'row']} ref={ref}>
         <Flex mr="auto" flexDirection="column" alignItems="center">
           <CollateralControlWrap mb={1}>
-            <Typography variant="h2" mr={2} mb="2px">
-              Collateral<span className="colon">:</span>
+            <Typography variant="h3" mr={2} mb="2px">
+              Collateral
             </Typography>
             <SelectorsWrap>
               <CollateralSelector
@@ -121,13 +111,10 @@ export default function CollateralChart({
                 collateral={selectedCollateral === 'sICX' ? 'ICON' : selectedCollateral}
                 setCollateral={setCollateral}
               />
-              <TimeFrameSelector selected={selectedTimeFrame} setSelected={setSelectedTimeFrame} />
             </SelectorsWrap>
           </CollateralControlWrap>
         </Flex>
-        <Typography variant="h3" mt={1} mb={1}>
-          {collateralInfo && collateralTVLHover && `${collateralTVLInUSDHover}`}
-        </Typography>
+        <Typography variant="h3">{collateralInfo && collateralTVLHover && `${collateralTVLInUSDHover}`}</Typography>
       </Flex>
 
       <Flex mb={1}>
@@ -283,6 +270,6 @@ export default function CollateralChart({
           </>
         )}
       </Flex>
-    </ChartPanel>
+    </ChartSection>
   );
 }

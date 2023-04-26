@@ -7,6 +7,7 @@ import { Flex } from 'rebass';
 
 import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
 import { LoaderComponent } from 'pages/PerformanceDetails/utils';
+import { ChartSection } from 'sections/BALNSection/DistributionChart';
 import { MAX_BOOST } from 'sections/PairSection';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
@@ -58,20 +59,19 @@ export default function BnUSDChart({
   const isExtraSmall = useMedia('(max-width: 600px)');
 
   return (
-    <ChartPanel bg="bg2">
+    <ChartSection bigger>
       <Flex flexDirection={['column', 'row']}>
         <Flex mr="auto" mb={1} alignItems="center">
-          <Typography variant="h2" mr="auto" mb={1}>
+          <Typography variant="h3" mr="auto" mb={1}>
             Balanced Dollars
           </Typography>
         </Flex>
-        <Typography variant="h3" mb={1} mt={1}>
+        <Typography variant="h3">
           {bnUSDHover ? getFormattedNumber(bnUSDHover || 0, 'number') : <LoaderComponent />} bnUSD
         </Typography>
-        <Flex flexDirection="column" alignItems={['start', 'end']} mb={1}></Flex>
       </Flex>
 
-      <Typography variant="p" color="text2" mr="auto" fontSize={18}>
+      <Typography variant="p" color="text2" mr="auto" mb={1} fontSize={18}>
         {bnUSDLabel ? <>{bnUSDLabel}</> : <>{dayjs.utc().format('MMM D, YYYY')}</>}
       </Typography>
 
@@ -187,6 +187,6 @@ export default function BnUSDChart({
           </Flex>
         </>
       </Flex>
-    </ChartPanel>
+    </ChartSection>
   );
 }

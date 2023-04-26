@@ -112,7 +112,7 @@ const GovernanceSection = () => {
 
   return (
     <BoxPanel bg="bg2">
-      <Typography variant="h2" mb="30px">
+      <Typography variant="h2" mb={'25px'}>
         Governance
       </Typography>
 
