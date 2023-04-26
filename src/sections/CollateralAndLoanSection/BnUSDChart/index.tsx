@@ -70,7 +70,7 @@ export default function BnUSDChart({
         </Typography>
       </Flex>
 
-      <Typography variant="p" color="text2" mr="auto" mb={1} fontSize={18}>
+      <Typography variant="p" color="text2" mr="auto" mb="3px" fontSize={18}>
         {bnUSDLabel ? <>{bnUSDLabel}</> : <>{dayjs.utc().format('MMM D, YYYY')}</>}
       </Typography>
 
