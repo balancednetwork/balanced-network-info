@@ -538,40 +538,6 @@ export const useOverviewInfo = () => {
 };
 
 export const useGovernanceInfo = () => {
-  // const dailyDistributionQuery = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
-
-  // const totalBalnLockedQuery = useBnJsContractQuery<string>(bnJs, 'BBALN', 'getTotalLocked', []);
-  // const totalBBalnHoldersQuery = useBnJsContractQuery<string>(bnJs, 'BBALN', 'activeUsersCount', []);
-
-  // const dailyDistribution = dailyDistributionQuery.isSuccess
-  //   ? BalancedJs.utils.toIcx(dailyDistributionQuery.data)
-  //   : null;
-
-  // const totalBalnLocked = totalBalnLockedQuery.isSuccess && Number(totalBalnLockedQuery.data) / 10 ** 18;
-  // const totalBBalnHolders = totalBBalnHoldersQuery.isSuccess && Number(totalBBalnHoldersQuery.data);
-
-  // const oneMinPeriod = 1000 * 60;
-  // const now = Math.floor(new Date().getTime() / oneMinPeriod) * oneMinPeriod;
-
-  // const { data: POLData } = usePOLData(now);
-  // const { data: holdingsData } = useDaoFundHoldings(now);
-  // const { data: tokenPrices } = useTokenPrices();
-
-  // const holdings =
-  //   holdingsData && tokenPrices
-  //     ? Object.keys(holdingsData).reduce((total, contract) => {
-  //         const token = holdingsData[contract].currency.wrapped;
-  //         const curAmount = new BigNumber(holdingsData[contract].toFixed());
-  //         if (tokenPrices[token.symbol!]) {
-  //           return total + curAmount.times(tokenPrices[token.symbol!]).toNumber();
-  //         } else {
-  //           return total;
-  //         }
-  //       }, 0)
-  //     : 0;
-
-  // const POLHoldings = POLData ? POLData.reduce((total, pool) => total + pool.liquidity.toNumber(), 0) : 0;
-
   const { data: platformDay } = usePlatformDayQuery();
   const proposalSampleSize = 10;
 
@@ -582,7 +548,7 @@ export const useGovernanceInfo = () => {
       const totalProposalsRaw = await bnJs.Governance.getTotalProposal();
       const totalProposals = parseInt(totalProposalsRaw);
       const latestProposals = await bnJs.Governance.getProposals(
-        totalProposals - proposalSampleSize,
+        totalProposals - (proposalSampleSize - 1),
         proposalSampleSize,
       );
       const activeProposals = latestProposals.filter(
@@ -617,10 +583,10 @@ export function useLatestProposals() {
   return useQuery(`latestProposals`, async () => {
     const totalProposalsRaw = await bnJs.Governance.getTotalProposal();
     const totalProposals = parseInt(totalProposalsRaw);
-    const latestProposals = await bnJs.Governance.getProposals(totalProposals - 10, 10);
+    const latestProposals = await bnJs.Governance.getProposals(totalProposals - 9, 10);
     return latestProposals
       .filter(proposal => proposal.status !== 'Cancelled')
-      .reverse()
+      .sort((a, b) => b.id - a.id)
       .splice(0, 3);
   });
 }

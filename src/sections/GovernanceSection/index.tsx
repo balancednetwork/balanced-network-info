@@ -110,10 +110,6 @@ const GovernanceSection = () => {
   const { data: governanceInfo } = useGovernanceInfo();
   const { data: latestProposals } = useLatestProposals();
 
-  const sortedProposals = useMemo(() => (latestProposals ? latestProposals.sort((a, b) => b.id - a.id) : []), [
-    latestProposals,
-  ]);
-
   return (
     <BoxPanel bg="bg2">
       <Typography variant="h2" mb="30px">
@@ -129,7 +125,12 @@ const GovernanceSection = () => {
             <Typography fontWeight="normal" variant="h3">
               {governanceInfo ? <>{governanceInfo.activeProposals}</> : <LoaderComponent />}
             </Typography>
-            <Typography>Active proposals</Typography>
+            <Typography>
+              Active proposal
+              {(governanceInfo && governanceInfo?.activeProposals > 1) || governanceInfo?.activeProposals === 0
+                ? 's'
+                : ''}
+            </Typography>
           </StatsItemData>
         </StatsItem>
 
@@ -182,31 +183,32 @@ const GovernanceSection = () => {
         </StatsItem>
       </Stats>
       <Grid mt="30px">
-        {sortedProposals.map(proposal => (
-          <a
-            key={proposal.id}
-            href={`https://app.balanced.network/vote/proposal/${parseInt(proposal.id, 16)}`}
-            style={{ textDecoration: 'none' }}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <ProposalPreview bg="bg3" flexDirection="column">
-              <Typography variant="h3" fontSize={16} mt={-1}>
-                {proposal.name}
-              </Typography>
-              <Typography fontSize={14} color="text1" mt={2} mb="auto">
-                {proposal.description && normalizeContent(proposal.description, true)}
-              </Typography>
-              <Divider mt={3} mb={2}></Divider>
-              <Flex flexWrap="wrap" alignItems="center" mb={-2}>
-                <Box mr={'17px'}>
-                  <VoteStatusLabel proposal={proposal} />
-                </Box>
-                <VoteDateEndLabel proposal={proposal} />
-              </Flex>
-            </ProposalPreview>
-          </a>
-        ))}
+        {latestProposals &&
+          latestProposals.map(proposal => (
+            <a
+              key={proposal.id}
+              href={`https://app.balanced.network/vote/proposal/${parseInt(proposal.id, 16)}`}
+              style={{ textDecoration: 'none' }}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <ProposalPreview bg="bg3" flexDirection="column">
+                <Typography variant="h3" fontSize={16} mt={-1}>
+                  {proposal.name}
+                </Typography>
+                <Typography fontSize={14} color="text1" mt={2} mb="auto">
+                  {proposal.description && normalizeContent(proposal.description, true)}
+                </Typography>
+                <Divider mt={3} mb={2}></Divider>
+                <Flex flexWrap="wrap" alignItems="center" mb={-2}>
+                  <Box mr={'17px'}>
+                    <VoteStatusLabel proposal={proposal} />
+                  </Box>
+                  <VoteDateEndLabel proposal={proposal} />
+                </Flex>
+              </ProposalPreview>
+            </a>
+          ))}
       </Grid>
     </BoxPanel>
   );
