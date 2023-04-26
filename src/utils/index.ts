@@ -56,3 +56,6 @@ export function escapeRegExp(string: string): string {
 export function formatUnits(value: string, decimals: number = 18, fixed: number = 0): string {
   return new BigNumber(value).div(TEN.pow(decimals)).toFixed(fixed);
 }
+
+export const LAUNCH_DAY = 1619366400000;
+export const ONE_DAY_DURATION = 86400000;

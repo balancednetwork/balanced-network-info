@@ -45,7 +45,7 @@ export type LineChartProps = {
   bottomRight?: ReactNode | undefined;
 } & React.HTMLAttributes<HTMLDivElement>;
 
-const StyledTooltipContainer = styled(TooltipContainer)`
+export const StyledTooltipContainer = styled(TooltipContainer)`
   ${({ theme }) => css`
     border: 2px solid ${theme.colors.primaryBright};
     border-radius: 10px;

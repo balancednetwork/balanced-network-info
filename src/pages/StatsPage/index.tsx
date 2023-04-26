@@ -2,11 +2,9 @@ import React from 'react';
 
 import { useGovernanceInfo, useOverviewInfo } from 'queries/index';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
 import { Flex, Box } from 'rebass/styled-components';
 import styled from 'styled-components';
 
-import arrowIcon from 'assets/icons/arrow.svg';
 import { ReactComponent as BalnStakingIcon } from 'assets/icons/balnstaking.svg';
 import { ReactComponent as ChartIcon } from 'assets/icons/chart.svg';
 import { ReactComponent as CoinsIcon } from 'assets/icons/coins.svg';
@@ -22,7 +20,10 @@ import { BoxPanel } from 'components/Panel';
 import { MouseoverTooltip } from 'components/Tooltip';
 import { LINKS } from 'constants/links';
 import { LoaderComponent } from 'pages/PerformanceDetails/utils';
+import BALNSection from 'sections/BALNSection';
 import CollateralAndLoanSection from 'sections/CollateralAndLoanSection';
+import GovernanceSection from 'sections/GovernanceSection';
+import HoldingsOverviewSection from 'sections/HoldingsOverviewSection';
 import PairSection from 'sections/PairSection';
 import TokenSection from 'sections/TokenSection';
 import { Typography } from 'theme';
@@ -51,7 +52,7 @@ const StatsLayout = styled(Box)`
   row-gap: 50px;
 `;
 
-const Stats = styled(Flex)`
+export const Stats = styled(Flex)`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   grid-template-rows: none;
@@ -67,7 +68,7 @@ const Stats = styled(Flex)`
   `}
 `;
 
-const StatsItem = styled(Flex)`
+export const StatsItem = styled(Flex)`
   flex: 1;
   position: relative;
   display: flex;
@@ -83,11 +84,11 @@ const StatsItem = styled(Flex)`
   }
 `;
 
-const StatsItemIcon = styled(Box)`
+export const StatsItemIcon = styled(Box)`
   margin: 8px 8px;
 `;
 
-const StatsItemData = styled(Box)`
+export const StatsItemData = styled(Box)`
   margin: 8px 8px;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     text-align: center;
@@ -102,37 +103,8 @@ export const Divider = styled(Box)`
   margin-top: 80px;
 `;
 
-const StyledArrowLink = styled(Link)`
-  color: #2fccdc;
-  text-decoration: none;
-  line-height: 40px;
-  position: relative;
-  padding: 0 30px 0 3px;
-
-  &:after {
-    content: '';
-    display: block;
-    position: absolute;
-    background-image: url(${arrowIcon});
-    height: 10px;
-    width: 20px;
-    background-repeat: no-repeat;
-    top: 16px;
-    right: 0;
-    transform: translate3d(5px, 0, 0);
-    transition: transform 0.3s ease;
-  }
-
-  &:hover {
-    &:after {
-      transform: translate3d(15px, 0, 0);
-    }
-  }
-`;
-
 export function StatsPage() {
   const overviewInfo = useOverviewInfo();
-  const governanceInfo = useGovernanceInfo();
 
   return (
     <Container>
@@ -253,86 +225,11 @@ export function StatsPage() {
 
         <PairSection />
 
-        <BoxPanel bg="bg2" mb={10}>
-          <Flex flexWrap="wrap" mb={5}>
-            <Typography variant="h2" mr={3}>
-              Governance
-            </Typography>
-            <StyledArrowLink to={LINKS.performanceDetails}>Performance details</StyledArrowLink>
-          </Flex>
+        <GovernanceSection />
 
-          <Stats>
-            <StatsItem className="border-right">
-              <StatsItemIcon>
-                <DaoIcon width={53} height={55} />
-              </StatsItemIcon>
+        <BALNSection />
 
-              <StatsItemData>
-                <Typography fontWeight="normal" variant="h3">
-                  {governanceInfo.daofund ? (
-                    getFormattedNumber(governanceInfo.daofund, 'currency0')
-                  ) : (
-                    <LoaderComponent />
-                  )}
-                </Typography>
-                <Typography>DAO fund</Typography>
-              </StatsItemData>
-            </StatsItem>
-
-            <StatsItem className="border-right">
-              <StatsItemIcon>
-                <StakersIcon opacity={1} width={53} height={55} />
-              </StatsItemIcon>
-              <StatsItemData>
-                <Typography fontWeight="normal" variant="h3">
-                  {governanceInfo.numOfHolders ? (
-                    getFormattedNumber(governanceInfo.numOfHolders, 'number')
-                  ) : (
-                    <LoaderComponent />
-                  )}
-                </Typography>
-                <Typography>bBALN holders</Typography>
-              </StatsItemData>
-            </StatsItem>
-
-            <StatsItem className="border-right">
-              <StatsItemIcon>
-                <ChartIcon width={53} height={55} />
-              </StatsItemIcon>
-
-              <StatsItemData>
-                <Typography fontWeight="normal" variant="h3">
-                  {governanceInfo.totalBALNLocked ? (
-                    getFormattedNumber(governanceInfo.totalBALNLocked, 'number')
-                  ) : (
-                    <LoaderComponent />
-                  )}{' '}
-                </Typography>
-                <Typography>BALN locked</Typography>
-              </StatsItemData>
-            </StatsItem>
-
-            <StatsItem>
-              <StatsItemIcon>
-                <DistributionIcon width={53} height={55} />
-              </StatsItemIcon>
-
-              <StatsItemData>
-                <Typography fontWeight="normal" variant="h3">
-                  {governanceInfo.dailyDistribution ? (
-                    getFormattedNumber(governanceInfo.dailyDistribution, 'number')
-                  ) : (
-                    <LoaderComponent />
-                  )}{' '}
-                  <Typography as="span" fontWeight="normal" color="text1">
-                    BALN
-                  </Typography>
-                </Typography>
-                <Typography>Today's distribution</Typography>
-              </StatsItemData>
-            </StatsItem>
-          </Stats>
-        </BoxPanel>
+        <HoldingsOverviewSection />
       </StatsLayout>
 
       <Divider />

@@ -484,8 +484,6 @@ export function useAllCollateralData() {
             value: result.series['total'][result.series['total'].length - 1].value,
           };
 
-          console.log(result);
-
           return result;
         } catch (e) {
           console.error(e);

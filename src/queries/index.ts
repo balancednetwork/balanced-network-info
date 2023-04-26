@@ -538,47 +538,92 @@ export const useOverviewInfo = () => {
 };
 
 export const useGovernanceInfo = () => {
-  const dailyDistributionQuery = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
+  // const dailyDistributionQuery = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
 
-  const totalBalnLockedQuery = useBnJsContractQuery<string>(bnJs, 'BBALN', 'getTotalLocked', []);
-  const totalBBalnHoldersQuery = useBnJsContractQuery<string>(bnJs, 'BBALN', 'activeUsersCount', []);
+  // const totalBalnLockedQuery = useBnJsContractQuery<string>(bnJs, 'BBALN', 'getTotalLocked', []);
+  // const totalBBalnHoldersQuery = useBnJsContractQuery<string>(bnJs, 'BBALN', 'activeUsersCount', []);
 
-  const dailyDistribution = dailyDistributionQuery.isSuccess
-    ? BalancedJs.utils.toIcx(dailyDistributionQuery.data)
-    : null;
+  // const dailyDistribution = dailyDistributionQuery.isSuccess
+  //   ? BalancedJs.utils.toIcx(dailyDistributionQuery.data)
+  //   : null;
 
-  const totalBalnLocked = totalBalnLockedQuery.isSuccess && Number(totalBalnLockedQuery.data) / 10 ** 18;
-  const totalBBalnHolders = totalBBalnHoldersQuery.isSuccess && Number(totalBBalnHoldersQuery.data);
+  // const totalBalnLocked = totalBalnLockedQuery.isSuccess && Number(totalBalnLockedQuery.data) / 10 ** 18;
+  // const totalBBalnHolders = totalBBalnHoldersQuery.isSuccess && Number(totalBBalnHoldersQuery.data);
 
-  const oneMinPeriod = 1000 * 60;
-  const now = Math.floor(new Date().getTime() / oneMinPeriod) * oneMinPeriod;
+  // const oneMinPeriod = 1000 * 60;
+  // const now = Math.floor(new Date().getTime() / oneMinPeriod) * oneMinPeriod;
 
-  const { data: POLData } = usePOLData(now);
-  const { data: holdingsData } = useDaoFundHoldings(now);
-  const { data: tokenPrices } = useTokenPrices();
+  // const { data: POLData } = usePOLData(now);
+  // const { data: holdingsData } = useDaoFundHoldings(now);
+  // const { data: tokenPrices } = useTokenPrices();
 
-  const holdings =
-    holdingsData && tokenPrices
-      ? Object.keys(holdingsData).reduce((total, contract) => {
-          const token = holdingsData[contract].currency.wrapped;
-          const curAmount = new BigNumber(holdingsData[contract].toFixed());
-          if (tokenPrices[token.symbol!]) {
-            return total + curAmount.times(tokenPrices[token.symbol!]).toNumber();
-          } else {
-            return total;
-          }
-        }, 0)
-      : 0;
+  // const holdings =
+  //   holdingsData && tokenPrices
+  //     ? Object.keys(holdingsData).reduce((total, contract) => {
+  //         const token = holdingsData[contract].currency.wrapped;
+  //         const curAmount = new BigNumber(holdingsData[contract].toFixed());
+  //         if (tokenPrices[token.symbol!]) {
+  //           return total + curAmount.times(tokenPrices[token.symbol!]).toNumber();
+  //         } else {
+  //           return total;
+  //         }
+  //       }, 0)
+  //     : 0;
 
-  const POLHoldings = POLData ? POLData.reduce((total, pool) => total + pool.liquidity.toNumber(), 0) : 0;
+  // const POLHoldings = POLData ? POLData.reduce((total, pool) => total + pool.liquidity.toNumber(), 0) : 0;
 
-  return {
-    dailyDistribution: dailyDistribution?.integerValue().toNumber(),
-    daofund: holdings + POLHoldings,
-    totalBALNLocked: totalBalnLocked,
-    numOfHolders: totalBBalnHolders,
-  };
+  const { data: platformDay } = usePlatformDayQuery();
+  const proposalSampleSize = 10;
+
+  return useQuery(`governanceOverview-${platformDay ? platformDay : 0}`, async () => {
+    if (platformDay) {
+      const eligibleVotersRaw = await bnJs.BBALN.activeUsersCount();
+      const eligibleVoters = parseInt(eligibleVotersRaw);
+      const totalProposalsRaw = await bnJs.Governance.getTotalProposal();
+      const totalProposals = parseInt(totalProposalsRaw);
+      const latestProposals = await bnJs.Governance.getProposals(
+        totalProposals - proposalSampleSize,
+        proposalSampleSize,
+      );
+      const activeProposals = latestProposals.filter(
+        proposal =>
+          platformDay &&
+          proposal.status === 'Active' &&
+          parseInt(proposal['start day'], 16) <= platformDay &&
+          parseInt(proposal['end day'], 16) > platformDay,
+      ).length;
+      const participations = latestProposals
+        .map(proposal => {
+          const votedYes = parseInt(proposal['for'], 16);
+          const votedNo = parseInt(proposal['against'], 16);
+          return (votedYes + votedNo) / 10 ** 18;
+        })
+        .filter(participation => participation > 0);
+
+      const participationRate =
+        participations.reduce((total, participation) => total + participation, 0) / participations.length;
+
+      return {
+        activeProposals,
+        totalProposals,
+        participationRate,
+        eligibleVoters,
+      };
+    }
+  });
 };
+
+export function useLatestProposals() {
+  return useQuery(`latestProposals`, async () => {
+    const totalProposalsRaw = await bnJs.Governance.getTotalProposal();
+    const totalProposals = parseInt(totalProposalsRaw);
+    const latestProposals = await bnJs.Governance.getProposals(totalProposals - 10, 10);
+    return latestProposals
+      .filter(proposal => proposal.status !== 'Cancelled')
+      .reverse()
+      .splice(0, 3);
+  });
+}
 
 export function useRewardsPercentDistribution(): UseQueryResult<RewardDistribution, Error> {
   return useQuery('rewardDistribution', async () => {
