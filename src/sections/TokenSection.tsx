@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { Skeleton } from '@material-ui/lab';
 import { MetaToken } from 'queries';
@@ -7,11 +7,14 @@ import { Flex, Box, Text } from 'rebass/styled-components';
 import styled, { css } from 'styled-components';
 
 import Divider from 'components/Divider';
+import { UnderlineText } from 'components/DropdownText';
 import { BoxPanel } from 'components/Panel';
 import { CurrencyLogoFromURI } from 'components/shared/CurrencyLogo';
 import useSort from 'hooks/useSort';
 import { Typography } from 'theme';
 import { formatPriceChange, getFormattedNumber } from 'utils/formatter';
+
+export const COMPACT_ITEM_COUNT = 10;
 
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
@@ -234,6 +237,7 @@ const TokenItem = ({ token, isLast }: TokenItemProps) => (
 export default React.memo(function TokenSection() {
   const { data: allTokens } = useAllTokensByAddress();
   const { sortBy, handleSortSelect, sortData } = useSort({ key: 'market_cap', order: 'DESC' });
+  const [showingExpanded, setShowingExpanded] = useState(false);
 
   return (
     <BoxPanel bg="bg2">
@@ -301,23 +305,26 @@ export default React.memo(function TokenSection() {
           </DashGrid>
 
           {allTokens ? (
-            sortData(Object.values(allTokens)).map((token, index, arr) => (
-              <TokenItem key={token.symbol} token={token} isLast={index === arr.length - 1} />
-            ))
+            <>
+              {sortData(Object.values(allTokens)).map((token, index, arr) =>
+                showingExpanded || index < COMPACT_ITEM_COUNT ? (
+                  <TokenItem
+                    key={token.symbol}
+                    token={token}
+                    isLast={index === arr.length - 1 || (!showingExpanded && index === COMPACT_ITEM_COUNT - 1)}
+                  />
+                ) : null,
+              )}
+              <Typography fontSize={16} paddingBottom="5px" color="primaryBright" pt="20px">
+                {showingExpanded ? (
+                  <UnderlineText onClick={() => setShowingExpanded(false)}>Show less</UnderlineText>
+                ) : (
+                  <UnderlineText onClick={() => setShowingExpanded(true)}>Show all tokens</UnderlineText>
+                )}
+              </Typography>
+            </>
           ) : (
             <>
-              <SkeletonTokenPlaceholder />
-              <Divider />
-              <SkeletonTokenPlaceholder />
-              <Divider />
-              <SkeletonTokenPlaceholder />
-              <Divider />
-              <SkeletonTokenPlaceholder />
-              <Divider />
-              <SkeletonTokenPlaceholder />
-              <Divider />
-              <SkeletonTokenPlaceholder />
-              <Divider />
               <SkeletonTokenPlaceholder />
               <Divider />
               <SkeletonTokenPlaceholder />

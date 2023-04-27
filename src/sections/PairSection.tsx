@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { Pair, useAllPairsIncentivisedById, useAllPairsTotal } from 'queries/backendv2';
 import { isMobile } from 'react-device-detect';
@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { ReactComponent as QuestionIcon } from 'assets/icons/question.svg';
 import { ReactComponent as SigmaIcon } from 'assets/icons/sigma.svg';
 import Divider from 'components/Divider';
+import { UnderlineText } from 'components/DropdownText';
 import { BoxPanel } from 'components/Panel';
 import PoolLogo, { IconWrapper, PoolLogoWrapper } from 'components/shared/PoolLogo';
 import { MouseoverTooltip } from 'components/Tooltip';
@@ -16,7 +17,7 @@ import useTheme from 'hooks/useTheme';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
 
-import { HeaderText, StyledSkeleton as Skeleton } from './TokenSection';
+import { COMPACT_ITEM_COUNT, HeaderText, StyledSkeleton as Skeleton } from './TokenSection';
 
 export const MAX_BOOST = 2.5;
 
@@ -189,6 +190,7 @@ export default function PairSection() {
   const { data: allPairs } = useAllPairsIncentivisedById();
   const { data: pairsTotal } = useAllPairsTotal();
   const { sortBy, handleSortSelect, sortData } = useSort({ key: 'liquidity', order: 'DESC' });
+  const [showingExpanded, setShowingExpanded] = useState(false);
   const theme = useTheme();
 
   return (
@@ -283,21 +285,20 @@ export default function PairSection() {
           </DashGrid>
 
           {allPairs ? (
-            sortData(Object.values(allPairs)).map(pair => <PairItem key={pair.name} {...pair} />)
+            <>
+              {sortData(Object.values(allPairs)).map((pair, index) =>
+                showingExpanded || index < COMPACT_ITEM_COUNT ? <PairItem key={pair.name} {...pair} /> : null,
+              )}
+              <Typography fontSize={16} paddingBottom="5px" color="primaryBright" pt="20px">
+                {showingExpanded ? (
+                  <UnderlineText onClick={() => setShowingExpanded(false)}>Show less</UnderlineText>
+                ) : (
+                  <UnderlineText onClick={() => setShowingExpanded(true)}>Show all pools</UnderlineText>
+                )}
+              </Typography>
+            </>
           ) : (
             <>
-              <SkeletonPairPlaceholder />
-              <Divider />
-              <SkeletonPairPlaceholder />
-              <Divider />
-              <SkeletonPairPlaceholder />
-              <Divider />
-              <SkeletonPairPlaceholder />
-              <Divider />
-              <SkeletonPairPlaceholder />
-              <Divider />
-              <SkeletonPairPlaceholder />
-              <Divider />
               <SkeletonPairPlaceholder />
               <Divider />
               <SkeletonPairPlaceholder />
