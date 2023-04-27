@@ -14,7 +14,7 @@ import useSort from 'hooks/useSort';
 import { Typography } from 'theme';
 import { formatPriceChange, getFormattedNumber } from 'utils/formatter';
 
-export const COMPACT_ITEM_COUNT = 10;
+export const COMPACT_ITEM_COUNT = 8;
 
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
