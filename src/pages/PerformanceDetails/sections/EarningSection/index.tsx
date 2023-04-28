@@ -6,7 +6,6 @@ import ClickAwayListener from 'react-click-away-listener';
 import { Flex, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
-import bnJs from 'bnJs';
 import { UnderlineTextWithArrow } from 'components/DropdownText';
 import { MenuList, MenuItem } from 'components/Menu';
 import { BoxPanel } from 'components/Panel';

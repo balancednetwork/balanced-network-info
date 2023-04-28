@@ -18,7 +18,7 @@ import {
   useAllTokensByAddress,
   useTokenPrices,
 } from './backendv2';
-import { useBlockDetails, useDaoFundHoldings, usePOLData } from './blockDetails';
+import { useBlockDetails } from './blockDetails';
 
 const WEIGHT_CONST = 10 ** 18;
 
