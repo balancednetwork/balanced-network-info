@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { Skeleton } from '@material-ui/lab';
 import { MetaToken } from 'queries';
@@ -9,6 +9,7 @@ import styled, { css } from 'styled-components';
 import Divider from 'components/Divider';
 import { UnderlineText } from 'components/DropdownText';
 import { BoxPanel } from 'components/Panel';
+import SearchInput from 'components/SearchInput';
 import { CurrencyLogoFromURI } from 'components/shared/CurrencyLogo';
 import useSort from 'hooks/useSort';
 import { Typography } from 'theme';
@@ -238,75 +239,96 @@ export default React.memo(function TokenSection() {
   const { data: allTokens } = useAllTokensByAddress();
   const { sortBy, handleSortSelect, sortData } = useSort({ key: 'market_cap', order: 'DESC' });
   const [showingExpanded, setShowingExpanded] = useState(false);
+  const [searched, setSearched] = useState('');
+
+  const tokens = useMemo(() => {
+    if (!allTokens) return [];
+    const filteredTokens = Object.values(allTokens).filter(token => {
+      const tokenName = token.name.toLowerCase();
+      const tokenSymbol = token.symbol.toLowerCase();
+      const search = searched.toLowerCase();
+      return tokenName.includes(search) || tokenSymbol.includes(search);
+    });
+    return sortData(filteredTokens);
+  }, [allTokens, searched, sortData]);
+
+  const noTokensFound = searched && tokens.length === 0;
 
   return (
     <BoxPanel bg="bg2">
-      <Typography variant="h2" mb={5}>
-        Tokens
-      </Typography>
+      <Flex justifyContent="space-between" flexWrap="wrap">
+        <Typography variant="h2" mb={5} mr="20px">
+          Tokens
+        </Typography>
+        <Box width="285px">
+          <SearchInput value={searched} onChange={e => setSearched(e.target.value)} />
+        </Box>
+      </Flex>
       <Box overflow="auto">
         <List>
-          <DashGrid>
-            <HeaderText
-              role="button"
-              className={sortBy.key === 'name' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'name',
-                })
-              }
-            >
-              <span>ASSET</span>
-            </HeaderText>
-            <HeaderText
-              role="button"
-              className={sortBy.key === 'price' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'price',
-                })
-              }
-            >
-              PRICE (24H)
-            </HeaderText>
-            <HeaderText
-              role="button"
-              className={sortBy.key === 'market_cap' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'market_cap',
-                })
-              }
-            >
-              MARKETCAP
-            </HeaderText>
-            <HeaderText
-              role="button"
-              className={sortBy.key === 'liquidity' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'liquidity',
-                })
-              }
-            >
-              LIQUIDITY
-            </HeaderText>
-            <HeaderText
-              role="button"
-              className={sortBy.key === 'holders' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'holders',
-                })
-              }
-            >
-              HOLDERS
-            </HeaderText>
-          </DashGrid>
+          {!noTokensFound && (
+            <DashGrid>
+              <HeaderText
+                role="button"
+                className={sortBy.key === 'name' ? sortBy.order : ''}
+                onClick={() =>
+                  handleSortSelect({
+                    key: 'name',
+                  })
+                }
+              >
+                <span>ASSET</span>
+              </HeaderText>
+              <HeaderText
+                role="button"
+                className={sortBy.key === 'price' ? sortBy.order : ''}
+                onClick={() =>
+                  handleSortSelect({
+                    key: 'price',
+                  })
+                }
+              >
+                PRICE (24H)
+              </HeaderText>
+              <HeaderText
+                role="button"
+                className={sortBy.key === 'market_cap' ? sortBy.order : ''}
+                onClick={() =>
+                  handleSortSelect({
+                    key: 'market_cap',
+                  })
+                }
+              >
+                MARKETCAP
+              </HeaderText>
+              <HeaderText
+                role="button"
+                className={sortBy.key === 'liquidity' ? sortBy.order : ''}
+                onClick={() =>
+                  handleSortSelect({
+                    key: 'liquidity',
+                  })
+                }
+              >
+                LIQUIDITY
+              </HeaderText>
+              <HeaderText
+                role="button"
+                className={sortBy.key === 'holders' ? sortBy.order : ''}
+                onClick={() =>
+                  handleSortSelect({
+                    key: 'holders',
+                  })
+                }
+              >
+                HOLDERS
+              </HeaderText>
+            </DashGrid>
+          )}
 
-          {allTokens ? (
+          {tokens ? (
             <>
-              {sortData(Object.values(allTokens)).map((token, index, arr) =>
+              {tokens.map((token, index, arr) =>
                 showingExpanded || index < COMPACT_ITEM_COUNT ? (
                   <TokenItem
                     key={token.symbol}
@@ -315,13 +337,20 @@ export default React.memo(function TokenSection() {
                   />
                 ) : null,
               )}
-              <Typography fontSize={16} paddingBottom="5px" color="primaryBright" pt="20px">
-                {showingExpanded ? (
-                  <UnderlineText onClick={() => setShowingExpanded(false)}>Show less</UnderlineText>
-                ) : (
-                  <UnderlineText onClick={() => setShowingExpanded(true)}>Show all tokens</UnderlineText>
-                )}
-              </Typography>
+              {noTokensFound && (
+                <Typography width="100%" textAlign="center" paddingTop="30px" fontSize={16} color="text">
+                  No tokens match <strong>{searched}</strong> expression.
+                </Typography>
+              )}
+              {tokens.length > COMPACT_ITEM_COUNT && (
+                <Typography fontSize={16} paddingBottom="5px" color="primaryBright" pt="20px">
+                  {showingExpanded ? (
+                    <UnderlineText onClick={() => setShowingExpanded(false)}>Show less</UnderlineText>
+                  ) : (
+                    <UnderlineText onClick={() => setShowingExpanded(true)}>Show all tokens</UnderlineText>
+                  )}
+                </Typography>
+              )}
             </>
           ) : (
             <>

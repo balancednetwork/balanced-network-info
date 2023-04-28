@@ -8,15 +8,11 @@ import { useWhitelistedTokensList } from 'queries';
 import { useQuery } from 'react-query';
 
 import bnJs from 'bnJs';
-import { SUPPORTED_TOKENS_LIST, NULL_CONTRACT_ADDRESS } from 'constants/tokens';
+import { SUPPORTED_TOKENS_LIST } from 'constants/tokens';
 
 import { useAllPairs, useAllTokens, useAllTokensByAddress } from './backendv2';
 
 const API_ENDPOINT = 'https://tracker.icon.community/api/v1/';
-
-const SUPPORTED_TOKENS_LIST_WITHOUT_ICX = SUPPORTED_TOKENS_LIST.filter(
-  token => token.address !== NULL_CONTRACT_ADDRESS,
-);
 
 const stabilityFundAddress = addresses[1].stabilityfund;
 const daoFundAddress = addresses[1].daofund;
@@ -132,7 +128,7 @@ export const usePOLData = (timestamp: number) => {
         const baseAmount = new BigNumber(dataSet.poolStats['base']).div(
           10 ** parseInt(dataSet.poolStats['base_decimals'], 16),
         );
-        const quoteValue = quoteAmount.times(allTokens[dataSet.poolStats['quote_token']].price);
+        const quoteValue = quoteAmount.times(allTokens ? allTokens[dataSet.poolStats['quote_token']].price : 1);
         const poolLiquidity = quoteValue.times(2);
         const poolData = {
           id: dataSet.poolID,

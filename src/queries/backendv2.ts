@@ -2,7 +2,7 @@ import { Fraction } from '@balancednetwork/sdk-core';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { useBnJsContractQuery, useIncentivisedPairs } from 'queries';
-import { useQuery } from 'react-query';
+import { UseQueryResult, useQuery } from 'react-query';
 
 import bnJs from 'bnJs';
 import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
@@ -49,6 +49,24 @@ export const useContractMethodsDataQuery = (
   );
 };
 
+export type TokenStats = {
+  address: string;
+  decimals: number;
+  holders: number;
+  liquidity: number;
+  logo_uri: string;
+  name: string;
+  path: string[];
+  pools: number[];
+  price: number;
+  price_7d: number;
+  price_24h: number;
+  price_30d: number;
+  symbol: string;
+  total_supply: number;
+  type: 'community' | 'balanced';
+};
+
 export function useAllTokens() {
   const MIN_LIQUIDITY_TO_INCLUDE = 500;
 
@@ -63,7 +81,7 @@ export function useAllTokens() {
             item['market_cap'] = item.total_supply * item.price;
             return item;
           })
-          .filter(item => item['liquidity'] > MIN_LIQUIDITY_TO_INCLUDE || item['address'] === 'ICX');
+          .filter(item => item['liquidity'] > MIN_LIQUIDITY_TO_INCLUDE || item['address'] === 'ICX') as TokenStats[];
       }
     },
     {
@@ -72,12 +90,13 @@ export function useAllTokens() {
   );
 }
 
-export function useAllTokensByAddress() {
+export function useAllTokensByAddress(): UseQueryResult<{ [key in string]: TokenStats }> {
   const { data: allTokens, isSuccess: allTokensSuccess } = useAllTokens();
 
   return useQuery(
     `allTokensByAddress`,
     () => {
+      if (!allTokens) return;
       return allTokens.reduce((tokens, item) => {
         tokens[item['address']] = item;
         return tokens;
@@ -319,10 +338,14 @@ export function useTokenPrices() {
   return useQuery<{ [key in string]: BigNumber }>(
     `tokenPrices${allTokens}`,
     () => {
-      return allTokens.reduce((tokens, item) => {
-        tokens[item['symbol']] = new BigNumber(item.price);
-        return tokens;
-      }, {});
+      if (allTokens) {
+        return allTokens.reduce((tokens, item) => {
+          tokens[item['symbol']] = new BigNumber(item.price);
+          return tokens;
+        }, {});
+      } else {
+        return [];
+      }
     },
     {
       keepPreviousData: true,

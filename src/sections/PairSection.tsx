@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { Pair, useAllPairsIncentivisedById, useAllPairsTotal } from 'queries/backendv2';
 import { isMobile } from 'react-device-detect';
@@ -10,6 +10,7 @@ import { ReactComponent as SigmaIcon } from 'assets/icons/sigma.svg';
 import Divider from 'components/Divider';
 import { UnderlineText } from 'components/DropdownText';
 import { BoxPanel } from 'components/Panel';
+import SearchInput from 'components/SearchInput';
 import PoolLogo, { IconWrapper, PoolLogoWrapper } from 'components/shared/PoolLogo';
 import { MouseoverTooltip } from 'components/Tooltip';
 import useSort from 'hooks/useSort';
@@ -192,110 +193,137 @@ export default function PairSection() {
   const { sortBy, handleSortSelect, sortData } = useSort({ key: 'liquidity', order: 'DESC' });
   const [showingExpanded, setShowingExpanded] = useState(false);
   const theme = useTheme();
+  const [searched, setSearched] = useState('');
+
+  const pairs = useMemo(() => {
+    if (!allPairs) return [];
+    const filteredTokens = Object.values(allPairs).filter(pair => {
+      const tokenName = pair.name.toLowerCase();
+      const search = searched.toLowerCase();
+      return tokenName.includes(search);
+    });
+    return sortData(filteredTokens);
+  }, [allPairs, searched, sortData]);
+
+  const noPairsFound = searched && pairs.length === 0;
 
   return (
     <BoxPanel bg="bg2">
-      <Typography variant="h2" mb={5}>
-        Exchange
-      </Typography>
+      <Flex justifyContent="space-between" flexWrap="wrap">
+        <Typography variant="h2" mb={5} mr="20px">
+          Exchange
+        </Typography>
+        <Box width="285px">
+          <SearchInput value={searched} onChange={e => setSearched(e.target.value)} />
+        </Box>
+      </Flex>
       <Box overflow="auto">
         <List>
-          <DashGrid>
-            <HeaderText
-              minWidth={'220px'}
-              role="button"
-              className={sortBy.key === 'name' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'name',
-                })
-              }
-            >
-              <span>POOL</span>
-            </HeaderText>
-            <HeaderText
-              minWidth={'190px'}
-              role="button"
-              className={sortBy.key === 'apyTotal' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'apyTotal',
-                })
-              }
-            >
-              {!isMobile && (
-                <MouseoverTooltip
-                  width={330}
-                  text={
-                    <>
-                      <Typography>
-                        The BALN APY is calculated from the USD value of BALN rewards allocated to a pool. Your rate
-                        will vary based on the amount of bBALN you hold.
-                      </Typography>
-                      <Typography marginTop={'20px'}>
-                        The fee APY is calculated from the swap fees earned by a pool in the last 30 days.
-                      </Typography>
-                      <Typography marginTop={'20px'} color={theme.colors.text1} fontSize={14}>
-                        Impermanent loss is not factored in.
-                      </Typography>
-                    </>
-                  }
-                  placement="top"
-                >
-                  <QuestionWrapper onClick={e => e.stopPropagation()}>
-                    <QuestionIcon className="header-tooltip" width={14} />
-                  </QuestionWrapper>
-                </MouseoverTooltip>
-              )}
-              APY
-            </HeaderText>
-            <HeaderText
-              role="button"
-              className={sortBy.key === 'liquidity' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'liquidity',
-                })
-              }
-            >
-              LIQUIDITY
-            </HeaderText>
-            <HeaderText
-              role="button"
-              className={sortBy.key === 'volume24h' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'volume24h',
-                })
-              }
-            >
-              VOLUME (24H)
-            </HeaderText>
-            <HeaderText
-              role="button"
-              className={sortBy.key === 'fees24h' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'fees24h',
-                })
-              }
-            >
-              FEES (24H)
-            </HeaderText>
-          </DashGrid>
+          {!noPairsFound && (
+            <DashGrid>
+              <HeaderText
+                minWidth={'220px'}
+                role="button"
+                className={sortBy.key === 'name' ? sortBy.order : ''}
+                onClick={() =>
+                  handleSortSelect({
+                    key: 'name',
+                  })
+                }
+              >
+                <span>POOL</span>
+              </HeaderText>
+              <HeaderText
+                minWidth={'190px'}
+                role="button"
+                className={sortBy.key === 'apyTotal' ? sortBy.order : ''}
+                onClick={() =>
+                  handleSortSelect({
+                    key: 'apyTotal',
+                  })
+                }
+              >
+                {!isMobile && (
+                  <MouseoverTooltip
+                    width={330}
+                    text={
+                      <>
+                        <Typography>
+                          The BALN APY is calculated from the USD value of BALN rewards allocated to a pool. Your rate
+                          will vary based on the amount of bBALN you hold.
+                        </Typography>
+                        <Typography marginTop={'20px'}>
+                          The fee APY is calculated from the swap fees earned by a pool in the last 30 days.
+                        </Typography>
+                        <Typography marginTop={'20px'} color={theme.colors.text1} fontSize={14}>
+                          Impermanent loss is not factored in.
+                        </Typography>
+                      </>
+                    }
+                    placement="top"
+                  >
+                    <QuestionWrapper onClick={e => e.stopPropagation()}>
+                      <QuestionIcon className="header-tooltip" width={14} />
+                    </QuestionWrapper>
+                  </MouseoverTooltip>
+                )}
+                APY
+              </HeaderText>
+              <HeaderText
+                role="button"
+                className={sortBy.key === 'liquidity' ? sortBy.order : ''}
+                onClick={() =>
+                  handleSortSelect({
+                    key: 'liquidity',
+                  })
+                }
+              >
+                LIQUIDITY
+              </HeaderText>
+              <HeaderText
+                role="button"
+                className={sortBy.key === 'volume24h' ? sortBy.order : ''}
+                onClick={() =>
+                  handleSortSelect({
+                    key: 'volume24h',
+                  })
+                }
+              >
+                VOLUME (24H)
+              </HeaderText>
+              <HeaderText
+                role="button"
+                className={sortBy.key === 'fees24h' ? sortBy.order : ''}
+                onClick={() =>
+                  handleSortSelect({
+                    key: 'fees24h',
+                  })
+                }
+              >
+                FEES (24H)
+              </HeaderText>
+            </DashGrid>
+          )}
 
-          {allPairs ? (
+          {pairs ? (
             <>
-              {sortData(Object.values(allPairs)).map((pair, index) =>
+              {pairs.map((pair, index) =>
                 showingExpanded || index < COMPACT_ITEM_COUNT ? <PairItem key={pair.name} {...pair} /> : null,
               )}
-              <Typography fontSize={16} paddingBottom="5px" color="primaryBright" pt="20px">
-                {showingExpanded ? (
-                  <UnderlineText onClick={() => setShowingExpanded(false)}>Show less</UnderlineText>
-                ) : (
-                  <UnderlineText onClick={() => setShowingExpanded(true)}>Show all pools</UnderlineText>
-                )}
-              </Typography>
+              {noPairsFound && (
+                <Typography width="100%" textAlign="center" paddingTop="30px" fontSize={16} color="text">
+                  No pools match <strong>{searched}</strong> expression.
+                </Typography>
+              )}
+              {pairs.length > COMPACT_ITEM_COUNT && (
+                <Typography fontSize={16} paddingBottom="5px" color="primaryBright" pt="20px">
+                  {showingExpanded ? (
+                    <UnderlineText onClick={() => setShowingExpanded(false)}>Show less</UnderlineText>
+                  ) : (
+                    <UnderlineText onClick={() => setShowingExpanded(true)}>Show all pools</UnderlineText>
+                  )}
+                </Typography>
+              )}
             </>
           ) : (
             <>
@@ -311,7 +339,7 @@ export default function PairSection() {
             </>
           )}
 
-          {pairsTotal && (
+          {pairsTotal && !noPairsFound && (
             <DashGrid my={2}>
               <FooterText minWidth={'220px'}>
                 <Flex alignItems="center">
