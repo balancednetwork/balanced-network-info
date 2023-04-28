@@ -83,9 +83,7 @@ export const useEarningsDataQuery = (
         income: {
           loans: BigNumber;
           fund: BigNumber;
-          liquidity: { amount: BigNumber; value: BigNumber };
           swaps: { [key: string]: { amount: BigNumber; value: BigNumber } };
-          fees: { [key: string]: { amount: BigNumber; value: BigNumber } };
         };
         expenses: { [key: string]: { amount: BigNumber; value: BigNumber } };
         feesDistributed: BigNumber;
@@ -95,57 +93,57 @@ export const useEarningsDataQuery = (
     `${cacheItem}${blockStart && blockStart.number}${blockEnd && blockEnd.number}${rates && Object.keys(rates).length}`,
     async () => {
       if (blockStart?.number && blockEnd?.number && rates) {
-        const networkFeesStartRaw = await bnJs.DAOFund.getFeeEarnings(blockStart.number);
-        const networkFeesEndRaw = await bnJs.DAOFund.getFeeEarnings(blockEnd.number);
+        // const networkFeesStartRaw = await bnJs.DAOFund.getFeeEarnings(blockStart.number);
+        // const networkFeesEndRaw = await bnJs.DAOFund.getFeeEarnings(blockEnd.number);
 
-        const liquidityStart = await bnJs.DAOFund.getBalnEarnings(blockStart.number);
-        const liquidityEnd = await bnJs.DAOFund.getBalnEarnings(blockEnd.number);
+        // const liquidityStart = await bnJs.DAOFund.getBalnEarnings(blockStart.number);
+        // const liquidityEnd = await bnJs.DAOFund.getBalnEarnings(blockEnd.number);
 
-        const networkFeesStart = Object.keys(networkFeesStartRaw).reduce((fees, contract) => {
-          const currencyAmount = CurrencyAmount.fromRawAmount(
-            SUPPORTED_TOKENS_MAP_BY_ADDRESS[contract],
-            networkFeesStartRaw[contract],
-          );
-          fees[contract] = {
-            value: new BigNumber(currencyAmount.toFixed()).times(rates[currencyAmount.currency.symbol!]),
-            amount: new BigNumber(currencyAmount.toFixed()),
-          };
-          return fees;
-        }, {});
+        // const networkFeesStart = Object.keys(networkFeesStartRaw).reduce((fees, contract) => {
+        //   const currencyAmount = CurrencyAmount.fromRawAmount(
+        //     SUPPORTED_TOKENS_MAP_BY_ADDRESS[contract],
+        //     networkFeesStartRaw[contract],
+        //   );
+        //   fees[contract] = {
+        //     value: new BigNumber(currencyAmount.toFixed()).times(rates[currencyAmount.currency.symbol!]),
+        //     amount: new BigNumber(currencyAmount.toFixed()),
+        //   };
+        //   return fees;
+        // }, {});
 
-        const networkFeesEnd = Object.keys(networkFeesEndRaw).reduce((fees, contract) => {
-          const currencyAmount = CurrencyAmount.fromRawAmount(
-            SUPPORTED_TOKENS_MAP_BY_ADDRESS[contract],
-            networkFeesEndRaw[contract],
-          );
-          fees[contract] = {
-            value: new BigNumber(currencyAmount.toFixed()).times(rates[currencyAmount.currency.symbol!]),
-            amount: new BigNumber(currencyAmount.toFixed()),
-          };
-          return fees;
-        }, {});
+        // const networkFeesEnd = Object.keys(networkFeesEndRaw).reduce((fees, contract) => {
+        //   const currencyAmount = CurrencyAmount.fromRawAmount(
+        //     SUPPORTED_TOKENS_MAP_BY_ADDRESS[contract],
+        //     networkFeesEndRaw[contract],
+        //   );
+        //   fees[contract] = {
+        //     value: new BigNumber(currencyAmount.toFixed()).times(rates[currencyAmount.currency.symbol!]),
+        //     amount: new BigNumber(currencyAmount.toFixed()),
+        //   };
+        //   return fees;
+        // }, {});
 
-        const networkFeesIncome = Object.keys(networkFeesEnd).reduce((net, contract) => {
-          if (networkFeesStart[contract]) {
-            net[contract] = {
-              value: networkFeesEnd[contract].value.minus(networkFeesStart[contract].value),
-              amount: networkFeesEnd[contract].amount.minus(networkFeesStart[contract].amount),
-            };
-          } else {
-            net[contract] = {
-              value: networkFeesEnd[contract].value,
-              amount: networkFeesEnd[contract].amount,
-            };
-          }
-          return net;
-        }, {} as { [key: string]: { value: BigNumber; amount: BigNumber } });
+        // const networkFeesIncome = Object.keys(networkFeesEnd).reduce((net, contract) => {
+        //   if (networkFeesStart[contract]) {
+        //     net[contract] = {
+        //       value: networkFeesEnd[contract].value.minus(networkFeesStart[contract].value),
+        //       amount: networkFeesEnd[contract].amount.minus(networkFeesStart[contract].amount),
+        //     };
+        //   } else {
+        //     net[contract] = {
+        //       value: networkFeesEnd[contract].value,
+        //       amount: networkFeesEnd[contract].amount,
+        //     };
+        //   }
+        //   return net;
+        // }, {} as { [key: string]: { value: BigNumber; amount: BigNumber } });
 
-        const liquidityIncome = {
-          amount: new BigNumber(formatUnits(liquidityEnd || 0)).minus(new BigNumber(formatUnits(liquidityStart || 0))),
-          value: new BigNumber(formatUnits(liquidityEnd || 0))
-            .minus(new BigNumber(formatUnits(liquidityStart || 0)))
-            .times(rates['BALN']),
-        };
+        // const liquidityIncome = {
+        //   amount: new BigNumber(formatUnits(liquidityEnd || 0)).minus(new BigNumber(formatUnits(liquidityStart || 0))),
+        //   value: new BigNumber(formatUnits(liquidityEnd || 0))
+        //     .minus(new BigNumber(formatUnits(liquidityStart || 0)))
+        //     .times(rates['BALN']),
+        // };
 
         if (
           blockStart.timestamp < OLD_FEES_DISTRIBUTION_SWITCH_DATE &&
@@ -250,7 +248,7 @@ export const useEarningsDataQuery = (
               income: {
                 loans: loansIncomeBefore.plus(loansIncomeAfter),
                 fund: fundIncomeBefore.plus(fundIncomeAfter),
-                liquidity: liquidityIncome,
+                // liquidity: liquidityIncome,
                 swaps: {
                   BALN: {
                     amount: balnIncomeBefore.plus(balnIncomeAfter),
@@ -265,7 +263,7 @@ export const useEarningsDataQuery = (
                     value: sICXIncomeBefore.plus(sICXIncomeAfter).times(rates['sICX']),
                   },
                 },
-                fees: networkFeesIncome,
+                // fees: networkFeesIncome,
               },
               expenses: {
                 BALN: {
@@ -356,7 +354,7 @@ export const useEarningsDataQuery = (
               income: {
                 loans: loansIncome,
                 fund: fundIncome,
-                liquidity: liquidityIncome,
+                // liquidity: liquidityIncome,
                 swaps: {
                   BALN: {
                     amount: balnIncome,
@@ -371,7 +369,7 @@ export const useEarningsDataQuery = (
                     value: sICXIncome.times(rates['sICX']),
                   },
                 },
-                fees: networkFeesIncome,
+                // fees: networkFeesIncome,
               },
               expenses: {
                 BALN: {
@@ -506,13 +504,13 @@ export const useOverviewInfo = () => {
     earningsDataQuery.isSuccess && earningsDataQuery.data
       ? earningsDataQuery.data.income.loans
           .plus(earningsDataQuery.data.income.fund)
-          .plus(earningsDataQuery.data.income.liquidity.value)
-          .plus(
-            Object.values(earningsDataQuery.data.income.fees).reduce(
-              (total, fee) => total.plus(fee.value),
-              new BigNumber(0),
-            ),
-          )
+          // .plus(earningsDataQuery.data.income.liquidity.value)
+          // .plus(
+          //   Object.values(earningsDataQuery.data.income.fees).reduce(
+          //     (total, fee) => total.plus(fee.value),
+          //     new BigNumber(0),
+          //   ),
+          // )
           .plus(
             Object.values(earningsDataQuery.data.income.swaps).reduce(
               (total, swap) => total.plus(swap.value),

@@ -9,7 +9,7 @@ import Header from 'components/Header';
 import { Container, Divider } from 'pages/StatsPage';
 import { Typography } from 'theme';
 
-import BBALNSection from './sections/BBALNSection';
+// import BBALNSection from './sections/BBALNSection';
 import EarningsSection from './sections/EarningSection';
 import HoldingsSection from './sections/HoldingsSection';
 import StabilityFundSection from './sections/StabilityFundSection';
@@ -124,8 +124,8 @@ export function PerformanceDetails() {
       <EarningsSection />
 
       <HoldingsSection />
-
-      <BBALNSection />
+      {/* 
+      <BBALNSection /> */}
 
       <StabilityFundSection />
 
