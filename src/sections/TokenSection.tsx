@@ -345,11 +345,18 @@ export default React.memo(function TokenSection() {
                 </Typography>
               )}
               {tokens.length > COMPACT_ITEM_COUNT && (
-                <Typography fontSize={16} paddingBottom="5px" color="primaryBright" pt="20px">
+                <Typography
+                  fontSize={18}
+                  textAlign="center"
+                  paddingBottom="5px"
+                  mt="15px"
+                  color="primaryBright"
+                  pt="30px"
+                >
                   {showingExpanded ? (
                     <UnderlineText onClick={() => setShowingExpanded(false)}>Show less</UnderlineText>
                   ) : (
-                    <UnderlineText onClick={() => setShowingExpanded(true)}>Show all tokens</UnderlineText>
+                    <UnderlineText onClick={() => setShowingExpanded(true)}>Show more</UnderlineText>
                   )}
                 </Typography>
               )}
