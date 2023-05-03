@@ -273,7 +273,7 @@ export default React.memo(function TokenSection() {
         <Typography variant="h2" mb={5} mr="20px">
           Tokens
         </Typography>
-        <Box width={isSmallScreen ? '100%' : '285px'} mb={isSmallScreen ? '25px' : 0}>
+        <Box width={isSmallScreen ? '100%' : '295px'} mb={isSmallScreen ? '25px' : 0}>
           <SearchInput value={searched} onChange={e => setSearched(e.target.value)} />
         </Box>
       </Flex>

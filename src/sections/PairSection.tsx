@@ -255,7 +255,7 @@ export default function PairSection() {
           Exchange
         </Typography>
         {!isSmallScreen && (
-          <Box width="285px">
+          <Box width="295px">
             <SearchInput value={searched} onChange={e => setSearched(e.target.value)} />
           </Box>
         )}
