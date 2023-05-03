@@ -11,7 +11,7 @@ import liquidityIcon from 'assets/icons/liquidity.svg';
 import { ReactComponent as QuestionIcon } from 'assets/icons/question.svg';
 import volumeIcon from 'assets/icons/volume.svg';
 import Divider from 'components/Divider';
-import { UnderlineText } from 'components/DropdownText';
+import DropdownLink from 'components/DropdownLink';
 import { BoxPanel } from 'components/Panel';
 import SearchInput from 'components/SearchInput';
 import PoolLogo from 'components/shared/PoolLogo';
@@ -406,20 +406,7 @@ export default function PairSection() {
                 </Typography>
               )}
               {pairs.length > COMPACT_ITEM_COUNT && (
-                <Typography
-                  fontSize={18}
-                  textAlign="center"
-                  paddingBottom="5px"
-                  mt="15px"
-                  color="primaryBright"
-                  pt="30px"
-                >
-                  {showingExpanded ? (
-                    <UnderlineText onClick={() => setShowingExpanded(false)}>Show less</UnderlineText>
-                  ) : (
-                    <UnderlineText onClick={() => setShowingExpanded(true)}>Show more</UnderlineText>
-                  )}
-                </Typography>
+                <DropdownLink expanded={showingExpanded} setExpanded={setShowingExpanded} />
               )}
             </>
           ) : (

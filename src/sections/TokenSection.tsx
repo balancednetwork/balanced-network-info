@@ -8,7 +8,7 @@ import { Flex, Box, Text } from 'rebass/styled-components';
 import styled, { css } from 'styled-components';
 
 import Divider from 'components/Divider';
-import { UnderlineText } from 'components/DropdownText';
+import DropdownLink from 'components/DropdownLink';
 import { BoxPanel } from 'components/Panel';
 import SearchInput from 'components/SearchInput';
 import { CurrencyLogoFromURI } from 'components/shared/CurrencyLogo';
@@ -345,20 +345,7 @@ export default React.memo(function TokenSection() {
                 </Typography>
               )}
               {tokens.length > COMPACT_ITEM_COUNT && (
-                <Typography
-                  fontSize={18}
-                  textAlign="center"
-                  paddingBottom="5px"
-                  mt="15px"
-                  color="primaryBright"
-                  pt="30px"
-                >
-                  {showingExpanded ? (
-                    <UnderlineText onClick={() => setShowingExpanded(false)}>Show less</UnderlineText>
-                  ) : (
-                    <UnderlineText onClick={() => setShowingExpanded(true)}>Show more</UnderlineText>
-                  )}
-                </Typography>
+                <DropdownLink expanded={showingExpanded} setExpanded={setShowingExpanded} />
               )}
             </>
           ) : (

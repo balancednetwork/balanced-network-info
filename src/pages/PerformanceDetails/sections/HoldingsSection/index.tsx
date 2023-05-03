@@ -229,7 +229,7 @@ const HoldingsSection = () => {
         </BalanceGrid>
 
         <BalanceGrid minWidth={gridWidth}>
-          <GridItemHeader>Exchange</GridItemHeader>
+          <GridItemHeader>Protocol-owned liquidity</GridItemHeader>
         </BalanceGrid>
         {POLCurrent &&
           POLCurrent.map(currentPool => {
