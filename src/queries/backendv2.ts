@@ -623,3 +623,16 @@ export function useDebtDataFor(daysBack: number) {
     },
   );
 }
+
+export function useTokenTrendData(tokenSymbol, start, end) {
+  return useQuery(
+    `trend-${tokenSymbol}-${start}-${end}`,
+    async () => {
+      const { data } = await axios.get(`${API_ENDPOINT}tokens/series/1h/${start}/${end}?symbol=${tokenSymbol}`);
+      return data;
+    },
+    {
+      keepPreviousData: true,
+    },
+  );
+}

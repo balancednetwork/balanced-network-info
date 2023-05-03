@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 
 import { Skeleton } from '@material-ui/lab';
 import { MetaToken } from 'queries';
-import { useAllTokensByAddress } from 'queries/backendv2';
+import { useAllTokensByAddress, useTokenTrendData } from 'queries/backendv2';
 import { useMedia } from 'react-use';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled, { css } from 'styled-components';
@@ -12,7 +12,10 @@ import DropdownLink from 'components/DropdownLink';
 import { BoxPanel } from 'components/Panel';
 import SearchInput from 'components/SearchInput';
 import { CurrencyLogoFromURI } from 'components/shared/CurrencyLogo';
+import Sparkline from 'components/Sparkline';
 import useSort from 'hooks/useSort';
+import useTimestampRounded from 'hooks/useTimestampRounded';
+import { LoaderComponent } from 'pages/PerformanceDetails/utils';
 import { Typography } from 'theme';
 import { formatPriceChange, getFormattedNumber } from 'utils/formatter';
 
@@ -199,42 +202,50 @@ type TokenItemProps = {
   isLast: boolean;
 };
 
-const TokenItem = ({ token, isLast }: TokenItemProps) => (
-  <>
-    <DashGrid my={4}>
-      <DataText>
-        <Flex alignItems="center">
-          <Box sx={{ minWidth: '50px' }}>
-            <CurrencyLogoFromURI address={token.address} size="40px" />
-          </Box>
-          <Box ml={2} sx={{ minWidth: '160px' }}>
-            <Text>{token.name.replace(' TOKEN', ' Token')}</Text>
-            <Text color="text1">{token.symbol}</Text>
-          </Box>
-        </Flex>
-      </DataText>
-      <DataText>
-        <Flex alignItems="flex-end" flexDirection="column">
-          <Typography variant="p">{getFormattedNumber(token.price, 'price')}</Typography>
-          <Typography variant="p" color={token.price >= token.price_24h ? 'primary' : 'alert'}>
-            {formatPriceChange(((token.price - token.price_24h) / token.price_24h) * 100)}
-          </Typography>
-        </Flex>
-      </DataText>
-      <DataText>
-        <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
-          <Typography variant="p">{getFormattedNumber(token.market_cap, 'currency0')}</Typography>
-          <Typography variant="p" color="text1">
-            {getFormattedNumber(token.total_supply, 'number')} {token.symbol}
-          </Typography>
-        </Flex>
-      </DataText>
-      <DataText>{`$${getFormattedNumber(token.liquidity, 'number')}`}</DataText>
-      <DataText>{token.symbol === 'ICX' ? '–' : getFormattedNumber(token.holders, 'number')}</DataText>
-    </DashGrid>
-    {!isLast && <Divider />}
-  </>
-);
+const TokenItem = ({ token, isLast }: TokenItemProps) => {
+  const tsStart = useTimestampRounded(1000 * 60, 12);
+  const tsEnd = useTimestampRounded(1000 * 60);
+  const start = Math.floor(tsStart / 1000);
+  const end = Math.floor(tsEnd / 1000);
+  const { data: trendData } = useTokenTrendData(token.symbol, start, end);
+
+  return (
+    <>
+      <DashGrid my={4}>
+        <DataText>
+          <Flex alignItems="center">
+            <Box sx={{ minWidth: '50px' }}>
+              <CurrencyLogoFromURI address={token.address} size="40px" />
+            </Box>
+            <Box ml={2} sx={{ minWidth: '160px' }}>
+              <Text>{token.name.replace(' TOKEN', ' Token')}</Text>
+              <Text color="text1">{token.symbol}</Text>
+            </Box>
+          </Flex>
+        </DataText>
+        <DataText>
+          <Flex alignItems="flex-end" flexDirection="column">
+            <Typography variant="p">{getFormattedNumber(token.price, 'price')}</Typography>
+            <Typography variant="p" color={token.price >= token.price_24h ? 'primary' : 'alert'}>
+              {formatPriceChange(((token.price - token.price_24h) / token.price_24h) * 100)}
+            </Typography>
+          </Flex>
+        </DataText>
+        <DataText>
+          <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
+            <Typography variant="p">{getFormattedNumber(token.market_cap, 'currency0')}</Typography>
+            <Typography variant="p" color="text1">
+              {getFormattedNumber(token.total_supply, 'number')} {token.symbol}
+            </Typography>
+          </Flex>
+        </DataText>
+        <DataText>{`$${getFormattedNumber(token.liquidity, 'number')}`}</DataText>
+        <DataText>{trendData ? <Sparkline data={trendData} /> : <LoaderComponent />}</DataText>
+      </DashGrid>
+      {!isLast && <Divider />}
+    </>
+  );
+};
 
 export default React.memo(function TokenSection() {
   const { data: allTokens } = useAllTokensByAddress();
@@ -315,15 +326,15 @@ export default React.memo(function TokenSection() {
                 LIQUIDITY
               </HeaderText>
               <HeaderText
-                role="button"
-                className={sortBy.key === 'holders' ? sortBy.order : ''}
-                onClick={() =>
-                  handleSortSelect({
-                    key: 'holders',
-                  })
-                }
+              // role="button"
+              // className={sortBy.key === 'holders' ? sortBy.order : ''}
+              // onClick={() =>
+              //   handleSortSelect({
+              //     key: 'holders',
+              //   })
+              // }
               >
-                HOLDERS
+                7d trend
               </HeaderText>
             </DashGrid>
           )}
