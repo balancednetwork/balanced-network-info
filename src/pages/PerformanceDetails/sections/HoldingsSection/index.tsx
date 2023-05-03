@@ -306,18 +306,14 @@ const HoldingsSection = () => {
         <BalanceGrid minWidth={gridWidth}>
           <GridItemAssetTotal>Subtotal</GridItemAssetTotal>
           <GridItemAssetTotal>
-            {holdingsCurrent ? (
+            {POLCurrent ? (
               <DisplayValueOrLoader value={totalCurrentPOL} currencyRate={1} />
             ) : (
               <StyledSkeleton width={120} />
             )}
           </GridItemAssetTotal>
           <GridItemAssetTotal>
-            {holdingsPast ? (
-              <DisplayValueOrLoader value={totalPastPOL} currencyRate={1} />
-            ) : (
-              <StyledSkeleton width={120} />
-            )}
+            {POLPast ? <DisplayValueOrLoader value={totalPastPOL} currencyRate={1} /> : <StyledSkeleton width={120} />}
           </GridItemAssetTotal>
         </BalanceGrid>
 
