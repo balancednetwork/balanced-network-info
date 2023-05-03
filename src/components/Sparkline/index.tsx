@@ -11,7 +11,7 @@ export default function Sparkline({ data }: { data: any }) {
   console.log('color', color);
 
   return (
-    <AreaChart width={130} height={40} data={data}>
+    <AreaChart width={150} height={40} data={data}>
       <defs>
         <linearGradient id={`gradientSpark-${symbol}`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity={0.75} />

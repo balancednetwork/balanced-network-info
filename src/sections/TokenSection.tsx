@@ -31,9 +31,9 @@ const DashGrid = styled(Box)`
   display: grid;
   gap: 1em;
   align-items: center;
-  grid-template-columns: 6fr 4fr 4fr 3fr 3fr;
+  grid-template-columns: 24fr 16fr 15fr 11fr 14fr;
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: 2fr 2fr 3fr 2fr 2fr;
+    grid-template-columns: 6fr 6fr 9fr 5fr 7fr;
   `}
 
   > * {
