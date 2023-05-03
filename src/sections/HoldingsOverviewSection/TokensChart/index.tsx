@@ -106,7 +106,7 @@ export default function TokensChart() {
     <ChartSection border>
       <Flex alignItems="center" flexWrap="wrap">
         <Typography variant="h3" mr={2}>
-          Balance Tokens
+          DAO Fund
         </Typography>
       </Flex>
       <ChartWrap visibleOverflow>

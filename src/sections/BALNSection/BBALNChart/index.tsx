@@ -115,7 +115,7 @@ export default function BBALNChart() {
                 outerRadius={isSmallScreen ? OUTER_RADIUS_MOBILE : OUTER_RADIUS}
                 label={!isSmallScreen && <CustomLabel />}
                 labelLine={false}
-                fill="#334764"
+                fill="#136aa1"
                 startAngle={-270}
               />
               {isSmallScreen && (

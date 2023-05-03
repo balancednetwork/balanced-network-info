@@ -1,24 +1,19 @@
 import React from 'react';
 
-import { useGovernanceInfo, useOverviewInfo } from 'queries/index';
+import { useOverviewInfo } from 'queries/index';
 import { Helmet } from 'react-helmet-async';
 import { Flex, Box } from 'rebass/styled-components';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { ReactComponent as BalnStakingIcon } from 'assets/icons/balnstaking.svg';
-import { ReactComponent as ChartIcon } from 'assets/icons/chart.svg';
 import { ReactComponent as CoinsIcon } from 'assets/icons/coins.svg';
-import { ReactComponent as DaoIcon } from 'assets/icons/dao.svg';
-import { ReactComponent as DistributionIcon } from 'assets/icons/distribution.svg';
 import { ReactComponent as FeesIcon } from 'assets/icons/fees.svg';
 import { ReactComponent as QuestionIcon } from 'assets/icons/question.svg';
-import { ReactComponent as StakersIcon } from 'assets/icons/staking-1.svg';
 import vault from 'assets/icons/vault.svg';
 import Footer from 'components/Footer';
 import Header from 'components/Header';
 import { BoxPanel } from 'components/Panel';
 import { MouseoverTooltip } from 'components/Tooltip';
-import { LINKS } from 'constants/links';
 import { LoaderComponent } from 'pages/PerformanceDetails/utils';
 import BALNSection from 'sections/BALNSection';
 import CollateralAndLoanSection from 'sections/CollateralAndLoanSection';
@@ -68,20 +63,34 @@ export const Stats = styled(Flex)`
   `}
 `;
 
-export const StatsItem = styled(Flex)`
+export const StatsItem = styled(Flex)<{ border?: boolean }>`
   flex: 1;
   position: relative;
   display: flex;
   justify-content: center;
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    border-right: 0;
-  `}
-
   @media (max-width: 1000px) {
     flex-direction: column;
     align-items: center;
   }
+
+  ${({ border, theme }) =>
+    border &&
+    css`
+      &:before {
+        content: '';
+        position: absolute;
+        background-color: ${({ theme }) => theme.colors.divider};
+        top: 13px;
+        right: 0;
+        height: calc(100% - 26px);
+        width: 1px;
+
+        ${({ theme }) => theme.mediaWidth.upToSmall`
+        content: none;
+        `}
+      }
+    `};
 `;
 
 export const StatsItemIcon = styled(Box)`
@@ -90,7 +99,7 @@ export const StatsItemIcon = styled(Box)`
 
 export const StatsItemData = styled(Box)`
   margin: 8px 8px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme }) => theme.mediaWidth.upToMedium`
     text-align: center;
   `}
 `;
@@ -127,7 +136,7 @@ export function StatsPage() {
         <BoxPanel bg="bg2">
           <Stats>
             {/* TVL */}
-            <StatsItem className="border-right">
+            <StatsItem border>
               <StatsItemIcon>
                 {/* svg has issue with linear gradient, so use img here for this icon */}
                 <img src={vault} alt="value" width={53} height={55} />
@@ -140,7 +149,7 @@ export function StatsPage() {
               </StatsItemData>
             </StatsItem>
             {/* number of Borrowers */}
-            <StatsItem className="border-right">
+            <StatsItem border>
               <StatsItemIcon>
                 <CoinsIcon width={53} height={55} />
               </StatsItemIcon>
@@ -156,7 +165,7 @@ export function StatsPage() {
               </StatsItemData>
             </StatsItem>
             {/* fees */}
-            <StatsItem className="border-right">
+            <StatsItem border>
               <StatsItemIcon>
                 <FeesIcon width={53} height={55} />
               </StatsItemIcon>

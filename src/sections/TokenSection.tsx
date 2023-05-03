@@ -3,6 +3,7 @@ import React, { useMemo, useState } from 'react';
 import { Skeleton } from '@material-ui/lab';
 import { MetaToken } from 'queries';
 import { useAllTokensByAddress } from 'queries/backendv2';
+import { useMedia } from 'react-use';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled, { css } from 'styled-components';
 
@@ -253,6 +254,7 @@ export default React.memo(function TokenSection() {
   }, [allTokens, searched, sortData]);
 
   const noTokensFound = searched && tokens.length === 0;
+  const isSmallScreen = useMedia('(max-width: 800px)');
 
   return (
     <BoxPanel bg="bg2">
@@ -260,7 +262,7 @@ export default React.memo(function TokenSection() {
         <Typography variant="h2" mb={5} mr="20px">
           Tokens
         </Typography>
-        <Box width="285px">
+        <Box width={isSmallScreen ? '100%' : '285px'} mb={isSmallScreen ? '25px' : 0}>
           <SearchInput value={searched} onChange={e => setSearched(e.target.value)} />
         </Box>
       </Flex>
@@ -338,7 +340,7 @@ export default React.memo(function TokenSection() {
                 ) : null,
               )}
               {noTokensFound && (
-                <Typography width="100%" textAlign="center" paddingTop="30px" fontSize={16} color="text">
+                <Typography width="100%" paddingTop="30px" fontSize={16} color="text">
                   No tokens match <strong>{searched}</strong> expression.
                 </Typography>
               )}

@@ -2,19 +2,23 @@ import React, { useMemo, useState } from 'react';
 
 import { Pair, useAllPairsIncentivisedById, useAllPairsTotal } from 'queries/backendv2';
 import { isMobile } from 'react-device-detect';
+import { useMedia } from 'react-use';
 import { Flex, Box, Text } from 'rebass/styled-components';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
+import { ReactComponent as FeesIcon } from 'assets/icons/fees.svg';
+import liquidityIcon from 'assets/icons/liquidity.svg';
 import { ReactComponent as QuestionIcon } from 'assets/icons/question.svg';
-import { ReactComponent as SigmaIcon } from 'assets/icons/sigma.svg';
+import volumeIcon from 'assets/icons/volume.svg';
 import Divider from 'components/Divider';
 import { UnderlineText } from 'components/DropdownText';
 import { BoxPanel } from 'components/Panel';
 import SearchInput from 'components/SearchInput';
-import PoolLogo, { IconWrapper, PoolLogoWrapper } from 'components/shared/PoolLogo';
+import PoolLogo from 'components/shared/PoolLogo';
 import { MouseoverTooltip } from 'components/Tooltip';
 import useSort from 'hooks/useSort';
 import useTheme from 'hooks/useTheme';
+import { LoaderComponent } from 'pages/PerformanceDetails/utils';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
 
@@ -60,10 +64,6 @@ const DataText = styled(Flex)`
   }
 `;
 
-const FooterText = styled(DataText)`
-  font-weight: bold;
-`;
-
 const APYItem = styled(Flex)`
   align-items: flex-end;
   line-height: 25px;
@@ -87,19 +87,65 @@ const QuestionWrapper = styled(Box)`
   display: inline;
 `;
 
-function TotalIcon() {
-  return (
-    <PoolLogoWrapper>
-      <IconWrapper></IconWrapper>
-      <IconWrapper ml="-38px"></IconWrapper>
-      <IconWrapper ml="-38px"></IconWrapper>
-      <IconWrapper ml="-38px"></IconWrapper>
-      <IconWrapper ml="-38px">
-        <SigmaIcon width={20} height={20} />
-      </IconWrapper>
-    </PoolLogoWrapper>
-  );
-}
+const DEXStats = styled(Flex)`
+  padding: 20px;
+  margin: 10px 0 35px;
+  background: ${({ theme }) => theme.colors.bg3};
+  border-radius: 10px;
+  width: 100%;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column;
+    align-items: center;
+    padding: 5px 20px;
+  `}
+`;
+
+const StatsItem = styled(Flex)<{ border?: boolean }>`
+  flex: 1;
+  position: relative;
+  display: flex;
+  justify-content: center;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 15px 0;
+  `}
+
+  ${({ border, theme }) =>
+    border &&
+    css`
+      &:before {
+        content: '';
+        position: absolute;
+        background-color: ${({ theme }) => theme.colors.divider};
+        top: 13px;
+        right: 0;
+        height: calc(100% - 26px);
+        width: 1px;
+
+        ${({ theme }) => theme.mediaWidth.upToSmall`
+        top: 100%;
+        right: 15px;
+        width: calc(100% - 30px);
+        height: 1px;
+        `}
+      }
+    `};
+`;
+
+const StatsItemIcon = styled(Box)`
+  margin: 8px 10px;
+`;
+
+const StatsItemData = styled(Box)`
+  margin: 8px 10px;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    text-align: center;
+  `}
+`;
 
 const SkeletonPairPlaceholder = () => {
   return (
@@ -132,18 +178,12 @@ const SkeletonPairPlaceholder = () => {
 };
 
 const PairItem = ({
-  id,
-  name,
-  baseAddress,
-  quoteAddress,
-  liquidity,
-  fees24h,
-  fees30d,
-  volume24h,
-  volume30d,
-  feesApy,
-  balnApy,
-}: Pair) => (
+  pair: { id, name, baseAddress, quoteAddress, liquidity, fees24h, fees30d, volume24h, volume30d, feesApy, balnApy },
+  isLast,
+}: {
+  pair: Pair;
+  isLast: boolean;
+}) => (
   <>
     <DashGrid my={2}>
       <DataText minWidth={'220px'}>
@@ -183,7 +223,7 @@ const PairItem = ({
       <DataText>{volume24h ? getFormattedNumber(volume24h, 'currency0') : '-'}</DataText>
       <DataText>{fees24h ? getFormattedNumber(fees24h, 'currency0') : '-'}</DataText>
     </DashGrid>
-    <Divider />
+    {!isLast && <Divider />}
   </>
 );
 
@@ -206,6 +246,7 @@ export default function PairSection() {
   }, [allPairs, searched, sortData]);
 
   const noPairsFound = searched && pairs.length === 0;
+  const isSmallScreen = useMedia('(max-width: 800px)');
 
   return (
     <BoxPanel bg="bg2">
@@ -213,10 +254,53 @@ export default function PairSection() {
         <Typography variant="h2" mb={5} mr="20px">
           Exchange
         </Typography>
-        <Box width="285px">
+        {!isSmallScreen && (
+          <Box width="285px">
+            <SearchInput value={searched} onChange={e => setSearched(e.target.value)} />
+          </Box>
+        )}
+      </Flex>
+      <DEXStats>
+        <StatsItem border>
+          <StatsItemIcon>
+            <img src={liquidityIcon} alt="Liquidity" height={55} />
+          </StatsItemIcon>
+          <StatsItemData>
+            <Typography fontWeight="normal" variant="h3">
+              {pairsTotal ? getFormattedNumber(pairsTotal.tvl, 'currency0') : <LoaderComponent />}
+            </Typography>
+            <Typography fontSize={isSmallScreen ? 16 : 18}>Total liquidity</Typography>
+          </StatsItemData>
+        </StatsItem>
+        <StatsItem border>
+          <StatsItemIcon>
+            <img src={volumeIcon} alt="Volume" height={55} />
+          </StatsItemIcon>
+          <StatsItemData>
+            <Typography fontWeight="normal" variant="h3">
+              {pairsTotal ? getFormattedNumber(pairsTotal.volume, 'currency0') : <LoaderComponent />}
+            </Typography>
+            <Typography fontSize={isSmallScreen ? 16 : 18}>Volume (24h)</Typography>
+          </StatsItemData>
+        </StatsItem>
+        <StatsItem>
+          <StatsItemIcon>
+            <FeesIcon height={55} />
+          </StatsItemIcon>
+          <StatsItemData>
+            <Typography fontWeight="normal" variant="h3">
+              {pairsTotal ? getFormattedNumber(pairsTotal.fees, 'currency0') : <LoaderComponent />}
+            </Typography>
+            <Typography fontSize={isSmallScreen ? 16 : 18}>Fees (24h)</Typography>
+          </StatsItemData>
+        </StatsItem>
+      </DEXStats>
+
+      {isSmallScreen && (
+        <Box mb="25px">
           <SearchInput value={searched} onChange={e => setSearched(e.target.value)} />
         </Box>
-      </Flex>
+      )}
       <Box overflow="auto">
         <List>
           {!noPairsFound && (
@@ -307,11 +391,17 @@ export default function PairSection() {
 
           {pairs ? (
             <>
-              {pairs.map((pair, index) =>
-                showingExpanded || index < COMPACT_ITEM_COUNT ? <PairItem key={pair.name} {...pair} /> : null,
+              {pairs.map((pair, index, arr) =>
+                showingExpanded || index < COMPACT_ITEM_COUNT ? (
+                  <PairItem
+                    key={pair.name}
+                    isLast={index === arr.length - 1 || (!showingExpanded && index === COMPACT_ITEM_COUNT - 1)}
+                    pair={pair}
+                  />
+                ) : null,
               )}
               {noPairsFound && (
-                <Typography width="100%" textAlign="center" paddingTop="30px" fontSize={16} color="text">
+                <Typography width="100%" paddingTop="30px" fontSize={16} color="text">
                   No pools match <strong>{searched}</strong> expression.
                 </Typography>
               )}
@@ -337,23 +427,6 @@ export default function PairSection() {
               <Divider />
               <SkeletonPairPlaceholder />
             </>
-          )}
-
-          {pairsTotal && !noPairsFound && (
-            <DashGrid my={2}>
-              <FooterText minWidth={'220px'}>
-                <Flex alignItems="center">
-                  <Box sx={{ minWidth: '95px' }}>
-                    <TotalIcon />
-                  </Box>
-                  <Text ml={2}>Total</Text>
-                </Flex>
-              </FooterText>
-              <FooterText minWidth={'190px'}>–</FooterText>
-              <FooterText>{getFormattedNumber(pairsTotal.tvl, 'currency0')}</FooterText>
-              <FooterText>{getFormattedNumber(pairsTotal.volume, 'currency0')}</FooterText>
-              <FooterText>{getFormattedNumber(pairsTotal.fees, 'currency0')}</FooterText>
-            </DashGrid>
           )}
         </List>
       </Box>

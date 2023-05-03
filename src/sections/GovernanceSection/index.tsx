@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 
 import { useGovernanceInfo, useLatestProposals } from 'queries';
 import { Box, Flex } from 'rebass';
@@ -117,7 +117,7 @@ const GovernanceSection = () => {
       </Typography>
 
       <Stats>
-        <StatsItem className="border-right">
+        <StatsItem border>
           <StatsItemIcon>
             <ActiveProposalsIcon width={55} height={55} />
           </StatsItemIcon>
@@ -134,7 +134,7 @@ const GovernanceSection = () => {
           </StatsItemData>
         </StatsItem>
 
-        <StatsItem className="border-right">
+        <StatsItem border>
           <StatsItemIcon>
             <TotalProposalsIcon width={55} />
           </StatsItemIcon>
@@ -150,7 +150,7 @@ const GovernanceSection = () => {
           </StatsItemData>
         </StatsItem>
 
-        <StatsItem className="border-right">
+        <StatsItem border>
           <StatsItemIcon>
             <ParticipationRateIcon width={55} />
           </StatsItemIcon>

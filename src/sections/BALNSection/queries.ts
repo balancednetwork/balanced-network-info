@@ -5,7 +5,7 @@ import { useQuery } from 'react-query';
 
 import bnJs from 'bnJs';
 
-export const CHART_COLORS = ['#55A7B5', '#3F7D92', '#244965', '#14294A'];
+export const CHART_COLORS = ['#2ca9b7', '#217f94', '#144a68', '#1694b8'];
 
 export function useBALNDistributionQuery() {
   const { data: distribution, isSuccess: distributionQuerySuccess } = useFlattenedRewardsDistribution();
