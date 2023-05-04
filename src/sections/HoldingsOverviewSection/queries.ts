@@ -79,6 +79,7 @@ export function useDAOFundHoldingsPieData() {
                     name: token.symbol,
                     value: curAmount.times(tokenPrices[token.symbol!]).toNumber(),
                     fill: CHART_TOKENS_COLORS[token.symbol!] || CHART_TOKENS_COLORS.default,
+                    amount: curAmount.toNumber(),
                   };
                 } else {
                   return {};

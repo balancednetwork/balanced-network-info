@@ -33,7 +33,7 @@ export function useBALNDistributionQuery() {
           value: parseFloat(distribution['Reserve Fund'].toFixed(4)),
         },
         {
-          name: 'DAO fund',
+          name: 'DAO Fund',
           value: parseFloat(distribution['DAOfund'].toFixed(4)),
           fill: CHART_COLORS[3],
         },

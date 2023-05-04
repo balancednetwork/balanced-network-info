@@ -8,8 +8,6 @@ export default function Sparkline({ data }: { data: any }) {
   const symbol = data[0].symbol;
   const color = data[0].price > data[data.length - 1].price ? '#fb6a6a' : '#2ca9b7';
 
-  console.log('color', color);
-
   return (
     <AreaChart width={150} height={40} data={data}>
       <defs>

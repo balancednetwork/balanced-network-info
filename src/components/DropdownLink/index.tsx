@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 import styled from 'styled-components';
 
@@ -47,8 +48,17 @@ export default function DropdownLink({
   expanded: boolean;
   setExpanded: (expanded: boolean) => void;
 }) {
+  const isSmallScreen = useMedia('(max-width: 1000px)');
+
   return (
-    <Typography fontSize={18} textAlign="center" paddingBottom="5px" mt="15px" color="primaryBright" pt="30px">
+    <Typography
+      fontSize={18}
+      textAlign={isSmallScreen ? 'left' : 'center'}
+      paddingBottom="5px"
+      mt="15px"
+      color="primaryBright"
+      pt="30px"
+    >
       {expanded ? (
         <StyledUnderlineText onClick={() => setExpanded(false)}>
           Show less
