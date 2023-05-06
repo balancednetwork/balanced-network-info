@@ -76,7 +76,6 @@ export const GridItemTotal = styled(GridItemSubtotal)`
 
 export const GridItemToken = styled(GridItem)`
   padding: 20px 0;
-  border-bottom: 1px solid #304a68;
 `;
 
 export const GridItemAssetTotal = styled(GridItemTotal)`

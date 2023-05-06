@@ -203,7 +203,7 @@ type TokenItemProps = {
 };
 
 const TokenItem = ({ token, isLast }: TokenItemProps) => {
-  const tsStart = useTimestampRounded(1000 * 60, 12);
+  const tsStart = useTimestampRounded(1000 * 60, 14);
   const tsEnd = useTimestampRounded(1000 * 60);
   const start = Math.floor(tsStart / 1000);
   const end = Math.floor(tsEnd / 1000);
@@ -355,9 +355,6 @@ export default React.memo(function TokenSection() {
                   No tokens match <strong>{searched}</strong> expression.
                 </Typography>
               )}
-              {tokens.length > COMPACT_ITEM_COUNT && (
-                <DropdownLink expanded={showingExpanded} setExpanded={setShowingExpanded} />
-              )}
             </>
           ) : (
             <>
@@ -374,6 +371,12 @@ export default React.memo(function TokenSection() {
           )}
         </List>
       </Box>
+
+      {tokens.length > COMPACT_ITEM_COUNT && (
+        <Box pb="3px">
+          <DropdownLink expanded={showingExpanded} setExpanded={setShowingExpanded} />
+        </Box>
+      )}
     </BoxPanel>
   );
 });
