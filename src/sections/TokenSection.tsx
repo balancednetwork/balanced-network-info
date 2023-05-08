@@ -203,7 +203,7 @@ type TokenItemProps = {
 };
 
 const TokenItem = ({ token, isLast }: TokenItemProps) => {
-  const tsStart = useTimestampRounded(1000 * 60, 14);
+  const tsStart = useTimestampRounded(1000 * 60, 7);
   const tsEnd = useTimestampRounded(1000 * 60);
   const start = Math.floor(tsStart / 1000);
   const end = Math.floor(tsEnd / 1000);
