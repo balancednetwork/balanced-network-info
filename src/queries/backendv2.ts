@@ -557,7 +557,8 @@ export function useCollateralDataFor(daysBack: number) {
 }
 
 export function useAllDebtData() {
-  return useQuery('allDebtDataBE', async () => {
+  const { data: stabilityFundInfo } = useAllCollateralData();
+  return useQuery(`allDebtDataBE-${stabilityFundInfo ? Object.keys(stabilityFundInfo).length : '-'}`, async () => {
     const responseSICX = await axios.get(
       `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_collateral_debt_sICX_bnusd`,
     );
@@ -577,10 +578,13 @@ export function useAllDebtData() {
       const seriesBTCB = responseSICX.data && setTimeToMs(trimStartingZeroValues(responseBTCB.data));
       const seriesTotal = responseTotal.data && setTimeToMs(trimStartingZeroValues(responseTotal.data));
 
+      const seriesFund = stabilityFundInfo?.series['fundTotal'];
+
       return {
         sICX: seriesSICX,
         ETH: seriesETH,
         BTCB: seriesBTCB,
+        [predefinedCollateralTypes.STABILITY_FUND]: seriesFund,
         [predefinedCollateralTypes.ALL]: seriesTotal,
       };
     } catch (e) {

@@ -1,10 +1,11 @@
 import React from 'react';
 
 import dayjs from 'dayjs';
-import { useBorrowersInfo, useLoanInfo } from 'queries';
+import { useBorrowersInfo, useFundInfo, useLoanInfo } from 'queries';
 import { useMedia } from 'react-use';
 import { Box, Flex } from 'rebass';
 
+import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
 import { LoaderComponent } from 'pages/PerformanceDetails/utils';
 import { ChartInfo, ChartInfoItem, ChartSection } from 'sections/BALNSection/DistributionChart';
 import { MAX_BOOST } from 'sections/PairSection';
@@ -23,7 +24,7 @@ export default function BnUSDChart({
 }) {
   const loanInfo = useLoanInfo();
   const { data: borrowersInfo } = useBorrowersInfo();
-  // const { data: fundInfo } = useFundInfo();
+  const { data: fundInfo } = useFundInfo();
 
   const [userHovering, setUserHovering] = React.useState<boolean>(false);
 
@@ -89,24 +90,24 @@ export default function BnUSDChart({
 
       {/* flexible footer */}
       <ChartInfo>
-        {/* {selectedCollateral === predefinedCollateralTypes.STABILITY_FUND ? (
+        {selectedCollateral === predefinedCollateralTypes.STABILITY_FUND ? (
           <>
-            <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
+            <ChartInfoItem border>
               <Typography variant="p" fontSize="18px">
                 {fundInfo ? `${fundInfo.feeIn}%` : <LoaderComponent />}
               </Typography>
               <Typography opacity={0.75}>Stability Fund fee</Typography>
-            </Flex>
-            <Flex flex={1} flexDirection="column" alignItems="center">
+            </ChartInfoItem>
+            <ChartInfoItem>
               <Typography variant="p" fontSize="18px">
                 {fundInfo ? getFormattedNumber(fundInfo.feesGenerated, 'price') : <LoaderComponent />}
               </Typography>
               <Typography opacity={0.75}>Earned past month</Typography>
-            </Flex>
+            </ChartInfoItem>
           </>
         ) : selectedCollateral === predefinedCollateralTypes.ALL ? (
           <>
-            <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
+            <ChartInfoItem smaller border>
               <Typography variant="p" fontSize="18px">
                 {loanInfo.loansAPY ? (
                   `${getFormattedNumber(loanInfo.loansAPY, 'percent2')} - ${getFormattedNumber(
@@ -117,76 +118,43 @@ export default function BnUSDChart({
                   <LoaderComponent />
                 )}
               </Typography>
-              <Typography opacity={0.75}>Borrow APY</Typography>
-            </Flex>
-            <Flex flex={1} flexDirection="column" alignItems="center" className={isExtraSmall ? '' : 'border-right'}>
+              <Typography color="text1">Borrow APR</Typography>
+            </ChartInfoItem>
+            <ChartInfoItem smaller border={!isSmall || isExtraSmall}>
               <Typography variant="p" fontSize="18px">
                 {loanInfo.dailyRewards ? getFormattedNumber(loanInfo.dailyRewards, 'number') : <LoaderComponent />} BALN
               </Typography>
-              <Typography opacity={0.75}>Daily rewards</Typography>
-            </Flex>
-            <Flex
-              flex={isExtraSmall ? null : 1}
-              mt={isExtraSmall ? '20px' : 0}
+              <Typography color="text1">Daily rewards</Typography>
+            </ChartInfoItem>
+            <ChartInfoItem
+              smaller
+              flex={isSmall ? null : 1}
               flexDirection="column"
               alignItems="center"
-              width={isExtraSmall ? '100%' : 'auto'}
+              width={isSmall ? '100%' : 'auto'}
             >
               <Typography variant="p" fontSize="18px">
                 {borrowersInfo ? getFormattedNumber(borrowersInfo.total, 'number') : <LoaderComponent />}
               </Typography>
-              <Typography opacity={0.75}>Borrowers</Typography>
-            </Flex>
+              <Typography color="text1">Borrowers</Typography>
+            </ChartInfoItem>
           </>
         ) : (
           <>
-            <Flex flex={1} flexDirection="column" alignItems="center" className="border-right">
+            <ChartInfoItem border>
               <Typography variant="p" fontSize="18px">
                 {loanInfo.loansAPY ? getFormattedNumber(loanInfo.loansAPY, 'percent2') : <LoaderComponent />}
               </Typography>
               <Typography opacity={0.75}>Borrow APY</Typography>
-            </Flex>
-            <Flex flex={1} flexDirection="column" alignItems="center">
+            </ChartInfoItem>
+            <ChartInfoItem>
               <Typography variant="p" fontSize="18px">
                 {loanInfo.dailyRewards ? getFormattedNumber(loanInfo.dailyRewards, 'number') : <LoaderComponent />} BALN
               </Typography>
               <Typography opacity={0.75}>Daily rewards</Typography>
-            </Flex>
+            </ChartInfoItem>
           </>
-        )} */}
-        <>
-          <ChartInfoItem smaller border>
-            <Typography variant="p" fontSize="18px">
-              {loanInfo.loansAPY ? (
-                `${getFormattedNumber(loanInfo.loansAPY, 'percent2')} - ${getFormattedNumber(
-                  loanInfo.loansAPY * MAX_BOOST,
-                  'percent2',
-                )}`
-              ) : (
-                <LoaderComponent />
-              )}
-            </Typography>
-            <Typography color="text1">Borrow APR</Typography>
-          </ChartInfoItem>
-          <ChartInfoItem smaller border={!isSmall || isExtraSmall}>
-            <Typography variant="p" fontSize="18px">
-              {loanInfo.dailyRewards ? getFormattedNumber(loanInfo.dailyRewards, 'number') : <LoaderComponent />} BALN
-            </Typography>
-            <Typography color="text1">Daily rewards</Typography>
-          </ChartInfoItem>
-          <ChartInfoItem
-            smaller
-            flex={isSmall ? null : 1}
-            flexDirection="column"
-            alignItems="center"
-            width={isSmall ? '100%' : 'auto'}
-          >
-            <Typography variant="p" fontSize="18px">
-              {borrowersInfo ? getFormattedNumber(borrowersInfo.total, 'number') : <LoaderComponent />}
-            </Typography>
-            <Typography color="text1">Borrowers</Typography>
-          </ChartInfoItem>
-        </>
+        )}
       </ChartInfo>
     </ChartSection>
   );

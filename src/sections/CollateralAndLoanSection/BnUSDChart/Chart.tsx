@@ -22,8 +22,8 @@ export default function Chart({
   const { data: debtData } = useDebtDataFor(selectedTimeFrame.days);
 
   const data = useMemo(() => {
-    return debtData?.['All'];
-  }, [debtData]);
+    return debtData?.[selectedCollateral];
+  }, [debtData, selectedCollateral]);
 
   useEffect(() => {
     if (data && data[data.length - 1]) {
