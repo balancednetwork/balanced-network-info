@@ -69,10 +69,7 @@ export const CustomTooltip = ({ active, payload }) => {
     return (
       <StyledTooltipContainer>
         <Flex mb="-5px" flexWrap="wrap">
-          <LegendItem legendColor={payload[0].payload.fill}>{`${getFormattedNumber(
-            payload[0].payload.amount,
-            'number',
-          )} ${payload[0].payload.name}`}</LegendItem>
+          <LegendItem legendColor={payload[0].payload.fill}>{`${payload[0].payload.name}`}</LegendItem>
           <Typography ml="-8px" color="text1" fontSize={14} pl="5px">
             {`$${getFormattedNumber(payload[0].payload.value, 'number')}`}
           </Typography>

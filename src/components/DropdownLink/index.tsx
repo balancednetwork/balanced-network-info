@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 import styled from 'styled-components';
 
@@ -57,7 +56,7 @@ export default function DropdownLink({
         </StyledUnderlineText>
       ) : (
         <StyledUnderlineText onClick={() => setExpanded(true)}>
-          Show more
+          Show all
           <ArrowDown />
         </StyledUnderlineText>
       )}

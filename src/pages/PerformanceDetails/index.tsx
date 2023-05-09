@@ -103,6 +103,10 @@ export const TextWithArrow = styled.span`
 export function PerformanceDetails() {
   const breadcrumbsItems: BreadcrumbItem[] = [{ displayName: 'Performance details' }];
 
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <Container>
       <Helmet>

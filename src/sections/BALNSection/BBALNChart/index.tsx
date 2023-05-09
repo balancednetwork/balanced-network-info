@@ -2,11 +2,13 @@ import React from 'react';
 
 import { useOverviewInfo } from 'queries';
 import { useMedia } from 'react-use';
-import { Flex } from 'rebass';
+import { Box, Flex } from 'rebass';
 import { Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { useTheme } from 'styled-components';
 
+import { ReactComponent as QuestionIcon } from 'assets/icons/question.svg';
 import { StyledTooltipContainer } from 'components/MultiLineChart';
+import { MouseoverTooltip } from 'components/Tooltip';
 import { LoaderComponent } from 'pages/PerformanceDetails/utils';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
@@ -92,13 +94,39 @@ export default function BBALNChart() {
     <ChartSection>
       <Flex alignItems="center" flexWrap="wrap">
         <Typography variant="h3" mr={2}>
-          Balance Tokens
+          Boosted BALN
         </Typography>
         <Typography color="text1" sx={{ transform: 'translateY(2px)' }} fontSize={16}>
           {overviewInfo &&
             overviewInfo.bBALNAPY &&
-            `${getFormattedNumber(overviewInfo.bBALNAPY.toNumber(), 'percent2')} APY`}
+            `${getFormattedNumber(overviewInfo.bBALNAPY.toNumber(), 'percent2')} APR`}
         </Typography>
+        <Box margin="1px 0 0 7px">
+          {overviewInfo.monthlyFeesTotal ? (
+            <MouseoverTooltip
+              width={300}
+              text={
+                <>
+                  <Typography>
+                    Calculated from the network fees distributed to bBALN holders over the last 30 days (
+                    <strong>${overviewInfo.monthlyFeesTotal.toFormat(0)}</strong>). Assumes the price of 1 bBALN is
+                    equivalent to 1 BALN locked for 4 years
+                    {overviewInfo.balnPrice ? <strong>{` ($${overviewInfo.balnPrice.toFormat(2)})`}</strong> : ''}.
+                  </Typography>
+                  {overviewInfo.previousChunk && (
+                    <Typography mt={2}>
+                      Over the past month, {overviewInfo.previousChunkAmount} bBALN would have received{' '}
+                      <strong>${overviewInfo.previousChunk.toPrecision(3)}</strong>.
+                    </Typography>
+                  )}
+                </>
+              }
+              placement="top"
+            >
+              <QuestionIcon width={14} />
+            </MouseoverTooltip>
+          ) : null}
+        </Box>
       </Flex>
       <ChartWrap visibleOverflow>
         {data && (
@@ -144,7 +172,7 @@ export default function BBALNChart() {
             {averageLockUp ? `${averageLockUp.toFormat(2)} years` : <LoaderComponent />}
           </Typography>
           <Typography fontSize={14} color="text1">
-            Avg lock-up time
+            Average lock-up time
           </Typography>
         </ChartInfoItem>
       </ChartInfo>

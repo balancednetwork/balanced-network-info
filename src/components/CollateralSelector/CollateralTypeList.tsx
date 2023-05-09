@@ -123,9 +123,15 @@ const CollateralTypeList = ({ width, setAnchor, anchor, setCollateral, ...rest }
       }, [] as { symbol: string; tvl: number; amount: number }[]);
     }
   }, [collateralData]);
-  const sortedTokensCollateral = useMemo(() => collateralTokens && collateralTokens.sort((a, b) => b.tvl - a.tvl), [
+
+  const ICONCollateral = useMemo(() => collateralTokens && collateralTokens.find(token => token.symbol === 'sICX'), [
     collateralTokens,
   ]);
+
+  const sortedTokensCollateralWithoutICON = useMemo(
+    () => collateralTokens && collateralTokens.filter(token => token.symbol !== 'sICX').sort((a, b) => b.tvl - a.tvl),
+    [collateralTokens],
+  );
 
   const handleCollateralSelect = collateral => {
     setCollateral(collateral);
@@ -161,6 +167,30 @@ const CollateralTypeList = ({ width, setAnchor, anchor, setCollateral, ...rest }
         </CollateralTypesGrid>
         <Divider />
 
+        {ICONCollateral && (
+          <>
+            <CollateralTypesGrid onClick={() => handleCollateralSelect(ICONCollateral?.symbol)}>
+              <CollateralTypesGridItem>
+                <CollateralIcon icon={ICONCollateral.symbol} />
+                <Typography fontSize={16} fontWeight="bold" className="white">
+                  ICON
+                </Typography>
+              </CollateralTypesGridItem>
+              <CollateralTypesGridItem alignItems="flex-end" className={isSmall ? 'respo' : ''}>
+                <Flex flexDirection="column">
+                  <Typography className="white" fontSize={16}>
+                    ${getFormattedNumber(ICONCollateral.tvl, 'number')}
+                  </Typography>
+                  <Typography opacity={0.75} className="grey">
+                    {getFormattedNumber(ICONCollateral.amount, 'number')} {ICONCollateral.symbol}
+                  </Typography>
+                </Flex>
+              </CollateralTypesGridItem>
+            </CollateralTypesGrid>
+            <Divider />
+          </>
+        )}
+
         <CollateralTypesGrid onClick={() => handleCollateralSelect(predefinedCollateralTypes.STABILITY_FUND)}>
           <CollateralTypesGridItem>
             <CollateralIcon icon="Stability fund" />
@@ -180,8 +210,8 @@ const CollateralTypeList = ({ width, setAnchor, anchor, setCollateral, ...rest }
         </CollateralTypesGrid>
         <Divider />
 
-        {sortedTokensCollateral &&
-          sortedTokensCollateral.map((item, index) => (
+        {sortedTokensCollateralWithoutICON &&
+          sortedTokensCollateralWithoutICON.map((item, index) => (
             <Fragment key={item.symbol}>
               <CollateralTypesGrid onClick={() => handleCollateralSelect(item.symbol)}>
                 <CollateralTypesGridItem>
@@ -201,7 +231,7 @@ const CollateralTypeList = ({ width, setAnchor, anchor, setCollateral, ...rest }
                   </Flex>
                 </CollateralTypesGridItem>
               </CollateralTypesGrid>
-              {index !== sortedTokensCollateral.length - 1 && <Divider />}
+              {index !== sortedTokensCollateralWithoutICON.length - 1 && <Divider />}
             </Fragment>
           ))}
       </GridWrap>

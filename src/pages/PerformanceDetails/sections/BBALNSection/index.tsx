@@ -331,7 +331,7 @@ const BBALNSection = () => {
                           .dividedBy(daoSources[boostedLP].balance)
                           .toFixed(2)} x`}
                         {daoSources[boostedLP].apy.isGreaterThan(0) ? (
-                          ` (${daoSources[boostedLP].apy}% APY)`
+                          ` (${daoSources[boostedLP].apy}% APR)`
                         ) : (
                           <>
                             {' ('}

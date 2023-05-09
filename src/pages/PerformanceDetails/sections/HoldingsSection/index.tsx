@@ -210,7 +210,7 @@ const HoldingsSection = () => {
               )
             );
           })}
-        <BalanceGrid minWidth={gridWidth} className="border-top">
+        <BalanceGrid minWidth={gridWidth} className="border-top border-bottom" style={{ paddingBottom: '10px' }}>
           <GridItemAssetTotal>Subtotal</GridItemAssetTotal>
           <GridItemAssetTotal>
             {holdingsCurrent ? (

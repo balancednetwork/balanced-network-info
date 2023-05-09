@@ -1,16 +1,13 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
 import { Pair, useAllPairsIncentivisedById, useAllPairsTotal } from 'queries/backendv2';
 import { isMobile } from 'react-device-detect';
 import { useMedia } from 'react-use';
 import { Flex, Box, Text } from 'rebass/styled-components';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
-import { ReactComponent as FeesIcon } from 'assets/icons/fees.svg';
-import liquidityIcon from 'assets/icons/liquidity.svg';
 import { ReactComponent as QuestionIcon } from 'assets/icons/question.svg';
 import { ReactComponent as SigmaIcon } from 'assets/icons/sigma.svg';
-import volumeIcon from 'assets/icons/volume.svg';
 import Divider from 'components/Divider';
 import DropdownLink from 'components/DropdownLink';
 import { BoxPanel } from 'components/Panel';
@@ -19,7 +16,6 @@ import PoolLogo, { IconWrapper, PoolLogoWrapper } from 'components/shared/PoolLo
 import { MouseoverTooltip } from 'components/Tooltip';
 import useSort from 'hooks/useSort';
 import useTheme from 'hooks/useTheme';
-import { LoaderComponent } from 'pages/PerformanceDetails/utils';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
 
@@ -207,6 +203,24 @@ export default function PairSection() {
   const noPairsFound = searched && pairs.length === 0;
   const isSmallScreen = useMedia('(max-width: 800px)');
 
+  const handleSearch = useCallback(
+    e => {
+      setShowingExpanded(!!e.target.value);
+      setSearched(e.target.value);
+    },
+    [setSearched, setShowingExpanded],
+  );
+
+  const dynamicTotals = useMemo(() => {
+    if (pairs) {
+      return {
+        tvl: pairs.reduce((acc, pair) => acc + pair.liquidity, 0),
+        volume: pairs.reduce((acc, pair) => acc + pair.volume24h, 0),
+        fees: pairs.reduce((acc, pair) => acc + pair.fees24h, 0),
+      };
+    }
+  }, [pairs]);
+
   return (
     <BoxPanel bg="bg2">
       <Flex justifyContent="space-between" flexWrap="wrap">
@@ -215,14 +229,14 @@ export default function PairSection() {
         </Typography>
         {!isSmallScreen && (
           <Box width="295px">
-            <SearchInput value={searched} onChange={e => setSearched(e.target.value)} />
+            <SearchInput value={searched} onChange={handleSearch} />
           </Box>
         )}
       </Flex>
 
       {isSmallScreen && (
         <Box mb="25px">
-          <SearchInput value={searched} onChange={e => setSearched(e.target.value)} />
+          <SearchInput value={searched} onChange={handleSearch} />
         </Box>
       )}
       <Box overflow="auto">
@@ -257,11 +271,11 @@ export default function PairSection() {
                     text={
                       <>
                         <Typography>
-                          The BALN APY is calculated from the USD value of BALN rewards allocated to a pool. Your rate
+                          The BALN APR is calculated from the USD value of BALN rewards allocated to a pool. Your rate
                           will vary based on the amount of bBALN you hold.
                         </Typography>
                         <Typography marginTop={'20px'}>
-                          The fee APY is calculated from the swap fees earned by a pool in the last 30 days.
+                          The fee APR is calculated from the swap fees earned by a pool in the last 30 days.
                         </Typography>
                         <Typography marginTop={'20px'} color={theme.colors.text1} fontSize={14}>
                           Impermanent loss is not factored in.
@@ -275,7 +289,7 @@ export default function PairSection() {
                     </QuestionWrapper>
                   </MouseoverTooltip>
                 )}
-                APY
+                APR
               </HeaderText>
               <HeaderText
                 role="button"
@@ -350,13 +364,17 @@ export default function PairSection() {
                   <Box sx={{ minWidth: '95px' }}>
                     <TotalIcon />
                   </Box>
-                  <Text ml={2}>Total</Text>
+                  <Text ml={2}>{searched ? 'Total' : 'All pools'} </Text>
                 </Flex>
               </FooterText>
               <FooterText minWidth={'190px'}>–</FooterText>
-              <FooterText>{getFormattedNumber(pairsTotal.tvl, 'currency0')}</FooterText>
-              <FooterText>{getFormattedNumber(pairsTotal.volume, 'currency0')}</FooterText>
-              <FooterText>{getFormattedNumber(pairsTotal.fees, 'currency0')}</FooterText>
+              <FooterText>{getFormattedNumber(searched ? dynamicTotals?.tvl : pairsTotal.tvl, 'currency0')}</FooterText>
+              <FooterText>
+                {getFormattedNumber(searched ? dynamicTotals?.volume : pairsTotal.volume, 'currency0')}
+              </FooterText>
+              <FooterText>
+                {getFormattedNumber(searched ? dynamicTotals?.fees : pairsTotal.fees, 'currency0')}
+              </FooterText>
             </DashGrid>
           )}
         </List>

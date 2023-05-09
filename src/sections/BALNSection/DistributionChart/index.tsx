@@ -160,7 +160,7 @@ export const CustomLabel = props => {
   const ey = my;
   const textAnchor = cos >= 0 ? 'start' : 'end';
 
-  return percent > 0.01 ? (
+  return (
     <g>
       <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={'#7B8696'} fill="none" />
       <circle cx={ex} cy={ey} r={2} fill={'#7B8696'} stroke="none" />
@@ -182,7 +182,7 @@ export const CustomLabel = props => {
         {`${parseFloat((percent * 100).toFixed(2)).toPrecision()}%`}
       </text>
     </g>
-  ) : null;
+  );
 };
 
 export const CustomLegend = props => {

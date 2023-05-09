@@ -222,7 +222,7 @@ export function StatsPage() {
                     </MouseoverTooltip>
                   ) : null}
                 </Flex>
-                <Typography>bBALN APY</Typography>
+                <Typography>bBALN APR</Typography>
               </StatsItemData>
             </StatsItem>
           </Stats>

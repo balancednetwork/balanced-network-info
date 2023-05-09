@@ -29,7 +29,7 @@ export function useBALNDistributionQuery() {
           fill: CHART_COLORS[0],
         },
         {
-          name: 'Reserve fund',
+          name: 'Reserve Fund',
           value: parseFloat(distribution['Reserve Fund'].toFixed(4)),
         },
         {

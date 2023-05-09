@@ -166,7 +166,7 @@ export default function BnUSDChart({
                 <LoaderComponent />
               )}
             </Typography>
-            <Typography color="text1">Borrow APY</Typography>
+            <Typography color="text1">Borrow APR</Typography>
           </ChartInfoItem>
           <ChartInfoItem smaller border={!isSmall || isExtraSmall}>
             <Typography variant="p" fontSize="18px">

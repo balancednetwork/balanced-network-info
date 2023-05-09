@@ -65,6 +65,17 @@ const ProposalPreview = styled(FlexPanel)<{ noHover?: boolean }>`
   `};
 `;
 
+const MetaWrap = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  margin: -5px 0 -15px;
+
+  & > * {
+    margin-right: 15px;
+    line-height: 3;
+  }
+`;
+
 const IconLabel = ({ icon, content }: { icon: React.ReactNode; content: React.ReactNode }) => {
   return (
     <Flex alignItems="center" sx={{ columnGap: '10px', lineHeight: '35px' }}>
@@ -200,12 +211,10 @@ const GovernanceSection = () => {
                   {proposal.description && normalizeContent(proposal.description, true)}
                 </Typography>
                 <Divider mt={3} mb={2}></Divider>
-                <Flex flexWrap="wrap" alignItems="center" mb={-2}>
-                  <Box mr={'17px'}>
-                    <VoteStatusLabel proposal={proposal} />
-                  </Box>
+                <MetaWrap>
+                  <VoteStatusLabel proposal={proposal} />
                   <VoteDateEndLabel proposal={proposal} />
-                </Flex>
+                </MetaWrap>
               </ProposalPreview>
             </a>
           ))}
