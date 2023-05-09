@@ -1,12 +1,10 @@
 import React from 'react';
 
-import { useAllTokensByAddress } from 'queries/backendv2';
 import { Link } from 'react-router-dom';
 import { Flex } from 'rebass';
 import styled from 'styled-components';
 
 import arrowIcon from 'assets/icons/arrow.svg';
-import bnJs from 'bnJs';
 import { BoxPanel } from 'components/Panel';
 import { LINKS } from 'constants/links';
 import useTimestampRounded from 'hooks/useTimestampRounded';
@@ -50,9 +48,7 @@ const StyledArrowLink = styled(Link)`
 
 const BALNSectionOverview = () => {
   const now = useTimestampRounded();
-  const before = useTimestampRounded(1000 * 60, 30);
   const daoFundNow = useDAOFundTotal(now);
-  const daoFundBefore = useDAOFundTotal(before);
 
   return (
     <BoxPanel bg="bg2">
