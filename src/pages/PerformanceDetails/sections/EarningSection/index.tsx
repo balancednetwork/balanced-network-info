@@ -6,7 +6,6 @@ import ClickAwayListener from 'react-click-away-listener';
 import { Flex, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
-import bnJs from 'bnJs';
 import { UnderlineTextWithArrow } from 'components/DropdownText';
 import { MenuList, MenuItem } from 'components/Menu';
 import { BoxPanel } from 'components/Panel';
@@ -124,18 +123,18 @@ const EarningsSection = () => {
       new BigNumber(0),
     );
 
-  let networkFeesTotalCurrent =
-    earningsCurrentPeriod &&
-    Object.values(earningsCurrentPeriod.income.fees).reduce(
-      (total, feeItem) => total.plus(feeItem.value),
-      new BigNumber(0),
-    );
-  let networkFeesTotalPast =
-    earningsPastPeriod &&
-    Object.values(earningsPastPeriod.income.fees).reduce(
-      (total, feeItem) => total.plus(feeItem.value),
-      new BigNumber(0),
-    );
+  // let networkFeesTotalCurrent =
+  //   earningsCurrentPeriod &&
+  //   Object.values(earningsCurrentPeriod.income.fees).reduce(
+  //     (total, feeItem) => total.plus(feeItem.value),
+  //     new BigNumber(0),
+  //   );
+  // let networkFeesTotalPast =
+  //   earningsPastPeriod &&
+  //   Object.values(earningsPastPeriod.income.fees).reduce(
+  //     (total, feeItem) => total.plus(feeItem.value),
+  //     new BigNumber(0),
+  //   );
 
   let expensesTotalCurrent = earningsCurrentPeriod ? earningsCurrentPeriod.feesDistributed : new BigNumber(0);
   let expensesTotalPast = earningsPastPeriod ? earningsPastPeriod.feesDistributed : new BigNumber(0);
@@ -355,7 +354,7 @@ const EarningsSection = () => {
           <SkeletonPlaceholder />
         )}
 
-        <IncomeGrid>
+        {/* <IncomeGrid>
           <GridItemStrong>Liquidity rewards</GridItemStrong>
           <GridItemStrong>
             <DisplayValueOrLoader value={earningsCurrentPeriod?.income.liquidity.value} currencyRate={1} />
@@ -405,9 +404,9 @@ const EarningsSection = () => {
           <GridItemStrong>
             <DisplayValueOrLoader value={networkFeesTotalPast} currencyRate={1} />
           </GridItemStrong>
-        </IncomeGrid>
+        </IncomeGrid> */}
 
-        {earningsCurrentPeriod ? (
+        {/* {earningsCurrentPeriod ? (
           <>
             <IncomeGrid>
               <GridItemLight>Balanced Dollar</GridItemLight>
@@ -493,18 +492,20 @@ const EarningsSection = () => {
           </>
         ) : (
           <SkeletonPlaceholder />
-        )}
+        )} */}
 
         <IncomeGrid>
           <GridItemSubtotal>Subtotal</GridItemSubtotal>
           <GridItemSubtotal>
-            {earningsCurrentPeriod && swapFeesTotalCurrent && networkFeesTotalCurrent ? (
+            {earningsCurrentPeriod && swapFeesTotalCurrent ? (
               <DisplayValueOrLoader
-                value={earningsCurrentPeriod.income.loans
-                  .plus(swapFeesTotalCurrent)
-                  .plus(networkFeesTotalCurrent)
-                  .plus(earningsCurrentPeriod.income.fund)
-                  .plus(earningsCurrentPeriod.income.liquidity.value)}
+                value={
+                  earningsCurrentPeriod.income.loans
+                    .plus(swapFeesTotalCurrent)
+                    // .plus(networkFeesTotalCurrent)
+                    .plus(earningsCurrentPeriod.income.fund)
+                  // .plus(earningsCurrentPeriod.income.liquidity.value)
+                }
                 currencyRate={1}
               />
             ) : (
@@ -512,13 +513,15 @@ const EarningsSection = () => {
             )}
           </GridItemSubtotal>
           <GridItemSubtotal>
-            {earningsPastPeriod && swapFeesTotalPast && networkFeesTotalPast ? (
+            {earningsPastPeriod && swapFeesTotalPast ? (
               <DisplayValueOrLoader
-                value={earningsPastPeriod.income.loans
-                  .plus(swapFeesTotalPast)
-                  .plus(networkFeesTotalPast)
-                  .plus(earningsPastPeriod.income.fund)
-                  .plus(earningsPastPeriod.income.liquidity.value)}
+                value={
+                  earningsPastPeriod.income.loans
+                    .plus(swapFeesTotalPast)
+                    // .plus(networkFeesTotalPast)
+                    .plus(earningsPastPeriod.income.fund)
+                  // .plus(earningsPastPeriod.income.liquidity.value)
+                }
                 currencyRate={1}
               />
             ) : (
@@ -611,13 +614,13 @@ const EarningsSection = () => {
         <IncomeGrid>
           <GridItemTotal>Total</GridItemTotal>
           <GridItemTotal>
-            {earningsCurrentPeriod && swapFeesTotalCurrent && networkFeesTotalCurrent ? (
+            {earningsCurrentPeriod && swapFeesTotalCurrent ? (
               <DisplayValueOrLoader
                 value={earningsCurrentPeriod.income.loans
                   .plus(swapFeesTotalCurrent)
                   .plus(earningsCurrentPeriod.income.fund)
-                  .plus(networkFeesTotalCurrent)
-                  .plus(earningsCurrentPeriod.income.liquidity.value)
+                  // .plus(networkFeesTotalCurrent)
+                  // .plus(earningsCurrentPeriod.income.liquidity.value)
                   .minus(expensesTotalCurrent)}
                 currencyRate={1}
               />
@@ -626,13 +629,13 @@ const EarningsSection = () => {
             )}
           </GridItemTotal>
           <GridItemTotal>
-            {earningsPastPeriod && swapFeesTotalPast && networkFeesTotalPast ? (
+            {earningsPastPeriod && swapFeesTotalPast ? (
               <DisplayValueOrLoader
                 value={earningsPastPeriod.income.loans
                   .plus(swapFeesTotalPast)
                   .plus(earningsPastPeriod.income.fund)
-                  .plus(networkFeesTotalPast)
-                  .plus(earningsPastPeriod.income.liquidity.value)
+                  // .plus(networkFeesTotalPast)
+                  // .plus(earningsPastPeriod.income.liquidity.value)
                   .minus(expensesTotalPast)}
                 currencyRate={1}
               />

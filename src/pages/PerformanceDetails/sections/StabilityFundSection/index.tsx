@@ -61,7 +61,6 @@ const GridItemTotal = styled(GridItemSubtotal)`
 
 const GridItemToken = styled(GridItem)`
   padding: 20px 0;
-  border-bottom: 1px solid #304a68;
 `;
 
 const GridItemAssetTotal = styled(GridItemTotal)`
@@ -208,7 +207,7 @@ const StabilityFundSection = () => {
             );
           })}
 
-        <BalanceGrid>
+        <BalanceGrid className="border-top">
           <GridItemAssetTotal>Total</GridItemAssetTotal>
           <GridItemAssetTotal>
             {fundLimits ? <DisplayValueOrLoader value={totalLimit} currencyRate={1} /> : <StyledSkeleton width={120} />}

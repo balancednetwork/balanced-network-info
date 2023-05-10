@@ -1,22 +1,24 @@
-import React from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
 import { Pair, useAllPairsIncentivisedById, useAllPairsTotal } from 'queries/backendv2';
 import { isMobile } from 'react-device-detect';
+import { useMedia } from 'react-use';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
 import { ReactComponent as QuestionIcon } from 'assets/icons/question.svg';
 import { ReactComponent as SigmaIcon } from 'assets/icons/sigma.svg';
 import Divider from 'components/Divider';
+import DropdownLink from 'components/DropdownLink';
 import { BoxPanel } from 'components/Panel';
+import SearchInput from 'components/SearchInput';
 import PoolLogo, { IconWrapper, PoolLogoWrapper } from 'components/shared/PoolLogo';
 import { MouseoverTooltip } from 'components/Tooltip';
 import useSort from 'hooks/useSort';
-import useTheme from 'hooks/useTheme';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
 
-import { HeaderText, StyledSkeleton as Skeleton } from './TokenSection';
+import { COMPACT_ITEM_COUNT, HeaderText, StyledSkeleton as Skeleton } from './TokenSection';
 
 export const MAX_BOOST = 2.5;
 
@@ -130,18 +132,12 @@ const SkeletonPairPlaceholder = () => {
 };
 
 const PairItem = ({
-  id,
-  name,
-  baseAddress,
-  quoteAddress,
-  liquidity,
-  fees24h,
-  fees30d,
-  volume24h,
-  volume30d,
-  feesApy,
-  balnApy,
-}: Pair) => (
+  pair: { id, name, baseAddress, quoteAddress, liquidity, fees24h, fees30d, volume24h, volume30d, feesApy, balnApy },
+  isLast,
+}: {
+  pair: Pair;
+  isLast: boolean;
+}) => (
   <>
     <DashGrid my={2}>
       <DataText minWidth={'220px'}>
@@ -189,101 +185,160 @@ export default function PairSection() {
   const { data: allPairs } = useAllPairsIncentivisedById();
   const { data: pairsTotal } = useAllPairsTotal();
   const { sortBy, handleSortSelect, sortData } = useSort({ key: 'liquidity', order: 'DESC' });
-  const theme = useTheme();
+  const [showingExpanded, setShowingExpanded] = useState(false);
+  const [searched, setSearched] = useState('');
+
+  const pairs = useMemo(() => {
+    if (!allPairs) return [];
+    const filteredTokens = Object.values(allPairs).filter(pair => {
+      const tokenName = pair.name.toLowerCase();
+      const search = searched.toLowerCase();
+      return tokenName.includes(search);
+    });
+    return sortData(filteredTokens);
+  }, [allPairs, searched, sortData]);
+
+  const noPairsFound = searched && pairs.length === 0;
+  const isSmallScreen = useMedia('(max-width: 800px)');
+
+  const handleSearch = useCallback(
+    e => {
+      setShowingExpanded(!!e.target.value);
+      setSearched(e.target.value);
+    },
+    [setSearched, setShowingExpanded],
+  );
+
+  const dynamicTotals = useMemo(() => {
+    if (pairs) {
+      return {
+        tvl: pairs.reduce((acc, pair) => acc + pair.liquidity, 0),
+        volume: pairs.reduce((acc, pair) => acc + pair.volume24h, 0),
+        fees: pairs.reduce((acc, pair) => acc + pair.fees24h, 0),
+      };
+    }
+  }, [pairs]);
 
   return (
     <BoxPanel bg="bg2">
-      <Typography variant="h2" mb={5}>
-        Exchange
-      </Typography>
+      <Flex justifyContent="space-between" flexWrap="wrap">
+        <Typography variant="h2" mb={5} mr="20px">
+          Exchange
+        </Typography>
+        {!isSmallScreen && (
+          <Box width="295px">
+            <SearchInput value={searched} onChange={handleSearch} />
+          </Box>
+        )}
+      </Flex>
+
+      {isSmallScreen && (
+        <Box mb="25px">
+          <SearchInput value={searched} onChange={handleSearch} />
+        </Box>
+      )}
       <Box overflow="auto">
         <List>
-          <DashGrid>
-            <HeaderText
-              minWidth={'220px'}
-              role="button"
-              className={sortBy.key === 'name' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'name',
-                })
-              }
-            >
-              <span>POOL</span>
-            </HeaderText>
-            <HeaderText
-              minWidth={'190px'}
-              role="button"
-              className={sortBy.key === 'apyTotal' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'apyTotal',
-                })
-              }
-            >
-              {!isMobile && (
-                <MouseoverTooltip
-                  width={330}
-                  text={
-                    <>
-                      <Typography>
-                        The BALN APY is calculated from the USD value of BALN rewards allocated to a pool. Your rate
-                        will vary based on the amount of bBALN you hold.
-                      </Typography>
-                      <Typography marginTop={'20px'}>
-                        The fee APY is calculated from the swap fees earned by a pool in the last 30 days.
-                      </Typography>
-                      <Typography marginTop={'20px'} color={theme.colors.text1} fontSize={14}>
-                        Impermanent loss is not factored in.
-                      </Typography>
-                    </>
-                  }
-                  placement="top"
-                >
-                  <QuestionWrapper onClick={e => e.stopPropagation()}>
-                    <QuestionIcon className="header-tooltip" width={14} />
-                  </QuestionWrapper>
-                </MouseoverTooltip>
-              )}
-              APY
-            </HeaderText>
-            <HeaderText
-              role="button"
-              className={sortBy.key === 'liquidity' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'liquidity',
-                })
-              }
-            >
-              LIQUIDITY
-            </HeaderText>
-            <HeaderText
-              role="button"
-              className={sortBy.key === 'volume24h' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'volume24h',
-                })
-              }
-            >
-              VOLUME (24H)
-            </HeaderText>
-            <HeaderText
-              role="button"
-              className={sortBy.key === 'fees24h' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'fees24h',
-                })
-              }
-            >
-              FEES (24H)
-            </HeaderText>
-          </DashGrid>
+          {!noPairsFound && (
+            <DashGrid>
+              <HeaderText
+                minWidth={'220px'}
+                role="button"
+                className={sortBy.key === 'name' ? sortBy.order : ''}
+                onClick={() =>
+                  handleSortSelect({
+                    key: 'name',
+                  })
+                }
+              >
+                <span>POOL</span>
+              </HeaderText>
+              <HeaderText
+                minWidth={'190px'}
+                role="button"
+                className={sortBy.key === 'apyTotal' ? sortBy.order : ''}
+                onClick={() =>
+                  handleSortSelect({
+                    key: 'apyTotal',
+                  })
+                }
+              >
+                {!isMobile && (
+                  <MouseoverTooltip
+                    width={330}
+                    text={
+                      <>
+                        <Typography>
+                          The BALN APR is calculated from the USD value of BALN rewards allocated to a pool. Your rate
+                          will vary based on the amount of bBALN you hold.
+                        </Typography>
+                        <Typography marginTop={'20px'}>
+                          The fee APR is calculated from the swap fees earned by a pool in the last 30 days.
+                        </Typography>
+                      </>
+                    }
+                    placement="top"
+                  >
+                    <QuestionWrapper onClick={e => e.stopPropagation()}>
+                      <QuestionIcon className="header-tooltip" width={14} />
+                    </QuestionWrapper>
+                  </MouseoverTooltip>
+                )}
+                APR
+              </HeaderText>
+              <HeaderText
+                role="button"
+                className={sortBy.key === 'liquidity' ? sortBy.order : ''}
+                onClick={() =>
+                  handleSortSelect({
+                    key: 'liquidity',
+                  })
+                }
+              >
+                LIQUIDITY
+              </HeaderText>
+              <HeaderText
+                role="button"
+                className={sortBy.key === 'volume24h' ? sortBy.order : ''}
+                onClick={() =>
+                  handleSortSelect({
+                    key: 'volume24h',
+                  })
+                }
+              >
+                VOLUME (24H)
+              </HeaderText>
+              <HeaderText
+                role="button"
+                className={sortBy.key === 'fees24h' ? sortBy.order : ''}
+                onClick={() =>
+                  handleSortSelect({
+                    key: 'fees24h',
+                  })
+                }
+              >
+                FEES (24H)
+              </HeaderText>
+            </DashGrid>
+          )}
 
-          {allPairs ? (
-            sortData(Object.values(allPairs)).map(pair => <PairItem key={pair.name} {...pair} />)
+          {pairs ? (
+            <>
+              {pairs.map((pair, index, arr) =>
+                showingExpanded || index < COMPACT_ITEM_COUNT ? (
+                  <PairItem
+                    key={pair.name}
+                    isLast={index === arr.length - 1 || (!showingExpanded && index === COMPACT_ITEM_COUNT - 1)}
+                    pair={pair}
+                  />
+                ) : null,
+              )}
+              {noPairsFound && (
+                <Typography width="100%" paddingTop="30px" fontSize={16} color="text">
+                  Couldn't find any listings for <strong>{searched}</strong>.
+                </Typography>
+              )}
+            </>
           ) : (
             <>
               <SkeletonPairPlaceholder />
@@ -295,39 +350,36 @@ export default function PairSection() {
               <SkeletonPairPlaceholder />
               <Divider />
               <SkeletonPairPlaceholder />
-              <Divider />
-              <SkeletonPairPlaceholder />
-              <Divider />
-              <SkeletonPairPlaceholder />
-              <Divider />
-              <SkeletonPairPlaceholder />
-              <Divider />
-              <SkeletonPairPlaceholder />
-              <Divider />
-              <SkeletonPairPlaceholder />
-              <Divider />
-              <SkeletonPairPlaceholder />
             </>
           )}
-
-          {pairsTotal && (
+          {pairsTotal && !noPairsFound && (
             <DashGrid my={2}>
               <FooterText minWidth={'220px'}>
                 <Flex alignItems="center">
                   <Box sx={{ minWidth: '95px' }}>
                     <TotalIcon />
                   </Box>
-                  <Text ml={2}>Total</Text>
+                  <Text ml={2}>{searched ? 'Total' : 'All pools'} </Text>
                 </Flex>
               </FooterText>
               <FooterText minWidth={'190px'}>–</FooterText>
-              <FooterText>{getFormattedNumber(pairsTotal.tvl, 'currency0')}</FooterText>
-              <FooterText>{getFormattedNumber(pairsTotal.volume, 'currency0')}</FooterText>
-              <FooterText>{getFormattedNumber(pairsTotal.fees, 'currency0')}</FooterText>
+              <FooterText>{getFormattedNumber(searched ? dynamicTotals?.tvl : pairsTotal.tvl, 'currency0')}</FooterText>
+              <FooterText>
+                {getFormattedNumber(searched ? dynamicTotals?.volume : pairsTotal.volume, 'currency0')}
+              </FooterText>
+              <FooterText>
+                {getFormattedNumber(searched ? dynamicTotals?.fees : pairsTotal.fees, 'currency0')}
+              </FooterText>
             </DashGrid>
           )}
         </List>
       </Box>
+
+      {pairs.length > COMPACT_ITEM_COUNT && (
+        <Box pb="3px">
+          <DropdownLink expanded={showingExpanded} setExpanded={setShowingExpanded} />
+        </Box>
+      )}
     </BoxPanel>
   );
 }

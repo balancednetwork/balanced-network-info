@@ -210,7 +210,7 @@ const HoldingsSection = () => {
               )
             );
           })}
-        <BalanceGrid minWidth={gridWidth}>
+        <BalanceGrid minWidth={gridWidth} className="border-top border-bottom" style={{ paddingBottom: '10px' }}>
           <GridItemAssetTotal>Subtotal</GridItemAssetTotal>
           <GridItemAssetTotal>
             {holdingsCurrent ? (
@@ -229,7 +229,7 @@ const HoldingsSection = () => {
         </BalanceGrid>
 
         <BalanceGrid minWidth={gridWidth}>
-          <GridItemHeader>Exchange</GridItemHeader>
+          <GridItemHeader>Protocol-owned liquidity</GridItemHeader>
         </BalanceGrid>
         {POLCurrent &&
           POLCurrent.map(currentPool => {
@@ -302,7 +302,22 @@ const HoldingsSection = () => {
               )
             );
           })}
-        <BalanceGrid minWidth={gridWidth}>
+
+        <BalanceGrid minWidth={gridWidth} className="border-top">
+          <GridItemAssetTotal>Subtotal</GridItemAssetTotal>
+          <GridItemAssetTotal>
+            {POLCurrent ? (
+              <DisplayValueOrLoader value={totalCurrentPOL} currencyRate={1} />
+            ) : (
+              <StyledSkeleton width={120} />
+            )}
+          </GridItemAssetTotal>
+          <GridItemAssetTotal>
+            {POLPast ? <DisplayValueOrLoader value={totalPastPOL} currencyRate={1} /> : <StyledSkeleton width={120} />}
+          </GridItemAssetTotal>
+        </BalanceGrid>
+
+        <BalanceGrid minWidth={gridWidth} className="border-top" style={{ marginTop: '10px' }}>
           <GridItemAssetTotal>Total</GridItemAssetTotal>
           <GridItemAssetTotal>
             {holdingsCurrent ? (

@@ -18,7 +18,7 @@ import {
   useAllTokensByAddress,
   useTokenPrices,
 } from './backendv2';
-import { useBlockDetails, useDaoFundHoldings, usePOLData } from './blockDetails';
+import { useBlockDetails } from './blockDetails';
 
 const WEIGHT_CONST = 10 ** 18;
 
@@ -52,6 +52,7 @@ export type MetaToken = {
   symbol: string;
   price: number;
   price_24h: number;
+  price_24h_change: number;
   total_supply: number;
   market_cap: number;
   liquidity: number;
@@ -83,9 +84,7 @@ export const useEarningsDataQuery = (
         income: {
           loans: BigNumber;
           fund: BigNumber;
-          liquidity: { amount: BigNumber; value: BigNumber };
           swaps: { [key: string]: { amount: BigNumber; value: BigNumber } };
-          fees: { [key: string]: { amount: BigNumber; value: BigNumber } };
         };
         expenses: { [key: string]: { amount: BigNumber; value: BigNumber } };
         feesDistributed: BigNumber;
@@ -95,57 +94,57 @@ export const useEarningsDataQuery = (
     `${cacheItem}${blockStart && blockStart.number}${blockEnd && blockEnd.number}${rates && Object.keys(rates).length}`,
     async () => {
       if (blockStart?.number && blockEnd?.number && rates) {
-        const networkFeesStartRaw = await bnJs.DAOFund.getFeeEarnings(blockStart.number);
-        const networkFeesEndRaw = await bnJs.DAOFund.getFeeEarnings(blockEnd.number);
+        // const networkFeesStartRaw = await bnJs.DAOFund.getFeeEarnings(blockStart.number);
+        // const networkFeesEndRaw = await bnJs.DAOFund.getFeeEarnings(blockEnd.number);
 
-        const liquidityStart = await bnJs.DAOFund.getBalnEarnings(blockStart.number);
-        const liquidityEnd = await bnJs.DAOFund.getBalnEarnings(blockEnd.number);
+        // const liquidityStart = await bnJs.DAOFund.getBalnEarnings(blockStart.number);
+        // const liquidityEnd = await bnJs.DAOFund.getBalnEarnings(blockEnd.number);
 
-        const networkFeesStart = Object.keys(networkFeesStartRaw).reduce((fees, contract) => {
-          const currencyAmount = CurrencyAmount.fromRawAmount(
-            SUPPORTED_TOKENS_MAP_BY_ADDRESS[contract],
-            networkFeesStartRaw[contract],
-          );
-          fees[contract] = {
-            value: new BigNumber(currencyAmount.toFixed()).times(rates[currencyAmount.currency.symbol!]),
-            amount: new BigNumber(currencyAmount.toFixed()),
-          };
-          return fees;
-        }, {});
+        // const networkFeesStart = Object.keys(networkFeesStartRaw).reduce((fees, contract) => {
+        //   const currencyAmount = CurrencyAmount.fromRawAmount(
+        //     SUPPORTED_TOKENS_MAP_BY_ADDRESS[contract],
+        //     networkFeesStartRaw[contract],
+        //   );
+        //   fees[contract] = {
+        //     value: new BigNumber(currencyAmount.toFixed()).times(rates[currencyAmount.currency.symbol!]),
+        //     amount: new BigNumber(currencyAmount.toFixed()),
+        //   };
+        //   return fees;
+        // }, {});
 
-        const networkFeesEnd = Object.keys(networkFeesEndRaw).reduce((fees, contract) => {
-          const currencyAmount = CurrencyAmount.fromRawAmount(
-            SUPPORTED_TOKENS_MAP_BY_ADDRESS[contract],
-            networkFeesEndRaw[contract],
-          );
-          fees[contract] = {
-            value: new BigNumber(currencyAmount.toFixed()).times(rates[currencyAmount.currency.symbol!]),
-            amount: new BigNumber(currencyAmount.toFixed()),
-          };
-          return fees;
-        }, {});
+        // const networkFeesEnd = Object.keys(networkFeesEndRaw).reduce((fees, contract) => {
+        //   const currencyAmount = CurrencyAmount.fromRawAmount(
+        //     SUPPORTED_TOKENS_MAP_BY_ADDRESS[contract],
+        //     networkFeesEndRaw[contract],
+        //   );
+        //   fees[contract] = {
+        //     value: new BigNumber(currencyAmount.toFixed()).times(rates[currencyAmount.currency.symbol!]),
+        //     amount: new BigNumber(currencyAmount.toFixed()),
+        //   };
+        //   return fees;
+        // }, {});
 
-        const networkFeesIncome = Object.keys(networkFeesEnd).reduce((net, contract) => {
-          if (networkFeesStart[contract]) {
-            net[contract] = {
-              value: networkFeesEnd[contract].value.minus(networkFeesStart[contract].value),
-              amount: networkFeesEnd[contract].amount.minus(networkFeesStart[contract].amount),
-            };
-          } else {
-            net[contract] = {
-              value: networkFeesEnd[contract].value,
-              amount: networkFeesEnd[contract].amount,
-            };
-          }
-          return net;
-        }, {} as { [key: string]: { value: BigNumber; amount: BigNumber } });
+        // const networkFeesIncome = Object.keys(networkFeesEnd).reduce((net, contract) => {
+        //   if (networkFeesStart[contract]) {
+        //     net[contract] = {
+        //       value: networkFeesEnd[contract].value.minus(networkFeesStart[contract].value),
+        //       amount: networkFeesEnd[contract].amount.minus(networkFeesStart[contract].amount),
+        //     };
+        //   } else {
+        //     net[contract] = {
+        //       value: networkFeesEnd[contract].value,
+        //       amount: networkFeesEnd[contract].amount,
+        //     };
+        //   }
+        //   return net;
+        // }, {} as { [key: string]: { value: BigNumber; amount: BigNumber } });
 
-        const liquidityIncome = {
-          amount: new BigNumber(formatUnits(liquidityEnd || 0)).minus(new BigNumber(formatUnits(liquidityStart || 0))),
-          value: new BigNumber(formatUnits(liquidityEnd || 0))
-            .minus(new BigNumber(formatUnits(liquidityStart || 0)))
-            .times(rates['BALN']),
-        };
+        // const liquidityIncome = {
+        //   amount: new BigNumber(formatUnits(liquidityEnd || 0)).minus(new BigNumber(formatUnits(liquidityStart || 0))),
+        //   value: new BigNumber(formatUnits(liquidityEnd || 0))
+        //     .minus(new BigNumber(formatUnits(liquidityStart || 0)))
+        //     .times(rates['BALN']),
+        // };
 
         if (
           blockStart.timestamp < OLD_FEES_DISTRIBUTION_SWITCH_DATE &&
@@ -250,7 +249,7 @@ export const useEarningsDataQuery = (
               income: {
                 loans: loansIncomeBefore.plus(loansIncomeAfter),
                 fund: fundIncomeBefore.plus(fundIncomeAfter),
-                liquidity: liquidityIncome,
+                // liquidity: liquidityIncome,
                 swaps: {
                   BALN: {
                     amount: balnIncomeBefore.plus(balnIncomeAfter),
@@ -265,7 +264,7 @@ export const useEarningsDataQuery = (
                     value: sICXIncomeBefore.plus(sICXIncomeAfter).times(rates['sICX']),
                   },
                 },
-                fees: networkFeesIncome,
+                // fees: networkFeesIncome,
               },
               expenses: {
                 BALN: {
@@ -356,7 +355,7 @@ export const useEarningsDataQuery = (
               income: {
                 loans: loansIncome,
                 fund: fundIncome,
-                liquidity: liquidityIncome,
+                // liquidity: liquidityIncome,
                 swaps: {
                   BALN: {
                     amount: balnIncome,
@@ -371,7 +370,7 @@ export const useEarningsDataQuery = (
                     value: sICXIncome.times(rates['sICX']),
                   },
                 },
-                fees: networkFeesIncome,
+                // fees: networkFeesIncome,
               },
               expenses: {
                 BALN: {
@@ -500,19 +499,19 @@ export const useOverviewInfo = () => {
     balnPrice &&
     assumedYearlyDistribution.div(bBALNSupply.times(balnPrice));
 
-  const previousChunkAmount = 100;
+  const previousChunkAmount = 1000;
 
   const earnedPastMonth =
     earningsDataQuery.isSuccess && earningsDataQuery.data
       ? earningsDataQuery.data.income.loans
           .plus(earningsDataQuery.data.income.fund)
-          .plus(earningsDataQuery.data.income.liquidity.value)
-          .plus(
-            Object.values(earningsDataQuery.data.income.fees).reduce(
-              (total, fee) => total.plus(fee.value),
-              new BigNumber(0),
-            ),
-          )
+          // .plus(earningsDataQuery.data.income.liquidity.value)
+          // .plus(
+          //   Object.values(earningsDataQuery.data.income.fees).reduce(
+          //     (total, fee) => total.plus(fee.value),
+          //     new BigNumber(0),
+          //   ),
+          // )
           .plus(
             Object.values(earningsDataQuery.data.income.swaps).reduce(
               (total, swap) => total.plus(swap.value),
@@ -538,47 +537,62 @@ export const useOverviewInfo = () => {
 };
 
 export const useGovernanceInfo = () => {
-  const dailyDistributionQuery = useBnJsContractQuery<string>(bnJs, 'Rewards', 'getEmission', []);
+  const { data: platformDay } = usePlatformDayQuery();
+  const proposalSampleSize = 20;
 
-  const totalBalnLockedQuery = useBnJsContractQuery<string>(bnJs, 'BBALN', 'getTotalLocked', []);
-  const totalBBalnHoldersQuery = useBnJsContractQuery<string>(bnJs, 'BBALN', 'activeUsersCount', []);
+  return useQuery(`governanceOverview-${platformDay ? platformDay : 0}`, async () => {
+    if (platformDay) {
+      const eligibleVotersRaw = await bnJs.BBALN.activeUsersCount();
+      const eligibleVoters = parseInt(eligibleVotersRaw);
+      const totalProposalsRaw = await bnJs.Governance.getTotalProposal();
+      const totalProposals = parseInt(totalProposalsRaw);
+      const latestProposals = await bnJs.Governance.getProposals(
+        totalProposals - (proposalSampleSize - 1),
+        proposalSampleSize,
+      );
+      const activeProposals = latestProposals.filter(
+        proposal =>
+          platformDay &&
+          proposal.status === 'Active' &&
+          parseInt(proposal['start day'], 16) <= platformDay &&
+          parseInt(proposal['end day'], 16) > platformDay,
+      ).length;
 
-  const dailyDistribution = dailyDistributionQuery.isSuccess
-    ? BalancedJs.utils.toIcx(dailyDistributionQuery.data)
-    : null;
+      const participations = latestProposals
+        .filter(proposal => proposal.status !== 'Active' && proposal.status !== 'Cancelled')
+        .sort((a, b) => b.id - a.id)
+        .splice(0, 10)
+        .map(proposal => {
+          const votedYes = parseInt(proposal['for'], 16);
+          const votedNo = parseInt(proposal['against'], 16);
+          return (votedYes + votedNo) / 10 ** 18;
+        })
+        .filter(participation => participation > 0);
 
-  const totalBalnLocked = totalBalnLockedQuery.isSuccess && Number(totalBalnLockedQuery.data) / 10 ** 18;
-  const totalBBalnHolders = totalBBalnHoldersQuery.isSuccess && Number(totalBBalnHoldersQuery.data);
+      const participationRate =
+        participations.reduce((total, participation) => total + participation, 0) / participations.length;
 
-  const oneMinPeriod = 1000 * 60;
-  const now = Math.floor(new Date().getTime() / oneMinPeriod) * oneMinPeriod;
-
-  const { data: POLData } = usePOLData(now);
-  const { data: holdingsData } = useDaoFundHoldings(now);
-  const { data: tokenPrices } = useTokenPrices();
-
-  const holdings =
-    holdingsData && tokenPrices
-      ? Object.keys(holdingsData).reduce((total, contract) => {
-          const token = holdingsData[contract].currency.wrapped;
-          const curAmount = new BigNumber(holdingsData[contract].toFixed());
-          if (tokenPrices[token.symbol!]) {
-            return total + curAmount.times(tokenPrices[token.symbol!]).toNumber();
-          } else {
-            return total;
-          }
-        }, 0)
-      : 0;
-
-  const POLHoldings = POLData ? POLData.reduce((total, pool) => total + pool.liquidity.toNumber(), 0) : 0;
-
-  return {
-    dailyDistribution: dailyDistribution?.integerValue().toNumber(),
-    daofund: holdings + POLHoldings,
-    totalBALNLocked: totalBalnLocked,
-    numOfHolders: totalBBalnHolders,
-  };
+      return {
+        activeProposals,
+        totalProposals,
+        participationRate,
+        eligibleVoters,
+      };
+    }
+  });
 };
+
+export function useLatestProposals() {
+  return useQuery(`latestProposals`, async () => {
+    const totalProposalsRaw = await bnJs.Governance.getTotalProposal();
+    const totalProposals = parseInt(totalProposalsRaw);
+    const latestProposals = await bnJs.Governance.getProposals(totalProposals - 9, 10);
+    return latestProposals
+      .filter(proposal => proposal.status !== 'Cancelled')
+      .sort((a, b) => b.id - a.id)
+      .splice(0, 3);
+  });
+}
 
 export function useRewardsPercentDistribution(): UseQueryResult<RewardDistribution, Error> {
   return useQuery('rewardDistribution', async () => {

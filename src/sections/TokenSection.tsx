@@ -1,17 +1,25 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { Skeleton } from '@material-ui/lab';
 import { MetaToken } from 'queries';
-import { useAllTokensByAddress } from 'queries/backendv2';
+import { useAllTokensByAddress, useTokenTrendData } from 'queries/backendv2';
+import { useMedia } from 'react-use';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled, { css } from 'styled-components';
 
 import Divider from 'components/Divider';
+import DropdownLink from 'components/DropdownLink';
 import { BoxPanel } from 'components/Panel';
+import SearchInput from 'components/SearchInput';
 import { CurrencyLogoFromURI } from 'components/shared/CurrencyLogo';
+import Sparkline from 'components/Sparkline';
 import useSort from 'hooks/useSort';
+import useTimestampRounded from 'hooks/useTimestampRounded';
+import { LoaderComponent } from 'pages/PerformanceDetails/utils';
 import { Typography } from 'theme';
 import { formatPriceChange, getFormattedNumber } from 'utils/formatter';
+
+export const COMPACT_ITEM_COUNT = 8;
 
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
@@ -23,9 +31,9 @@ const DashGrid = styled(Box)`
   display: grid;
   gap: 1em;
   align-items: center;
-  grid-template-columns: 6fr 4fr 4fr 3fr 3fr;
+  grid-template-columns: 24fr 16fr 15fr 11fr 14fr;
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: 2fr 2fr 3fr 2fr 2fr;
+    grid-template-columns: 6fr 6fr 9fr 5fr 7fr;
   `}
 
   > * {
@@ -194,130 +202,163 @@ type TokenItemProps = {
   isLast: boolean;
 };
 
-const TokenItem = ({ token, isLast }: TokenItemProps) => (
-  <>
-    <DashGrid my={4}>
-      <DataText>
-        <Flex alignItems="center">
-          <Box sx={{ minWidth: '50px' }}>
-            <CurrencyLogoFromURI address={token.address} size="40px" />
-          </Box>
-          <Box ml={2} sx={{ minWidth: '160px' }}>
-            <Text>{token.name.replace(' TOKEN', ' Token')}</Text>
-            <Text color="text1">{token.symbol}</Text>
-          </Box>
-        </Flex>
-      </DataText>
-      <DataText>
-        <Flex alignItems="flex-end" flexDirection="column">
-          <Typography variant="p">{getFormattedNumber(token.price, 'price')}</Typography>
-          <Typography variant="p" color={token.price >= token.price_24h ? 'primary' : 'alert'}>
-            {formatPriceChange(((token.price - token.price_24h) / token.price_24h) * 100)}
-          </Typography>
-        </Flex>
-      </DataText>
-      <DataText>
-        <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
-          <Typography variant="p">{getFormattedNumber(token.market_cap, 'currency0')}</Typography>
-          <Typography variant="p" color="text1">
-            {getFormattedNumber(token.total_supply, 'number')} {token.symbol}
-          </Typography>
-        </Flex>
-      </DataText>
-      <DataText>{`$${getFormattedNumber(token.liquidity, 'number')}`}</DataText>
-      <DataText>{token.symbol === 'ICX' ? '–' : getFormattedNumber(token.holders, 'number')}</DataText>
-    </DashGrid>
-    {!isLast && <Divider />}
-  </>
-);
+const TokenItem = ({ token, isLast }: TokenItemProps) => {
+  const tsStart = useTimestampRounded(1000 * 60, 7);
+  const tsEnd = useTimestampRounded(1000 * 60);
+  const start = Math.floor(tsStart / 1000);
+  const end = Math.floor(tsEnd / 1000);
+  const { data: trendData } = useTokenTrendData(token.symbol, start, end);
+
+  return (
+    <>
+      <DashGrid my={4}>
+        <DataText>
+          <Flex alignItems="center">
+            <Box sx={{ minWidth: '50px' }}>
+              <CurrencyLogoFromURI address={token.address} size="40px" />
+            </Box>
+            <Box ml={2} sx={{ minWidth: '160px' }}>
+              <Text>{token.name.replace(' TOKEN', ' Token')}</Text>
+              <Text color="text1">{token.symbol}</Text>
+            </Box>
+          </Flex>
+        </DataText>
+        <DataText>
+          <Flex alignItems="flex-end" flexDirection="column">
+            <Typography variant="p">{getFormattedNumber(token.price, 'price')}</Typography>
+            <Typography variant="p" color={token.price >= token.price_24h ? 'primary' : 'alert'}>
+              {formatPriceChange(token.price_24h_change)}
+            </Typography>
+          </Flex>
+        </DataText>
+        <DataText>
+          <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
+            <Typography variant="p">{getFormattedNumber(token.market_cap, 'currency0')}</Typography>
+            <Typography variant="p" color="text1">
+              {getFormattedNumber(token.total_supply, 'number')} {token.symbol}
+            </Typography>
+          </Flex>
+        </DataText>
+        <DataText>{`$${getFormattedNumber(token.liquidity, 'number')}`}</DataText>
+        <DataText>{trendData ? <Sparkline data={trendData} /> : <LoaderComponent />}</DataText>
+      </DashGrid>
+      {!isLast && <Divider />}
+    </>
+  );
+};
 
 export default React.memo(function TokenSection() {
   const { data: allTokens } = useAllTokensByAddress();
   const { sortBy, handleSortSelect, sortData } = useSort({ key: 'market_cap', order: 'DESC' });
+  const [showingExpanded, setShowingExpanded] = useState(false);
+  const [searched, setSearched] = useState('');
+
+  const tokens = useMemo(() => {
+    if (!allTokens) return [];
+    const filteredTokens = Object.values(allTokens).filter(token => {
+      const tokenName = token.name.toLowerCase();
+      const tokenSymbol = token.symbol.toLowerCase();
+      const search = searched.toLowerCase();
+      return tokenName.includes(search) || tokenSymbol.includes(search);
+    });
+    return sortData(filteredTokens);
+  }, [allTokens, searched, sortData]);
+
+  const noTokensFound = searched && tokens.length === 0;
+  const isSmallScreen = useMedia('(max-width: 800px)');
 
   return (
     <BoxPanel bg="bg2">
-      <Typography variant="h2" mb={5}>
-        Tokens
-      </Typography>
+      <Flex justifyContent="space-between" flexWrap="wrap">
+        <Typography variant="h2" mb={5} mr="20px">
+          Tokens
+        </Typography>
+        <Box width={isSmallScreen ? '100%' : '295px'} mb={isSmallScreen ? '25px' : 0}>
+          <SearchInput value={searched} onChange={e => setSearched(e.target.value)} />
+        </Box>
+      </Flex>
       <Box overflow="auto">
         <List>
-          <DashGrid>
-            <HeaderText
-              role="button"
-              className={sortBy.key === 'name' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'name',
-                })
-              }
-            >
-              <span>ASSET</span>
-            </HeaderText>
-            <HeaderText
-              role="button"
-              className={sortBy.key === 'price' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'price',
-                })
-              }
-            >
-              PRICE (24H)
-            </HeaderText>
-            <HeaderText
-              role="button"
-              className={sortBy.key === 'market_cap' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'market_cap',
-                })
-              }
-            >
-              MARKETCAP
-            </HeaderText>
-            <HeaderText
-              role="button"
-              className={sortBy.key === 'liquidity' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'liquidity',
-                })
-              }
-            >
-              LIQUIDITY
-            </HeaderText>
-            <HeaderText
-              role="button"
-              className={sortBy.key === 'holders' ? sortBy.order : ''}
-              onClick={() =>
-                handleSortSelect({
-                  key: 'holders',
-                })
-              }
-            >
-              HOLDERS
-            </HeaderText>
-          </DashGrid>
+          {!noTokensFound && (
+            <DashGrid>
+              <HeaderText
+                role="button"
+                className={sortBy.key === 'name' ? sortBy.order : ''}
+                onClick={() =>
+                  handleSortSelect({
+                    key: 'name',
+                  })
+                }
+              >
+                <span>ASSET</span>
+              </HeaderText>
+              <HeaderText
+                role="button"
+                className={sortBy.key === 'price_24h_change' ? sortBy.order : ''}
+                onClick={() =>
+                  handleSortSelect({
+                    key: 'price_24h_change',
+                  })
+                }
+              >
+                PRICE (24H)
+              </HeaderText>
+              <HeaderText
+                role="button"
+                className={sortBy.key === 'market_cap' ? sortBy.order : ''}
+                onClick={() =>
+                  handleSortSelect({
+                    key: 'market_cap',
+                  })
+                }
+              >
+                MARKETCAP
+              </HeaderText>
+              <HeaderText
+                role="button"
+                className={sortBy.key === 'liquidity' ? sortBy.order : ''}
+                onClick={() =>
+                  handleSortSelect({
+                    key: 'liquidity',
+                  })
+                }
+              >
+                LIQUIDITY
+              </HeaderText>
+              <HeaderText
+                style={{ cursor: 'default' }}
+                // role="button"
+                // className={sortBy.key === 'holders' ? sortBy.order : ''}
+                // onClick={() =>
+                //   handleSortSelect({
+                //     key: 'holders',
+                //   })
+                // }
+              >
+                7d trend
+              </HeaderText>
+            </DashGrid>
+          )}
 
-          {allTokens ? (
-            sortData(Object.values(allTokens)).map((token, index, arr) => (
-              <TokenItem key={token.symbol} token={token} isLast={index === arr.length - 1} />
-            ))
+          {tokens ? (
+            <>
+              {tokens.map((token, index, arr) =>
+                showingExpanded || index < COMPACT_ITEM_COUNT ? (
+                  <TokenItem
+                    key={token.symbol}
+                    token={token}
+                    isLast={index === arr.length - 1 || (!showingExpanded && index === COMPACT_ITEM_COUNT - 1)}
+                  />
+                ) : null,
+              )}
+              {noTokensFound && (
+                <Typography width="100%" paddingTop="30px" fontSize={16} color="text">
+                  Couldn't find any listings for <strong>{searched}</strong>.
+                </Typography>
+              )}
+            </>
           ) : (
             <>
-              <SkeletonTokenPlaceholder />
-              <Divider />
-              <SkeletonTokenPlaceholder />
-              <Divider />
-              <SkeletonTokenPlaceholder />
-              <Divider />
-              <SkeletonTokenPlaceholder />
-              <Divider />
-              <SkeletonTokenPlaceholder />
-              <Divider />
-              <SkeletonTokenPlaceholder />
-              <Divider />
               <SkeletonTokenPlaceholder />
               <Divider />
               <SkeletonTokenPlaceholder />
@@ -331,6 +372,12 @@ export default React.memo(function TokenSection() {
           )}
         </List>
       </Box>
+
+      {tokens.length > COMPACT_ITEM_COUNT && (
+        <Box pb="3px">
+          <DropdownLink expanded={showingExpanded} setExpanded={setShowingExpanded} />
+        </Box>
+      )}
     </BoxPanel>
   );
 });

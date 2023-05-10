@@ -9,7 +9,7 @@ import Header from 'components/Header';
 import { Container, Divider } from 'pages/StatsPage';
 import { Typography } from 'theme';
 
-import BBALNSection from './sections/BBALNSection';
+// import BBALNSection from './sections/BBALNSection';
 import EarningsSection from './sections/EarningSection';
 import HoldingsSection from './sections/HoldingsSection';
 import StabilityFundSection from './sections/StabilityFundSection';
@@ -76,7 +76,6 @@ export const GridItemTotal = styled(GridItemSubtotal)`
 
 export const GridItemToken = styled(GridItem)`
   padding: 20px 0;
-  border-bottom: 1px solid #304a68;
 `;
 
 export const GridItemAssetTotal = styled(GridItemTotal)`
@@ -104,6 +103,10 @@ export const TextWithArrow = styled.span`
 export function PerformanceDetails() {
   const breadcrumbsItems: BreadcrumbItem[] = [{ displayName: 'Performance details' }];
 
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <Container>
       <Helmet>
@@ -124,8 +127,8 @@ export function PerformanceDetails() {
       <EarningsSection />
 
       <HoldingsSection />
-
-      <BBALNSection />
+      {/* 
+      <BBALNSection /> */}
 
       <StabilityFundSection />
 

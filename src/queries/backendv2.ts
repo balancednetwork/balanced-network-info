@@ -2,7 +2,7 @@ import { Fraction } from '@balancednetwork/sdk-core';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { useBnJsContractQuery, useIncentivisedPairs } from 'queries';
-import { useQuery } from 'react-query';
+import { UseQueryResult, useQuery } from 'react-query';
 
 import bnJs from 'bnJs';
 import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
@@ -49,6 +49,25 @@ export const useContractMethodsDataQuery = (
   );
 };
 
+export type TokenStats = {
+  address: string;
+  decimals: number;
+  holders: number;
+  liquidity: number;
+  logo_uri: string;
+  name: string;
+  path: string[];
+  pools: number[];
+  price: number;
+  price_7d: number;
+  price_24h: number;
+  price_30d: number;
+  price_24h_change: number;
+  symbol: string;
+  total_supply: number;
+  type: 'community' | 'balanced';
+};
+
 export function useAllTokens() {
   const MIN_LIQUIDITY_TO_INCLUDE = 500;
 
@@ -61,9 +80,10 @@ export function useAllTokens() {
         return response.data
           .map(item => {
             item['market_cap'] = item.total_supply * item.price;
+            item['price_24h_change'] = ((item.price - item.price_24h) / item.price_24h) * 100;
             return item;
           })
-          .filter(item => item['liquidity'] > MIN_LIQUIDITY_TO_INCLUDE || item['address'] === 'ICX');
+          .filter(item => item['liquidity'] > MIN_LIQUIDITY_TO_INCLUDE || item['address'] === 'ICX') as TokenStats[];
       }
     },
     {
@@ -72,12 +92,13 @@ export function useAllTokens() {
   );
 }
 
-export function useAllTokensByAddress() {
+export function useAllTokensByAddress(): UseQueryResult<{ [key in string]: TokenStats }> {
   const { data: allTokens, isSuccess: allTokensSuccess } = useAllTokens();
 
   return useQuery(
     `allTokensByAddress`,
     () => {
+      if (!allTokens) return;
       return allTokens.reduce((tokens, item) => {
         tokens[item['address']] = item;
         return tokens;
@@ -319,10 +340,14 @@ export function useTokenPrices() {
   return useQuery<{ [key in string]: BigNumber }>(
     `tokenPrices${allTokens}`,
     () => {
-      return allTokens.reduce((tokens, item) => {
-        tokens[item['symbol']] = new BigNumber(item.price);
-        return tokens;
-      }, {});
+      if (allTokens) {
+        return allTokens.reduce((tokens, item) => {
+          tokens[item['symbol']] = new BigNumber(item.price);
+          return tokens;
+        }, {});
+      } else {
+        return [];
+      }
     },
     {
       keepPreviousData: true,
@@ -484,8 +509,6 @@ export function useAllCollateralData() {
             value: result.series['total'][result.series['total'].length - 1].value,
           };
 
-          console.log(result);
-
           return result;
         } catch (e) {
           console.error(e);
@@ -536,7 +559,8 @@ export function useCollateralDataFor(daysBack: number) {
 }
 
 export function useAllDebtData() {
-  return useQuery('allDebtDataBE', async () => {
+  const { data: stabilityFundInfo } = useAllCollateralData();
+  return useQuery(`allDebtDataBE-${stabilityFundInfo ? Object.keys(stabilityFundInfo).length : '-'}`, async () => {
     const responseSICX = await axios.get(
       `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_collateral_debt_sICX_bnusd`,
     );
@@ -556,10 +580,13 @@ export function useAllDebtData() {
       const seriesBTCB = responseSICX.data && setTimeToMs(trimStartingZeroValues(responseBTCB.data));
       const seriesTotal = responseTotal.data && setTimeToMs(trimStartingZeroValues(responseTotal.data));
 
+      const seriesFund = stabilityFundInfo?.series['fundTotal'];
+
       return {
         sICX: seriesSICX,
         ETH: seriesETH,
         BTCB: seriesBTCB,
+        [predefinedCollateralTypes.STABILITY_FUND]: seriesFund,
         [predefinedCollateralTypes.ALL]: seriesTotal,
       };
     } catch (e) {
@@ -598,6 +625,19 @@ export function useDebtDataFor(daysBack: number) {
     },
     {
       enabled: debtDataQuerySuccess,
+      keepPreviousData: true,
+    },
+  );
+}
+
+export function useTokenTrendData(tokenSymbol, start, end) {
+  return useQuery(
+    `trend-${tokenSymbol}-${start}-${end}`,
+    async () => {
+      const { data } = await axios.get(`${API_ENDPOINT}tokens/series/1h/${start}/${end}?symbol=${tokenSymbol}`);
+      return data;
+    },
+    {
       keepPreviousData: true,
     },
   );

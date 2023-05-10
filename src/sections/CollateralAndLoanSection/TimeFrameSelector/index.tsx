@@ -85,7 +85,7 @@ export default function TimeFrameSelector({
     <>
       <Wrap onClick={handleToggle} style={{ position: 'relative' }}>
         <Typography fontSize={16}>
-          <UnderlineText>{selected.displayName}</UnderlineText>
+          <UnderlineText>past {selected.displayName}</UnderlineText>
           <div ref={arrowRef} style={{ display: 'inline-block', width: '19px' }}>
             <StyledArrowDownIcon />
           </div>
