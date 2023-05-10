@@ -115,8 +115,8 @@ export default function BBALNChart() {
                   </Typography>
                   {overviewInfo.previousChunk && (
                     <Typography mt={2}>
-                      Over the past month, {overviewInfo.previousChunkAmount} bBALN would have received{' '}
-                      <strong>${overviewInfo.previousChunk.toPrecision(3)}</strong>.
+                      Over the past month, {getFormattedNumber(overviewInfo.previousChunkAmount, 'number')} bBALN would
+                      have received <strong>${overviewInfo.previousChunk.toPrecision(3)}</strong>.
                     </Typography>
                   )}
                 </>
