@@ -130,7 +130,7 @@ const GovernanceSection = () => {
       <Stats>
         <StatsItem border>
           <StatsItemIcon>
-            <ActiveProposalsIcon width={55} height={55} />
+            <ActiveProposalsIcon height={55} />
           </StatsItemIcon>
           <StatsItemData>
             <Typography fontWeight="normal" variant="h3">
@@ -147,7 +147,7 @@ const GovernanceSection = () => {
 
         <StatsItem border>
           <StatsItemIcon>
-            <TotalProposalsIcon width={55} />
+            <TotalProposalsIcon height={55} />
           </StatsItemIcon>
           <StatsItemData>
             <Typography fontWeight="normal" variant="h3">
@@ -163,7 +163,7 @@ const GovernanceSection = () => {
 
         <StatsItem border>
           <StatsItemIcon>
-            <ParticipationRateIcon width={55} />
+            <ParticipationRateIcon height={55} />
           </StatsItemIcon>
           <StatsItemData>
             <Typography fontWeight="normal" variant="h3">
@@ -179,7 +179,7 @@ const GovernanceSection = () => {
 
         <StatsItem>
           <StatsItemIcon>
-            <EligibleVotersIcon width={55} />
+            <EligibleVotersIcon height={55} />
           </StatsItemIcon>
           <StatsItemData>
             <Typography fontWeight="normal" variant="h3">

@@ -498,7 +498,7 @@ export const useOverviewInfo = () => {
     balnPrice &&
     assumedYearlyDistribution.div(bBALNSupply.times(balnPrice));
 
-  const previousChunkAmount = 100;
+  const previousChunkAmount = 1000;
 
   const earnedPastMonth =
     earningsDataQuery.isSuccess && earningsDataQuery.data

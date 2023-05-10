@@ -63,7 +63,7 @@ const AnimatedLinkMobile = styled(AnimatedLink)`
 
 const BurgerMenu = ({ show }: { show: boolean }) => {
   return (
-    <Container show={show}>
+    <Container show={show} id="menu-burger">
       <AnimatedLinkMobile as="a" href={LINKS.howitworks}>
         How it works
       </AnimatedLinkMobile>

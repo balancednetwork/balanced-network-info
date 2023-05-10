@@ -1,5 +1,6 @@
 import React from 'react';
 
+import ClickAwayListener from 'react-click-away-listener';
 import { Flex, Box, Link } from 'rebass/styled-components';
 import styled from 'styled-components';
 
@@ -38,6 +39,13 @@ const Grid = styled(Box)`
 
 const Header = () => {
   const { toggle, state } = useBoolean();
+
+  const handleClose = e => {
+    if (!e.target.closest('#menu-burger') && e.target !== document.getElementById('menu-button')) {
+      state && toggle();
+    }
+  };
+
   return (
     <Grid>
       <Flex>
@@ -70,10 +78,12 @@ const Header = () => {
       </DesktopMenu>
 
       <BurgerMenuContainer alignItems="center" justifyContent="flex-end">
-        <OutlineButton className={state ? 'active' : ''} onClick={toggle}>
+        <OutlineButton className={state ? 'active' : ''} onClick={toggle} id="menu-button">
           Menu
         </OutlineButton>
-        <BurgerMenu show={state} />
+        <ClickAwayListener onClickAway={e => handleClose(e)}>
+          <BurgerMenu show={state} />
+        </ClickAwayListener>
       </BurgerMenuContainer>
     </Grid>
   );

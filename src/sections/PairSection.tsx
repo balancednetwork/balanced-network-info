@@ -15,7 +15,6 @@ import SearchInput from 'components/SearchInput';
 import PoolLogo, { IconWrapper, PoolLogoWrapper } from 'components/shared/PoolLogo';
 import { MouseoverTooltip } from 'components/Tooltip';
 import useSort from 'hooks/useSort';
-import useTheme from 'hooks/useTheme';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
 
@@ -187,7 +186,6 @@ export default function PairSection() {
   const { data: pairsTotal } = useAllPairsTotal();
   const { sortBy, handleSortSelect, sortData } = useSort({ key: 'liquidity', order: 'DESC' });
   const [showingExpanded, setShowingExpanded] = useState(false);
-  const theme = useTheme();
   const [searched, setSearched] = useState('');
 
   const pairs = useMemo(() => {
@@ -277,9 +275,6 @@ export default function PairSection() {
                         <Typography marginTop={'20px'}>
                           The fee APR is calculated from the swap fees earned by a pool in the last 30 days.
                         </Typography>
-                        <Typography marginTop={'20px'} color={theme.colors.text1} fontSize={14}>
-                          Impermanent loss is not factored in.
-                        </Typography>
                       </>
                     }
                     placement="top"
@@ -340,7 +335,7 @@ export default function PairSection() {
               )}
               {noPairsFound && (
                 <Typography width="100%" paddingTop="30px" fontSize={16} color="text">
-                  No pools match <strong>{searched}</strong> expression.
+                  Couldn't find any listings for <strong>{searched}</strong>.
                 </Typography>
               )}
             </>
@@ -357,7 +352,7 @@ export default function PairSection() {
               <SkeletonPairPlaceholder />
             </>
           )}
-          {pairsTotal && (
+          {pairsTotal && !noPairsFound && (
             <DashGrid my={2}>
               <FooterText minWidth={'220px'}>
                 <Flex alignItems="center">

@@ -352,7 +352,7 @@ export default React.memo(function TokenSection() {
               )}
               {noTokensFound && (
                 <Typography width="100%" paddingTop="30px" fontSize={16} color="text">
-                  No tokens match <strong>{searched}</strong> expression.
+                  Couldn't find any listings for <strong>{searched}</strong>.
                 </Typography>
               )}
             </>
