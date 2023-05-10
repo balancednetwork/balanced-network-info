@@ -326,13 +326,14 @@ export default React.memo(function TokenSection() {
                 LIQUIDITY
               </HeaderText>
               <HeaderText
-              // role="button"
-              // className={sortBy.key === 'holders' ? sortBy.order : ''}
-              // onClick={() =>
-              //   handleSortSelect({
-              //     key: 'holders',
-              //   })
-              // }
+                style={{ cursor: 'default' }}
+                // role="button"
+                // className={sortBy.key === 'holders' ? sortBy.order : ''}
+                // onClick={() =>
+                //   handleSortSelect({
+                //     key: 'holders',
+                //   })
+                // }
               >
                 7d trend
               </HeaderText>
