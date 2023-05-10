@@ -143,9 +143,16 @@ export default function BnUSDChart({
           <>
             <ChartInfoItem border>
               <Typography variant="p" fontSize="18px">
-                {loanInfo.loansAPY ? getFormattedNumber(loanInfo.loansAPY, 'percent2') : <LoaderComponent />}
+                {loanInfo.loansAPY ? (
+                  `${getFormattedNumber(loanInfo.loansAPY, 'percent2')} - ${getFormattedNumber(
+                    loanInfo.loansAPY * MAX_BOOST,
+                    'percent2',
+                  )}`
+                ) : (
+                  <LoaderComponent />
+                )}
               </Typography>
-              <Typography opacity={0.75}>Borrow APY</Typography>
+              <Typography opacity={0.75}>Borrow APR</Typography>
             </ChartInfoItem>
             <ChartInfoItem>
               <Typography variant="p" fontSize="18px">
