@@ -227,7 +227,7 @@ const TokenItem = ({ token, isLast }: TokenItemProps) => {
           <Flex alignItems="flex-end" flexDirection="column">
             <Typography variant="p">{getFormattedNumber(token.price, 'price')}</Typography>
             <Typography variant="p" color={token.price >= token.price_24h ? 'primary' : 'alert'}>
-              {formatPriceChange(((token.price - token.price_24h) / token.price_24h) * 100)}
+              {formatPriceChange(token.price_24h_change)}
             </Typography>
           </Flex>
         </DataText>
@@ -294,10 +294,10 @@ export default React.memo(function TokenSection() {
               </HeaderText>
               <HeaderText
                 role="button"
-                className={sortBy.key === 'price' ? sortBy.order : ''}
+                className={sortBy.key === 'price_24h_change' ? sortBy.order : ''}
                 onClick={() =>
                   handleSortSelect({
-                    key: 'price',
+                    key: 'price_24h_change',
                   })
                 }
               >

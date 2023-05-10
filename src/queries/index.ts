@@ -52,6 +52,7 @@ export type MetaToken = {
   symbol: string;
   price: number;
   price_24h: number;
+  price_24h_change: number;
   total_supply: number;
   market_cap: number;
   liquidity: number;

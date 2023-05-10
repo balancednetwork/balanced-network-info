@@ -62,6 +62,7 @@ export type TokenStats = {
   price_7d: number;
   price_24h: number;
   price_30d: number;
+  price_24h_change: number;
   symbol: string;
   total_supply: number;
   type: 'community' | 'balanced';
@@ -79,6 +80,7 @@ export function useAllTokens() {
         return response.data
           .map(item => {
             item['market_cap'] = item.total_supply * item.price;
+            item['price_24h_change'] = ((item.price - item.price_24h) / item.price_24h) * 100;
             return item;
           })
           .filter(item => item['liquidity'] > MIN_LIQUIDITY_TO_INCLUDE || item['address'] === 'ICX') as TokenStats[];
