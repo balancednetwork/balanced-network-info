@@ -59,7 +59,7 @@ export default function BnUSDChart({
   const isExtraSmall = useMedia('(max-width: 499px)');
 
   return (
-    <ChartSection bigger>
+    <ChartSection>
       <Flex flexDirection={['column', 'row']}>
         <Flex mr="auto" mb={1} alignItems="center">
           <Typography variant="h3" mr="auto" mb={1}>

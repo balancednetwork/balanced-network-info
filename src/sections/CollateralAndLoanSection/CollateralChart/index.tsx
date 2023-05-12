@@ -98,7 +98,7 @@ export default function CollateralChart({
   const isExtraSmall = useMedia('(max-width: 499px)');
 
   return (
-    <ChartSection border bigger>
+    <ChartSection border>
       <Flex flexDirection={['column', 'row']} ref={ref}>
         <Flex mr="auto" flexDirection="column" alignItems="center">
           <CollateralControlWrap mb={1}>
