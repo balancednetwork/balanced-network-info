@@ -17,7 +17,7 @@ export const OUTER_RADIUS = 115;
 export const OUTER_RADIUS_MOBILE = 105;
 export const PIE_CHART_HEIGHT = 330;
 
-export const ChartSection = styled(Box)<{ border?: boolean; bigger?: boolean }>`
+export const ChartSection = styled(Box)<{ border?: boolean }>`
   width: 100%;
   ${({ border }) => border && `margin-bottom: 35px !important;`}
 
@@ -47,14 +47,6 @@ export const ChartSection = styled(Box)<{ border?: boolean; bigger?: boolean }>`
 
   @media all and (min-width: 1280px) {
     width: 50%;
-    ${({ border, bigger }) =>
-      border
-        ? css`
-            padding-right: ${bigger ? '35px' : '80px'};
-          `
-        : css`
-            padding-left: ${bigger ? '35px' : '80px'};
-          `};
   }
 `;
 
