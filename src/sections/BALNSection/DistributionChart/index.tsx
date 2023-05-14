@@ -186,7 +186,7 @@ export const CustomLegend = props => {
         return (
           <LegendItem key={`item-${index}`} legendColor={fill}>
             <span style={{ backgroundColor: entry.color }} />
-            {entry.value}
+            {entry.value.replace('/', ' / ')}
           </LegendItem>
         );
       })}
