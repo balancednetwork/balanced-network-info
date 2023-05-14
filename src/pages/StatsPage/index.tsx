@@ -95,6 +95,11 @@ export const StatsItem = styled(Flex)<{ border?: boolean }>`
 
 export const StatsItemIcon = styled(Box)`
   margin: 8px 8px;
+  max-width: 60px;
+
+  svg {
+    max-width: 60px;
+  }
 `;
 
 export const StatsItemData = styled(Box)`
