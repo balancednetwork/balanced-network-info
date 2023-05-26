@@ -130,7 +130,7 @@ const HoldingsSection = () => {
               holdingsPast && holdingsPast[contract] && new BigNumber(holdingsPast[contract].toFixed());
             const percentageChange =
               prevAmount && curAmount.isGreaterThan(prevAmount)
-                ? new BigNumber(100).minus(prevAmount.times(100).div(curAmount)).toNumber()
+                ? curAmount.div(prevAmount).minus(1).times(100).toNumber()
                 : prevAmount && prevAmount.isGreaterThan(0)
                 ? curAmount.div(prevAmount).minus(1).times(100).toNumber()
                 : 0;
@@ -236,7 +236,7 @@ const HoldingsSection = () => {
             const poolPast = POLPast?.find(pool => pool.id === currentPool.id);
             const percentageChange =
               poolPast && currentPool.liquidity.isGreaterThan(poolPast.liquidity)
-                ? new BigNumber(100).minus(poolPast.liquidity.times(100).div(currentPool.liquidity)).toNumber()
+                ? currentPool.liquidity.div(poolPast.liquidity).minus(1).times(100).toNumber()
                 : poolPast && poolPast.liquidity.isGreaterThan(0)
                 ? currentPool.liquidity.div(poolPast.liquidity).minus(1).times(100).toNumber()
                 : 0;
