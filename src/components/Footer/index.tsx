@@ -147,7 +147,7 @@ const Footer = () => {
         <FooterNav className="footer-right-menu">
           <FooterNavTop>
             <AnimatedLink className="top-right-menu-item" as="a" href={LINKS.howitworks}>
-              How it works
+              How-to
             </AnimatedLink>
             <AnimatedLink className="top-right-menu-item" as="a" href={LINKS.stats} active={true}>
               Stats
@@ -172,6 +172,12 @@ const Footer = () => {
             <AnimatedLink as="a" href={LINKS.stablecoin}>
               Stablecoin
             </AnimatedLink>
+            <AnimatedLink as="a" href={LINKS.nfts}>
+              NFTs
+            </AnimatedLink>
+            <AnimatedLink as="a" href={LINKS.reviews}>
+              Reviews
+            </AnimatedLink>
           </FooterNavBottom>
         </FooterNav>
       </Grid>
@@ -181,10 +187,6 @@ const Footer = () => {
           <Flex alignItems="center">
             <AnimatedLink style={{ marginLeft: 0, display: 'inline-block' }} as="a" href={LINKS.disclamer}>
               Disclaimer
-            </AnimatedLink>
-            {' | '}
-            <AnimatedLink style={{ marginLeft: 0, display: 'inline-block' }} as="a" href={LINKS.bugBounty}>
-              Bug bounty
             </AnimatedLink>
             {' | '}
             <AnimatedLink style={{ marginLeft: 0, display: 'inline-block' }} as="a" href={LINKS.brand}>

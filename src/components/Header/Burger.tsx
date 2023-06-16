@@ -65,7 +65,7 @@ const BurgerMenu = ({ show }: { show: boolean }) => {
   return (
     <Container show={show} id="menu-burger">
       <AnimatedLinkMobile as="a" href={LINKS.howitworks}>
-        How it works
+        How-to
       </AnimatedLinkMobile>
       <AnimatedLinkMobile as="a" href={LINKS.stats}>
         Stats

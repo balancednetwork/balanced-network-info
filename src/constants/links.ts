@@ -22,4 +22,6 @@ export const LINKS = {
   performanceDetails: '/performance-details',
   blog: 'https://blog.balanced.network/',
   stablecoin: 'https://balanced.network/stablecoin/',
+  nfts: 'https://balanced.network/nft/',
+  reviews: 'https://balanced.network/reviews/',
 };
