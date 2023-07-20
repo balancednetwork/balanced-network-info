@@ -54,10 +54,10 @@ export const earningPeriods: TimePeriods = {
     displayText: 'month',
     days: 30,
   },
-  // threeMonths: {
-  //   displayText: '3 months',
-  //   days: 91,
-  // },
+  threeMonths: {
+    displayText: '3 months',
+    days: 91,
+  },
   // sixMonths: {
   //   displayText: '6 months',
   //   days: 182,
