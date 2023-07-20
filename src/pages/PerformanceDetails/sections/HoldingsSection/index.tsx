@@ -55,6 +55,8 @@ const HoldingsSection = () => {
   const { data: POLCurrent } = usePOLData(now);
   const { data: POLPast } = usePOLData(selectedDate.valueOf());
 
+  const shouldShowPOLSection = POLCurrent && POLCurrent.filter(pol => pol.liquidity.isGreaterThan(0)).length > 0;
+
   const gridWidth = 770;
 
   const filteredSortedHoldingsKeys = useMemo(() => {
@@ -210,112 +212,123 @@ const HoldingsSection = () => {
               )
             );
           })}
-        <BalanceGrid minWidth={gridWidth} className="border-top border-bottom" style={{ paddingBottom: '10px' }}>
-          <GridItemAssetTotal>Subtotal</GridItemAssetTotal>
-          <GridItemAssetTotal>
-            {holdingsCurrent ? (
-              <DisplayValueOrLoader value={totalCurrent} currencyRate={1} />
-            ) : (
-              <StyledSkeleton width={120} />
-            )}
-          </GridItemAssetTotal>
-          <GridItemAssetTotal>
-            {holdingsPast ? (
-              <DisplayValueOrLoader value={totalPast} currencyRate={1} />
-            ) : (
-              <StyledSkeleton width={120} />
-            )}
-          </GridItemAssetTotal>
-        </BalanceGrid>
 
-        <BalanceGrid minWidth={gridWidth}>
-          <GridItemHeader>Protocol-owned liquidity</GridItemHeader>
-        </BalanceGrid>
-        {POLCurrent &&
-          POLCurrent.map(currentPool => {
-            const poolPast = POLPast?.find(pool => pool.id === currentPool.id);
-            const percentageChange =
-              poolPast && currentPool.liquidity.isGreaterThan(poolPast.liquidity)
-                ? currentPool.liquidity.div(poolPast.liquidity).minus(1).times(100).toNumber()
-                : poolPast && poolPast.liquidity.isGreaterThan(0)
-                ? currentPool.liquidity.div(poolPast.liquidity).minus(1).times(100).toNumber()
-                : 0;
+        {shouldShowPOLSection && (
+          <BalanceGrid minWidth={gridWidth} className="border-top border-bottom" style={{ paddingBottom: '10px' }}>
+            <GridItemAssetTotal>Subtotal</GridItemAssetTotal>
+            <GridItemAssetTotal>
+              {holdingsCurrent ? (
+                <DisplayValueOrLoader value={totalCurrent} currencyRate={1} />
+              ) : (
+                <StyledSkeleton width={120} />
+              )}
+            </GridItemAssetTotal>
+            <GridItemAssetTotal>
+              {holdingsPast ? (
+                <DisplayValueOrLoader value={totalPast} currencyRate={1} />
+              ) : (
+                <StyledSkeleton width={120} />
+              )}
+            </GridItemAssetTotal>
+          </BalanceGrid>
+        )}
 
-            totalCurrentPOL += currentPool.liquidity.toNumber();
-            if (poolPast) {
-              totalPastPOL += poolPast.liquidity.toNumber();
-            }
+        {shouldShowPOLSection && (
+          <>
+            <BalanceGrid minWidth={gridWidth}>
+              <GridItemHeader>Protocol-owned liquidity</GridItemHeader>
+            </BalanceGrid>
+            {POLCurrent &&
+              POLCurrent.map(currentPool => {
+                const poolPast = POLPast?.find(pool => pool.id === currentPool.id);
+                const percentageChange =
+                  poolPast && currentPool.liquidity.isGreaterThan(poolPast.liquidity)
+                    ? currentPool.liquidity.div(poolPast.liquidity).minus(1).times(100).toNumber()
+                    : poolPast && poolPast.liquidity.isGreaterThan(0)
+                    ? currentPool.liquidity.div(poolPast.liquidity).minus(1).times(100).toNumber()
+                    : 0;
 
-            const baseDecimalDisplay = currentPool.DAOBaseAmount.isGreaterThan(100) ? 0 : 2;
-            const QUOTEDecimalDisplay = currentPool.DAOQuoteAmount.isGreaterThan(100) ? 0 : 2;
+                totalCurrentPOL += currentPool.liquidity.toNumber();
+                if (poolPast) {
+                  totalPastPOL += poolPast.liquidity.toNumber();
+                }
 
-            return (
-              currentPool.liquidity.isGreaterThan(0) && (
-                <BalanceGrid minWidth={gridWidth} key={currentPool.id}>
-                  <GridItemToken>
-                    {currentPool.pair && (
-                      <Flex alignItems="center">
-                        <Box sx={{ minWidth: '95px' }}>
-                          <PoolLogo
-                            baseCurrency={currentPool.pair.baseAddress}
-                            quoteCurrency={currentPool.pair.quoteAddress}
-                          />
-                        </Box>
-                        <Text ml={2}>{`${currentPool.pair.baseSymbol} / ${currentPool.pair.quoteSymbol}`}</Text>
-                      </Flex>
-                    )}
-                  </GridItemToken>
-                  <GridItemToken>
-                    <Text color="text">
-                      <DisplayValueOrLoader value={currentPool.liquidity} currencyRate={1} />
-                      <Change percentage={percentageChange ?? 0}>
-                        {Math.abs(percentageChange) >= 0.01 && formatPercentage(percentageChange)}
-                      </Change>
-                    </Text>
-                    <Text color="text2">{`${currentPool.DAOBaseAmount.toFormat(baseDecimalDisplay)} ${
-                      currentPool.pair?.baseSymbol
-                    } / ${currentPool.DAOQuoteAmount.toFormat(QUOTEDecimalDisplay)} ${
-                      currentPool.pair?.quoteSymbol
-                    }`}</Text>
-                  </GridItemToken>
-                  <GridItemToken>
-                    {POLPast && poolPast ? (
-                      poolPast.liquidity.isGreaterThan(0) ? (
-                        <>
-                          <Text color="text">
-                            <DisplayValueOrLoader value={poolPast.liquidity} currencyRate={1} />
-                          </Text>
-                          <Text color="text2">{`${poolPast.DAOBaseAmount.toFormat(baseDecimalDisplay)} ${
-                            poolPast.pair?.baseSymbol
-                          } / ${poolPast.DAOQuoteAmount.toFormat(QUOTEDecimalDisplay)} ${
-                            poolPast.pair?.quoteSymbol
-                          }`}</Text>
-                        </>
-                      ) : (
-                        '-'
-                      )
-                    ) : (
-                      <StyledSkeleton width={120} />
-                    )}
-                  </GridItemToken>
-                </BalanceGrid>
-              )
-            );
-          })}
+                const baseDecimalDisplay = currentPool.DAOBaseAmount.isGreaterThan(100) ? 0 : 2;
+                const QUOTEDecimalDisplay = currentPool.DAOQuoteAmount.isGreaterThan(100) ? 0 : 2;
 
-        <BalanceGrid minWidth={gridWidth} className="border-top">
-          <GridItemAssetTotal>Subtotal</GridItemAssetTotal>
-          <GridItemAssetTotal>
-            {POLCurrent ? (
-              <DisplayValueOrLoader value={totalCurrentPOL} currencyRate={1} />
-            ) : (
-              <StyledSkeleton width={120} />
-            )}
-          </GridItemAssetTotal>
-          <GridItemAssetTotal>
-            {POLPast ? <DisplayValueOrLoader value={totalPastPOL} currencyRate={1} /> : <StyledSkeleton width={120} />}
-          </GridItemAssetTotal>
-        </BalanceGrid>
+                return (
+                  currentPool.liquidity.isGreaterThan(0) && (
+                    <BalanceGrid minWidth={gridWidth} key={currentPool.id}>
+                      <GridItemToken>
+                        {currentPool.pair && (
+                          <Flex alignItems="center">
+                            <Box sx={{ minWidth: '95px' }}>
+                              <PoolLogo
+                                baseCurrency={currentPool.pair.baseAddress}
+                                quoteCurrency={currentPool.pair.quoteAddress}
+                              />
+                            </Box>
+                            <Text ml={2}>{`${currentPool.pair.baseSymbol} / ${currentPool.pair.quoteSymbol}`}</Text>
+                          </Flex>
+                        )}
+                      </GridItemToken>
+                      <GridItemToken>
+                        <Text color="text">
+                          <DisplayValueOrLoader value={currentPool.liquidity} currencyRate={1} />
+                          <Change percentage={percentageChange ?? 0}>
+                            {Math.abs(percentageChange) >= 0.01 && formatPercentage(percentageChange)}
+                          </Change>
+                        </Text>
+                        <Text color="text2">{`${currentPool.DAOBaseAmount.toFormat(baseDecimalDisplay)} ${
+                          currentPool.pair?.baseSymbol
+                        } / ${currentPool.DAOQuoteAmount.toFormat(QUOTEDecimalDisplay)} ${
+                          currentPool.pair?.quoteSymbol
+                        }`}</Text>
+                      </GridItemToken>
+                      <GridItemToken>
+                        {POLPast && poolPast ? (
+                          poolPast.liquidity.isGreaterThan(0) ? (
+                            <>
+                              <Text color="text">
+                                <DisplayValueOrLoader value={poolPast.liquidity} currencyRate={1} />
+                              </Text>
+                              <Text color="text2">{`${poolPast.DAOBaseAmount.toFormat(baseDecimalDisplay)} ${
+                                poolPast.pair?.baseSymbol
+                              } / ${poolPast.DAOQuoteAmount.toFormat(QUOTEDecimalDisplay)} ${
+                                poolPast.pair?.quoteSymbol
+                              }`}</Text>
+                            </>
+                          ) : (
+                            '-'
+                          )
+                        ) : (
+                          <StyledSkeleton width={120} />
+                        )}
+                      </GridItemToken>
+                    </BalanceGrid>
+                  )
+                );
+              })}
+
+            <BalanceGrid minWidth={gridWidth} className="border-top">
+              <GridItemAssetTotal>Subtotal</GridItemAssetTotal>
+              <GridItemAssetTotal>
+                {POLCurrent ? (
+                  <DisplayValueOrLoader value={totalCurrentPOL} currencyRate={1} />
+                ) : (
+                  <StyledSkeleton width={120} />
+                )}
+              </GridItemAssetTotal>
+              <GridItemAssetTotal>
+                {POLPast ? (
+                  <DisplayValueOrLoader value={totalPastPOL} currencyRate={1} />
+                ) : (
+                  <StyledSkeleton width={120} />
+                )}
+              </GridItemAssetTotal>
+            </BalanceGrid>
+          </>
+        )}
 
         <BalanceGrid minWidth={gridWidth} className="border-top" style={{ marginTop: '10px' }}>
           <GridItemAssetTotal>Total</GridItemAssetTotal>
