@@ -15,7 +15,6 @@ import { useAllPairs, useAllTokens, useAllTokensByAddress } from './backendv2';
 const API_ENDPOINT = 'https://tracker.icon.community/api/v1/';
 
 const stabilityFundAddress = addresses[1].stabilityfund;
-const daoFundAddress = addresses[1].daofund;
 
 export type BlockDetails = {
   timestamp: number;
@@ -30,7 +29,7 @@ export const useBlockDetails = (timestamp: number) => {
   return useQuery<BlockDetails>(`getBlock${timestamp}`, getBlock);
 };
 
-export const useDaoFundHoldings = (timestamp: number) => {
+export const useHoldings = (timestamp: number, holder: string) => {
   const { data: blockDetails } = useBlockDetails(timestamp);
   const { data: allTokens, isSuccess: allTokensQuerySuccess } = useAllTokens();
   const blockHeight = blockDetails?.number;
@@ -44,14 +43,14 @@ export const useDaoFundHoldings = (timestamp: number) => {
   }, [allTokens]);
 
   return useQuery<{ [key: string]: CurrencyAmount<Currency> }>(
-    `daoFundHoldings${blockHeight}-tokens${filteredTokens.length}`,
+    `holdings-${holder}-${blockHeight}-tokens${filteredTokens.length}`,
     async () => {
       const currencyAmounts: CurrencyAmount<Currency>[] = await Promise.all(
         filteredTokens.map(async tokenData => {
           const token = new Token(1, tokenData.address, tokenData.decimals, tokenData.symbol, tokenData.name);
           try {
             const contract = bnJs.getContract(token.address);
-            const balance = await contract.balanceOf(daoFundAddress, blockHeight);
+            const balance = await contract.balanceOf(holder, blockHeight);
             return CurrencyAmount.fromRawAmount(token, balance);
           } catch (e) {
             console.error(e);

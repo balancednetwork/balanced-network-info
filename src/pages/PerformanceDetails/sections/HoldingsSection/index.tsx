@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react';
 
+import { addresses } from '@balancednetwork/balanced-js';
 import { Currency } from '@balancednetwork/sdk-core';
 import BigNumber from 'bignumber.js';
 import { LAUNCH_DAY } from 'queries';
 import { useTokenPrices } from 'queries/backendv2';
-import { useDaoFundHoldings, usePOLData } from 'queries/blockDetails';
+import { useHoldings, usePOLData } from 'queries/blockDetails';
 import DatePicker from 'react-datepicker';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
@@ -20,6 +21,9 @@ import { GridItemToken, GridItemAssetTotal, GridItemHeader, ScrollHelper } from 
 import { StyledSkeleton } from '../EarningSection';
 
 import 'react-datepicker/dist/react-datepicker.css';
+
+const daoFundAddress = addresses[1].daofund;
+const reserveFundAddress = addresses[1].reserve;
 
 export const BalanceGrid = styled.div<{ minWidth?: number }>`
   display: grid;
@@ -43,14 +47,20 @@ const HoldingsSection = () => {
   let totalCurrent = 0;
   let totalPast = 0;
 
+  let totalCurrentReserve = 0;
+  let totalPastReserve = 0;
+
   let totalCurrentPOL = 0;
   let totalPastPOL = 0;
 
   const oneMinPeriod = 1000 * 60;
   const now = Math.floor(new Date().getTime() / oneMinPeriod) * oneMinPeriod;
 
-  const { data: holdingsCurrent } = useDaoFundHoldings(now);
-  const { data: holdingsPast } = useDaoFundHoldings(selectedDate.valueOf());
+  const { data: holdingsCurrent } = useHoldings(now, daoFundAddress);
+  const { data: holdingsPast } = useHoldings(selectedDate.valueOf(), daoFundAddress);
+
+  const { data: holdingsCurrentReserve } = useHoldings(now, reserveFundAddress);
+  const { data: holdingsPastReserve } = useHoldings(selectedDate.valueOf(), reserveFundAddress);
 
   const { data: POLCurrent } = usePOLData(now);
   const { data: POLPast } = usePOLData(selectedDate.valueOf());
@@ -86,6 +96,7 @@ const HoldingsSection = () => {
     <BoxPanel bg="bg2" mb={10}>
       <Typography variant="h2">Holdings</Typography>
       <ScrollHelper>
+        {/* DAO Fund holdings */}
         <BalanceGrid minWidth={gridWidth}>
           <GridItemHeader>DAO Fund</GridItemHeader>
           <GridItemHeader>
@@ -213,26 +224,25 @@ const HoldingsSection = () => {
             );
           })}
 
-        {shouldShowPOLSection && (
-          <BalanceGrid minWidth={gridWidth} className="border-top border-bottom" style={{ paddingBottom: '10px' }}>
-            <GridItemAssetTotal>Subtotal</GridItemAssetTotal>
-            <GridItemAssetTotal>
-              {holdingsCurrent ? (
-                <DisplayValueOrLoader value={totalCurrent} currencyRate={1} />
-              ) : (
-                <StyledSkeleton width={120} />
-              )}
-            </GridItemAssetTotal>
-            <GridItemAssetTotal>
-              {holdingsPast ? (
-                <DisplayValueOrLoader value={totalPast} currencyRate={1} />
-              ) : (
-                <StyledSkeleton width={120} />
-              )}
-            </GridItemAssetTotal>
-          </BalanceGrid>
-        )}
+        <BalanceGrid minWidth={gridWidth} className="border-top" style={{ paddingBottom: '10px' }}>
+          <GridItemAssetTotal>Subtotal</GridItemAssetTotal>
+          <GridItemAssetTotal>
+            {holdingsCurrent ? (
+              <DisplayValueOrLoader value={totalCurrent} currencyRate={1} />
+            ) : (
+              <StyledSkeleton width={120} />
+            )}
+          </GridItemAssetTotal>
+          <GridItemAssetTotal>
+            {holdingsPast ? (
+              <DisplayValueOrLoader value={totalPast} currencyRate={1} />
+            ) : (
+              <StyledSkeleton width={120} />
+            )}
+          </GridItemAssetTotal>
+        </BalanceGrid>
 
+        {/* POL section */}
         {shouldShowPOLSection && (
           <>
             <BalanceGrid minWidth={gridWidth}>
@@ -330,18 +340,133 @@ const HoldingsSection = () => {
           </>
         )}
 
+        <BalanceGrid minWidth={gridWidth}>
+          <GridItemHeader>Reserve fund</GridItemHeader>
+        </BalanceGrid>
+        {/* Reserve Fund */}
+        {holdingsCurrentReserve &&
+          tokenPrices &&
+          Object.keys(holdingsCurrentReserve).map(contract => {
+            const token = holdingsCurrentReserve[contract].currency.wrapped;
+            const curAmount = new BigNumber(holdingsCurrentReserve[contract].toFixed(4));
+            const prevAmount =
+              holdingsPastReserve &&
+              holdingsPastReserve[contract] &&
+              new BigNumber(holdingsPastReserve[contract].toFixed());
+            const percentageChange =
+              prevAmount && curAmount.isGreaterThan(prevAmount)
+                ? curAmount.div(prevAmount).minus(1).times(100).toNumber()
+                : prevAmount && prevAmount.isGreaterThan(0)
+                ? curAmount.div(prevAmount).minus(1).times(100).toNumber()
+                : 0;
+
+            totalCurrentReserve += curAmount.times(tokenPrices[token.symbol!]).toNumber();
+
+            if (prevAmount) {
+              totalPastReserve += prevAmount.times(tokenPrices[token.symbol!]).toNumber();
+            }
+
+            return (
+              curAmount.isGreaterThan(0) && (
+                <BalanceGrid key={contract} minWidth={gridWidth}>
+                  <GridItemToken>
+                    <Flex alignItems="center">
+                      <CurrencyLogo currency={token as Currency} size="40px" />
+                      <Box ml={2}>
+                        <Text color="text">{token.name}</Text>
+                        <Text color="text" opacity={0.75}>
+                          {token.symbol}
+                        </Text>
+                      </Box>
+                    </Flex>
+                  </GridItemToken>
+                  <GridItemToken>
+                    <Text color="text">
+                      {tokenPrices && tokenPrices[token.symbol!] && (
+                        <DisplayValueOrLoader value={curAmount} currencyRate={tokenPrices[token.symbol!].toNumber()} />
+                      )}
+
+                      <Change percentage={percentageChange ?? 0}>
+                        {Math.abs(percentageChange) >= 0.01 && formatPercentage(percentageChange)}
+                      </Change>
+                    </Text>
+                    <Text color="text" opacity={0.75}>
+                      <DisplayValueOrLoader
+                        value={curAmount}
+                        currencyRate={1}
+                        format={HIGH_PRICE_ASSET_DP[contract] ? 'number4' : 'number'}
+                      />
+                      {` ${token.symbol}`}
+                    </Text>
+                  </GridItemToken>
+                  <GridItemToken>
+                    <Text color="text">
+                      {holdingsPastReserve ? (
+                        holdingsPastReserve[contract].greaterThan(0) ? (
+                          <DisplayValueOrLoader
+                            value={prevAmount}
+                            currencyRate={tokenPrices && tokenPrices[token.symbol!].toNumber()}
+                          />
+                        ) : (
+                          '-'
+                        )
+                      ) : (
+                        <StyledSkeleton width={120} />
+                      )}
+                    </Text>
+                    <Text color="text" opacity={0.75}>
+                      {holdingsPastReserve ? (
+                        holdingsPastReserve[contract].greaterThan(0) ? (
+                          <>
+                            <DisplayValueOrLoader
+                              value={prevAmount}
+                              currencyRate={1}
+                              format={HIGH_PRICE_ASSET_DP[contract] ? 'number4' : 'number'}
+                            />
+                            {` ${token.symbol}`}
+                          </>
+                        ) : null
+                      ) : (
+                        <StyledSkeleton width={120} />
+                      )}
+                    </Text>
+                  </GridItemToken>
+                </BalanceGrid>
+              )
+            );
+          })}
+
+        <BalanceGrid minWidth={gridWidth} className="border-top">
+          <GridItemAssetTotal>Subtotal</GridItemAssetTotal>
+          <GridItemAssetTotal>
+            {holdingsCurrentReserve ? (
+              <DisplayValueOrLoader value={totalCurrentReserve} currencyRate={1} />
+            ) : (
+              <StyledSkeleton width={120} />
+            )}
+          </GridItemAssetTotal>
+          <GridItemAssetTotal>
+            {holdingsPastReserve ? (
+              <DisplayValueOrLoader value={totalPastReserve} currencyRate={1} />
+            ) : (
+              <StyledSkeleton width={120} />
+            )}
+          </GridItemAssetTotal>
+        </BalanceGrid>
+
+        {/* TOTALS */}
         <BalanceGrid minWidth={gridWidth} className="border-top" style={{ marginTop: '10px' }}>
           <GridItemAssetTotal>Total</GridItemAssetTotal>
           <GridItemAssetTotal>
             {holdingsCurrent ? (
-              <DisplayValueOrLoader value={totalCurrent + totalCurrentPOL} currencyRate={1} />
+              <DisplayValueOrLoader value={totalCurrent + totalCurrentPOL + totalCurrentReserve} currencyRate={1} />
             ) : (
               <StyledSkeleton width={120} />
             )}
           </GridItemAssetTotal>
           <GridItemAssetTotal>
             {holdingsPast ? (
-              <DisplayValueOrLoader value={totalPast + totalPastPOL} currencyRate={1} />
+              <DisplayValueOrLoader value={totalPast + totalPastPOL + totalPastReserve} currencyRate={1} />
             ) : (
               <StyledSkeleton width={120} />
             )}
