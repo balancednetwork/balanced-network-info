@@ -66,7 +66,7 @@ export function useDAOFundHoldingsPieData() {
                 const token = holdingsData[contract].currency.wrapped;
                 const curAmount = new BigNumber(holdingsData[contract].toFixed());
                 if (tokenPrices[token.symbol!]) {
-                  return curAmount.times(tokenPrices[token.symbol!]).toNumber() > 500;
+                  return curAmount.times(tokenPrices[token.symbol!]).toNumber() > 1000;
                 } else {
                   return false;
                 }
