@@ -58,39 +58,46 @@ const HoldingsSection = () => {
 
   const { data: holdingsCurrent } = useHoldings(now, daoFundAddress);
   const { data: holdingsPast } = useHoldings(selectedDate.valueOf(), daoFundAddress);
+  const combinedHoldings = useMemo(() => {
+    if (holdingsCurrent && holdingsPast) {
+      const result = Object.keys(holdingsCurrent).reduce((acc, key) => {
+        acc[key] = { current: holdingsCurrent[key], past: holdingsPast[key] };
+        return acc;
+      }, {});
+      return result;
+    }
+  }, [holdingsCurrent, holdingsPast]);
 
   const { data: holdingsCurrentReserve } = useHoldings(now, reserveFundAddress);
   const { data: holdingsPastReserve } = useHoldings(selectedDate.valueOf(), reserveFundAddress);
+  const combinedHoldingsReserve = useMemo(() => {
+    if (holdingsCurrentReserve && holdingsPastReserve) {
+      const result = Object.keys(holdingsCurrentReserve).reduce((acc, key) => {
+        acc[key] = { current: holdingsCurrentReserve[key], past: holdingsPastReserve[key] };
+        return acc;
+      }, {});
+      return result;
+    }
+  }, [holdingsCurrentReserve, holdingsPastReserve]);
 
   const { data: POLCurrent } = usePOLData(now);
   const { data: POLPast } = usePOLData(selectedDate.valueOf());
+  const combinedPOL = useMemo(() => {
+    if (POLCurrent && POLPast) {
+      const result = POLCurrent.map(currentPool => {
+        const poolPast = POLPast.find(pool => pool.id === currentPool.id);
+        return { current: currentPool, past: poolPast };
+      });
+      return result;
+    }
+  }, [POLCurrent, POLPast]);
 
-  const shouldShowPOLSection = POLCurrent && POLCurrent.filter(pol => pol.liquidity.isGreaterThan(0)).length > 0;
+  const shouldShowPOLSection =
+    combinedPOL &&
+    combinedPOL.filter(pol => pol.current.liquidity.isGreaterThan(0) || pol.past?.liquidity.isGreaterThan(0)).length >
+      0;
 
   const gridWidth = 770;
-
-  const filteredSortedHoldingsKeys = useMemo(() => {
-    if (holdingsCurrent && tokenPrices) {
-      return Object.keys(holdingsCurrent)
-        .filter(contract => {
-          const token = holdingsCurrent[contract].currency.wrapped;
-          const currentAmount = new BigNumber(holdingsCurrent[contract].toFixed());
-          const currentValue = tokenPrices ? currentAmount.times(tokenPrices[token.symbol!]).toNumber() : 0;
-          return currentValue >= 1000;
-        })
-        .sort((a, b) => {
-          const tokenA = holdingsCurrent[a].currency.wrapped;
-          const currentAmountA = new BigNumber(holdingsCurrent[a].toFixed());
-          const currentValueA = tokenPrices ? currentAmountA.times(tokenPrices[tokenA.symbol!]).toNumber() : 0;
-          const tokenB = holdingsCurrent[b].currency.wrapped;
-          const currentAmountB = new BigNumber(holdingsCurrent[b].toFixed());
-          const currentValueB = tokenPrices ? currentAmountB.times(tokenPrices[tokenB.symbol!]).toNumber() : 0;
-          return currentValueB - currentValueA;
-        });
-    } else {
-      return [];
-    }
-  }, [holdingsCurrent, tokenPrices]);
 
   return (
     <BoxPanel bg="bg2" mb={10}>
@@ -134,13 +141,13 @@ const HoldingsSection = () => {
             </DatePickerWrap>
           </GridItemHeader>
         </BalanceGrid>
-        {holdingsCurrent &&
+        {combinedHoldings &&
           tokenPrices &&
-          filteredSortedHoldingsKeys.map(contract => {
-            const token = holdingsCurrent[contract].currency.wrapped;
-            const curAmount = new BigNumber(holdingsCurrent[contract].toFixed(4));
-            const prevAmount =
-              holdingsPast && holdingsPast[contract] && new BigNumber(holdingsPast[contract].toFixed());
+          Object.keys(combinedHoldings).map(contract => {
+            const token = combinedHoldings[contract].current.currency.wrapped;
+            const curAmount = new BigNumber(combinedHoldings[contract].current.toFixed(4));
+            const prevAmount = new BigNumber(combinedHoldings[contract].past.toFixed(4));
+
             const percentageChange =
               prevAmount && curAmount.isGreaterThan(prevAmount)
                 ? curAmount.div(prevAmount).minus(1).times(100).toNumber()
@@ -148,14 +155,17 @@ const HoldingsSection = () => {
                 ? curAmount.div(prevAmount).minus(1).times(100).toNumber()
                 : 0;
 
-            totalCurrent += curAmount.times(tokenPrices[token.symbol!]).toNumber();
+            const shouldAccount =
+              curAmount.times(tokenPrices[token.symbol!]).isGreaterThan(1000) ||
+              prevAmount.times(tokenPrices[token.symbol!]).isGreaterThan(1000);
 
-            if (prevAmount) {
+            if (shouldAccount) {
+              totalCurrent += curAmount.times(tokenPrices[token.symbol!]).toNumber();
               totalPast += prevAmount.times(tokenPrices[token.symbol!]).toNumber();
             }
 
             return (
-              curAmount.isGreaterThan(0) && (
+              shouldAccount && (
                 <BalanceGrid key={contract} minWidth={gridWidth}>
                   <GridItemToken>
                     <Flex alignItems="center">
@@ -189,8 +199,8 @@ const HoldingsSection = () => {
                   </GridItemToken>
                   <GridItemToken>
                     <Text color="text">
-                      {holdingsPast ? (
-                        holdingsPast[contract].greaterThan(0) ? (
+                      {combinedHoldings ? (
+                        combinedHoldings[contract].past.greaterThan(0) ? (
                           <DisplayValueOrLoader
                             value={prevAmount}
                             currencyRate={tokenPrices && tokenPrices[token.symbol!].toNumber()}
@@ -203,8 +213,8 @@ const HoldingsSection = () => {
                       )}
                     </Text>
                     <Text color="text" opacity={0.75}>
-                      {holdingsPast ? (
-                        holdingsPast[contract].greaterThan(0) ? (
+                      {combinedHoldings ? (
+                        combinedHoldings[contract].past.greaterThan(0) ? (
                           <>
                             <DisplayValueOrLoader
                               value={prevAmount}
@@ -248,9 +258,10 @@ const HoldingsSection = () => {
             <BalanceGrid minWidth={gridWidth}>
               <GridItemHeader>Protocol-owned liquidity</GridItemHeader>
             </BalanceGrid>
-            {POLCurrent &&
-              POLCurrent.map(currentPool => {
-                const poolPast = POLPast?.find(pool => pool.id === currentPool.id);
+            {combinedPOL &&
+              combinedPOL.map(currentPoolSet => {
+                const currentPool = currentPoolSet.current;
+                const poolPast = currentPoolSet.past;
                 const percentageChange =
                   poolPast && currentPool.liquidity.isGreaterThan(poolPast.liquidity)
                     ? currentPool.liquidity.div(poolPast.liquidity).minus(1).times(100).toNumber()
@@ -258,16 +269,19 @@ const HoldingsSection = () => {
                     ? currentPool.liquidity.div(poolPast.liquidity).minus(1).times(100).toNumber()
                     : 0;
 
-                totalCurrentPOL += currentPool.liquidity.toNumber();
-                if (poolPast) {
-                  totalPastPOL += poolPast.liquidity.toNumber();
+                const shouldAccount =
+                  currentPool.liquidity.isGreaterThan(1000) || poolPast?.liquidity.isGreaterThan(1000);
+
+                if (shouldAccount) {
+                  totalCurrentPOL += currentPool.liquidity.toNumber();
+                  totalPastPOL += poolPast ? poolPast.liquidity.toNumber() : 0;
                 }
 
                 const baseDecimalDisplay = currentPool.DAOBaseAmount.isGreaterThan(100) ? 0 : 2;
                 const QUOTEDecimalDisplay = currentPool.DAOQuoteAmount.isGreaterThan(100) ? 0 : 2;
 
                 return (
-                  currentPool.liquidity.isGreaterThan(0) && (
+                  shouldAccount && (
                     <BalanceGrid minWidth={gridWidth} key={currentPool.id}>
                       <GridItemToken>
                         {currentPool.pair && (
@@ -296,7 +310,7 @@ const HoldingsSection = () => {
                         }`}</Text>
                       </GridItemToken>
                       <GridItemToken>
-                        {POLPast && poolPast ? (
+                        {poolPast ? (
                           poolPast.liquidity.isGreaterThan(0) ? (
                             <>
                               <Text color="text">
@@ -320,17 +334,17 @@ const HoldingsSection = () => {
                 );
               })}
 
-            <BalanceGrid minWidth={gridWidth} className="border-top border-bottom">
+            <BalanceGrid minWidth={gridWidth} className="border-top border-bottom" style={{ paddingBottom: '10px' }}>
               <GridItemAssetTotal>Subtotal</GridItemAssetTotal>
               <GridItemAssetTotal>
-                {POLCurrent ? (
+                {combinedPOL ? (
                   <DisplayValueOrLoader value={totalCurrentPOL} currencyRate={1} />
                 ) : (
                   <StyledSkeleton width={120} />
                 )}
               </GridItemAssetTotal>
               <GridItemAssetTotal>
-                {POLPast ? (
+                {combinedPOL ? (
                   <DisplayValueOrLoader value={totalPastPOL} currencyRate={1} />
                 ) : (
                   <StyledSkeleton width={120} />
@@ -344,15 +358,12 @@ const HoldingsSection = () => {
           <GridItemHeader>Reserve fund</GridItemHeader>
         </BalanceGrid>
         {/* Reserve Fund */}
-        {holdingsCurrentReserve &&
+        {combinedHoldingsReserve &&
           tokenPrices &&
-          Object.keys(holdingsCurrentReserve).map(contract => {
-            const token = holdingsCurrentReserve[contract].currency.wrapped;
-            const curAmount = new BigNumber(holdingsCurrentReserve[contract].toFixed(4));
-            const prevAmount =
-              holdingsPastReserve &&
-              holdingsPastReserve[contract] &&
-              new BigNumber(holdingsPastReserve[contract].toFixed());
+          Object.keys(combinedHoldingsReserve).map(contract => {
+            const token = combinedHoldingsReserve[contract].current.currency.wrapped;
+            const curAmount = new BigNumber(combinedHoldingsReserve[contract].current.toFixed(4));
+            const prevAmount = new BigNumber(combinedHoldingsReserve[contract].past.toFixed(4));
             const percentageChange =
               prevAmount && curAmount.isGreaterThan(prevAmount)
                 ? curAmount.div(prevAmount).minus(1).times(100).toNumber()
@@ -361,13 +372,10 @@ const HoldingsSection = () => {
                 : 0;
 
             totalCurrentReserve += curAmount.times(tokenPrices[token.symbol!]).toNumber();
-
-            if (prevAmount) {
-              totalPastReserve += prevAmount.times(tokenPrices[token.symbol!]).toNumber();
-            }
+            totalPastReserve += prevAmount.times(tokenPrices[token.symbol!]).toNumber();
 
             return (
-              curAmount.isGreaterThan(0) && (
+              (curAmount.isGreaterThan(0) || prevAmount.isGreaterThan(0)) && (
                 <BalanceGrid key={contract} minWidth={gridWidth}>
                   <GridItemToken>
                     <Flex alignItems="center">
@@ -401,8 +409,8 @@ const HoldingsSection = () => {
                   </GridItemToken>
                   <GridItemToken>
                     <Text color="text">
-                      {holdingsPastReserve ? (
-                        holdingsPastReserve[contract].greaterThan(0) ? (
+                      {combinedHoldingsReserve ? (
+                        combinedHoldingsReserve[contract].past.greaterThan(0) ? (
                           <DisplayValueOrLoader
                             value={prevAmount}
                             currencyRate={tokenPrices && tokenPrices[token.symbol!].toNumber()}
@@ -415,8 +423,8 @@ const HoldingsSection = () => {
                       )}
                     </Text>
                     <Text color="text" opacity={0.75}>
-                      {holdingsPastReserve ? (
-                        holdingsPastReserve[contract].greaterThan(0) ? (
+                      {combinedHoldingsReserve ? (
+                        combinedHoldingsReserve[contract].past.greaterThan(0) ? (
                           <>
                             <DisplayValueOrLoader
                               value={prevAmount}
@@ -439,14 +447,14 @@ const HoldingsSection = () => {
         <BalanceGrid minWidth={gridWidth} className="border-top">
           <GridItemAssetTotal>Subtotal</GridItemAssetTotal>
           <GridItemAssetTotal>
-            {holdingsCurrentReserve ? (
+            {combinedHoldingsReserve ? (
               <DisplayValueOrLoader value={totalCurrentReserve} currencyRate={1} />
             ) : (
               <StyledSkeleton width={120} />
             )}
           </GridItemAssetTotal>
           <GridItemAssetTotal>
-            {holdingsPastReserve ? (
+            {combinedHoldingsReserve ? (
               <DisplayValueOrLoader value={totalPastReserve} currencyRate={1} />
             ) : (
               <StyledSkeleton width={120} />
