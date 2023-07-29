@@ -334,7 +334,7 @@ const HoldingsSection = () => {
                 );
               })}
 
-            <BalanceGrid minWidth={gridWidth} className="border-top border-bottom">
+            <BalanceGrid minWidth={gridWidth} className="border-top border-bottom" style={{ paddingBottom: '10px' }}>
               <GridItemAssetTotal>Subtotal</GridItemAssetTotal>
               <GridItemAssetTotal>
                 {combinedPOL ? (
