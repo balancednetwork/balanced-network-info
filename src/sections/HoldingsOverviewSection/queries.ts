@@ -129,7 +129,7 @@ export function useDAOFundPOLPieData() {
               value: pool.liquidity.toNumber(),
               fill: CHART_COLORS[index] || CHART_COLORS[CHART_COLORS.length - 1],
             };
-          })
+          }).filter(pool => pool.value > 1000)
         : [];
 
       const template = ['sICX/bnUSD', 'ETH/bnUSD', 'BTCB/bnUSD', 'BALN'];
