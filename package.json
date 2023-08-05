@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@balancednetwork/balanced-js": "1.2.13",
+    "@balancednetwork/balanced-js": "1.2.17",
     "@balancednetwork/sdk-core": "1.0.1",
     "@material-ui/core": "4.12.3",
     "@material-ui/lab": "4.0.0-alpha.60",
@@ -119,7 +119,7 @@
     ]
   },
   "engines": {
-    "node": ">=14.0.0 <16.0.0",
+    "node": ">=14.0.0",
     "yarn": "^1.22.10"
   },
   "lint-staged": {
