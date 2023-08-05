@@ -308,7 +308,7 @@ const EarningsSection = () => {
                   currencyRate={1}
                   format={'number'}
                 />
-                {` bnUSD`}
+                {earningsPastPeriod?.income.swaps['bnUSD'].amount && ` bnUSD`}
               </GridItemLight>
             </IncomeGrid>
             <IncomeGrid>
@@ -327,7 +327,7 @@ const EarningsSection = () => {
                   currencyRate={1}
                   format={'number'}
                 />
-                {` BALN`}
+                {earningsPastPeriod?.income.swaps['BALN'].amount && ` BALN`}
               </GridItemLight>
             </IncomeGrid>
             <IncomeGrid>
@@ -346,7 +346,7 @@ const EarningsSection = () => {
                   currencyRate={1}
                   format={'number'}
                 />
-                {` sICX`}
+                {earningsPastPeriod?.income.swaps['sICX'].amount && ` sICX`}
               </GridItemLight>
             </IncomeGrid>
           </>
@@ -565,7 +565,7 @@ const EarningsSection = () => {
                   currencyRate={1}
                   format={'number'}
                 />
-                {` bnUSD`}
+                {earningsPastPeriod?.expenses['bnUSD'].amount && ` bnUSD`}
               </GridItemLight>
             </IncomeGrid>
             <IncomeGrid>
@@ -584,7 +584,7 @@ const EarningsSection = () => {
                   currencyRate={1}
                   format={'number'}
                 />
-                {` BALN`}
+                {earningsPastPeriod?.expenses['BALN'].amount && ` BALN`}
               </GridItemLight>
             </IncomeGrid>
             <IncomeGrid>
@@ -603,7 +603,7 @@ const EarningsSection = () => {
                   currencyRate={1}
                   format={'number'}
                 />
-                {` sICX`}
+                {earningsPastPeriod?.expenses['sICX'].amount && ` sICX`}
               </GridItemLight>
             </IncomeGrid>
           </>

@@ -1,11 +1,14 @@
 import { useMemo } from 'react';
 
+import { addresses } from '@balancednetwork/balanced-js';
 import BigNumber from 'bignumber.js';
 import { useTokenPrices } from 'queries/backendv2';
-import { useDaoFundHoldings, usePOLData } from 'queries/blockDetails';
+import { useHoldings, usePOLData } from 'queries/blockDetails';
 import { useQuery } from 'react-query';
 
 import { CHART_COLORS } from 'sections/BALNSection/queries';
+
+const daoFundAddress = addresses[1].daofund;
 
 const CHART_TOKENS_COLORS = {
   sICX: '#C4C9D0',
@@ -18,7 +21,7 @@ const CHART_TOKENS_COLORS = {
 
 export function useDAOFundTotal(timestamp: number) {
   const { data: POLData, isSuccess: isPOLDataSuccess } = usePOLData(timestamp);
-  const { data: holdingsData, isSuccess: isHoldingsDataSuccess } = useDaoFundHoldings(timestamp);
+  const { data: holdingsData, isSuccess: isHoldingsDataSuccess } = useHoldings(timestamp, daoFundAddress);
   const { data: tokenPrices, isSuccess: isTokenPricesSuccess } = useTokenPrices();
 
   return useMemo(() => {
@@ -52,7 +55,7 @@ export function useDAOFundHoldingsPieData() {
   const now = Math.floor(new Date().getTime() / oneMinPeriod) * oneMinPeriod;
 
   const { data: tokenPrices, isSuccess: isTokenPricesSuccess } = useTokenPrices();
-  const { data: holdingsData, isSuccess: isHoldingsDataSuccess } = useDaoFundHoldings(now);
+  const { data: holdingsData, isSuccess: isHoldingsDataSuccess } = useHoldings(now, daoFundAddress);
 
   return useQuery(
     `daoFundHoldings${now}-tokens${tokenPrices ? Object.keys(tokenPrices).length : 0}-${
@@ -66,7 +69,7 @@ export function useDAOFundHoldingsPieData() {
                 const token = holdingsData[contract].currency.wrapped;
                 const curAmount = new BigNumber(holdingsData[contract].toFixed());
                 if (tokenPrices[token.symbol!]) {
-                  return curAmount.times(tokenPrices[token.symbol!]).toNumber() > 500;
+                  return curAmount.times(tokenPrices[token.symbol!]).toNumber() > 1000;
                 } else {
                   return false;
                 }

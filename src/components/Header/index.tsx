@@ -57,7 +57,7 @@ const Header = () => {
       </Flex>
       <DesktopMenu sx={{ a: { marginLeft: 25 } }} alignItems="center" justifyContent="flex-end">
         <AnimatedLink as="a" href={LINKS.howitworks}>
-          How it works
+          How-to
         </AnimatedLink>
         <AnimatedLink as="a" href={LINKS.stats} active={true}>
           Stats
