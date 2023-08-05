@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@balancednetwork/balanced-js": "1.2.13",
+    "@balancednetwork/balanced-js": "1.2.17",
     "@balancednetwork/sdk-core": "1.0.1",
     "@material-ui/core": "4.12.3",
     "@material-ui/lab": "4.0.0-alpha.60",
@@ -106,18 +106,11 @@
     "extract-messages": "i18next-scanner --config=internals/extractMessages/i18next-scanner.config.js"
   },
   "proxy": "https://balanced.sudoblock.io",
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not op_mini all"
+  ],
   "engines": {
     "node": ">=14.0.0 <16.0.0",
     "yarn": "^1.22.10"

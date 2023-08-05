@@ -58,7 +58,7 @@ export function useDAOFundHoldingsPieData() {
   const { data: holdingsData, isSuccess: isHoldingsDataSuccess } = useHoldings(now, daoFundAddress);
 
   return useQuery(
-    `daoFundHoldings${now}-tokens${tokenPrices ? Object.keys(tokenPrices).length : 0}-${
+    `daoFundHoldingsPIE${now}-tokens${tokenPrices ? Object.keys(tokenPrices).length : 0}-${
       holdingsData ? Object.keys(holdingsData).length : 0
     }`,
     () => {
@@ -129,7 +129,7 @@ export function useDAOFundPOLPieData() {
               value: pool.liquidity.toNumber(),
               fill: CHART_COLORS[index] || CHART_COLORS[CHART_COLORS.length - 1],
             };
-          })
+          }).filter(pool => pool.value > 1000)
         : [];
 
       const template = ['sICX/bnUSD', 'ETH/bnUSD', 'BTCB/bnUSD', 'BALN'];
