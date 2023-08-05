@@ -299,9 +299,11 @@ const HoldingsSection = () => {
                       <GridItemToken>
                         <Text color="text">
                           <DisplayValueOrLoader value={currentPool.liquidity} currencyRate={1} />
-                          <Change percentage={percentageChange ?? 0}>
-                            {Math.abs(percentageChange) >= 0.01 && formatPercentage(percentageChange)}
-                          </Change>
+                          {poolPast && poolPast.liquidity.isGreaterThan(0) && (
+                            <Change percentage={percentageChange ?? 0}>
+                              {Math.abs(percentageChange) >= 0.01 && formatPercentage(percentageChange)}
+                            </Change>
+                          )}
                         </Text>
                         <Text color="text2">{`${currentPool.DAOBaseAmount.toFormat(baseDecimalDisplay)} ${
                           currentPool.pair?.baseSymbol

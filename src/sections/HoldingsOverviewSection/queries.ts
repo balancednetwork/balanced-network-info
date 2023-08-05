@@ -58,7 +58,7 @@ export function useDAOFundHoldingsPieData() {
   const { data: holdingsData, isSuccess: isHoldingsDataSuccess } = useHoldings(now, daoFundAddress);
 
   return useQuery(
-    `daoFundHoldings${now}-tokens${tokenPrices ? Object.keys(tokenPrices).length : 0}-${
+    `daoFundHoldingsPIE${now}-tokens${tokenPrices ? Object.keys(tokenPrices).length : 0}-${
       holdingsData ? Object.keys(holdingsData).length : 0
     }`,
     () => {

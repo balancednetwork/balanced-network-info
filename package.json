@@ -106,20 +106,13 @@
     "extract-messages": "i18next-scanner --config=internals/extractMessages/i18next-scanner.config.js"
   },
   "proxy": "https://balanced.sudoblock.io",
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not op_mini all"
+  ],
   "engines": {
-    "node": ">=14.0.0",
+    "node": ">=14.0.0 <16.0.0",
     "yarn": "^1.22.10"
   },
   "lint-staged": {
