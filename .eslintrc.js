@@ -20,7 +20,7 @@ module.exports = {
     'import/no-unresolved': 'off',
     'import/no-useless-path-segments': 'error',
     'import/order': [
-      'error',
+      0,
       {
         'newlines-between': 'always',
         groups: [['builtin', 'external'], 'internal', ['parent', 'sibling', 'index']],
