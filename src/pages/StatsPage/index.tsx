@@ -23,6 +23,7 @@ import PairSection from 'sections/PairSection';
 import TokenSection from 'sections/TokenSection';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
+import WithdrawalLimits from 'sections/WithdrawalLimits';
 
 export const Container = styled(Box)`
   /* disable margin collapse */
@@ -122,6 +123,7 @@ export function StatsPage() {
 
   return (
     <Container>
+      {/* @ts-ignore */}
       <Helmet>
         <title>Statistics | Balanced</title>
       </Helmet>
@@ -234,16 +236,12 @@ export function StatsPage() {
         </BoxPanel>
 
         <CollateralAndLoanSection />
-
         <TokenSection />
-
         <PairSection />
-
         <GovernanceSection />
-
         <BALNSection />
-
         <HoldingsOverviewSection />
+        <WithdrawalLimits />
       </StatsLayout>
 
       <Divider />
