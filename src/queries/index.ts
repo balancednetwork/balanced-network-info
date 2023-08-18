@@ -979,3 +979,69 @@ export function useBorrowersInfo() {
     },
   );
 }
+
+type WithdrawalsFloorDataType = {
+  percentageFloor: BigNumber;
+  floorTimeDecayInHours: BigNumber;
+  collateralFloorData: { [key in string]: BigNumber };
+};
+
+export function useWithdrawalsFloorData(): UseQueryResult<WithdrawalsFloorDataType> {
+  const { data: collateralTokens, isSuccess: collateralTokensSuccess } = useSupportedCollateralTokens();
+  const { data: allTokens, isSuccess: tokensSuccess } = useAllTokensByAddress();
+
+  return useQuery(
+    `withdrawalsFloorData-${collateralTokens && Object.keys(collateralTokens).length}-tokens`,
+    async () => {
+      if (collateralTokens && allTokens) {
+        const collateralSymbols = Object.keys(collateralTokens);
+        const collateralAddresses = Object.values(collateralTokens);
+
+        const percentageFloorCallData = {
+          target: bnJs.Loans.address,
+          method: 'getFloorPercentage',
+          params: [],
+        };
+
+        const floorTimeDelayCallData = {
+          target: bnJs.Loans.address,
+          method: 'getTimeDelayMicroSeconds',
+          params: [],
+        };
+
+        const cds: CallData[] = [
+          percentageFloorCallData,
+          floorTimeDelayCallData,
+          ...collateralAddresses.map(address => ({
+            target: bnJs.Loans.address,
+            method: 'getCurrentFloor',
+            params: [address],
+          })),
+        ];
+
+        const data = await bnJs.Multicall.getAggregateData(cds);
+
+        const percentageFloor = new BigNumber(data[0]).div(10000);
+        const floorTimeDecayInHours = new BigNumber(data[1]).div(1000 * 1000 * 60 * 60);
+
+        const collateralFloorData = data.slice(2).map((item, index) => {
+          const token = allTokens[collateralAddresses[index]];
+          return {
+            [collateralSymbols[index]]: new BigNumber(item).div(10 ** token.decimals).toFixed(),
+          };
+        });
+
+        return {
+          percentageFloor,
+          floorTimeDecayInHours,
+          collateralFloorData,
+        };
+      }
+    },
+    {
+      keepPreviousData: true,
+      refetchInterval: 5000,
+      enabled: collateralTokensSuccess && tokensSuccess,
+    },
+  );
+}
