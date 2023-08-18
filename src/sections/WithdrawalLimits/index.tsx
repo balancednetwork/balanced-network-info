@@ -6,7 +6,7 @@ import { HIGH_PRICE_ASSET_DP } from 'constants/tokens';
 import { useWithdrawalsFloorData } from 'queries';
 import React from 'react';
 import { Box, Flex, Text } from 'rebass';
-import { HeaderText } from 'sections/TokenSection';
+import { HeaderText, StyledSkeleton } from 'sections/TokenSection';
 import styled from 'styled-components';
 import { Typography } from 'theme';
 
@@ -43,6 +43,54 @@ const MinWidthContainer = styled(Box)`
   overflow: hidden;
 `;
 
+const SkeletonTokenPlaceholder = () => {
+  return (
+    <DashGrid my="10px">
+      <DataText>
+        <Flex alignItems="center">
+          <Box sx={{ minWidth: '50px' }}>
+            <StyledSkeleton variant="circle" width={40} height={40} />
+          </Box>
+          <Box ml={2} sx={{ minWidth: '160px' }}>
+            <StyledSkeleton width={130} />
+            <StyledSkeleton width={70} />
+          </Box>
+        </Flex>
+      </DataText>
+      <DataText>
+        <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
+          <Typography variant="p">
+            <StyledSkeleton width={140} />
+          </Typography>
+          <Typography variant="p">
+            <StyledSkeleton width={100} />
+          </Typography>
+        </Flex>
+      </DataText>
+      <DataText>
+        <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
+          <Typography variant="p">
+            <StyledSkeleton width={140} />
+          </Typography>
+          <Typography variant="p">
+            <StyledSkeleton width={100} />
+          </Typography>
+        </Flex>
+      </DataText>
+      <DataText>
+        <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
+          <Typography variant="p">
+            <StyledSkeleton width={100} />
+          </Typography>
+          <Typography variant="p">
+            <StyledSkeleton width={70} />
+          </Typography>
+        </Flex>
+      </DataText>
+    </DashGrid>
+  );
+};
+
 const WithdrawalLimits = () => {
   const { data: withdrawalsFloorData } = useWithdrawalsFloorData();
 
@@ -69,14 +117,14 @@ const WithdrawalLimits = () => {
       </Flex>
       <Box overflow="auto">
         <MinWidthContainer>
+          <DashGrid>
+            <HeaderText>Asset</HeaderText>
+            <HeaderText>Collateral</HeaderText>
+            <HeaderText>Security floor</HeaderText>
+            <HeaderText>Available to withdraw</HeaderText>
+          </DashGrid>
           {withdrawalsFloorData ? (
             <>
-              <DashGrid>
-                <HeaderText>Asset</HeaderText>
-                <HeaderText>Collateral</HeaderText>
-                <HeaderText>Security floor</HeaderText>
-                <HeaderText>Available to withdraw</HeaderText>
-              </DashGrid>
               {withdrawalsFloorData?.collateralFloorData.map((collateral, index) => {
                 const isLast = index === withdrawalsFloorData.collateralFloorData.length - 1;
                 const dp = HIGH_PRICE_ASSET_DP[collateral.token.address] || 0;
@@ -135,7 +183,13 @@ const WithdrawalLimits = () => {
               })}
             </>
           ) : (
-            <>Loading...</>
+            <>
+              <SkeletonTokenPlaceholder />
+              <Divider />
+              <SkeletonTokenPlaceholder />
+              <Divider />
+              <SkeletonTokenPlaceholder />
+            </>
           )}
         </MinWidthContainer>
       </Box>
