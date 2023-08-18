@@ -12,6 +12,7 @@ import { useSupportedCollateralTokens } from 'store/collateral/hooks';
 import { formatUnits } from 'utils';
 
 import {
+  TokenStats,
   useAllCollateralData,
   useAllPairsIncentivisedByName,
   useAllPairsTotal,
@@ -983,7 +984,7 @@ export function useBorrowersInfo() {
 type WithdrawalsFloorDataType = {
   percentageFloor: BigNumber;
   floorTimeDecayInHours: BigNumber;
-  collateralFloorData: { [key in string]: BigNumber };
+  collateralFloorData: { floor: BigNumber; current: BigNumber; token: TokenStats }[];
 };
 
 export function useWithdrawalsFloorData(): UseQueryResult<WithdrawalsFloorDataType> {
@@ -994,7 +995,6 @@ export function useWithdrawalsFloorData(): UseQueryResult<WithdrawalsFloorDataTy
     `withdrawalsFloorData-${collateralTokens && Object.keys(collateralTokens).length}-tokens`,
     async () => {
       if (collateralTokens && allTokens) {
-        const collateralSymbols = Object.keys(collateralTokens);
         const collateralAddresses = Object.values(collateralTokens);
 
         const percentageFloorCallData = {
@@ -1024,12 +1024,25 @@ export function useWithdrawalsFloorData(): UseQueryResult<WithdrawalsFloorDataTy
         const percentageFloor = new BigNumber(data[0]).div(10000);
         const floorTimeDecayInHours = new BigNumber(data[1]).div(1000 * 1000 * 60 * 60);
 
-        const collateralFloorData = data.slice(2).map((item, index) => {
-          const token = allTokens[collateralAddresses[index]];
-          return {
-            [collateralSymbols[index]]: new BigNumber(item).div(10 ** token.decimals).toFixed(),
-          };
-        });
+        const currentCollateralCds: CallData[] = collateralAddresses.map(address => ({
+          target: address,
+          method: 'balanceOf',
+          params: [bnJs.Loans.address],
+        }));
+
+        const currentData = await bnJs.Multicall.getAggregateData(currentCollateralCds);
+
+        const collateralFloorData = data
+          .slice(2)
+          .map((item, index) => {
+            const token = allTokens[collateralAddresses[index]];
+            return {
+              floor: new BigNumber(item).div(10 ** token.decimals),
+              current: new BigNumber(currentData[index]).div(10 ** token.decimals),
+              token,
+            };
+          })
+          .sort((a, b) => (a.floor.isGreaterThan(b.floor) ? -1 : 1));
 
         return {
           percentageFloor,

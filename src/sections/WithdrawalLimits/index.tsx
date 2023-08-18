@@ -1,16 +1,144 @@
+import Divider from 'components/Divider';
 import { BoxPanel } from 'components/Panel';
+import QuestionHelper, { QuestionWrapper } from 'components/QuestionHelper';
+import { CurrencyLogoFromURI } from 'components/shared/CurrencyLogo';
+import { HIGH_PRICE_ASSET_DP } from 'constants/tokens';
 import { useWithdrawalsFloorData } from 'queries';
 import React from 'react';
+import { Box, Flex, Text } from 'rebass';
+import { HeaderText } from 'sections/TokenSection';
+import styled from 'styled-components';
 import { Typography } from 'theme';
+
+const DashGrid = styled(Box)`
+  display: grid;
+  gap: 1em;
+  align-items: center;
+  grid-template-columns: 2fr 6fr 6fr 9fr;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+  grid-template-columns: 3fr 6fr 6fr 9fr;
+  `}
+
+  > * {
+    justify-content: flex-end;
+    &:first-child {
+      justify-content: flex-start;
+      text-align: left;
+    }
+  }
+`;
+
+const DataText = styled(Flex)`
+  display: flex;
+  font-size: 16px;
+  color: #ffffff;
+  align-items: center;
+  line-height: 1.4;
+  min-height: 70px;
+`;
+
+const MinWidthContainer = styled(Box)`
+  -webkit-overflow-scrolling: touch;
+  min-width: 960px !important;
+  overflow: hidden;
+`;
 
 const WithdrawalLimits = () => {
   const { data: withdrawalsFloorData } = useWithdrawalsFloorData();
 
   return (
     <BoxPanel bg="bg2">
-      <Typography variant="h2" mb={5} mr={2}>
-        Withdrawal Limits
-      </Typography>
+      <Flex alignItems="center" mb={5}>
+        <Typography variant="h2" mr={1}>
+          Withdrawal Limits
+        </Typography>
+        {withdrawalsFloorData && (
+          <QuestionWrapper mt="9px">
+            <QuestionHelper
+              width={290}
+              text={`To protect collateral on Balanced, only ${withdrawalsFloorData.percentageFloor
+                .times(100)
+                .toFixed(
+                  0,
+                )}% of each asset can be withdrawn during a ${withdrawalsFloorData.floorTimeDecayInHours.toFixed(
+                0,
+              )} hour period.`}
+            />
+          </QuestionWrapper>
+        )}
+      </Flex>
+      <Box overflow="auto">
+        <MinWidthContainer>
+          {withdrawalsFloorData ? (
+            <>
+              <DashGrid>
+                <HeaderText>Asset</HeaderText>
+                <HeaderText>Collateral</HeaderText>
+                <HeaderText>Security floor</HeaderText>
+                <HeaderText>Available to withdraw</HeaderText>
+              </DashGrid>
+              {withdrawalsFloorData?.collateralFloorData.map((collateral, index) => {
+                const isLast = index === withdrawalsFloorData.collateralFloorData.length - 1;
+                const dp = HIGH_PRICE_ASSET_DP[collateral.token.address] || 0;
+                // const isIcon = collateral.token.symbol === 'sICX';
+                return (
+                  <>
+                    <DashGrid my="10px" key={index}>
+                      <DataText>
+                        <Flex alignItems="center">
+                          <Box sx={{ minWidth: '50px' }}>
+                            <CurrencyLogoFromURI address={collateral.token.address} size="40px" />
+                          </Box>
+                          <Box ml={2} sx={{ minWidth: '160px' }}>
+                            <Typography fontSize={16}>{collateral.token.name.replace(' TOKEN', ' Token')}</Typography>
+                            <Typography color="text1" fontSize={16}>
+                              {collateral.token.symbol}
+                            </Typography>
+                          </Box>
+                        </Flex>
+                      </DataText>
+                      <DataText>
+                        <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
+                          <Typography fontSize={16}>{`${collateral.current.toFormat(dp)} ${
+                            collateral.token.symbol
+                          }`}</Typography>
+                          <Typography color="text1">
+                            {`$${collateral.current.times(collateral.token.price).toFormat(0)}`}
+                          </Typography>
+                        </Flex>
+                      </DataText>
+                      <DataText>
+                        <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
+                          <Typography fontSize={16}>{`${collateral.floor.toFormat(dp)} ${
+                            collateral.token.symbol
+                          }`}</Typography>
+                          <Typography color="text1">
+                            {`$${collateral.floor.times(collateral.token.price).toFormat(0)}`}
+                          </Typography>
+                        </Flex>
+                      </DataText>
+                      <DataText>
+                        <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
+                          <Typography fontSize={16}>{`${collateral.current.minus(collateral.floor).toFormat(dp)} ${
+                            collateral.token.symbol
+                          }`}</Typography>
+                          <Typography color="text1">
+                            {`$${collateral.current.minus(collateral.floor).times(collateral.token.price).toFormat(0)}`}
+                          </Typography>
+                        </Flex>
+                      </DataText>
+                    </DashGrid>
+
+                    {!isLast && <Divider />}
+                  </>
+                );
+              })}
+            </>
+          ) : (
+            <>Loading...</>
+          )}
+        </MinWidthContainer>
+      </Box>
     </BoxPanel>
   );
 };
