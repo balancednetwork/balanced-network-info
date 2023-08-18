@@ -9,6 +9,7 @@ import { Box, Flex, Text } from 'rebass';
 import { HeaderText, StyledSkeleton } from 'sections/TokenSection';
 import styled from 'styled-components';
 import { Typography } from 'theme';
+import { getFormattedNumber } from 'utils/formatter';
 
 const DashGrid = styled(Box)`
   display: grid;
@@ -128,7 +129,8 @@ const WithdrawalLimits = () => {
               {withdrawalsFloorData?.collateralFloorData.map((collateral, index) => {
                 const isLast = index === withdrawalsFloorData.collateralFloorData.length - 1;
                 const dp = HIGH_PRICE_ASSET_DP[collateral.token.address] || 0;
-                // const isIcon = collateral.token.symbol === 'sICX';
+                const availableRatio = collateral.current.minus(collateral.floor).div(collateral.current);
+
                 return (
                   <>
                     <DashGrid my="10px" key={index}>
@@ -170,9 +172,24 @@ const WithdrawalLimits = () => {
                           <Typography fontSize={16}>{`${collateral.current.minus(collateral.floor).toFormat(dp)} ${
                             collateral.token.symbol
                           }`}</Typography>
-                          <Typography color="text1">
-                            {`$${collateral.current.minus(collateral.floor).times(collateral.token.price).toFormat(0)}`}
-                          </Typography>
+                          <Flex>
+                            <Typography color="text1">
+                              {`$${collateral.current
+                                .minus(collateral.floor)
+                                .times(collateral.token.price)
+                                .toFormat(0)}`}
+                            </Typography>
+                            <Typography
+                              ml="10px"
+                              color={
+                                availableRatio.isGreaterThanOrEqualTo(withdrawalsFloorData.percentageFloor.div(2))
+                                  ? 'primary'
+                                  : 'alert'
+                              }
+                            >
+                              {`~ ${getFormattedNumber(availableRatio.toNumber(), 'percent0')}`}
+                            </Typography>
+                          </Flex>
                         </Flex>
                       </DataText>
                     </DashGrid>
