@@ -5,7 +5,7 @@ import { CurrencyLogoFromURI } from 'components/shared/CurrencyLogo';
 import { HIGH_PRICE_ASSET_DP } from 'constants/tokens';
 import { useWithdrawalsFloorData } from 'queries';
 import React from 'react';
-import { Box, Flex, Text } from 'rebass';
+import { Box, Flex } from 'rebass';
 import { HeaderText, StyledSkeleton } from 'sections/TokenSection';
 import styled from 'styled-components';
 import { Typography } from 'theme';
@@ -149,36 +149,31 @@ const WithdrawalLimits = () => {
                       </DataText>
                       <DataText>
                         <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
-                          <Typography fontSize={16}>{`${collateral.current.toFormat(dp)} ${
-                            collateral.token.symbol
-                          }`}</Typography>
+                          <Typography fontSize={16}>{`$${collateral.current
+                            .times(collateral.token.price)
+                            .toFormat(0)}`}</Typography>
                           <Typography color="text1">
-                            {`$${collateral.current.times(collateral.token.price).toFormat(0)}`}
+                            {`${collateral.current.toFormat(dp)} ${collateral.token.symbol}`}
                           </Typography>
                         </Flex>
                       </DataText>
                       <DataText>
                         <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
-                          <Typography fontSize={16}>{`${collateral.floor.toFormat(dp)} ${
-                            collateral.token.symbol
-                          }`}</Typography>
+                          <Typography fontSize={16}>{`$${collateral.floor
+                            .times(collateral.token.price)
+                            .toFormat(0)}`}</Typography>
                           <Typography color="text1">
-                            {`$${collateral.floor.times(collateral.token.price).toFormat(0)}`}
+                            {`${collateral.floor.toFormat(dp)} ${collateral.token.symbol}`}
                           </Typography>
                         </Flex>
                       </DataText>
                       <DataText>
                         <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
-                          <Typography fontSize={16}>{`${collateral.current.minus(collateral.floor).toFormat(dp)} ${
-                            collateral.token.symbol
-                          }`}</Typography>
                           <Flex>
-                            <Typography color="text1">
-                              {`$${collateral.current
-                                .minus(collateral.floor)
-                                .times(collateral.token.price)
-                                .toFormat(0)}`}
-                            </Typography>
+                            <Typography fontSize={16}>{`$${collateral.current
+                              .minus(collateral.floor)
+                              .times(collateral.token.price)
+                              .toFormat(0)}`}</Typography>
                             <Typography
                               ml="10px"
                               color={
@@ -190,6 +185,9 @@ const WithdrawalLimits = () => {
                               {`(~${getFormattedNumber(availableRatio.toNumber(), 'percent0')})`}
                             </Typography>
                           </Flex>
+                          <Typography color="text1">
+                            {`${collateral.current.minus(collateral.floor).toFormat(dp)} ${collateral.token.symbol}`}
+                          </Typography>
                         </Flex>
                       </DataText>
                     </DashGrid>
