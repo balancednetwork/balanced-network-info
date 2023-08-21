@@ -187,7 +187,7 @@ const WithdrawalLimits = () => {
                                   : 'alert'
                               }
                             >
-                              {`~ ${getFormattedNumber(availableRatio.toNumber(), 'percent0')}`}
+                              {`(~${getFormattedNumber(availableRatio.toNumber(), 'percent0')})`}
                             </Typography>
                           </Flex>
                         </Flex>
