@@ -12,6 +12,7 @@ import { useSupportedCollateralTokens } from 'store/collateral/hooks';
 import { formatUnits } from 'utils';
 
 import {
+  TokenStats,
   useAllCollateralData,
   useAllPairsIncentivisedByName,
   useAllPairsTotal,
@@ -976,6 +977,84 @@ export function useBorrowersInfo() {
     {
       keepPreviousData: true,
       enabled: collateralTokensSuccess,
+    },
+  );
+}
+
+type WithdrawalsFloorDataType = {
+  percentageFloor: BigNumber;
+  floorTimeDecayInHours: BigNumber;
+  collateralFloorData: { floor: BigNumber; current: BigNumber; token: TokenStats }[];
+};
+
+export function useWithdrawalsFloorData(): UseQueryResult<WithdrawalsFloorDataType> {
+  const { data: collateralTokens, isSuccess: collateralTokensSuccess } = useSupportedCollateralTokens();
+  const { data: allTokens, isSuccess: tokensSuccess } = useAllTokensByAddress();
+
+  return useQuery(
+    `withdrawalsFloorData-${collateralTokens && Object.keys(collateralTokens).length}-tokens`,
+    async () => {
+      if (collateralTokens && allTokens) {
+        const collateralAddresses = Object.values(collateralTokens);
+
+        const percentageFloorCallData = {
+          target: bnJs.Loans.address,
+          method: 'getFloorPercentage',
+          params: [],
+        };
+
+        const floorTimeDelayCallData = {
+          target: bnJs.Loans.address,
+          method: 'getTimeDelayMicroSeconds',
+          params: [],
+        };
+
+        const cds: CallData[] = [
+          percentageFloorCallData,
+          floorTimeDelayCallData,
+          ...collateralAddresses.map(address => ({
+            target: bnJs.Loans.address,
+            method: 'getCurrentFloor',
+            params: [address],
+          })),
+        ];
+
+        const data = await bnJs.Multicall.getAggregateData(cds);
+
+        const percentageFloor = new BigNumber(data[0]).div(10000);
+        const floorTimeDecayInHours = new BigNumber(data[1]).div(1000 * 1000 * 60 * 60);
+
+        const currentCollateralCds: CallData[] = collateralAddresses.map(address => ({
+          target: address,
+          method: 'balanceOf',
+          params: [bnJs.Loans.address],
+        }));
+
+        const currentData = await bnJs.Multicall.getAggregateData(currentCollateralCds);
+
+        const collateralFloorData = data
+          .slice(2)
+          .map((item, index) => {
+            const token = allTokens[collateralAddresses[index]];
+            return {
+              floor: new BigNumber(item).div(10 ** token.decimals),
+              current: new BigNumber(currentData[index]).div(10 ** token.decimals),
+              token,
+            };
+          })
+          .sort((a, b) => (a.floor.isGreaterThan(b.floor) ? -1 : 1));
+
+        return {
+          percentageFloor,
+          floorTimeDecayInHours,
+          collateralFloorData,
+        };
+      }
+    },
+    {
+      keepPreviousData: true,
+      refetchInterval: 5000,
+      enabled: collateralTokensSuccess && tokensSuccess,
     },
   );
 }

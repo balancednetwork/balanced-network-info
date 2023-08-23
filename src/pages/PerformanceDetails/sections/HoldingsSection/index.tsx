@@ -34,7 +34,7 @@ export const BalanceGrid = styled.div<{ minWidth?: number }>`
 
 export const Change = styled.span<{ percentage: number }>`
   font-size: 14px;
-  ${({ percentage, theme }) => percentage > 0 && `color: ${theme.colors.primaryBright}`}
+  ${({ percentage, theme }) => percentage > 0 && `color: ${theme.colors.primary}`}
   ${({ percentage, theme }) => percentage < 0 && `color: ${theme.colors.alert}`}
 `;
 
@@ -185,7 +185,9 @@ const HoldingsSection = () => {
                       )}
 
                       <Change percentage={percentageChange ?? 0}>
-                        {Math.abs(percentageChange) >= 0.01 && formatPercentage(percentageChange)}
+                        {prevAmount.isGreaterThan(0) &&
+                          Math.abs(percentageChange) >= 0.01 &&
+                          formatPercentage(percentageChange)}
                       </Change>
                     </Text>
                     <Text color="text" opacity={0.75}>
@@ -397,7 +399,9 @@ const HoldingsSection = () => {
                       )}
 
                       <Change percentage={percentageChange ?? 0}>
-                        {Math.abs(percentageChange) >= 0.01 && formatPercentage(percentageChange)}
+                        {prevAmount.isGreaterThan(0) &&
+                          Math.abs(percentageChange) >= 0.01 &&
+                          formatPercentage(percentageChange)}
                       </Change>
                     </Text>
                     <Text color="text" opacity={0.75}>
