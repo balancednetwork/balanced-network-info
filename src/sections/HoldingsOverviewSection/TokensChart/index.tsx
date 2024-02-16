@@ -33,8 +33,8 @@ export const CustomLabel = props => {
   const cos = Math.cos(-RADIAN * midAngle);
   const sx = cx + (outerRadius + 0) * cos;
   const sy = cy + (outerRadius + 0) * sin;
-  const mx = cx + (outerRadius + 20) * cos;
-  const my = cy + (outerRadius + 20) * sin;
+  const mx = cx + (outerRadius + 25) * cos;
+  const my = cy + (outerRadius + 25) * sin;
   const ex = mx + (cos >= 0 ? 1 : -1) * 14;
   const ey = my;
   const textAnchor = cos >= 0 ? 'start' : 'end';
