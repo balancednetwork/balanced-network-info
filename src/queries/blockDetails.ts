@@ -36,7 +36,7 @@ export const useHoldings = (timestamp: number, holder: string) => {
 
   const filteredTokens = useMemo(() => {
     if (allTokens) {
-      return allTokens.filter(token => token.address !== 'ICX');
+      return allTokens.filter(token => token.address !== 'ICX' && token.symbol !== 'USDS');
     } else {
       return [];
     }
