@@ -203,7 +203,7 @@ export const FIN_SEJONG = new Token(
 export const archUSDC = new Token(
   SupportedChainId.MAINNET,
   'cx22319ac7f412f53eabe3c9827acf5e27e9c6a95f',
-  18,
+  6,
   'archUSDC',
   'Archway USDC',
 );
