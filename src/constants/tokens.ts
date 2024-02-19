@@ -200,9 +200,17 @@ export const FIN_SEJONG = new Token(
   'Fin Token',
 );
 
+export const archUSDC = new Token(
+  SupportedChainId.MAINNET,
+  'cx22319ac7f412f53eabe3c9827acf5e27e9c6a95f',
+  18,
+  'archUSDC',
+  'Archway USDC',
+);
+
 // todo: calculate supported tokens from supported tokens info
 export const SUPPORTED_TOKENS: { [chainId: number]: Token[] } = {
-  [SupportedChainId.MAINNET]: [ICX, BALN, bnUSD, sICX, IUSDC, USDS, OMM, USDS, IUSDT, CFT, GBET, FIN, BUSD],
+  [SupportedChainId.MAINNET]: [ICX, BALN, bnUSD, sICX, IUSDC, USDS, OMM, USDS, IUSDT, CFT, GBET, FIN, BUSD, archUSDC],
   [SupportedChainId.YEOUIDO]: [
     ICX_YEOUIDO,
     sICX_YEOUIDO,
