@@ -62,6 +62,12 @@ const Chart = ({
   const theme = useTheme();
   const parsedValue = value;
 
+  const YAxisOffset = React.useMemo(() => {
+    const offset = 0.8;
+    const minValue = Math.min(...data.map(d => d.value));
+    return minValue * (1 - offset);
+  }, [data]);
+
   return (
     <Wrapper minHeight={minHeight} {...rest}>
       <RowBetween>
@@ -106,7 +112,7 @@ const Chart = ({
             tick={{ stroke: theme.colors.text1, fontSize: '14px' }}
             tickFormatter={value => formatYAxisNumber(value, value > 100 ? 1 : 2)}
             width={20}
-            domain={['auto', 'auto']}
+            domain={[`dataMin - ${YAxisOffset}`, 'auto']}
             padding={{ top: 10, bottom: 25 }}
           />
 
