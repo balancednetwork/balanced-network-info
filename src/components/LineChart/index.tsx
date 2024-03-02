@@ -63,7 +63,7 @@ const Chart = ({
   const parsedValue = value;
 
   const YAxisOffset = React.useMemo(() => {
-    const offset = 0.8;
+    const offset = 1;
     const minValue = Math.min(...data.map(d => d.value));
     return minValue * (1 - offset);
   }, [data]);
