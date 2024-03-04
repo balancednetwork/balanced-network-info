@@ -79,12 +79,14 @@ export const useStabilityFundHoldings = (timestamp: number) => {
     `stabilityFundHoldings${whitelistedTokens.length}${blockHeight}`,
     async () => {
       const currencyAmounts: CurrencyAmount<Currency>[] = await Promise.all(
-        whitelistedTokens.map(async address => {
-          const token = SUPPORTED_TOKENS_LIST.filter(token => token.address === address)[0];
-          const contract = bnJs.getContract(address);
-          const balance = await contract.balanceOf(stabilityFundAddress, blockHeight);
-          return CurrencyAmount.fromRawAmount(token, balance);
-        }),
+        whitelistedTokens
+          .filter(address => SUPPORTED_TOKENS_LIST.find(token => token.address === address))
+          .map(async address => {
+            const token = SUPPORTED_TOKENS_LIST.filter(token => token.address === address)[0];
+            const contract = bnJs.getContract(address);
+            const balance = await contract.balanceOf(stabilityFundAddress, blockHeight);
+            return CurrencyAmount.fromRawAmount(token, balance);
+          }),
       );
       const holdings = {};
       currencyAmounts.forEach(currencyAmount => (holdings[currencyAmount.currency.wrapped.address] = currencyAmount));
