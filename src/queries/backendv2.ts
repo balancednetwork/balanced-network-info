@@ -7,6 +7,7 @@ import { UseQueryResult, useQuery } from 'react-query';
 import bnJs from 'bnJs';
 import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
 import { formatUnits } from 'utils';
+import { TOKEN_BLACKLIST } from 'constants/tokens';
 
 const API_ENDPOINT = 'https://balanced.icon.community/api/v1/';
 
@@ -83,7 +84,11 @@ export function useAllTokens() {
             item['price_24h_change'] = ((item.price - item.price_24h) / item.price_24h) * 100;
             return item;
           })
-          .filter(item => item['liquidity'] > MIN_LIQUIDITY_TO_INCLUDE || item['address'] === 'ICX') as TokenStats[];
+          .filter(
+            item =>
+              !TOKEN_BLACKLIST.some(token => token.address === item['address']) &&
+              (item['liquidity'] > MIN_LIQUIDITY_TO_INCLUDE || item['address'] === 'ICX'),
+          ) as TokenStats[];
       }
     },
     {
