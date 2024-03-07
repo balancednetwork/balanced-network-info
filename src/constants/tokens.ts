@@ -208,9 +208,33 @@ export const archUSDC = new Token(
   'Archway USDC',
 );
 
+export const hyTB = new Token(
+  SupportedChainId.MAINNET,
+  'cxf0a30d09ade391d7b570908b9b46cfa5b3cbc8f8',
+  18,
+  'hyTB',
+  'HiYield Treasury Bill',
+);
+
 // todo: calculate supported tokens from supported tokens info
 export const SUPPORTED_TOKENS: { [chainId: number]: Token[] } = {
-  [SupportedChainId.MAINNET]: [ICX, BALN, bnUSD, sICX, IUSDC, USDS, OMM, USDS, IUSDT, CFT, GBET, FIN, BUSD, archUSDC],
+  [SupportedChainId.MAINNET]: [
+    ICX,
+    BALN,
+    bnUSD,
+    sICX,
+    IUSDC,
+    USDS,
+    OMM,
+    USDS,
+    IUSDT,
+    CFT,
+    GBET,
+    FIN,
+    BUSD,
+    archUSDC,
+    hyTB,
+  ],
   [SupportedChainId.YEOUIDO]: [
     ICX_YEOUIDO,
     sICX_YEOUIDO,

@@ -81,6 +81,7 @@ export const useStabilityFundHoldings = (timestamp: number) => {
       const currencyAmounts: CurrencyAmount<Currency>[] = await Promise.all(
         whitelistedTokens
           .filter(address => !TOKEN_BLACKLIST.some(token => token.address === address))
+          .filter(address => SUPPORTED_TOKENS_LIST.find(token => token.address === address))
           .map(async address => {
             const token = SUPPORTED_TOKENS_LIST.filter(token => token.address === address)[0];
             const contract = bnJs.getContract(address);
