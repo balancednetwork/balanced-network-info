@@ -576,7 +576,7 @@ export function useAllDebtData() {
       `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_collateral_debt_BTCB_bnusd`,
     );
     const responseTotal = await axios.get(
-      `${API_ENDPOINT}contract-methods?skip=0&limit=1000&address=${bnJs.bnUSD.address}&method=totalSupply`,
+      `${API_ENDPOINT}contract-methods?skip=500&limit=1000&address=${bnJs.bnUSD.address}&method=totalSupply`,
     );
 
     try {
