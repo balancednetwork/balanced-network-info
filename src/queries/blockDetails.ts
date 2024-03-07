@@ -4,11 +4,11 @@ import { addresses } from '@balancednetwork/balanced-js';
 import { Currency, CurrencyAmount, Token } from '@balancednetwork/sdk-core';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import { useWhitelistedTokensList } from 'queries';
+import { useFundLimits, useWhitelistedTokensList } from 'queries';
 import { useQuery } from 'react-query';
 
 import bnJs from 'bnJs';
-import { SUPPORTED_TOKENS_LIST } from 'constants/tokens';
+import { SUPPORTED_TOKENS_LIST, TOKEN_BLACKLIST } from 'constants/tokens';
 
 import { useAllPairs, useAllTokens, useAllTokensByAddress } from './backendv2';
 
@@ -80,6 +80,7 @@ export const useStabilityFundHoldings = (timestamp: number) => {
     async () => {
       const currencyAmounts: CurrencyAmount<Currency>[] = await Promise.all(
         whitelistedTokens
+          .filter(address => !TOKEN_BLACKLIST.some(token => token.address === address))
           .filter(address => SUPPORTED_TOKENS_LIST.find(token => token.address === address))
           .map(async address => {
             const token = SUPPORTED_TOKENS_LIST.filter(token => token.address === address)[0];
