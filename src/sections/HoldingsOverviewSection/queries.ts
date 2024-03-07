@@ -11,8 +11,8 @@ import { CHART_COLORS } from 'sections/BALNSection/queries';
 const daoFundAddress = addresses[1].daofund;
 
 const CHART_TOKENS_COLORS = {
-  // sICX: '#8363E8',
-  sICX: '#776EE6',
+  sICX: '#C4C9D0',
+  // sICX: '#776EE6',
   BALN: '#3F7D92',
   bnUSD: '#66C7A6',
   BTCB: '#E9983D',
