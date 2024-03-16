@@ -2,7 +2,7 @@ import Spinner from 'components/Spinner';
 import dayjs from 'dayjs';
 import { useDepositsChartData, useSavingsRateInfo } from 'queries/bsr';
 import React from 'react';
-import { Box, Card, Flex } from 'rebass';
+import { Box, Flex } from 'rebass';
 import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 import styled, { useTheme } from 'styled-components';
 import { Typography } from 'theme';
