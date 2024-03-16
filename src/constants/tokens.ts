@@ -216,6 +216,22 @@ export const hyTB = new Token(
   'HiYield Treasury Bill',
 );
 
+export const BTCB = new Token(
+  SupportedChainId.MAINNET,
+  'cx5b5a03cb525a1845d0af3a872d525b18a810acb0',
+  18,
+  'BTCB',
+  'Binance Bitcoin',
+);
+
+export const ETH = new Token(
+  SupportedChainId.MAINNET,
+  'cx288d13e1b63563459a2ac6179f237711f6851cb5',
+  18,
+  'ETH',
+  'Binance ETH',
+);
+
 // todo: calculate supported tokens from supported tokens info
 export const SUPPORTED_TOKENS: { [chainId: number]: Token[] } = {
   [SupportedChainId.MAINNET]: [
@@ -234,6 +250,8 @@ export const SUPPORTED_TOKENS: { [chainId: number]: Token[] } = {
     BUSD,
     archUSDC,
     hyTB,
+    BTCB,
+    ETH,
   ],
   [SupportedChainId.YEOUIDO]: [
     ICX_YEOUIDO,

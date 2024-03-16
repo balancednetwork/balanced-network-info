@@ -4,7 +4,7 @@ import QuestionHelper, { QuestionWrapper } from 'components/QuestionHelper';
 import { CurrencyLogoFromURI } from 'components/shared/CurrencyLogo';
 import { HIGH_PRICE_ASSET_DP } from 'constants/tokens';
 import { useWithdrawalsFloorData } from 'queries';
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Box, Flex } from 'rebass';
 import { HeaderText, StyledSkeleton } from 'sections/TokenSection';
 import styled from 'styled-components';
@@ -132,7 +132,7 @@ const WithdrawalLimits = () => {
                 const availableRatio = collateral.current.minus(collateral.floor).div(collateral.current);
 
                 return (
-                  <>
+                  <Fragment key={index}>
                     <DashGrid my="10px" key={index}>
                       <DataText>
                         <Flex alignItems="center">
@@ -193,7 +193,7 @@ const WithdrawalLimits = () => {
                     </DashGrid>
 
                     {!isLast && <Divider />}
-                  </>
+                  </Fragment>
                 );
               })}
             </>

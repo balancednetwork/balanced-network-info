@@ -24,6 +24,8 @@ import TokenSection from 'sections/TokenSection';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
 import WithdrawalLimits from 'sections/WithdrawalLimits';
+import BSRSection from 'sections/BSRSection';
+import EnshrinementSection from 'sections/EnshrinmentSection';
 
 export const Container = styled(Box)`
   /* disable margin collapse */
@@ -236,8 +238,10 @@ export function StatsPage() {
         </BoxPanel>
 
         <CollateralAndLoanSection />
+        <BSRSection />
         <TokenSection />
         <PairSection />
+        <EnshrinementSection />
         <GovernanceSection />
         <BALNSection />
         <HoldingsOverviewSection />

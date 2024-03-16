@@ -12,7 +12,7 @@ import { SUPPORTED_TOKENS_LIST, TOKEN_BLACKLIST } from 'constants/tokens';
 
 import { useAllPairs, useAllTokens, useAllTokensByAddress } from './backendv2';
 
-const API_ENDPOINT = 'https://tracker.icon.community/api/v1/';
+export const API_ENDPOINT = 'https://tracker.icon.community/api/v1/';
 
 const stabilityFundAddress = addresses[1].stabilityfund;
 
