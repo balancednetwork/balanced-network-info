@@ -1,11 +1,8 @@
 import React from 'react';
 
 import { Box, Flex } from 'rebass/styled-components';
-import styled from 'styled-components';
 
 import { BoxPanel } from 'components/Panel';
-
-import { Typography } from 'theme';
 
 import RewardsOverview from './RewardsOverview';
 import DepositChart from './DepositChart';
