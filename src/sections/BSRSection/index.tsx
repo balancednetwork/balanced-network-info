@@ -16,8 +16,8 @@ export default function BSRSection() {
       <Flex flexWrap="wrap">
         <Box
           width={isSmall ? '100%' : '50%'}
-          className={isSmall ? 'border-bottom' : 'border-right'}
-          p={isSmall ? '0 0 35px 0' : '0 35px 0 0'}
+          className={isSmall ? '' : 'border-right'}
+          p={isSmall ? '0' : '0 35px 0 0'}
         >
           <RewardsOverview />
         </Box>

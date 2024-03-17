@@ -8,6 +8,7 @@ import QuestionHelper, { QuestionWrapper } from 'components/QuestionHelper';
 import { UnderlineText } from 'components/DropdownText';
 import styled from 'styled-components';
 import ClickAwayListener from 'react-click-away-listener';
+import { useMedia } from 'react-use';
 
 const StyledUnderlineText = styled(UnderlineText)`
   color: ${({ theme }) => theme.colors.primaryBright};
@@ -29,6 +30,7 @@ const StyledUnderlineText = styled(UnderlineText)`
 
 const EnshrinementSection = () => {
   const [show, setShow] = React.useState(false);
+  const isSmall = useMedia('(max-width: 1199px)');
 
   return (
     <BoxPanel bg="bg2">
@@ -63,11 +65,15 @@ const EnshrinementSection = () => {
           </QuestionWrapper>
         </ClickAwayListener>
       </Flex>
-      <Flex>
-        <Box width={[1, 1, 1 / 2]} className="border-right" p="0 35px 0 0">
+      <Flex flexWrap="wrap">
+        <Box
+          width={isSmall ? '100%' : '50%'}
+          className={isSmall ? '' : 'border-right'}
+          p={isSmall ? '0' : '0 35px 0 0'}
+        >
           <NetworkOwnedLiquidity />
         </Box>
-        <Box width={[1, 1, 1 / 2]} p="0 0 0 35px">
+        <Box width={isSmall ? '100%' : '50%'} p={isSmall ? '35px 0 0 0' : '0 0 0 35px'}>
           <ICXBurn />
         </Box>
       </Flex>

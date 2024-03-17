@@ -17,7 +17,7 @@ const RewardsOverview = () => {
         <Typography variant="h3" mr="7px">
           Savings rate
         </Typography>
-        <Typography pt="5px">{savingsRate && `${savingsRate.APR.toFormat(2)} APR`}</Typography>
+        <Typography pt="5px">{savingsRate && `${savingsRate.APR.toFormat(2)}% APR`}</Typography>
       </Flex>
 
       <ChartInfo>
