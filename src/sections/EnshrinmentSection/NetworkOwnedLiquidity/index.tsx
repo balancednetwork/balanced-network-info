@@ -21,8 +21,6 @@ const NetworkOwnedLiquidity = () => {
   const { data: pastMonthSupply } = usePastMonthSupply();
   const isSmallScreen = useMedia('(max-width: 620px)');
 
-  console.log('data chaty', nolData?.chartData);
-
   return (
     <>
       <Typography variant="h3" mb="25px">
