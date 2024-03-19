@@ -7,7 +7,7 @@ import { UseQueryResult, useQuery } from 'react-query';
 
 const BURNER_CX_CREATED = 1708324683000;
 
-type BurnChartItem = { timestamp: number; value: number; pending: number };
+type BurnChartItem = { timestamp: number; value: number; pending: number; week: number };
 
 function generateWeeklyTimestamps(startTimestamp: number): [number, number][] {
   const start = new Date(startTimestamp);
@@ -52,10 +52,22 @@ function useBurnChartData(): UseQueryResult<BurnChartItem[] | undefined> {
             .div(10 ** 18)
             .toNumber();
 
+          let pending = 0;
+          if (isLast) {
+            const pendingBurnRaw = await bnJs.ICXBurner.getPendingBurn();
+            const unstakingBurnRaw = await bnJs.ICXBurner.getUnstakingBurn();
+
+            pending = new BigNumber(pendingBurnRaw)
+              .plus(unstakingBurnRaw)
+              .div(10 ** 18)
+              .toNumber();
+          }
+
           return {
             timestamp: start,
             value: burned,
-            pending: isLast ? 4574 : 0,
+            pending,
+            week: index + 1,
           };
         }),
       );

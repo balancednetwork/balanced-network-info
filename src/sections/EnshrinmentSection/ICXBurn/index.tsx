@@ -4,7 +4,7 @@ import { useBurnData } from 'queries/burn';
 import React from 'react';
 import { Flex } from 'rebass';
 import { Bar, BarChart, ResponsiveContainer, Tooltip, YAxis } from 'recharts';
-import { ChartInfo, ChartInfoItem, ChartWrap } from 'sections/BALNSection/DistributionChart';
+import { ChartInfo, ChartInfoItem, ChartWrap, LegendItem } from 'sections/BALNSection/DistributionChart';
 import styled, { useTheme } from 'styled-components';
 import { Typography } from 'theme';
 import { formatYAxisNumber, getFormattedNumber } from 'utils/formatter';
@@ -21,6 +21,7 @@ const TooltipWrapper = styled.div`
   flex-direction: column;
   transform: translateX(calc(-50% - 11px));
   position: relative;
+  z-index: 2;
 
   strong,
   span {
@@ -32,15 +33,31 @@ const TooltipWrapper = styled.div`
   }
 `;
 
-const CustomTooltip = ({ active, payload, timestamp }) => {
+const CustomTooltip = ({ active, payload }) => {
+  const theme = useTheme();
+
   if (active && payload && payload.length) {
-    const { value, timestamp } = payload[0].payload;
+    const { value, timestamp, pending, week } = payload[0].payload;
     return (
       <TooltipWrapper>
-        <span>
-          <strong>{getFormattedNumber(value, 'number')} ICX</strong>
-        </span>
-        <label>{getLabel(timestamp)}</label>
+        <Flex>
+          <LegendItem legendColor={theme.colors.primary}></LegendItem>
+          <Typography ml="-8px" color="text1" fontSize={14}>
+            <strong>{getFormattedNumber(value, 'number')} ICX</strong> burned
+          </Typography>
+        </Flex>
+        {pending > 0 && (
+          <Flex>
+            <LegendItem legendColor="#C4C9D0"></LegendItem>
+            <Typography ml="-8px" color="text1" fontSize={14}>
+              <strong>{getFormattedNumber(pending, 'number')} ICX</strong> awaiting burn
+            </Typography>
+          </Flex>
+        )}
+        <Flex mt={2} flexDirection="column">
+          <label>{`Week ${week}`}</label>
+          <label>{getLabel(timestamp, pending > 0)}</label>
+        </Flex>
       </TooltipWrapper>
     );
   }
@@ -48,8 +65,8 @@ const CustomTooltip = ({ active, payload, timestamp }) => {
   return null;
 };
 
-function getLabel(label: number) {
-  return dayjs(label).format('MMM YYYY');
+function getLabel(label: number, isLast: boolean) {
+  return `${dayjs(label).format('DD MMM')} - ${isLast ? 'now' : dayjs(label).add(7, 'days').format('DD MMM YYYY')}`;
 }
 
 const ICXBurn = () => {
@@ -67,7 +84,7 @@ const ICXBurn = () => {
         </Typography>
       </Flex>
 
-      <ChartWrap visibleOverflow>
+      <ChartWrap visibleOverflow style={{ position: 'relative', zIndex: '2' }}>
         {burnData?.chartData && (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
@@ -110,7 +127,7 @@ const ICXBurn = () => {
         )}
       </ChartWrap>
 
-      <ChartInfo mt="25px">
+      <ChartInfo mt="25px" style={{ position: 'relative', zIndex: '0' }}>
         <ChartInfoItem border>
           <Typography fontSize={18} color="text">
             {burnData ? `${burnData.awaitingBurn.toFormat(0)} ICX` : <LoaderComponent />}
