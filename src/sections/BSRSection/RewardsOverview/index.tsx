@@ -14,10 +14,10 @@ const RewardsOverview = () => {
   return (
     <Wrap>
       <Flex alignItems="center" mb="25px">
-        <Typography variant="h3" mr="7px">
+        <Typography variant="h2" mr="7px">
           Savings rate
         </Typography>
-        <Typography pt="5px">{savingsRate && `${savingsRate.APR.toFormat(2)}% APR`}</Typography>
+        <Typography pt="8px">{savingsRate && `${savingsRate.APR.toFormat(2)}% APR`}</Typography>
       </Flex>
 
       <ChartInfo>
