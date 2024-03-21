@@ -9,7 +9,7 @@ import styled, { useTheme } from 'styled-components';
 import { Typography } from 'theme';
 import { formatYAxisNumber, getFormattedNumber } from 'utils/formatter';
 
-const TooltipWrapper = styled.div`
+export const TooltipWrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg4};
   border: 2px solid ${({ theme }) => theme.colors.primary};
   color: ${({ theme }) => theme.colors.text};
