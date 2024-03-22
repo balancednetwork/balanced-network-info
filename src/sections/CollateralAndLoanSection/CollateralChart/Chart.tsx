@@ -38,9 +38,9 @@ export default function Chart({
   useEffect(() => {
     if (seriesTotal) {
       const valueNow = seriesTotal[seriesTotal.length - 1].value;
-      const valuePrev = seriesTotal[seriesTotal.length - 7].value;
+      const valuePrev = seriesTotal[seriesTotal.length - 30].value;
 
-      setCollateralChange(valueNow / valuePrev - 1);
+      setCollateralChange(valueNow - valuePrev);
       setTotalCollateral(valueNow);
     }
   }, [seriesTotal, setCollateralChange, setTotalCollateral]);

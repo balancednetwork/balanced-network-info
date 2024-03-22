@@ -160,7 +160,7 @@ export default function TokensChart() {
             )}
           </Typography>
           <Typography fontSize={14} color="text1">
-            Past 30 days
+            Past month
           </Typography>
         </ChartInfoItem>
       </ChartInfo>

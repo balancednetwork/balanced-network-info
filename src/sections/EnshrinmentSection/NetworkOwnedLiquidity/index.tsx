@@ -1,15 +1,11 @@
-import React, { useMemo } from 'react';
-
-import { useMedia } from 'react-use';
-import { Flex } from 'rebass';
-import { Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
-
-import useTimestampRounded from 'hooks/useTimestampRounded';
 import { LoaderComponent } from 'pages/PerformanceDetails/utils';
+import { useNetworkOwnedLiquidityData, usePastMonthSupply } from 'queries/nol';
+import React from 'react';
+import { useMedia } from 'react-use';
+import { Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import {
   ChartInfo,
   ChartInfoItem,
-  ChartSection,
   ChartWrap,
   CustomLegend,
   INNER_RADIUS,
@@ -17,48 +13,28 @@ import {
   OUTER_RADIUS,
   OUTER_RADIUS_MOBILE,
 } from 'sections/BALNSection/DistributionChart';
+import { CustomLabel, CustomTooltip } from 'sections/HoldingsOverviewSection/TokensChart';
 import { Typography } from 'theme';
-import { getFormattedNumber } from 'utils/formatter';
 
-import { useDAOFundPOLPieData, useDAOFundTotal } from '../queries';
-import { CustomLabel, CustomTooltip } from '../TokensChart';
-
-export default function POLChart() {
-  const { data } = useDAOFundPOLPieData();
-  const now = useTimestampRounded();
-  const before = useTimestampRounded(1000 * 60, 30);
-  const daoFundNow = useDAOFundTotal(now);
-  const daoFundBefore = useDAOFundTotal(before);
+const NetworkOwnedLiquidity = () => {
+  const { data: nolData } = useNetworkOwnedLiquidityData();
+  const { data: pastMonthSupply } = usePastMonthSupply();
   const isSmallScreen = useMedia('(max-width: 620px)');
 
-  const isDiffPositive = useMemo(() => {
-    if (daoFundBefore && daoFundNow) {
-      const diff = daoFundNow.POLHoldings - daoFundBefore.POLHoldings;
-      return diff > 0;
-    }
-  }, [daoFundBefore, daoFundNow]);
-
-  const fundDiff = useMemo(() => {
-    if (daoFundBefore && daoFundNow) {
-      return Math.abs(daoFundNow.POLHoldings - daoFundBefore.POLHoldings);
-    }
-  }, [daoFundBefore, daoFundNow]);
-
   return (
-    <ChartSection>
-      <Flex alignItems="center" flexWrap="wrap">
-        <Typography variant="h3" mr={2}>
-          Protocol-owned liquidity
-        </Typography>
-      </Flex>
+    <>
+      <Typography variant="h3" mb="25px">
+        Network-owned liquidity
+      </Typography>
+
       <ChartWrap visibleOverflow>
-        {data && (
+        {nolData?.chartData && (
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 dataKey="value"
                 isAnimationActive={false}
-                data={data}
+                data={nolData?.chartData}
                 stroke={'0'}
                 cx="50%"
                 cy="50%"
@@ -81,10 +57,10 @@ export default function POLChart() {
         )}
       </ChartWrap>
 
-      <ChartInfo>
+      <ChartInfo mt="25px">
         <ChartInfoItem border>
           <Typography fontSize={18} color="text">
-            {daoFundNow ? `$${getFormattedNumber(daoFundNow.POLHoldings, 'number')}` : <LoaderComponent />}
+            {nolData ? `$${nolData.tvl.toFormat(0)}` : <LoaderComponent />}
           </Typography>
           <Typography fontSize={14} color="text1">
             Total value
@@ -92,17 +68,15 @@ export default function POLChart() {
         </ChartInfoItem>
         <ChartInfoItem>
           <Typography fontSize={18} color="text">
-            {fundDiff ? (
-              `${isDiffPositive ? '+ ' : '- '}$${getFormattedNumber(fundDiff, 'number')}`
-            ) : (
-              <LoaderComponent />
-            )}
+            {pastMonthSupply ? `$${pastMonthSupply.toFormat(0)}` : <LoaderComponent />}
           </Typography>
           <Typography fontSize={14} color="text1">
-            Past month
+            Supplied past month
           </Typography>
         </ChartInfoItem>
       </ChartInfo>
-    </ChartSection>
+    </>
   );
-}
+};
+
+export default NetworkOwnedLiquidity;

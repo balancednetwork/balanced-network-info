@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { ReactElement, useCallback, useState } from 'react';
 
 import { Box } from 'rebass';
 import styled from 'styled-components';
@@ -17,7 +17,15 @@ export const QuestionWrapper = styled(Box)`
   color: ${({ theme }) => theme.colors.text1};
 `;
 
-export default function QuestionHelper({ text, width }: { text: string; width?: number }) {
+export default function QuestionHelper({
+  text,
+  width,
+  defaultShow,
+}: {
+  text: string | ReactElement;
+  width?: number;
+  defaultShow?: boolean;
+}) {
   const [show, setShow] = useState<boolean>(false);
 
   const open = useCallback(() => setShow(true), [setShow]);
@@ -25,7 +33,7 @@ export default function QuestionHelper({ text, width }: { text: string; width?: 
 
   return (
     <span style={{ marginLeft: 4, verticalAlign: 'middle' }}>
-      <Tooltip text={text} width={width} show={show} placement="top">
+      <Tooltip text={text} width={width} show={defaultShow || show} placement="top">
         <QuestionWrapper onClick={open} onMouseEnter={open} onMouseLeave={close}>
           <QuestionIcon width={14} />
         </QuestionWrapper>

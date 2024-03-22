@@ -175,14 +175,14 @@ export default function CollateralChart({
               ) : collateralChange >= 0 ? (
                 <Typography fontSize={18} color="text">{`+ ${getFormattedNumber(
                   collateralChange,
-                  'percent2',
+                  'price',
                 )}`}</Typography>
               ) : (
                 <Typography fontSize={18} color="text">
-                  {getFormattedNumber(collateralChange, 'percent2').replace('-', '- ')}
+                  {getFormattedNumber(collateralChange, 'price').replace('$-', '- $')}
                 </Typography>
               )}
-              <Typography color="text1">Last week</Typography>
+              <Typography color="text1">Past month</Typography>
             </ChartInfoItem>
           </>
         ) : selectedCollateral === 'Stability Fund' ? (

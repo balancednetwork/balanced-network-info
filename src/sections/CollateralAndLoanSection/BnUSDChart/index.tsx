@@ -14,6 +14,7 @@ import { getFormattedNumber } from 'utils/formatter';
 
 import { CollateralChartTimeFrame } from '../TimeFrameSelector';
 import Chart from './Chart';
+import QuestionHelper, { QuestionWrapper } from 'components/QuestionHelper';
 
 export default function BnUSDChart({
   selectedCollateral,
@@ -93,9 +94,14 @@ export default function BnUSDChart({
         {selectedCollateral === predefinedCollateralTypes.STABILITY_FUND ? (
           <>
             <ChartInfoItem border>
-              <Typography variant="p" fontSize="18px">
-                {fundInfo ? `${fundInfo.feeIn}%` : <LoaderComponent />}
-              </Typography>
+              <Flex>
+                <Typography variant="p" fontSize="18px">
+                  {fundInfo ? `${fundInfo.feeIn}% - ${fundInfo.feeOut}%` : <LoaderComponent />}
+                </Typography>
+                <QuestionWrapper style={{ transform: 'translateY(-2px)', marginLeft: '5px' }}>
+                  <QuestionHelper text="Use the Stability Fund to swap approved assets 1:1 for bnUSD. If you trade the inverse, there's a 0.5% fee." />
+                </QuestionWrapper>
+              </Flex>
               <Typography opacity={0.75}>Stability Fund fee</Typography>
             </ChartInfoItem>
             <ChartInfoItem>
