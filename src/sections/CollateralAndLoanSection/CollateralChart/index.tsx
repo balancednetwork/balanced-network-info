@@ -20,7 +20,6 @@ import { getFormattedNumber } from 'utils/formatter';
 
 import { CollateralChartTimeFrame } from '../TimeFrameSelector';
 import Chart from './Chart';
-import StabilityFundChart from './StabilityFundChart';
 
 const CollateralControlWrap = styled(Flex)`
   flex-direction: row;
@@ -60,7 +59,6 @@ export default function CollateralChart({
   const [userHovering, setUserHovering] = React.useState<boolean>(false);
 
   const [totalCollateral, setTotalCollateral] = React.useState<undefined | number>();
-  const [totalStabilityFundBnUSD, setTotalStabilityFundBnUSD] = React.useState<undefined | number>();
   const [collateralChange, setCollateralChange] = React.useState<undefined | number>();
 
   const collateralTVLInUSDHover = useMemo(
@@ -82,16 +80,14 @@ export default function CollateralChart({
       if (selectedCollateral === predefinedCollateralTypes.ALL) {
         setCollateralTVLHover(collateralInfo.collateralData.current.total.value);
       } else if (selectedCollateral === predefinedCollateralTypes.STABILITY_FUND) {
-        if (totalStabilityFundBnUSD) {
-          setCollateralTVLHover(totalStabilityFundBnUSD);
-        }
+        setCollateralTVLHover(collateralInfo.collateralData.current.fundTotal.value);
       } else {
         if (collateralInfo.collateralData.current[selectedCollateral]) {
           setCollateralTVLHover(collateralInfo.collateralData.current[selectedCollateral].amount);
         }
       }
     }
-  }, [collateralInfo, selectedCollateral, userHovering, totalStabilityFundBnUSD]);
+  }, [collateralInfo, selectedCollateral, userHovering]);
 
   const [ref, width] = useWidth();
   const isSmall = useMedia('(max-width: 699px)');
@@ -134,29 +130,17 @@ export default function CollateralChart({
           )}
       </Flex>
       <Box mb="15px">
-        {selectedCollateral === predefinedCollateralTypes.STABILITY_FUND ? (
-          <StabilityFundChart
-            collateralTVLHover={collateralTVLHover}
-            collateralLabel={collateralLabel}
-            selectedTimeFrame={selectedTimeFrame}
-            setCollateralTVLHover={setCollateralTVLHover}
-            setCollateralLabel={setCollateralLabel}
-            setTotalStabilityFundBnUSD={setTotalStabilityFundBnUSD}
-            setUserHovering={setUserHovering}
-          ></StabilityFundChart>
-        ) : (
-          <Chart
-            selectedCollateral={selectedCollateral}
-            collateralTVLHover={collateralTVLHover}
-            collateralLabel={collateralLabel}
-            selectedTimeFrame={selectedTimeFrame}
-            setCollateralTVLHover={setCollateralTVLHover}
-            setCollateralLabel={setCollateralLabel}
-            setUserHovering={setUserHovering}
-            setCollateralChange={setCollateralChange}
-            setTotalCollateral={setTotalCollateral}
-          ></Chart>
-        )}
+        <Chart
+          selectedCollateral={selectedCollateral}
+          collateralTVLHover={collateralTVLHover}
+          collateralLabel={collateralLabel}
+          selectedTimeFrame={selectedTimeFrame}
+          setCollateralTVLHover={setCollateralTVLHover}
+          setCollateralLabel={setCollateralLabel}
+          setUserHovering={setUserHovering}
+          setCollateralChange={setCollateralChange}
+          setTotalCollateral={setTotalCollateral}
+        ></Chart>
       </Box>
 
       {/* Flexible chart footer */}
