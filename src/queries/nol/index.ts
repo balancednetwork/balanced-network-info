@@ -6,11 +6,11 @@ import { useBlockDetails } from 'queries/blockDetails';
 import { UseQueryResult, useQuery } from 'react-query';
 import { CHART_COLORS } from 'sections/BALNSection/queries';
 
-const NOL_LP_CHART_COLORS = {
-  'sICX/bnUSD': '#2ca9b7',
-  'AVAX/bnUSD': '#E84142',
-  'BNB/bnUSD': '#F1B90A',
-};
+// const NOL_LP_CHART_COLORS = {
+//   'sICX/bnUSD': '#2ca9b7',
+//   'AVAX/bnUSD': '#E84142',
+//   'BNB/bnUSD': '#F1B90A',
+// };
 
 function useNOLPools(): UseQueryResult<string[] | undefined> {
   return useQuery('nolPools', async () => {
