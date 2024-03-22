@@ -26,6 +26,8 @@ export default function Chart({
   const seriesData = useMemo(() => {
     if (selectedCollateral === predefinedCollateralTypes.ALL) {
       return collateralData?.series.total;
+    } else if (selectedCollateral === predefinedCollateralTypes.STABILITY_FUND) {
+      return collateralData?.series.fundTotal;
     } else {
       return collateralData?.series[selectedCollateral];
     }

@@ -401,80 +401,32 @@ export function useAllCollateralData() {
         const responseBTCB = await axios.get(
           `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_BTCB_balance`,
         );
-        const responseFundBUSD = await axios.get(
-          `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=stability_BUSD_balance`,
-        );
-        const responseFundIUSDC = await axios.get(
-          `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=stability_IUSDC_balance`,
-        );
-        const responseFundUSDS = await axios.get(
-          `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=stability_USDS_balance`,
-        );
+        const responseStabilityFund = await axios.get(`${API_ENDPOINT}historical/stability?skip=0&limit=1000`);
 
         try {
           const seriesSICX = setTimeToMs(trimStartingZeroValues(responseSICX.data));
           const seriesETH = setTimeToMs(trimStartingZeroValues(responseETH.data));
           const seriesBTCB = setTimeToMs(trimStartingZeroValues(responseBTCB.data));
-          const seriesFundBUSD = setTimeToMs(trimStartingZeroValues(responseFundBUSD.data));
-          const seriesFundIUSDC = setTimeToMs(trimStartingZeroValues(responseFundIUSDC.data));
-          const seriesFundUSDS = setTimeToMs(trimStartingZeroValues(responseFundUSDS.data));
+          const seriesStability = setTimeToMs(trimStartingZeroValues(responseStabilityFund.data));
 
-          const seriesFundBUSDReversed = seriesFundBUSD.slice().reverse();
-          const seriesFundIUSDCReversed = seriesFundIUSDC.slice().reverse();
-          const seriesFundUSDSReversed = seriesFundUSDS.slice().reverse();
+          const seriesSICXCopy = seriesSICX.slice();
+          const seriesETHCopy = seriesETH.slice();
+          const seriesBTCBCopy = seriesBTCB.slice();
+          const seriesStabilityCopy = seriesStability.slice();
 
-          const seriesFundTotalReversed = seriesFundUSDSReversed.map((item, index) => {
-            let currentTotal = item.value;
-
-            if (seriesFundIUSDCReversed[index] && seriesFundIUSDCReversed[index].timestamp === item.timestamp) {
-              currentTotal += seriesFundIUSDCReversed[index].value;
-            }
-
-            if (seriesFundBUSDReversed[index] && seriesFundBUSDReversed[index].timestamp === item.timestamp) {
-              currentTotal += seriesFundBUSDReversed[index].value;
-            }
-
-            return {
-              timestamp: item.timestamp,
-              value: Math.floor(currentTotal),
-            };
-          });
-
-          const seriesFundTotalStacked = seriesFundIUSDCReversed.map((item, index) => {
-            const combinedItem = {
-              timestamp: item.timestamp,
-              IUSDC: item.value,
-              value: 0,
-            };
-
-            if (seriesFundUSDSReversed[index]) {
-              combinedItem['USDS'] = seriesFundUSDSReversed[index].value;
-            }
-
-            if (seriesFundBUSDReversed[index]) {
-              combinedItem['BUSD'] = seriesFundBUSDReversed[index].value;
-            }
-
-            return combinedItem;
-          });
-
-          const seriesSICXReversed = seriesSICX.slice().reverse();
-          const seriesETHReversed = seriesETH.slice().reverse();
-          const seriesBTCBReversed = seriesBTCB.slice().reverse();
-
-          const seriesTotalReversed = seriesSICXReversed.map((item, index) => {
+          const seriesTotal = seriesSICXCopy.map((item, index) => {
             let currentTotal = tokenPrices['sICX'].times(item.value);
 
-            if (seriesETHReversed[index]) {
-              currentTotal = currentTotal.plus(tokenPrices['ETH'].times(seriesETHReversed[index].value));
+            if (seriesETHCopy[index]) {
+              currentTotal = currentTotal.plus(tokenPrices['ETH'].times(seriesETHCopy[index].value));
             }
 
-            if (seriesBTCBReversed[index]) {
-              currentTotal = currentTotal.plus(tokenPrices['BTCB'].times(seriesBTCBReversed[index].value));
+            if (seriesBTCBCopy[index]) {
+              currentTotal = currentTotal.plus(tokenPrices['BTCB'].times(seriesBTCBCopy[index].value));
             }
 
-            if (seriesFundTotalReversed[index]) {
-              currentTotal = currentTotal.plus(seriesFundTotalReversed[index].value);
+            if (seriesStabilityCopy[index]) {
+              currentTotal = currentTotal.plus(seriesStabilityCopy[index]['sum_of_values']);
             }
 
             return {
@@ -483,27 +435,26 @@ export function useAllCollateralData() {
             };
           });
 
-          result.series['sICX'] = seriesSICX;
-          result.series['ETH'] = seriesETH;
-          result.series['BTCB'] = seriesBTCB;
-          result.series['fundBUSD'] = seriesFundBUSD;
-          result.series['fundIUSDC'] = seriesFundIUSDC;
-          result.series['fundUSDS'] = seriesFundUSDS;
-          result.series['fundTotal'] = seriesFundTotalReversed.reverse();
-          result.series['fundTotalStacked'] = seriesFundTotalStacked.reverse();
-          result.series['total'] = seriesTotalReversed.reverse();
+          result.series['sICX'] = seriesSICX.slice().reverse();
+          result.series['ETH'] = seriesETH.slice().reverse();
+          result.series['BTCB'] = seriesBTCB.slice().reverse();
+          result.series['fundTotal'] = seriesStabilityCopy
+            .map(item => ({ ...item, value: item.sum_of_values }))
+            .slice()
+            .reverse();
+          result.series['total'] = seriesTotal.slice().reverse();
 
           result.current['sICX'] = {
-            amount: seriesSICX[seriesSICX.length - 1].value,
-            value: tokenPrices['sICX'].times(seriesSICX[seriesSICX.length - 1].value).toNumber(),
+            amount: seriesSICX[0].value,
+            value: tokenPrices['sICX'].times(seriesSICX[0].value).toNumber(),
           };
           result.current['ETH'] = {
-            amount: seriesETH[seriesETH.length - 1].value,
-            value: tokenPrices['ETH'].times(seriesETH[seriesETH.length - 1].value).toNumber(),
+            amount: seriesETH[0].value,
+            value: tokenPrices['ETH'].times(seriesETH[0].value).toNumber(),
           };
           result.current['BTCB'] = {
-            amount: seriesBTCB[seriesBTCB.length - 1].value,
-            value: tokenPrices['BTCB'].times(seriesBTCB[seriesBTCB.length - 1].value).toNumber(),
+            amount: seriesBTCB[0].value,
+            value: tokenPrices['BTCB'].times(seriesBTCB[0].value).toNumber(),
           };
           result.current['fundTotal'] = {
             amount: result.series['fundTotal'][result.series['fundTotal'].length - 1].value,
@@ -576,7 +527,7 @@ export function useAllDebtData() {
       `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_collateral_debt_BTCB_bnusd`,
     );
     const responseTotal = await axios.get(
-      `${API_ENDPOINT}contract-methods?skip=500&limit=1000&address=${bnJs.bnUSD.address}&method=totalSupply`,
+      `${API_ENDPOINT}contract-methods?skip=0&limit=1000&address=${bnJs.bnUSD.address}&method=totalSupply`,
     );
 
     try {
@@ -588,11 +539,11 @@ export function useAllDebtData() {
       const seriesFund = stabilityFundInfo?.series['fundTotal'];
 
       return {
-        sICX: seriesSICX,
-        ETH: seriesETH,
-        BTCB: seriesBTCB,
+        sICX: seriesSICX.reverse(),
+        ETH: seriesETH.reverse(),
+        BTCB: seriesBTCB.reverse(),
         [predefinedCollateralTypes.STABILITY_FUND]: seriesFund,
-        [predefinedCollateralTypes.ALL]: seriesTotal,
+        [predefinedCollateralTypes.ALL]: seriesTotal.reverse(),
       };
     } catch (e) {
       console.error(e);
