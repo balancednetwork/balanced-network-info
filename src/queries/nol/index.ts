@@ -76,8 +76,7 @@ export function useNetworkOwnedLiquidityData(): UseQueryResult<
         chartData: nolData.map((data, index) => ({
           name: data.pair?.name,
           value: data.liquidity.toNumber(),
-          fill:
-            NOL_LP_CHART_COLORS[data.pair?.name ?? ''] || CHART_COLORS[index] || CHART_COLORS[CHART_COLORS.length - 1],
+          fill: CHART_COLORS[index] || CHART_COLORS[CHART_COLORS.length - 1],
         })),
         tvl: nolData.reduce((acc, data) => acc.plus(data.liquidity), new BigNumber(0)),
       };

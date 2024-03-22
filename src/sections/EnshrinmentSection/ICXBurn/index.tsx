@@ -48,7 +48,7 @@ const CustomTooltip = ({ active, payload }) => {
         </Flex>
         {pending > 0 && (
           <Flex>
-            <LegendItem legendColor="#C4C9D0"></LegendItem>
+            <LegendItem legendColor="#144a68"></LegendItem>
             <Typography ml="-8px" color="text1" fontSize={14}>
               <strong>{getFormattedNumber(pending, 'number')} ICX</strong> awaiting burn
             </Typography>
@@ -114,7 +114,7 @@ const ICXBurn = () => {
                 domain={[`auto`, 'auto']}
                 padding={{ top: 10, bottom: 10 }}
               />
-              <Bar dataKey="pending" stackId="a" fill="#C4C9D0" />
+              <Bar dataKey="pending" stackId="a" fill="#144a68" />
               <Bar dataKey="value" fill={theme.colors.primary} stackId="a" radius={[10, 10, 0, 0]} />
               <Tooltip
                 cursor={false}
