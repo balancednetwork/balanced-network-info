@@ -13,13 +13,9 @@ export type CollateralChartTimeFrame = {
   days: number;
 };
 
-export type TimeFrame = 'WEEK' | 'MONTH' | 'QUARTER_YEAR' | 'HALF_YEAR' | 'YEAR';
+export type TimeFrame = 'MONTH' | 'QUARTER_YEAR' | 'HALF_YEAR' | 'YEAR';
 
 export const timeFrames: { [key in TimeFrame]: CollateralChartTimeFrame } = Object.freeze({
-  WEEK: {
-    displayName: 'week',
-    days: 7,
-  },
   MONTH: {
     displayName: 'month',
     days: 30,
