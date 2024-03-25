@@ -26,7 +26,7 @@ const RewardsOverview = () => {
             {savingsRate ? `$${savingsRate.dailyPayout.times(30).toFormat(0)}` : <LoaderComponent />}
           </Typography>
           <Typography fontSize={14} color="text1">
-            Upcoming rewards
+            Rewards this month
           </Typography>
         </ChartInfoItem>
         <ChartInfoItem>
