@@ -15,6 +15,7 @@ import { getFormattedNumber } from 'utils/formatter';
 import { CollateralChartTimeFrame } from '../TimeFrameSelector';
 import Chart from './Chart';
 import QuestionHelper, { QuestionWrapper } from 'components/QuestionHelper';
+import { useDebtCeilings } from 'queries/bnusd';
 
 export default function BnUSDChart({
   selectedCollateral,
@@ -26,6 +27,7 @@ export default function BnUSDChart({
   const loanInfo = useLoanInfo();
   const { data: borrowersInfo } = useBorrowersInfo();
   const { data: fundInfo } = useFundInfo();
+  const { data: ceilingsData } = useDebtCeilings();
 
   const [userHovering, setUserHovering] = React.useState<boolean>(false);
 
@@ -115,22 +117,15 @@ export default function BnUSDChart({
           <>
             <ChartInfoItem smaller border>
               <Typography variant="p" fontSize="18px">
-                {loanInfo.loansAPY ? (
-                  `${getFormattedNumber(loanInfo.loansAPY, 'percent2')} - ${getFormattedNumber(
-                    loanInfo.loansAPY * MAX_BOOST,
-                    'percent2',
-                  )}`
-                ) : (
-                  <LoaderComponent />
-                )}
-              </Typography>
-              <Typography color="text1">Borrow APR</Typography>
-            </ChartInfoItem>
-            <ChartInfoItem smaller border={!isSmall || isExtraSmall}>
-              <Typography variant="p" fontSize="18px">
                 {loanInfo.dailyRewards ? getFormattedNumber(loanInfo.dailyRewards, 'number') : <LoaderComponent />} BALN
               </Typography>
               <Typography color="text1">Daily rewards</Typography>
+            </ChartInfoItem>
+            <ChartInfoItem smaller border={!isSmall || isExtraSmall}>
+              <Typography variant="p" fontSize="18px">
+                {borrowersInfo ? getFormattedNumber(borrowersInfo.total, 'number') : <LoaderComponent />}
+              </Typography>
+              <Typography color="text1">Borrowers</Typography>
             </ChartInfoItem>
             <ChartInfoItem
               smaller
@@ -140,14 +135,14 @@ export default function BnUSDChart({
               width={isSmall ? '100%' : 'auto'}
             >
               <Typography variant="p" fontSize="18px">
-                {borrowersInfo ? getFormattedNumber(borrowersInfo.total, 'number') : <LoaderComponent />}
+                {ceilingsData ? `$${ceilingsData.total.toFormat(0)}` : <LoaderComponent />}
               </Typography>
-              <Typography color="text1">Borrowers</Typography>
+              <Typography color="text1">Maximum limit</Typography>
             </ChartInfoItem>
           </>
         ) : (
           <>
-            <ChartInfoItem border>
+            <ChartInfoItem smaller border>
               <Typography variant="p" fontSize="18px">
                 {loanInfo.loansAPY ? (
                   `${getFormattedNumber(loanInfo.loansAPY, 'percent2')} - ${getFormattedNumber(
@@ -160,11 +155,29 @@ export default function BnUSDChart({
               </Typography>
               <Typography opacity={0.75}>Borrow APR</Typography>
             </ChartInfoItem>
-            <ChartInfoItem>
+            <ChartInfoItem smaller border={!isSmall || isExtraSmall}>
               <Typography variant="p" fontSize="18px">
                 {loanInfo.dailyRewards ? getFormattedNumber(loanInfo.dailyRewards, 'number') : <LoaderComponent />} BALN
               </Typography>
               <Typography opacity={0.75}>Daily rewards</Typography>
+            </ChartInfoItem>
+            <ChartInfoItem
+              smaller
+              flex={isSmall ? null : 1}
+              flexDirection="column"
+              alignItems="center"
+              width={isSmall ? '100%' : 'auto'}
+            >
+              <Typography variant="p" fontSize="18px">
+                {ceilingsData ? (
+                  `$${
+                    ceilingsData.ceilings.find(item => item.symbol === selectedCollateral)?.ceiling.toFormat(0) || '-'
+                  }`
+                ) : (
+                  <LoaderComponent />
+                )}
+              </Typography>
+              <Typography opacity={0.75}>Limit</Typography>
             </ChartInfoItem>
           </>
         )}
