@@ -1,5 +1,5 @@
 import Divider from 'components/Divider';
-import CurrencyLogo, { CurrencyLogoFromURI } from 'components/shared/CurrencyLogo';
+import CurrencyLogo from 'components/shared/CurrencyLogo';
 import { HIGH_PRICE_ASSET_DP } from 'constants/tokens';
 import { useWithdrawalsFloorStabilityFundData } from 'queries';
 import React, { Fragment } from 'react';
@@ -24,10 +24,10 @@ const StabilityFundLimits = () => {
         </DashGrid>
         {withdrawalsFloorData ? (
           <>
-            {withdrawalsFloorData?.assetFloorData.map((collateral, index) => {
+            {withdrawalsFloorData?.assetFloorData.map((asset, index) => {
               const isLast = index === withdrawalsFloorData.assetFloorData.length - 1;
-              const dp = HIGH_PRICE_ASSET_DP[collateral.token.address] || 0;
-              const availableRatio = collateral.current.minus(collateral.floor).div(collateral.current);
+              const dp = HIGH_PRICE_ASSET_DP[asset.token.address] || 0;
+              const availableRatio = asset.current.minus(asset.floor).div(asset.current);
 
               return (
                 <Fragment key={index}>
@@ -36,44 +36,38 @@ const StabilityFundLimits = () => {
                       <Flex alignItems="center">
                         <Box sx={{ minWidth: '50px' }}>
                           <CurrencyLogo
-                            currency={new Token(1, collateral.token.address, collateral.token.decimals)}
+                            currency={new Token(1, asset.token.address, asset.token.decimals)}
                             size="40px"
                           />
                         </Box>
                         <Box ml={2} sx={{ minWidth: '160px' }}>
-                          <Typography fontSize={16}>{collateral.token.name.replace(' TOKEN', ' Token')}</Typography>
+                          <Typography fontSize={16}>{asset.token.name.replace(' TOKEN', ' Token')}</Typography>
                           <Typography color="text1" fontSize={16}>
-                            {collateral.token.symbol}
+                            {asset.token.symbol}
                           </Typography>
                         </Box>
                       </Flex>
                     </DataText>
                     <DataText>
                       <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
-                        <Typography fontSize={16}>{`$${collateral.current
-                          .times(collateral.token.price)
+                        <Typography fontSize={16}>{`$${asset.current
+                          .times(asset.token.price)
                           .toFormat(0)}`}</Typography>
-                        <Typography color="text1">
-                          {`${collateral.current.toFormat(dp)} ${collateral.token.symbol}`}
-                        </Typography>
+                        <Typography color="text1">{`${asset.current.toFormat(dp)} ${asset.token.symbol}`}</Typography>
                       </Flex>
                     </DataText>
                     <DataText>
                       <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
-                        <Typography fontSize={16}>{`$${collateral.floor
-                          .times(collateral.token.price)
-                          .toFormat(0)}`}</Typography>
-                        <Typography color="text1">
-                          {`${collateral.floor.toFormat(dp)} ${collateral.token.symbol}`}
-                        </Typography>
+                        <Typography fontSize={16}>{`$${asset.floor.times(asset.token.price).toFormat(0)}`}</Typography>
+                        <Typography color="text1">{`${asset.floor.toFormat(dp)} ${asset.token.symbol}`}</Typography>
                       </Flex>
                     </DataText>
                     <DataText>
                       <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
                         <Flex>
-                          <Typography fontSize={16}>{`$${collateral.current
-                            .minus(collateral.floor)
-                            .times(collateral.token.price)
+                          <Typography fontSize={16}>{`$${asset.current
+                            .minus(asset.floor)
+                            .times(asset.token.price)
                             .toFormat(0)}`}</Typography>
                           <Typography
                             ml="10px"
@@ -87,7 +81,7 @@ const StabilityFundLimits = () => {
                           </Typography>
                         </Flex>
                         <Typography color="text1">
-                          {`${collateral.current.minus(collateral.floor).toFormat(dp)} ${collateral.token.symbol}`}
+                          {`${asset.current.minus(asset.floor).toFormat(dp)} ${asset.token.symbol}`}
                         </Typography>
                       </Flex>
                     </DataText>
