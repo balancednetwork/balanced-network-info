@@ -268,7 +268,7 @@ export default React.memo(function TokenSection() {
   const isSmallScreen = useMedia('(max-width: 800px)');
 
   return (
-    <BoxPanel bg="bg2">
+    <BoxPanel bg="bg2" id="tokens">
       <Flex justifyContent="space-between" flexWrap="wrap">
         <Typography variant="h2" mb={5} mr="20px">
           Tokens

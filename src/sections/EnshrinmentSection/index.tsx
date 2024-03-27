@@ -33,7 +33,7 @@ const EnshrinementSection = () => {
   const isSmall = useMedia('(max-width: 1199px)');
 
   return (
-    <BoxPanel bg="bg2">
+    <BoxPanel bg="bg2" id="enshrinement">
       <Flex mb="25px">
         <Typography variant="h2" mr="5px">
           ICON enshrinement

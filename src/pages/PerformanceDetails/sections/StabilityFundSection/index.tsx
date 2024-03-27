@@ -93,7 +93,7 @@ const StabilityFundSection = () => {
   const { data: holdingsPast } = useStabilityFundHoldings(selectedDate.valueOf());
 
   return (
-    <BoxPanel bg="bg2" mb={10}>
+    <BoxPanel bg="bg2" mb={10} id="stability-fund">
       <Typography variant="h2">Stability Fund</Typography>
       <ScrollHelper>
         <BalanceGrid>

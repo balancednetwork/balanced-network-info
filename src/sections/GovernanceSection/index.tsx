@@ -122,7 +122,7 @@ const GovernanceSection = () => {
   const { data: latestProposals } = useLatestProposals();
 
   return (
-    <BoxPanel bg="bg2">
+    <BoxPanel bg="bg2" id="governance">
       <Typography variant="h2" mb={'25px'}>
         Governance
       </Typography>

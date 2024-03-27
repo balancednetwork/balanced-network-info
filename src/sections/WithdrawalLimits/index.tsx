@@ -38,7 +38,7 @@ const WithdrawalLimits = () => {
   const [activeTab, setActiveTab] = React.useState(0);
 
   return (
-    <BoxPanel bg="bg2">
+    <BoxPanel bg="bg2" id="withdrawal-limits">
       <Flex alignItems="center" mb={5}>
         <Flex
           flexDirection={['column', 'column', 'row']}

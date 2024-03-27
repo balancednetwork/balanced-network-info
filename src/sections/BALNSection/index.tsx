@@ -21,7 +21,7 @@ const BALNSectionOverview = () => {
   const { data: allTokens } = useAllTokensByAddress();
 
   return (
-    <BoxPanel bg="bg2">
+    <BoxPanel bg="bg2" id="baln">
       <Flex alignItems="center">
         <Typography variant="h2" mb={5} mr={2}>
           Balance Tokens

@@ -51,7 +51,7 @@ const BALNSectionOverview = () => {
   const daoFundNow = useDAOFundTotal(now);
 
   return (
-    <BoxPanel bg="bg2">
+    <BoxPanel bg="bg2" id="holdings">
       <Flex
         alignItems={['start', 'center']}
         justifyContent="space-between"

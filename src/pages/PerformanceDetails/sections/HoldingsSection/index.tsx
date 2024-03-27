@@ -100,7 +100,7 @@ const HoldingsSection = () => {
   const gridWidth = 770;
 
   return (
-    <BoxPanel bg="bg2" mb={10}>
+    <BoxPanel bg="bg2" mb={10} id="holdings-history">
       <Typography variant="h2">Holdings</Typography>
       <ScrollHelper>
         {/* DAO Fund holdings */}

@@ -12,7 +12,7 @@ export default function BSRSection() {
   const isSmall = useMedia('(max-width: 1199px)');
 
   return (
-    <BoxPanel bg="bg2">
+    <BoxPanel bg="bg2" id="savings-rate">
       <Flex flexWrap="wrap">
         <Box
           width={isSmall ? '100%' : '50%'}

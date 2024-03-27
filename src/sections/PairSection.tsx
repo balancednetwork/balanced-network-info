@@ -220,7 +220,7 @@ export default function PairSection() {
   }, [pairs]);
 
   return (
-    <BoxPanel bg="bg2">
+    <BoxPanel bg="bg2" id="exchange">
       <Flex justifyContent="space-between" flexWrap="wrap">
         <Typography variant="h2" mb={5} mr="20px">
           Exchange
