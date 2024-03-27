@@ -177,7 +177,7 @@ export default function BnUSDChart({
                   <LoaderComponent />
                 )}
               </Typography>
-              <Typography opacity={0.75}>Limit</Typography>
+              <Typography opacity={0.75}>Maximum limit</Typography>
             </ChartInfoItem>
           </>
         )}
