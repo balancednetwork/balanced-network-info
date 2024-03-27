@@ -13,6 +13,7 @@ import { Typography } from 'theme';
 import EarningsSection from './sections/EarningSection';
 import HoldingsSection from './sections/HoldingsSection';
 import StabilityFundSection from './sections/StabilityFundSection';
+import { useLocation } from 'react-router-dom';
 
 export const GridItem = styled.div`
   text-align: right;
@@ -102,10 +103,28 @@ export const TextWithArrow = styled.span`
 
 export function PerformanceDetails() {
   const breadcrumbsItems: BreadcrumbItem[] = [{ displayName: 'Performance details' }];
+  const location = useLocation();
 
   React.useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+    const elementId = location.hash.substring(1);
+
+    if (elementId) {
+      const scrollToElement = () => {
+        const element = document.getElementById(elementId);
+
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          // If the element doesn't exist yet, try again after a short delay
+          setTimeout(scrollToElement, 1000);
+        }
+      };
+
+      scrollToElement();
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [location]);
 
   return (
     <Container>
