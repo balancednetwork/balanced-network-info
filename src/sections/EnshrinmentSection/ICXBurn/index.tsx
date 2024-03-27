@@ -3,7 +3,7 @@ import { LoaderComponent } from 'pages/PerformanceDetails/utils';
 import { useBurnData } from 'queries/burn';
 import React from 'react';
 import { Flex } from 'rebass';
-import { Bar, BarChart, ResponsiveContainer, Tooltip, YAxis } from 'recharts';
+import { Bar, BarChart, Rectangle, ResponsiveContainer, Tooltip, YAxis } from 'recharts';
 import { ChartInfo, ChartInfoItem, ChartWrap, LegendItem } from 'sections/BALNSection/DistributionChart';
 import styled, { useTheme } from 'styled-components';
 import { Typography } from 'theme';
@@ -40,12 +40,6 @@ const CustomTooltip = ({ active, payload }) => {
     const { value, timestamp, pending, week } = payload[0].payload;
     return (
       <TooltipWrapper>
-        <Flex>
-          <LegendItem legendColor={theme.colors.primary}></LegendItem>
-          <Typography ml="-8px" color="text1" fontSize={14}>
-            <strong>{getFormattedNumber(value, 'number')} ICX</strong> burned
-          </Typography>
-        </Flex>
         {pending > 0 && (
           <Flex>
             <LegendItem legendColor="#144a68"></LegendItem>
@@ -54,6 +48,12 @@ const CustomTooltip = ({ active, payload }) => {
             </Typography>
           </Flex>
         )}
+        <Flex>
+          <LegendItem legendColor={theme.colors.primary}></LegendItem>
+          <Typography ml="-8px" color="text1" fontSize={14}>
+            <strong>{getFormattedNumber(value, 'number')} ICX</strong> burned
+          </Typography>
+        </Flex>
         <Flex mt={2} flexDirection="column">
           <label>{`Week ${week}`}</label>
           <label>{getLabel(timestamp, pending > 0)}</label>
@@ -88,7 +88,7 @@ const ICXBurn = () => {
         {burnData?.chartData && (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
-              data={burnData?.chartData}
+              data={burnData?.chartData.map((item, index, arr) => ({ ...item, isLast: index === arr.length - 1 }))}
               margin={{
                 top: 0,
                 right: 35,
@@ -96,13 +96,6 @@ const ICXBurn = () => {
                 bottom: 0,
               }}
             >
-              {/* <XAxis
-                dataKey="timestamp"
-                axisLine={false}
-                tickLine={false}
-                tick={{ stroke: theme.colors.text1, fontSize: '14px' }}
-                tickFormatter={time => dayjs(time).format('MMM')}
-              /> */}
               <YAxis
                 dataKey="value"
                 axisLine={false}
@@ -114,8 +107,13 @@ const ICXBurn = () => {
                 domain={[`auto`, 'auto']}
                 padding={{ top: 10, bottom: 10 }}
               />
-              <Bar dataKey="pending" stackId="a" fill="#144a68" />
-              <Bar dataKey="value" fill={theme.colors.primary} stackId="a" radius={[10, 10, 0, 0]} />
+              <Bar
+                dataKey="value"
+                fill={theme.colors.primary}
+                stackId="a"
+                shape={props => <Rectangle {...props} radius={props.payload.isLast ? [0, 0, 0, 0] : [10, 10, 0, 0]} />}
+              />
+              <Bar dataKey="pending" stackId="a" fill="#144a68" radius={[10, 10, 0, 0]} />
               <Tooltip
                 cursor={false}
                 // @ts-ignore
