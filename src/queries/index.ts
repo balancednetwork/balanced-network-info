@@ -12,6 +12,7 @@ import { useSupportedCollateralTokens } from 'store/collateral/hooks';
 import { formatUnits } from 'utils';
 
 import {
+  API_ENDPOINT,
   TokenStats,
   useAllCollateralData,
   useAllPairsIncentivisedByName,
@@ -20,6 +21,7 @@ import {
   useTokenPrices,
 } from './backendv2';
 import { useBlockDetails } from './blockDetails';
+import axios from 'axios';
 
 const WEIGHT_CONST = 10 ** 18;
 
@@ -984,10 +986,10 @@ export function useBorrowersInfo() {
 type WithdrawalsFloorDataType = {
   percentageFloor: BigNumber;
   floorTimeDecayInHours: BigNumber;
-  collateralFloorData: { floor: BigNumber; current: BigNumber; token: TokenStats }[];
+  assetFloorData: { floor: BigNumber; current: BigNumber; token: TokenStats }[];
 };
 
-export function useWithdrawalsFloorData(): UseQueryResult<WithdrawalsFloorDataType> {
+export function useWithdrawalsFloorCollateralData(): UseQueryResult<WithdrawalsFloorDataType> {
   const { data: collateralTokens, isSuccess: collateralTokensSuccess } = useSupportedCollateralTokens();
   const { data: allTokens, isSuccess: tokensSuccess } = useAllTokensByAddress();
 
@@ -1032,10 +1034,82 @@ export function useWithdrawalsFloorData(): UseQueryResult<WithdrawalsFloorDataTy
 
         const currentData = await bnJs.Multicall.getAggregateData(currentCollateralCds);
 
-        const collateralFloorData = data
+        const assetFloorData = data
           .slice(2)
           .map((item, index) => {
             const token = allTokens[collateralAddresses[index]];
+            return {
+              floor: new BigNumber(item).div(10 ** token.decimals),
+              current: new BigNumber(currentData[index]).div(10 ** token.decimals),
+              token,
+            };
+          })
+          .filter(item => item.floor.isGreaterThan(0))
+          .sort((a, b) => (a.floor.isGreaterThan(b.floor) ? -1 : 1));
+
+        return {
+          percentageFloor,
+          floorTimeDecayInHours,
+          assetFloorData,
+        };
+      }
+    },
+    {
+      keepPreviousData: true,
+      refetchInterval: 5000,
+      enabled: collateralTokensSuccess && tokensSuccess,
+    },
+  );
+}
+
+export function useWithdrawalsFloorDEXData(): UseQueryResult<WithdrawalsFloorDataType> {
+  const { data: allTokens, isSuccess: tokensSuccess } = useAllTokensByAddress();
+
+  return useQuery(
+    `withdrawalsFloorDEXData-${tokensSuccess ? 'tokens' : ''}`,
+    async () => {
+      const tokens = [bnJs.BALN.address, bnJs.sICX.address, bnJs.bnUSD.address];
+
+      if (allTokens) {
+        const percentageFloorCallData = {
+          target: bnJs.Dex.address,
+          method: 'getFloorPercentage',
+          params: [],
+        };
+
+        const floorTimeDelayCallData = {
+          target: bnJs.Dex.address,
+          method: 'getTimeDelayMicroSeconds',
+          params: [],
+        };
+
+        const cds: CallData[] = [
+          percentageFloorCallData,
+          floorTimeDelayCallData,
+          ...tokens.map(address => ({
+            target: bnJs.Dex.address,
+            method: 'getCurrentFloor',
+            params: [address],
+          })),
+        ];
+
+        const data = await bnJs.Multicall.getAggregateData(cds);
+
+        const percentageFloor = new BigNumber(data[0]).div(10000);
+        const floorTimeDecayInHours = new BigNumber(data[1]).div(1000 * 1000 * 60 * 60);
+
+        const currentAssetCds: CallData[] = tokens.map(address => ({
+          target: address,
+          method: 'balanceOf',
+          params: [bnJs.Dex.address],
+        }));
+
+        const currentData = await bnJs.Multicall.getAggregateData(currentAssetCds);
+
+        const assetFloorData = data
+          .slice(2)
+          .map((item, index) => {
+            const token = allTokens[tokens[index]];
             return {
               floor: new BigNumber(item).div(10 ** token.decimals),
               current: new BigNumber(currentData[index]).div(10 ** token.decimals),
@@ -1047,14 +1121,86 @@ export function useWithdrawalsFloorData(): UseQueryResult<WithdrawalsFloorDataTy
         return {
           percentageFloor,
           floorTimeDecayInHours,
-          collateralFloorData,
+          assetFloorData,
         };
       }
     },
     {
       keepPreviousData: true,
       refetchInterval: 5000,
-      enabled: collateralTokensSuccess && tokensSuccess,
+      enabled: tokensSuccess,
+    },
+  );
+}
+
+export function useWithdrawalsFloorStabilityFundData(): UseQueryResult<WithdrawalsFloorDataType> {
+  const { data: supportedTokens, isSuccess: supportedTokensSuccess } = useWhitelistedTokensList();
+
+  return useQuery(
+    `withdrawalsFloorData-${supportedTokens && Object.keys(supportedTokens).length}`,
+    async () => {
+      if (supportedTokens) {
+        const { data: allTokens } = await axios.get(`${API_ENDPOINT}tokens`);
+
+        const percentageFloorCallData = {
+          target: bnJs.StabilityFund.address,
+          method: 'getFloorPercentage',
+          params: [],
+        };
+
+        const floorTimeDelayCallData = {
+          target: bnJs.StabilityFund.address,
+          method: 'getTimeDelayMicroSeconds',
+          params: [],
+        };
+
+        const cds: CallData[] = [
+          percentageFloorCallData,
+          floorTimeDelayCallData,
+          ...supportedTokens.map(address => ({
+            target: bnJs.StabilityFund.address,
+            method: 'getCurrentFloor',
+            params: [address],
+          })),
+        ];
+
+        const data = await bnJs.Multicall.getAggregateData(cds);
+
+        const percentageFloor = new BigNumber(data[0]).div(10000);
+        const floorTimeDecayInHours = new BigNumber(data[1]).div(1000 * 1000 * 60 * 60);
+
+        const currentFundAssetsCds: CallData[] = supportedTokens.map(address => ({
+          target: address,
+          method: 'balanceOf',
+          params: [bnJs.StabilityFund.address],
+        }));
+
+        const currentData = await bnJs.Multicall.getAggregateData(currentFundAssetsCds);
+
+        const assetFloorData = data
+          .slice(2)
+          .map((item, index) => {
+            const token = allTokens.find(token => token.address === supportedTokens[index]);
+            return {
+              floor: token ? new BigNumber(item).div(10 ** token.decimals) : new BigNumber(0),
+              current: token ? new BigNumber(currentData[index]).div(10 ** token.decimals) : new BigNumber(0),
+              token,
+            };
+          })
+          .filter(item => item.floor.isGreaterThan(0))
+          .sort((a, b) => (a.floor.isGreaterThan(b.floor) ? -1 : 1));
+
+        return {
+          percentageFloor,
+          floorTimeDecayInHours,
+          assetFloorData,
+        };
+      }
+    },
+    {
+      keepPreviousData: true,
+      refetchInterval: 5000,
+      enabled: supportedTokensSuccess,
     },
   );
 }

@@ -9,7 +9,7 @@ import { predefinedCollateralTypes } from 'components/CollateralSelector/Collate
 import { formatUnits } from 'utils';
 import { TOKEN_BLACKLIST } from 'constants/tokens';
 
-const API_ENDPOINT = 'https://balanced.icon.community/api/v1/';
+export const API_ENDPOINT = 'https://balanced.icon.community/api/v1/';
 
 export type ContractMethodsDataType = {
   address: string;
