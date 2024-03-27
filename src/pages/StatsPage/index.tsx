@@ -26,6 +26,7 @@ import { getFormattedNumber } from 'utils/formatter';
 import WithdrawalLimits from 'sections/WithdrawalLimits';
 import BSRSection from 'sections/BSRSection';
 import EnshrinementSection from 'sections/EnshrinmentSection';
+import { useLocation } from 'react-router-dom';
 
 export const Container = styled(Box)`
   /* disable margin collapse */
@@ -122,6 +123,24 @@ export const Divider = styled(Box)`
 
 export function StatsPage() {
   const overviewInfo = useOverviewInfo();
+  const location = useLocation();
+
+  React.useEffect(() => {
+    const elementId = location.hash.substring(1);
+
+    const scrollToElement = () => {
+      const element = document.getElementById(elementId);
+
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        // If the element doesn't exist yet, try again after a short delay
+        setTimeout(scrollToElement, 1000);
+      }
+    };
+
+    scrollToElement();
+  }, [location]);
 
   return (
     <Container>
