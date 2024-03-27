@@ -48,7 +48,7 @@ const WithdrawalLimits = () => {
         >
           <Flex mr={4}>
             <Typography variant="h2" mr={1}>
-              Withdrawal Limits
+              Withdrawal limits
             </Typography>
             <QuestionWrapper mt="9px">
               <QuestionHelper
