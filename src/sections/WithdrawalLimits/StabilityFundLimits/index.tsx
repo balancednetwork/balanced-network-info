@@ -4,11 +4,50 @@ import { HIGH_PRICE_ASSET_DP } from 'constants/tokens';
 import { useWithdrawalsFloorStabilityFundData } from 'queries';
 import React, { Fragment } from 'react';
 import { Box, Flex } from 'rebass';
-import { HeaderText } from 'sections/TokenSection';
+import { HeaderText, StyledSkeleton } from 'sections/TokenSection';
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
-import { DashGrid, DataText, MinWidthContainer, SkeletonTokenPlaceholder } from '../CollateralLimits';
+import { DashGrid, DataText, MinWidthContainer } from '../CollateralLimits';
 import { Token } from '@balancednetwork/sdk-core';
+
+export const SkeletonTokenPlaceholder = () => {
+  return (
+    <DashGrid my="10px">
+      <DataText>
+        <Flex alignItems="center">
+          <Box sx={{ minWidth: '50px' }}>
+            <StyledSkeleton variant="circle" width={40} height={40} />
+          </Box>
+          <Box ml={2} sx={{ minWidth: '160px' }}>
+            <StyledSkeleton width={130} />
+            <StyledSkeleton width={70} />
+          </Box>
+        </Flex>
+      </DataText>
+      <DataText>
+        <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
+          <Typography variant="p">
+            <StyledSkeleton width={140} />
+          </Typography>
+        </Flex>
+      </DataText>
+      <DataText>
+        <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
+          <Typography variant="p">
+            <StyledSkeleton width={140} />
+          </Typography>
+        </Flex>
+      </DataText>
+      <DataText>
+        <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
+          <Typography variant="p">
+            <StyledSkeleton width={100} />
+          </Typography>
+        </Flex>
+      </DataText>
+    </DashGrid>
+  );
+};
 
 const StabilityFundLimits = () => {
   const { data: withdrawalsFloorData } = useWithdrawalsFloorStabilityFundData();
@@ -50,25 +89,18 @@ const StabilityFundLimits = () => {
                     </DataText>
                     <DataText>
                       <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
-                        <Typography fontSize={16}>{`$${asset.current
-                          .times(asset.token.price)
-                          .toFormat(0)}`}</Typography>
-                        <Typography color="text1">{`${asset.current.toFormat(dp)} ${asset.token.symbol}`}</Typography>
+                        <Typography fontSize={16}>{`${asset.current.toFormat(dp)}`}</Typography>
                       </Flex>
                     </DataText>
                     <DataText>
                       <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
-                        <Typography fontSize={16}>{`$${asset.floor.times(asset.token.price).toFormat(0)}`}</Typography>
-                        <Typography color="text1">{`${asset.floor.toFormat(dp)} ${asset.token.symbol}`}</Typography>
+                        <Typography fontSize={16}>{`${asset.floor.toFormat(dp)}`}</Typography>
                       </Flex>
                     </DataText>
                     <DataText>
                       <Flex alignItems="flex-end" flexDirection="column" minWidth={200} pl={2}>
                         <Flex>
-                          <Typography fontSize={16}>{`$${asset.current
-                            .minus(asset.floor)
-                            .times(asset.token.price)
-                            .toFormat(0)}`}</Typography>
+                          <Typography fontSize={16}>{`${asset.current.minus(asset.floor).toFormat(dp)}`}</Typography>
                           <Typography
                             ml="10px"
                             color={
@@ -80,9 +112,6 @@ const StabilityFundLimits = () => {
                             {`(~${getFormattedNumber(availableRatio.toNumber(), 'percent0')})`}
                           </Typography>
                         </Flex>
-                        <Typography color="text1">
-                          {`${asset.current.minus(asset.floor).toFormat(dp)} ${asset.token.symbol}`}
-                        </Typography>
                       </Flex>
                     </DataText>
                   </DashGrid>
