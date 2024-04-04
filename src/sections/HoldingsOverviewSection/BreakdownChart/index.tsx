@@ -20,35 +20,37 @@ import {
 import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
 
-import { useDAOFundPOLPieData, useDAOFundTotal } from '../queries';
+import { useHoldingsBreakdownPieData, useDAOFundTotal, useReserveFundTotal } from '../queries';
 import { CustomLabel, CustomTooltip } from '../TokensChart';
 
-export default function POLChart() {
-  const { data } = useDAOFundPOLPieData();
+export default function BreakdownChart() {
+  const { data } = useHoldingsBreakdownPieData();
   const now = useTimestampRounded();
   const before = useTimestampRounded(1000 * 60, 30);
   const daoFundNow = useDAOFundTotal(now);
   const daoFundBefore = useDAOFundTotal(before);
+  const reserveFundNow = useReserveFundTotal(now);
+  const reserveFundBefore = useReserveFundTotal(before);
   const isSmallScreen = useMedia('(max-width: 620px)');
 
   const isDiffPositive = useMemo(() => {
-    if (daoFundBefore && daoFundNow) {
-      const diff = daoFundNow.POLHoldings - daoFundBefore.POLHoldings;
+    if (daoFundBefore && daoFundNow && reserveFundNow && reserveFundBefore) {
+      const diff = daoFundNow.total + reserveFundNow.total - (daoFundBefore.total + reserveFundBefore.total);
       return diff > 0;
     }
-  }, [daoFundBefore, daoFundNow]);
+  }, [daoFundBefore, daoFundNow, reserveFundBefore, reserveFundNow]);
 
   const fundDiff = useMemo(() => {
-    if (daoFundBefore && daoFundNow) {
-      return Math.abs(daoFundNow.POLHoldings - daoFundBefore.POLHoldings);
+    if (daoFundBefore && daoFundNow && reserveFundNow && reserveFundBefore) {
+      return Math.abs(daoFundNow.total + reserveFundNow.total - (daoFundBefore.total + reserveFundBefore.total));
     }
-  }, [daoFundBefore, daoFundNow]);
+  }, [daoFundBefore, daoFundNow, reserveFundBefore, reserveFundNow]);
 
   return (
     <ChartSection border>
       <Flex alignItems="center" flexWrap="wrap">
         <Typography variant="h3" mr={2}>
-          Protocol-owned liquidity
+          Holdings breakdown
         </Typography>
       </Flex>
       <ChartWrap visibleOverflow>
@@ -84,7 +86,11 @@ export default function POLChart() {
       <ChartInfo>
         <ChartInfoItem border>
           <Typography fontSize={18} color="text">
-            {daoFundNow ? `$${getFormattedNumber(daoFundNow.POLHoldings, 'number')}` : <LoaderComponent />}
+            {daoFundNow && reserveFundNow ? (
+              `$${getFormattedNumber(daoFundNow.total + reserveFundNow.total, 'number')}`
+            ) : (
+              <LoaderComponent />
+            )}
           </Typography>
           <Typography fontSize={14} color="text1">
             Total value
