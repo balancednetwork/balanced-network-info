@@ -7,14 +7,10 @@ import styled from 'styled-components';
 import arrowIcon from 'assets/icons/arrow.svg';
 import { BoxPanel } from 'components/Panel';
 import { LINKS } from 'constants/links';
-import useTimestampRounded from 'hooks/useTimestampRounded';
-import { LoaderComponent } from 'pages/PerformanceDetails/utils';
 import { ChartsWrap } from 'sections/BALNSection';
 import { Typography } from 'theme';
-import { getFormattedNumber } from 'utils/formatter';
 
 import POLChart from './POLChart';
-import { useDAOFundTotal, useReserveFundTotal } from './queries';
 import TokensChart from './TokensChart';
 import BreakdownChart from './BreakdownChart';
 import ReserveChart from './ReserveChart';
@@ -49,10 +45,6 @@ const StyledArrowLink = styled(Link)`
 `;
 
 const BALNSectionOverview = () => {
-  const now = useTimestampRounded();
-  const daoFundNow = useDAOFundTotal(now);
-  const reserveFund = useReserveFundTotal(now);
-
   return (
     <BoxPanel bg="bg2" id="holdings">
       <Flex
@@ -65,13 +57,6 @@ const BALNSectionOverview = () => {
         <Flex alignItems="center" mb={['-8px', '0']}>
           <Typography variant="h2" mb={5} mr={2}>
             Holdings
-          </Typography>
-          <Typography color="text1" mb={3} fontSize={16}>
-            {daoFundNow && reserveFund ? (
-              `$${getFormattedNumber(daoFundNow.total + reserveFund.total, 'number')}`
-            ) : (
-              <LoaderComponent />
-            )}
           </Typography>
         </Flex>
         <StyledArrowLink to={LINKS.performanceDetails}>Performance details</StyledArrowLink>

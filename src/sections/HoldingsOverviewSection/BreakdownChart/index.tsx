@@ -50,7 +50,7 @@ export default function BreakdownChart() {
     <ChartSection border>
       <Flex alignItems="center" flexWrap="wrap">
         <Typography variant="h3" mr={2}>
-          Holdings breakdown
+          Current holdings
         </Typography>
       </Flex>
       <ChartWrap visibleOverflow>
