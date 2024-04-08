@@ -106,7 +106,7 @@ export default function TokensChart() {
   }, [daoFundBefore, daoFundNow]);
 
   return (
-    <ChartSection border>
+    <ChartSection>
       <Flex alignItems="center" flexWrap="wrap">
         <Typography variant="h3" mr={2}>
           DAO Fund
