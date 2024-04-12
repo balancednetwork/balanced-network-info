@@ -126,9 +126,6 @@ export const useEarningsDataQuery = (
         const balnFeesStart = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.BALN.address, blockStart);
         const balnFeesEnd = await bnJs.FeeHandler.getSwapFeesAccruedByToken(bnJs.BALN.address, blockEnd);
 
-        console.log('log baln start', balnFeesStart);
-        console.log('log baln   end', balnFeesEnd);
-
         const bnUSDIncome = new BigNumber(formatUnits(bnUSDFeesEnd)).minus(new BigNumber(formatUnits(bnUSDFeesStart)));
         const sICXIncome = new BigNumber(formatUnits(sICXFeesEnd)).minus(new BigNumber(formatUnits(sICXFeesStart)));
         const balnIncome = new BigNumber(formatUnits(balnFeesEnd)).minus(new BigNumber(formatUnits(balnFeesStart)));
