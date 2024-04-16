@@ -104,13 +104,13 @@ export default function BnUSDChart({
                   <QuestionHelper text="Use the Stability Fund to swap approved assets 1:1 for bnUSD. If you trade the inverse, there's a 0.5% fee." />
                 </QuestionWrapper>
               </Flex>
-              <Typography opacity={0.75}>Stability Fund fee</Typography>
+              <Typography color="text1">Stability Fund fee</Typography>
             </ChartInfoItem>
             <ChartInfoItem>
               <Typography variant="p" fontSize="18px">
                 {fundInfo ? getFormattedNumber(fundInfo.feesGenerated, 'price') : <LoaderComponent />}
               </Typography>
-              <Typography opacity={0.75}>Earned past month</Typography>
+              <Typography color="text1">Earned past month</Typography>
             </ChartInfoItem>
           </>
         ) : selectedCollateral === predefinedCollateralTypes.ALL ? (
@@ -153,13 +153,13 @@ export default function BnUSDChart({
                   <LoaderComponent />
                 )}
               </Typography>
-              <Typography opacity={0.75}>Borrow APR</Typography>
+              <Typography color="text1">Borrow APR</Typography>
             </ChartInfoItem>
             <ChartInfoItem smaller border={!isSmall || isExtraSmall}>
               <Typography variant="p" fontSize="18px">
                 {loanInfo.dailyRewards ? getFormattedNumber(loanInfo.dailyRewards, 'number') : <LoaderComponent />} BALN
               </Typography>
-              <Typography opacity={0.75}>Daily rewards</Typography>
+              <Typography color="text1">Daily rewards</Typography>
             </ChartInfoItem>
             <ChartInfoItem
               smaller
@@ -171,13 +171,13 @@ export default function BnUSDChart({
               <Typography variant="p" fontSize="18px">
                 {ceilingsData ? (
                   `$${
-                    ceilingsData.ceilings.find(item => item.symbol === selectedCollateral)?.ceiling.toFormat(0) || '-'
+                    ceilingsData.ceilings.find(item => item.symbol === selectedCollateral)?.ceiling.toFormat(0) || '0'
                   }`
                 ) : (
                   <LoaderComponent />
                 )}
               </Typography>
-              <Typography opacity={0.75}>Maximum limit</Typography>
+              <Typography color="text1">Maximum limit</Typography>
             </ChartInfoItem>
           </>
         )}
