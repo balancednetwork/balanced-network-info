@@ -31,6 +31,8 @@ import {
   GridItemLight,
   GridItemSubtotal,
 } from '../../index';
+import QuestionHelper, { QuestionWrapper } from 'components/QuestionHelper';
+import { EnshrinementTooltipContent } from 'sections/EnshrinmentSection';
 
 export const IncomeGrid = styled.div`
   display: grid;
@@ -65,6 +67,7 @@ const SectionHeader = styled(Flex)`
 const EarningsSection = () => {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const [timePeriod, setTimePeriod] = useState<TimePeriod>(earningPeriods.day);
+  const [tooltipShow, setTooltipShow] = React.useState(false);
 
   const arrowRef = useRef(null);
 
@@ -474,7 +477,18 @@ const EarningsSection = () => {
           <SkeletonPlaceholder />
         )}
         <IncomeGrid>
-          <GridItemStrong>ICX burned</GridItemStrong>
+          <GridItemStrong>
+            Economic enshrinement
+            <ClickAwayListener onClickAway={() => setTooltipShow(false)}>
+              <QuestionWrapper
+                style={{ transform: 'translateY(1px)', paddingLeft: '5px' }}
+                onMouseEnter={() => setTooltipShow(true)}
+                onTouchStart={() => setTooltipShow(true)}
+              >
+                <QuestionHelper width={370} defaultShow={tooltipShow} text={<EnshrinementTooltipContent />} />
+              </QuestionWrapper>
+            </ClickAwayListener>
+          </GridItemStrong>
           <GridItemStrong>
             <DisplayValueOrLoader value={isCurrentPeriodLoading ? undefined : icxBurntTotalCurrent} currencyRate={1} />
           </GridItemStrong>
