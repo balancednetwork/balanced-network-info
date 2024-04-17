@@ -86,7 +86,7 @@ export function useSupportedCollateralTokens(): UseQueryResult<{ [key in string]
 
     const supportedTokens = {};
     Object.keys(data).forEach((symbol, index) => {
-      if (debtCeilings[index] > 0) {
+      if (debtCeilings[index] > 0 || symbol === 'BTCB') {
         supportedTokens[symbol] = data[symbol];
       }
     });

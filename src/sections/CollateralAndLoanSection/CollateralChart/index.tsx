@@ -241,7 +241,7 @@ export default function CollateralChart({
                   <LoaderComponent />
                 )}
               </Typography>
-              <Typography opacity={0.75}>{selectedCollateral} price</Typography>
+              <Typography color="text1">{selectedCollateral} price</Typography>
             </ChartInfoItem>
             <ChartInfoItem flex={1} flexDirection="column" alignItems="center">
               <Typography variant="p" fontSize="18px">
@@ -251,7 +251,7 @@ export default function CollateralChart({
                   <LoaderComponent />
                 )}
               </Typography>
-              <Typography opacity={0.75}>Suppliers</Typography>
+              <Typography color="text1">Suppliers</Typography>
             </ChartInfoItem>
           </>
         )}
