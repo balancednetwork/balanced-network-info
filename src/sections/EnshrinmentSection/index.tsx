@@ -10,6 +10,20 @@ import styled from 'styled-components';
 import ClickAwayListener from 'react-click-away-listener';
 import { useMedia } from 'react-use';
 
+export const EnshrinementTooltipContent = () => (
+  <>
+    <Typography mb={3}>
+      Balanced is economically enshrined by the ICON Network. ICON uses blockchain emissions to provide incentives and
+      network-owned liquidity, and in return, Balanced uses 50% of its revenue to buy and burn ICX.
+    </Typography>
+    <StyledUnderlineText>
+      <a href="https://blog.balanced.network/economic-enshrinement/" target="_blank" rel="noreferrer">
+        Learn more about the economic enshrinement.
+      </a>
+    </StyledUnderlineText>
+  </>
+);
+
 const StyledUnderlineText = styled(UnderlineText)`
   color: ${({ theme }) => theme.colors.primaryBright};
   a {
@@ -44,24 +58,7 @@ const EnshrinementSection = () => {
             onMouseEnter={() => setShow(true)}
             onTouchStart={() => setShow(true)}
           >
-            <QuestionHelper
-              width={370}
-              defaultShow={show}
-              text={
-                <>
-                  <Typography mb={3}>
-                    Balanced is economically enshrined by the ICON Network. ICON uses blockchain emissions to provide
-                    incentives and network-owned liquidity, and in return, Balanced uses 50% of its revenue to buy and
-                    burn ICX.
-                  </Typography>
-                  <StyledUnderlineText>
-                    <a href="https://blog.balanced.network/economic-enshrinement/" target="_blank" rel="noreferrer">
-                      Learn more about the economic enshrinement.
-                    </a>
-                  </StyledUnderlineText>
-                </>
-              }
-            />
+            <QuestionHelper width={370} defaultShow={show} text={<EnshrinementTooltipContent />} />
           </QuestionWrapper>
         </ClickAwayListener>
       </Flex>

@@ -31,6 +31,8 @@ import {
   GridItemLight,
   GridItemSubtotal,
 } from '../../index';
+import QuestionHelper, { QuestionWrapper } from 'components/QuestionHelper';
+import { EnshrinementTooltipContent } from 'sections/EnshrinmentSection';
 
 export const IncomeGrid = styled.div`
   display: grid;
@@ -65,6 +67,7 @@ const SectionHeader = styled(Flex)`
 const EarningsSection = () => {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const [timePeriod, setTimePeriod] = useState<TimePeriod>(earningPeriods.day);
+  const [tooltipShow, setTooltipShow] = React.useState(false);
 
   const arrowRef = useRef(null);
 
@@ -95,8 +98,8 @@ const EarningsSection = () => {
     getTimestampFrom(timePeriod.days),
     `earnings-past-period-${timePeriod.days}`,
   );
-  const { data: earningsCurrentPeriod } = earningsDataQueryCurrentPeriod;
-  const { data: earningsPastPeriod } = earningsDataQueryPastPeriod;
+  const { data: earningsCurrentPeriod, isLoading: isCurrentPeriodLoading } = earningsDataQueryCurrentPeriod;
+  const { data: earningsPastPeriod, isLoading: isPastPeriodLoading } = earningsDataQueryPastPeriod;
 
   const handleToggle = (e: React.MouseEvent<HTMLElement>) => {
     setAnchor(anchor ? null : arrowRef.current);
@@ -138,6 +141,9 @@ const EarningsSection = () => {
 
   let expensesTotalCurrent = earningsCurrentPeriod ? earningsCurrentPeriod.feesDistributed : new BigNumber(0);
   let expensesTotalPast = earningsPastPeriod ? earningsPastPeriod.feesDistributed : new BigNumber(0);
+
+  let icxBurntTotalCurrent = earningsCurrentPeriod ? earningsCurrentPeriod.icxBurned : new BigNumber(0);
+  let icxBurntTotalPast = earningsPastPeriod ? earningsPastPeriod.icxBurned : new BigNumber(0);
 
   return (
     <BoxPanel bg="bg2" mt={10} mb={10}>
@@ -354,146 +360,6 @@ const EarningsSection = () => {
           <SkeletonPlaceholder />
         )}
 
-        {/* <IncomeGrid>
-          <GridItemStrong>Liquidity rewards</GridItemStrong>
-          <GridItemStrong>
-            <DisplayValueOrLoader value={earningsCurrentPeriod?.income.liquidity.value} currencyRate={1} />
-          </GridItemStrong>
-          <GridItemStrong>
-            <DisplayValueOrLoader value={earningsPastPeriod?.income.liquidity.value} currencyRate={1} />
-          </GridItemStrong>
-        </IncomeGrid>
-
-        <IncomeGrid>
-          <GridItemLight>Balance Token</GridItemLight>
-          <GridItemLight>
-            {earningsCurrentPeriod ? (
-              <>
-                <DisplayValueOrLoader
-                  value={earningsCurrentPeriod.income.liquidity.amount || 0}
-                  currencyRate={1}
-                  format={'number'}
-                />
-                {` BALN`}
-              </>
-            ) : (
-              <StyledSkeleton animation="wave" width={100} />
-            )}
-          </GridItemLight>
-          <GridItemLight>
-            {earningsPastPeriod ? (
-              <>
-                <DisplayValueOrLoader
-                  value={earningsPastPeriod?.income.liquidity.amount || 0}
-                  currencyRate={1}
-                  format={'number'}
-                />
-                {` BALN`}
-              </>
-            ) : (
-              <StyledSkeleton animation="wave" width={100} />
-            )}
-          </GridItemLight>
-        </IncomeGrid>
-
-        <IncomeGrid>
-          <GridItemStrong>Network fee rewards</GridItemStrong>
-          <GridItemStrong>
-            <DisplayValueOrLoader value={networkFeesTotalCurrent} currencyRate={1} />
-          </GridItemStrong>
-          <GridItemStrong>
-            <DisplayValueOrLoader value={networkFeesTotalPast} currencyRate={1} />
-          </GridItemStrong>
-        </IncomeGrid> */}
-
-        {/* {earningsCurrentPeriod ? (
-          <>
-            <IncomeGrid>
-              <GridItemLight>Balanced Dollar</GridItemLight>
-              <GridItemLight>
-                <DisplayValueOrLoader
-                  value={
-                    earningsCurrentPeriod.income.fees[bnJs.bnUSD.address]
-                      ? earningsCurrentPeriod.income.fees[bnJs.bnUSD.address].amount
-                      : 0
-                  }
-                  currencyRate={1}
-                  format={'number'}
-                />
-                {` bnUSD`}
-              </GridItemLight>
-              <GridItemLight>
-                <DisplayValueOrLoader
-                  value={
-                    earningsPastPeriod?.income.fees[bnJs.bnUSD.address]
-                      ? earningsPastPeriod?.income.fees[bnJs.bnUSD.address].amount
-                      : 0
-                  }
-                  currencyRate={1}
-                  format={'number'}
-                />
-                {` bnUSD`}
-              </GridItemLight>
-            </IncomeGrid>
-            <IncomeGrid>
-              <GridItemLight>Balance Token</GridItemLight>
-              <GridItemLight>
-                <DisplayValueOrLoader
-                  value={
-                    earningsCurrentPeriod.income.fees[bnJs.BALN.address]
-                      ? earningsCurrentPeriod.income.fees[bnJs.BALN.address].amount
-                      : 0
-                  }
-                  currencyRate={1}
-                  format={'number'}
-                />
-                {` BALN`}
-              </GridItemLight>
-              <GridItemLight>
-                <DisplayValueOrLoader
-                  value={
-                    earningsPastPeriod?.income.fees[bnJs.BALN.address]
-                      ? earningsPastPeriod?.income.fees[bnJs.BALN.address].amount
-                      : 0
-                  }
-                  currencyRate={1}
-                  format={'number'}
-                />
-                {` BALN`}
-              </GridItemLight>
-            </IncomeGrid>
-            <IncomeGrid>
-              <GridItemLight>Staked ICX</GridItemLight>
-              <GridItemLight>
-                <DisplayValueOrLoader
-                  value={
-                    earningsCurrentPeriod.income.fees[bnJs.sICX.address]
-                      ? earningsCurrentPeriod.income.fees[bnJs.sICX.address].amount
-                      : 0
-                  }
-                  currencyRate={1}
-                  format={'number'}
-                />
-                {` sICX`}
-              </GridItemLight>
-              <GridItemLight>
-                <DisplayValueOrLoader
-                  value={
-                    earningsPastPeriod?.income.fees[bnJs.bnUSD.address]
-                      ? earningsPastPeriod?.income.fees[bnJs.bnUSD.address].amount
-                      : 0
-                  }
-                  currencyRate={1}
-                  format={'number'}
-                />
-                {` sICX`}
-              </GridItemLight>
-            </IncomeGrid>
-          </>
-        ) : (
-          <SkeletonPlaceholder />
-        )} */}
-
         <IncomeGrid>
           <GridItemSubtotal>Subtotal</GridItemSubtotal>
           <GridItemSubtotal>
@@ -531,7 +397,7 @@ const EarningsSection = () => {
         </IncomeGrid>
 
         <IncomeGrid>
-          <GridItemHeader>Expenses</GridItemHeader>
+          <GridItemHeader>Distributions</GridItemHeader>
           <GridItemHeader></GridItemHeader>
           <GridItemHeader></GridItemHeader>
 
@@ -610,6 +476,89 @@ const EarningsSection = () => {
         ) : (
           <SkeletonPlaceholder />
         )}
+        <IncomeGrid>
+          <GridItemStrong>
+            Economic enshrinement
+            <ClickAwayListener onClickAway={() => setTooltipShow(false)}>
+              <QuestionWrapper
+                style={{ transform: 'translateY(1px)', paddingLeft: '5px' }}
+                onMouseEnter={() => setTooltipShow(true)}
+                onTouchStart={() => setTooltipShow(true)}
+              >
+                <QuestionHelper width={370} defaultShow={tooltipShow} text={<EnshrinementTooltipContent />} />
+              </QuestionWrapper>
+            </ClickAwayListener>
+          </GridItemStrong>
+          <GridItemStrong>
+            <DisplayValueOrLoader value={isCurrentPeriodLoading ? undefined : icxBurntTotalCurrent} currencyRate={1} />
+          </GridItemStrong>
+          <GridItemStrong>
+            <DisplayValueOrLoader value={isPastPeriodLoading ? undefined : icxBurntTotalPast} currencyRate={1} />
+          </GridItemStrong>
+        </IncomeGrid>
+        {earningsCurrentPeriod ? (
+          <>
+            <IncomeGrid>
+              <GridItemLight>Balanced Dollar</GridItemLight>
+              <GridItemLight>
+                <DisplayValueOrLoader
+                  value={earningsCurrentPeriod.icxBurnFund['bnUSD'].amount}
+                  currencyRate={1}
+                  format={'number'}
+                />
+                {` bnUSD`}
+              </GridItemLight>
+              <GridItemLight>
+                <DisplayValueOrLoader
+                  value={earningsPastPeriod?.icxBurnFund['bnUSD'].amount}
+                  currencyRate={1}
+                  format={'number'}
+                />
+                {earningsPastPeriod?.icxBurnFund['bnUSD'].amount && ` bnUSD`}
+              </GridItemLight>
+            </IncomeGrid>
+            <IncomeGrid>
+              <GridItemLight>Balance Token</GridItemLight>
+              <GridItemLight>
+                <DisplayValueOrLoader
+                  value={earningsCurrentPeriod.icxBurnFund['BALN'].amount}
+                  currencyRate={1}
+                  format={'number'}
+                />
+                {` BALN`}
+              </GridItemLight>
+              <GridItemLight>
+                <DisplayValueOrLoader
+                  value={earningsPastPeriod?.icxBurnFund['BALN'].amount}
+                  currencyRate={1}
+                  format={'number'}
+                />
+                {earningsPastPeriod?.icxBurnFund['BALN'].amount && ` BALN`}
+              </GridItemLight>
+            </IncomeGrid>
+            <IncomeGrid>
+              <GridItemLight>Staked ICX</GridItemLight>
+              <GridItemLight>
+                <DisplayValueOrLoader
+                  value={earningsCurrentPeriod.icxBurnFund['sICX'].amount}
+                  currencyRate={1}
+                  format={'number'}
+                />
+                {` sICX`}
+              </GridItemLight>
+              <GridItemLight>
+                <DisplayValueOrLoader
+                  value={earningsPastPeriod?.icxBurnFund['sICX'].amount}
+                  currencyRate={1}
+                  format={'number'}
+                />
+                {earningsPastPeriod?.icxBurnFund['sICX'].amount && ` sICX`}
+              </GridItemLight>
+            </IncomeGrid>
+          </>
+        ) : (
+          <SkeletonPlaceholder />
+        )}
 
         <IncomeGrid>
           <GridItemTotal>Total</GridItemTotal>
@@ -619,9 +568,7 @@ const EarningsSection = () => {
                 value={earningsCurrentPeriod.income.loans
                   .plus(swapFeesTotalCurrent)
                   .plus(earningsCurrentPeriod.income.fund)
-                  // .plus(networkFeesTotalCurrent)
-                  // .plus(earningsCurrentPeriod.income.liquidity.value)
-                  .minus(expensesTotalCurrent)}
+                  .minus(expensesTotalCurrent.plus(icxBurntTotalCurrent))}
                 currencyRate={1}
               />
             ) : (
@@ -634,9 +581,7 @@ const EarningsSection = () => {
                 value={earningsPastPeriod.income.loans
                   .plus(swapFeesTotalPast)
                   .plus(earningsPastPeriod.income.fund)
-                  // .plus(networkFeesTotalPast)
-                  // .plus(earningsPastPeriod.income.liquidity.value)
-                  .minus(expensesTotalPast)}
+                  .minus(expensesTotalPast.plus(icxBurntTotalPast))}
                 currencyRate={1}
               />
             ) : (
