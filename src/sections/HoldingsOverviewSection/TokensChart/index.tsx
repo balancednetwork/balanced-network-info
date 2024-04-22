@@ -49,7 +49,7 @@ export const CustomLabel = props => {
         textAnchor={textAnchor}
         fill="#FFF"
         fontSize={16}
-      >{`${payload.name.replace('/', ' / ')}`}</text>
+      >{`${payload.name?.replace('/', ' / ')}`}</text>
       <text
         x={ex + (cos >= 0 ? 1 : -1) * 12}
         y={ey + 10}
@@ -69,7 +69,7 @@ export const CustomTooltip = ({ active, payload }) => {
     return (
       <StyledTooltipContainer>
         <Flex mb="-5px" flexWrap="wrap">
-          <LegendItem legendColor={payload[0].payload.fill}>{`${payload[0].payload.name.replace(
+          <LegendItem legendColor={payload[0].payload.fill}>{`${payload[0].payload.name?.replace(
             '/',
             ' / ',
           )}`}</LegendItem>
