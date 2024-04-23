@@ -200,12 +200,12 @@ export const FIN_SEJONG = new Token(
   'Fin Token',
 );
 
-export const archUSDC = new Token(
+export const USDC = new Token(
   SupportedChainId.MAINNET,
   'cx22319ac7f412f53eabe3c9827acf5e27e9c6a95f',
   6,
-  'archUSDC',
-  'Archway USDC',
+  'USDC',
+  'USDC',
 );
 
 export const hyTB = new Token(
@@ -248,7 +248,7 @@ export const SUPPORTED_TOKENS: { [chainId: number]: Token[] } = {
     GBET,
     FIN,
     BUSD,
-    archUSDC,
+    USDC,
     hyTB,
     BTCB,
     ETH,
