@@ -229,7 +229,7 @@ export const ETH = new Token(
   'cx288d13e1b63563459a2ac6179f237711f6851cb5',
   18,
   'ETH',
-  'Binance ETH',
+  'Ethereum',
 );
 
 // todo: calculate supported tokens from supported tokens info
