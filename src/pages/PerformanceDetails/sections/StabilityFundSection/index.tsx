@@ -18,6 +18,8 @@ import { StyledSkeleton } from '../EarningSection';
 import { Change, DatePickerInput } from '../HoldingsSection';
 
 import 'react-datepicker/dist/react-datepicker.css';
+import { useAssetManagerTokens } from 'queries/assetManager';
+import AssetManagerTokenBreakdown from 'components/AssetManagerTokenBreakdown';
 
 const BalanceGrid = styled.div`
   display: grid;
@@ -81,6 +83,7 @@ const GridItemHeader = styled(GridItem)`
 const StabilityFundSection = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() - 1)));
   const { data: fundLimits } = useFundLimits();
+  const { data: assetManagerTokensBreakdown } = useAssetManagerTokens();
 
   let totalCurrent = 0;
   let totalPast = 0;
@@ -138,6 +141,7 @@ const StabilityFundSection = () => {
         {holdingsCurrent &&
           Object.keys(holdingsCurrent).map(contract => {
             const token = holdingsCurrent[contract].currency.wrapped;
+            const tokenBreakdown = assetManagerTokensBreakdown && assetManagerTokensBreakdown[contract];
             const fundLimit = fundLimits && fundLimits[token.address];
             const curAmount = new BigNumber(holdingsCurrent[contract].toFixed());
             const prevAmount =
@@ -166,7 +170,12 @@ const StabilityFundSection = () => {
                   <Flex alignItems="center">
                     <CurrencyLogo currency={token as Currency} size="40px" />
                     <Box ml={2}>
-                      <Text color="text">{token.name}</Text>
+                      <Flex>
+                        <Text color="text">{token.name}</Text>
+                        {tokenBreakdown && tokenBreakdown.length > 1 && (
+                          <AssetManagerTokenBreakdown breakdown={tokenBreakdown} spacing={{ x: 5, y: 0 }} />
+                        )}
+                      </Flex>
                       <Text color="text" opacity={0.75}>
                         {token.symbol}
                       </Text>

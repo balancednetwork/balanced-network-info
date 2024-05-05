@@ -18,6 +18,8 @@ import useTimestampRounded from 'hooks/useTimestampRounded';
 import { LoaderComponent } from 'pages/PerformanceDetails/utils';
 import { Typography } from 'theme';
 import { formatPriceChange, getFormattedNumber } from 'utils/formatter';
+import { useAssetManagerTokens } from 'queries/assetManager';
+import AssetManagerTokenBreakdown from 'components/AssetManagerTokenBreakdown';
 
 export const COMPACT_ITEM_COUNT = 8;
 
@@ -208,6 +210,8 @@ const TokenItem = ({ token, isLast }: TokenItemProps) => {
   const start = Math.floor(tsStart / 1000);
   const end = Math.floor(tsEnd / 1000);
   const { data: trendData } = useTokenTrendData(token.symbol, start, end);
+  const { data: assetManagerTokensBreakdown } = useAssetManagerTokens();
+  const tokenBreakdown = assetManagerTokensBreakdown && assetManagerTokensBreakdown[token.address];
 
   return (
     <>
@@ -218,7 +222,12 @@ const TokenItem = ({ token, isLast }: TokenItemProps) => {
               <CurrencyLogoFromURI address={token.address} size="40px" />
             </Box>
             <Box ml={2} sx={{ minWidth: '160px' }}>
-              <Text>{token.name.replace(' TOKEN', ' Token')}</Text>
+              <Flex>
+                <Text>{token.name.replace(' TOKEN', ' Token')}</Text>
+                {tokenBreakdown && tokenBreakdown.length > 1 && (
+                  <AssetManagerTokenBreakdown breakdown={tokenBreakdown} spacing={{ x: 5, y: 0 }} />
+                )}
+              </Flex>
               <Text color="text1">{token.symbol}</Text>
             </Box>
           </Flex>
