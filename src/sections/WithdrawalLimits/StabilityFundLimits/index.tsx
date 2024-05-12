@@ -9,6 +9,8 @@ import { Typography } from 'theme';
 import { getFormattedNumber } from 'utils/formatter';
 import { DashGrid, DataText, MinWidthContainer } from '../CollateralLimits';
 import { Token } from '@balancednetwork/sdk-core';
+import { useAssetManagerTokens } from 'queries/assetManager';
+import AssetManagerTokenBreakdown from 'components/AssetManagerTokenBreakdown';
 
 export const SkeletonTokenPlaceholder = () => {
   return (
@@ -51,6 +53,7 @@ export const SkeletonTokenPlaceholder = () => {
 
 const StabilityFundLimits = () => {
   const { data: withdrawalsFloorData } = useWithdrawalsFloorStabilityFundData();
+  const { data: assetManagerTokensBreakdown } = useAssetManagerTokens();
 
   return (
     <Box overflow="auto">
@@ -67,6 +70,7 @@ const StabilityFundLimits = () => {
               const isLast = index === withdrawalsFloorData.assetFloorData.length - 1;
               const dp = HIGH_PRICE_ASSET_DP[asset.token.address] || 0;
               const availableRatio = asset.current.minus(asset.floor).div(asset.current);
+              const tokenBreakdown = assetManagerTokensBreakdown && assetManagerTokensBreakdown[asset.token.address];
 
               return (
                 <Fragment key={index}>
@@ -80,7 +84,12 @@ const StabilityFundLimits = () => {
                           />
                         </Box>
                         <Box ml={2} sx={{ minWidth: '160px' }}>
-                          <Typography fontSize={16}>{asset.token.name.replace(' TOKEN', ' Token')}</Typography>
+                          <Flex>
+                            <Typography fontSize={16}>{asset.token.name.replace(' TOKEN', ' Token')}</Typography>
+                            {tokenBreakdown && tokenBreakdown.length > 1 && (
+                              <AssetManagerTokenBreakdown breakdown={tokenBreakdown} spacing={{ x: 5, y: 0 }} />
+                            )}
+                          </Flex>
                           <Typography color="text1" fontSize={16}>
                             {asset.token.symbol}
                           </Typography>

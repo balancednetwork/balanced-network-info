@@ -232,6 +232,22 @@ export const ETH = new Token(
   'Ethereum',
 );
 
+export const BNB = new Token(SupportedChainId.MAINNET, 'cx2d552c485ec8bcaa75aac02424e2aca6ffdb2f1b', 18, 'BNB', 'BNB');
+export const AVAX = new Token(
+  SupportedChainId.MAINNET,
+  'cx66a031cc3bd305c76371fb586e93801b948254f0',
+  18,
+  'AVAX',
+  'Avalanche',
+);
+export const INJ = new Token(
+  SupportedChainId.MAINNET,
+  'cx4297f4b63262507623b6ad575d0d8dd2db980e4e',
+  18,
+  'INJ',
+  'Injective',
+);
+
 // todo: calculate supported tokens from supported tokens info
 export const SUPPORTED_TOKENS: { [chainId: number]: Token[] } = {
   [SupportedChainId.MAINNET]: [
@@ -252,6 +268,9 @@ export const SUPPORTED_TOKENS: { [chainId: number]: Token[] } = {
     hyTB,
     BTCB,
     ETH,
+    BNB,
+    INJ,
+    AVAX,
   ],
   [SupportedChainId.YEOUIDO]: [
     ICX_YEOUIDO,
