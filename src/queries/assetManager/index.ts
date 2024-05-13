@@ -47,7 +47,7 @@ export function useAssetManagerTokens(): UseQueryResult<AssetManagerTokenBreakdo
 
     if (!tokens) return;
 
-    const tokensBreakdown = Promise.all(
+    const tokensBreakdown = await Promise.all(
       Object.entries(tokens).map(async ([tokenAddress, networks]) => {
         const token = SUPPORTED_TOKENS_MAP_BY_ADDRESS[tokenAddress];
 
@@ -68,7 +68,10 @@ export function useAssetManagerTokens(): UseQueryResult<AssetManagerTokenBreakdo
             return data;
           }),
         );
-        return [tokenAddress, tokenData.sort((a, b) => (a.tokenAmount.subtract(b.tokenAmount) ? 1 : -1))];
+        return [
+          tokenAddress,
+          tokenData.sort((a, b) => (a.tokenAmount.subtract(b.tokenAmount).greaterThan(0) ? -1 : 1)),
+        ];
       }),
     ).then(data => Object.fromEntries(data));
 
