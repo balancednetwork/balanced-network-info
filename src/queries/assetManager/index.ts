@@ -9,6 +9,8 @@ const networkAddressToName = {
   '0x38.bsc': 'BNB Chain',
   'injective-1': 'Injective',
   'archway-1': 'Archway',
+  '0xa4b1.arbitrum': 'Arbitrum',
+  '0x2105.base': 'Base',
 };
 
 export const getNetworkName = (networkAddress: string) => {
@@ -45,7 +47,7 @@ export function useAssetManagerTokens(): UseQueryResult<AssetManagerTokenBreakdo
 
     if (!tokens) return;
 
-    const tokensBreakdown = Promise.all(
+    const tokensBreakdown = await Promise.all(
       Object.entries(tokens).map(async ([tokenAddress, networks]) => {
         const token = SUPPORTED_TOKENS_MAP_BY_ADDRESS[tokenAddress];
 
@@ -66,7 +68,10 @@ export function useAssetManagerTokens(): UseQueryResult<AssetManagerTokenBreakdo
             return data;
           }),
         );
-        return [tokenAddress, tokenData];
+        return [
+          tokenAddress,
+          tokenData.sort((a, b) => (a.tokenAmount.subtract(b.tokenAmount).greaterThan(0) ? -1 : 1)),
+        ];
       }),
     ).then(data => Object.fromEntries(data));
 
