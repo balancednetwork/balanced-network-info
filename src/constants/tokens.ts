@@ -248,6 +248,14 @@ export const INJ = new Token(
   'Injective',
 );
 
+export const BTC = new Token(
+  SupportedChainId.MAINNET,
+  'cx07b184a37f03c6ab681fcbd0b45aec6dc3eafbeb',
+  18,
+  'BTC',
+  'Bitcoin',
+);
+
 // todo: calculate supported tokens from supported tokens info
 export const SUPPORTED_TOKENS: { [chainId: number]: Token[] } = {
   [SupportedChainId.MAINNET]: [
@@ -271,6 +279,7 @@ export const SUPPORTED_TOKENS: { [chainId: number]: Token[] } = {
     BNB,
     INJ,
     AVAX,
+    BTC,
   ],
   [SupportedChainId.YEOUIDO]: [
     ICX_YEOUIDO,
