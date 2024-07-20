@@ -226,7 +226,7 @@ const CollateralTypeList = ({ width, setAnchor, anchor, setCollateral, ...rest }
                       ${getFormattedNumber(item.tvl, 'number')}
                     </Typography>
                     <Typography opacity={0.75} className="grey">
-                      {getFormattedNumber(item.amount, item.amount > 100 ? 'number' : 'number4')} {item.symbol}
+                      {getFormattedNumber(item.amount, item.amount > 100 ? 'number' : 'number2')} {item.symbol}
                     </Typography>
                   </Flex>
                 </CollateralTypesGridItem>
