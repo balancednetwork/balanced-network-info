@@ -256,6 +256,14 @@ export const BTC = new Token(
   'Bitcoin',
 );
 
+export const HVH = new Token(
+  SupportedChainId.MAINNET,
+  'cxe2da9f10bc6e2754347bde2ef73379bd398fd9f3',
+  18,
+  'HVH',
+  'HAVAH',
+);
+
 // todo: calculate supported tokens from supported tokens info
 export const SUPPORTED_TOKENS: { [chainId: number]: Token[] } = {
   [SupportedChainId.MAINNET]: [
@@ -280,6 +288,7 @@ export const SUPPORTED_TOKENS: { [chainId: number]: Token[] } = {
     INJ,
     AVAX,
     BTC,
+    HVH,
   ],
   [SupportedChainId.YEOUIDO]: [
     ICX_YEOUIDO,
