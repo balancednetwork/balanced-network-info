@@ -256,6 +256,14 @@ export const BTC = new Token(
   'Bitcoin',
 );
 
+export const HVH = new Token(
+  SupportedChainId.MAINNET,
+  'cxe2da9f10bc6e2754347bde2ef73379bd398fd9f3',
+  18,
+  'HVH',
+  'HAVAH',
+);
+
 // todo: calculate supported tokens from supported tokens info
 export const SUPPORTED_TOKENS: { [chainId: number]: Token[] } = {
   [SupportedChainId.MAINNET]: [
@@ -280,6 +288,7 @@ export const SUPPORTED_TOKENS: { [chainId: number]: Token[] } = {
     INJ,
     AVAX,
     BTC,
+    HVH,
   ],
   [SupportedChainId.YEOUIDO]: [
     ICX_YEOUIDO,
@@ -451,9 +460,9 @@ export const SUPPORTED_TOKENS_INFO: TokenInfo[] = [
 */
 
 export const HIGH_PRICE_ASSET_DP: { [key in string]: number } = {
-  cx5b5a03cb525a1845d0af3a872d525b18a810acb0: 6,
+  cx07b184a37f03c6ab681fcbd0b45aec6dc3eafbeb: 6,
   cx99c79fd6dee53335f686c7f2cb513745622634f2: 5,
   cx288d13e1b63563459a2ac6179f237711f6851cb5: 5,
 };
 
-export const TOKEN_BLACKLIST = [IUSDC, USDS, BUSD];
+export const TOKEN_BLACKLIST = [IUSDC, USDS, BUSD, BTCB];

@@ -6,7 +6,15 @@ import { TimeSeries } from 'types/data';
 
 const DEFAULT_CURRENCY_DECIMALS = 2;
 
-export type NumberStyle = 'percent0' | 'percent2' | 'number' | 'number4' | 'currency0' | 'currency2' | 'price';
+export type NumberStyle =
+  | 'percent0'
+  | 'percent2'
+  | 'number'
+  | 'number2'
+  | 'number4'
+  | 'currency0'
+  | 'currency2'
+  | 'price';
 
 export const toBigNumber = (value: number | string): BigNumber => new BigNumber(value);
 
@@ -70,6 +78,8 @@ export const getFormattedNumber = (num: number | null, numFormat: NumberStyle) =
     formattedNum = formatCurrency(num, 2);
   } else if (numFormat === 'number') {
     formattedNum = formatNumber(num);
+  } else if (numFormat === 'number2') {
+    formattedNum = formatNumber(num, 2);
   } else if (numFormat === 'number4') {
     formattedNum = formatNumber(num, 4);
   } else if (numFormat === 'percent2') {

@@ -1030,8 +1030,8 @@ export function useWithdrawalsFloorCollateralData(): UseQueryResult<WithdrawalsF
           .map((item, index) => {
             const token = allTokens[collateralAddresses[index]];
             return {
-              floor: new BigNumber(item).div(10 ** token.decimals),
-              current: new BigNumber(currentData[index]).div(10 ** token.decimals),
+              floor: new BigNumber(item).div(10 ** token?.decimals),
+              current: new BigNumber(currentData[index]).div(10 ** token?.decimals),
               token,
             };
           })
@@ -1102,8 +1102,8 @@ export function useWithdrawalsFloorDEXData(): UseQueryResult<WithdrawalsFloorDat
           .map((item, index) => {
             const token = allTokens[tokens[index]];
             return {
-              floor: new BigNumber(item).div(10 ** token.decimals),
-              current: new BigNumber(currentData[index]).div(10 ** token.decimals),
+              floor: new BigNumber(item).div(10 ** token?.decimals),
+              current: new BigNumber(currentData[index]).div(10 ** token?.decimals),
               token,
             };
           })

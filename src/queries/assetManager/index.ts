@@ -11,6 +11,7 @@ const networkAddressToName = {
   'archway-1': 'Archway',
   '0xa4b1.arbitrum': 'Arbitrum',
   '0x2105.base': 'Base',
+  '0xa.optimism': 'Optimism',
 };
 
 export const getNetworkName = (networkAddress: string) => {

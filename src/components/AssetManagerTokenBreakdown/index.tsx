@@ -1,7 +1,7 @@
 import QuestionHelper, { QuestionWrapper } from 'components/QuestionHelper';
 import { HIGH_PRICE_ASSET_DP } from 'constants/tokens';
 import { AssetManagerToken } from 'queries/assetManager';
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Box } from 'rebass';
 import styled from 'styled-components';
 
@@ -32,14 +32,14 @@ const AssetManagerTokenBreakdown = ({
       <QuestionHelper
         text={
           <Grid>
-            {breakdown.map(assetManagerToken => (
-              <>
+            {breakdown.map((assetManagerToken, i) => (
+              <Fragment key={i}>
                 <NetworkName>{assetManagerToken.networkName}:</NetworkName>
                 <Amount>{`${assetManagerToken.tokenAmount.toFixed(
                   HIGH_PRICE_ASSET_DP[assetManagerToken.tokenAmount.currency.address] || 0,
                   { groupFormatting: ',' },
                 )} ${assetManagerToken.tokenAmount.currency.symbol}`}</Amount>
-              </>
+              </Fragment>
             ))}
           </Grid>
         }
