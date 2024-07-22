@@ -7,7 +7,6 @@ import styled from 'styled-components';
 import ICONLogo from 'assets/images/icon-logo.png';
 
 import Logo from '../Logo1';
-import axios from 'axios';
 
 export const getTokenLogoURL = (address: string): string | void => {
   return `https://raw.githubusercontent.com/balancednetwork/assets/master/blockchains/icon/assets/${address}/logo.png`;
