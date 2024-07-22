@@ -208,6 +208,14 @@ export const USDC = new Token(
   'USDC',
 );
 
+export const USDT = new Token(
+  SupportedChainId.MAINNET,
+  'cx16f3cb9f09f5cdd902cf07aa752c8b3bd1bc9609',
+  6,
+  'USDT',
+  'Tether USD',
+);
+
 export const hyTB = new Token(
   SupportedChainId.MAINNET,
   'cxf0a30d09ade391d7b570908b9b46cfa5b3cbc8f8',
@@ -289,6 +297,7 @@ export const SUPPORTED_TOKENS: { [chainId: number]: Token[] } = {
     AVAX,
     BTC,
     HVH,
+    USDT,
   ],
   [SupportedChainId.YEOUIDO]: [
     ICX_YEOUIDO,
