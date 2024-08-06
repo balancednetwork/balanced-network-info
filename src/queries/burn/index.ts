@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js';
 import bnJs from 'bnJs';
 import { getTimestampFrom } from 'pages/PerformanceDetails/utils';
 import { API_ENDPOINT, BlockDetails, useBlockDetails } from 'queries/blockDetails';
-import { UseQueryResult, useQuery } from 'react-query';
+import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
 const BURNER_CX_CREATED = 1708324683000;
 
@@ -33,7 +33,7 @@ function generateWeeklyTimestamps(startTimestamp: number): [number, number][] {
 
 function useBurnChartData(): UseQueryResult<BurnChartItem[] | undefined> {
   return useQuery(
-    'burnChartData',
+    ['burnChartData'],
     async () => {
       const weeklyTimestamps = generateWeeklyTimestamps(BURNER_CX_CREATED);
 
@@ -89,7 +89,7 @@ export function useBurnData(): UseQueryResult<{
   const blockHeight = blockDetails?.number;
 
   return useQuery(
-    `burnData-${chartData ? chartData.length : 0}`,
+    [`burnData`, chartData ? chartData.length : 0],
     async () => {
       if (!blockHeight) return;
 

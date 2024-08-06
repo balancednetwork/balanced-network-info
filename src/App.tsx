@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Switch, Route, BrowserRouter } from 'react-router-dom';
 
 import ThemeProvider, { FixedGlobalStyle, ThemedGlobalStyle } from 'theme';

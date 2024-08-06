@@ -1,7 +1,7 @@
 import { addresses, BalancedJs, CallData } from '@balancednetwork/balanced-js';
 import { CurrencyAmount, Token, Fraction } from '@balancednetwork/sdk-core';
 import BigNumber from 'bignumber.js';
-import { useQuery, UseQueryResult } from 'react-query';
+import { useQuery, UseQueryResult } from '@tanstack/react-query';
 
 import bnJs from 'bnJs';
 import { SUPPORTED_PAIRS } from 'constants/pairs';
@@ -99,7 +99,7 @@ export const useEarningsDataQuery = (
       }
     | undefined
   >(
-    `${cacheItem}${blockStart && blockStart.number}${blockEnd && blockEnd.number}${rates && Object.keys(rates).length}`,
+    [`${cacheItem}${blockStart && blockStart.number}${blockEnd && blockEnd.number}${rates && Object.keys(rates).length}`],
     async () => {
       async function getEarnings(
         blockStart: number,
@@ -466,7 +466,7 @@ export const useStatsTVL = () => {
 };
 
 export const usePlatformDayQuery = () => {
-  return useQuery<number>(QUERY_KEYS.PlatformDay, async () => {
+  return useQuery<number>([QUERY_KEYS.PlatformDay], async () => {
     const res = await bnJs.Governance.getDay();
     return parseInt(res, 16);
   });
@@ -534,7 +534,7 @@ export const useGovernanceInfo = () => {
   const { data: platformDay } = usePlatformDayQuery();
   const proposalSampleSize = 20;
 
-  return useQuery(`governanceOverview-${platformDay ? platformDay : 0}`, async () => {
+  return useQuery([`governanceOverview-${platformDay ? platformDay : 0}`], async () => {
     if (platformDay) {
       const eligibleVotersRaw = await bnJs.BBALN.activeUsersCount();
       const eligibleVoters = parseInt(eligibleVotersRaw);
@@ -577,7 +577,7 @@ export const useGovernanceInfo = () => {
 };
 
 export function useLatestProposals() {
-  return useQuery(`latestProposals`, async () => {
+  return useQuery([`latestProposals`], async () => {
     const totalProposalsRaw = await bnJs.Governance.getTotalProposal();
     const totalProposals = parseInt(totalProposalsRaw);
     const latestProposals = await bnJs.Governance.getProposals(totalProposals - 9, 10);
@@ -589,7 +589,7 @@ export function useLatestProposals() {
 }
 
 export function useRewardsPercentDistribution(): UseQueryResult<RewardDistribution, Error> {
-  return useQuery('rewardDistribution', async () => {
+  return useQuery(['rewardDistribution'], async () => {
     const data: RewardDistributionRaw = await bnJs.Rewards.getDistributionPercentages();
 
     return {
@@ -698,7 +698,7 @@ export const useCollateralInfo = () => {
   const { data: collateralData, isSuccess: collateralDataQuerySuccess } = useAllCollateralData();
 
   return useQuery(
-    `collateralInfoAt${now}`,
+    [`collateralInfoAt${now}`],
     async () => {
       if (collateralData) {
         const IISSInfo = await bnJs.IISS.getIISSInfo();
@@ -763,7 +763,7 @@ export const useLoanInfo = () => {
 };
 
 export const useAllPairsParticipantQuery = () => {
-  return useQuery<{ [key: string]: number }>('useAllPairsParticipantQuery', async () => {
+  return useQuery<{ [key: string]: number }>(['useAllPairsParticipantQuery'], async () => {
     const res: Array<string> = await Promise.all(SUPPORTED_PAIRS.map(pair => bnJs.Dex.totalDexAddresses(pair.id)));
 
     const t = {};
@@ -776,7 +776,7 @@ export const useAllPairsParticipantQuery = () => {
 };
 
 export const useWhitelistedTokensList = () => {
-  return useQuery<string[]>('whitelistedTokens', async () => {
+  return useQuery<string[]>(['whitelistedTokens'], async () => {
     return await bnJs.StabilityFund.getAcceptedTokens();
   });
 };
@@ -786,7 +786,7 @@ export function useFundLimits(): UseQueryResult<{ [key: string]: CurrencyAmount<
   const whitelistedTokenAddresses = whitelistedTokenAddressesQuery.data ?? [];
 
   return useQuery<{ [key: string]: CurrencyAmount<Token> }>(
-    `useFundLimitsQuery${whitelistedTokenAddresses.length}`,
+    [`useFundLimitsQuery`, whitelistedTokenAddresses.length],
     async () => {
       const cds: CallData[] = whitelistedTokenAddresses.map(address => {
         return {
@@ -818,7 +818,7 @@ export function useFundInfo() {
   );
 
   return useQuery(
-    'fundInfo',
+    ['fundInfo'],
     async () => {
       const feeIn = await bnJs.StabilityFund.getFeeIn();
       const feeOut = await bnJs.StabilityFund.getFeeOut();
@@ -865,7 +865,7 @@ export function useDaoBBALNData(): UseQueryResult<DaoBBALNData, Error> {
   const { data: allPairs, isSuccess: allPairsQuerySuccess } = useAllPairsIncentivisedByName();
 
   return useQuery(
-    `daoBBALNData${now}`,
+    [`daoBBALNData${now}`],
     async () => {
       let daoBBALNData = {};
 
@@ -940,7 +940,7 @@ export function useBorrowersInfo() {
   const { data: collateralTokens, isSuccess: collateralTokensSuccess } = useSupportedCollateralTokens();
 
   return useQuery<{ [key in string]: number }, Error>(
-    `borrowersInfo`,
+    [`borrowersInfo`],
     async () => {
       if (collateralTokens) {
         const collateralSymbols = Object.keys(collateralTokens);
@@ -985,7 +985,7 @@ export function useWithdrawalsFloorCollateralData(): UseQueryResult<WithdrawalsF
   const { data: allTokens, isSuccess: tokensSuccess } = useAllTokensByAddress();
 
   return useQuery(
-    `withdrawalsFloorData-${collateralTokens && Object.keys(collateralTokens).length}-tokens`,
+    [`withdrawalsFloorData-${collateralTokens && Object.keys(collateralTokens).length}-tokens`],
     async () => {
       if (collateralTokens && allTokens) {
         const collateralAddresses = Object.values(collateralTokens);
@@ -1057,7 +1057,7 @@ export function useWithdrawalsFloorDEXData(): UseQueryResult<WithdrawalsFloorDat
   const { data: allTokens, isSuccess: tokensSuccess } = useAllTokensByAddress();
 
   return useQuery(
-    `withdrawalsFloorDEXData-${tokensSuccess ? 'tokens' : ''}`,
+    [`withdrawalsFloorDEXData-${tokensSuccess ? 'tokens' : ''}`],
     async () => {
       const tokens = [bnJs.BALN.address, bnJs.sICX.address, bnJs.bnUSD.address];
 
@@ -1128,7 +1128,7 @@ export function useWithdrawalsFloorStabilityFundData(): UseQueryResult<Withdrawa
   const { data: supportedTokens, isSuccess: supportedTokensSuccess } = useWhitelistedTokensList();
 
   return useQuery(
-    `withdrawalsFloorData-${supportedTokens && Object.keys(supportedTokens).length}`,
+    [`withdrawalsFloorData-${supportedTokens && Object.keys(supportedTokens).length}`],
     async () => {
       if (supportedTokens) {
         const { data: allTokens } = await axios.get(`${API_ENDPOINT}tokens`);

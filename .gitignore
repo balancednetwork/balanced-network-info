@@ -24,3 +24,6 @@ generated-cra-app
 template
 .env
 .eslintcache
+
+# yarn files
+.yarn/*

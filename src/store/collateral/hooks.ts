@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js';
 import { useFundLimits, useWhitelistedTokensList } from 'queries';
 import { useTokenPrices } from 'queries/backendv2';
 import { useStabilityFundHoldings } from 'queries/blockDetails';
-import { useQuery, UseQueryResult } from 'react-query';
+import { useQuery, UseQueryResult } from '@tanstack/react-query';
 
 import bnJs from 'bnJs';
 import { NETWORK_ID } from 'constants/config';
@@ -24,7 +24,7 @@ export function useTokensCollateralData(): UseQueryResult<CollateralData[]> {
   const { data: tokenPrices, isSuccess: tokenPricesQuerySuccess } = useTokenPrices();
 
   return useQuery(
-    `collateralData${tvls ? tvls.length : ''}`,
+  [`collateralData${tvls ? tvls.length : ''}`],
     async () => {
       const data = await (tvls &&
         supportedTokens &&
@@ -59,7 +59,7 @@ export function useTokensCollateralTVLs() {
     params: [addresses[NETWORK_ID].loans],
   }));
 
-  return useQuery(`collateralAmounts${tokens.length}`, async () => {
+  return useQuery([`collateralAmounts${tokens.length}`], async () => {
     const amounts = await bnJs.Multicall.getAggregateData(cds);
 
     return tokens.length
@@ -72,7 +72,7 @@ export function useTokensCollateralTVLs() {
 }
 
 export function useSupportedCollateralTokens(): UseQueryResult<{ [key in string]: string }> {
-  return useQuery('getCollateralTokens', async () => {
+  return useQuery(['getCollateralTokens'], async () => {
     const data = await bnJs.Loans.getCollateralTokens();
 
     const cds: CallData[] = Object.keys(data).map(symbol => ({

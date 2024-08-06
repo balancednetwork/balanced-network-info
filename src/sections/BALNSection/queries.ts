@@ -1,7 +1,7 @@
 import { Fraction } from '@balancednetwork/sdk-core';
 import BigNumber from 'bignumber.js';
 import { useFlattenedRewardsDistribution } from 'queries';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 
 import bnJs from 'bnJs';
 
@@ -11,7 +11,7 @@ export function useBALNDistributionQuery() {
   const { data: distribution, isSuccess: distributionQuerySuccess } = useFlattenedRewardsDistribution();
 
   return useQuery(
-    `BALNDistribution-${distribution ? Object.keys(distribution).length : '0'}`,
+    [`BALNDistribution`, distribution],
     () => {
       if (!distribution) return [];
 
@@ -58,7 +58,7 @@ export function useBALNDistributionQuery() {
 
 export function useEmissions() {
   return useQuery(
-    'getEmissions',
+    ['getEmissions'],
     async () => {
       const data = await bnJs.Rewards.getEmission();
       return new BigNumber(data).div(10 ** 18);
@@ -73,7 +73,7 @@ export function useEmissions() {
 
 export function useBALNTotalSupply() {
   return useQuery(
-    'getTotalSupply',
+    ['getTotalSupply'],
     async () => {
       const data = await bnJs.BALN.totalSupply();
       return new BigNumber(data).div(10 ** 18);
@@ -88,7 +88,7 @@ export function useBALNTotalSupply() {
 
 export function useBALNLocked() {
   return useQuery(
-    'getLocked',
+    ['getLocked'],
     async () => {
       const data = await bnJs.BBALN.getTotalLocked();
       return new BigNumber(data).div(10 ** 18);
@@ -101,7 +101,7 @@ export function useBALNLocked() {
 
 export function useBBALNHolders() {
   return useQuery(
-    'getBBALNHolders',
+    ['getBBALNHolders'],
     async () => {
       const data = await bnJs.BBALN.activeUsersCount();
       return new BigNumber(data);
@@ -117,7 +117,7 @@ export function useAverageLockUpTime() {
   const maxYearsLocked = new BigNumber(4);
 
   return useQuery(
-    `getAverageLockUpTime${totalLocked ? '' : ''}`,
+    [`getAverageLockUpTime${totalLocked ? '' : ''}`],
     async () => {
       const totalSupplyRaw = await bnJs.BBALN.totalSupply();
       const totalSupply = new BigNumber(totalSupplyRaw).div(10 ** 18);
@@ -135,7 +135,7 @@ export function useBALNRatioData() {
   const { data: totalLocked, isSuccess: isTotalLockedSuccess } = useBALNLocked();
 
   return useQuery(
-    `getBALNRatioData${totalSupply ? totalSupply : ''}${totalLocked ? totalLocked : ''}`,
+    [`getBALNRatioData${totalSupply ? totalSupply : ''}${totalLocked ? totalLocked : ''}`],
     () => {
       if (!totalSupply || !totalLocked) return [];
       return [

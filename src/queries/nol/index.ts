@@ -3,7 +3,7 @@ import bnJs from 'bnJs';
 import { getTimestampFrom } from 'pages/PerformanceDetails/utils';
 import { useAllPairs, useAllTokensByAddress } from 'queries/backendv2';
 import { useBlockDetails } from 'queries/blockDetails';
-import { UseQueryResult, useQuery } from 'react-query';
+import { UseQueryResult, useQuery } from '@tanstack/react-query';
 import { CHART_COLORS } from 'sections/BALNSection/queries';
 
 // const NOL_LP_CHART_COLORS = {
@@ -13,7 +13,7 @@ import { CHART_COLORS } from 'sections/BALNSection/queries';
 // };
 
 function useNOLPools(): UseQueryResult<string[] | undefined> {
-  return useQuery('nolPools', async () => {
+  return useQuery(['nolPools'], async () => {
     const orders = await bnJs.NOL.getOrders();
     return orders.map(order => order.pid);
   });
@@ -31,7 +31,7 @@ export function useNetworkOwnedLiquidityData(): UseQueryResult<
   const { data: poolIDs, isSuccess: poolIDsQuerySuccess } = useNOLPools();
 
   return useQuery(
-    `networkOwnedLiquidity`,
+    [`networkOwnedLiquidity`],
     async () => {
       if (!allPairs || !allTokens || !poolIDs) return;
 
@@ -95,7 +95,7 @@ export function usePastMonthSupply(): UseQueryResult<any> {
   const ICXPrice = allTokens?.ICX.price;
 
   return useQuery(
-    'pastMonthSupply',
+    ['pastMonthSupply'],
     async () => {
       if (!blockHeight || !ICXPrice) return;
 

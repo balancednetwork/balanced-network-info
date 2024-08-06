@@ -1,7 +1,7 @@
 import { CallData, addresses } from '@balancednetwork/balanced-js';
 import BigNumber from 'bignumber.js';
 import bnJs from 'bnJs';
-import { UseQueryResult, useQuery } from 'react-query';
+import { UseQueryResult, useQuery } from '@tanstack/react-query';
 import { formatUnits } from 'utils';
 
 type DebtCeiling = {
@@ -14,7 +14,7 @@ export function useDebtCeilings(): UseQueryResult<{
   ceilings: DebtCeiling[];
 }> {
   return useQuery(
-    'debtCeilings',
+    ['debtCeilings'],
     async () => {
       const data = await bnJs.Loans.getCollateralTokens();
 
