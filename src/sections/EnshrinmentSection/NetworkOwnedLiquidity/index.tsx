@@ -1,5 +1,5 @@
-import { LoaderComponent } from 'pages/PerformanceDetails/utils';
-import { useNetworkOwnedLiquidityData, usePastMonthSupply } from 'queries/nol';
+import { LoaderComponent } from '@/pages/PerformanceDetails/utils';
+import { useNetworkOwnedLiquidityData, usePastMonthSupply } from '@/queries/nol';
 import React from 'react';
 import { useMedia } from 'react-use';
 import { Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
@@ -12,9 +12,9 @@ import {
   INNER_RADIUS_MOBILE,
   OUTER_RADIUS,
   OUTER_RADIUS_MOBILE,
-} from 'sections/BALNSection/DistributionChart';
-import { CustomLabel, CustomTooltip } from 'sections/HoldingsOverviewSection/TokensChart';
-import { Typography } from 'theme';
+} from '@/sections/BALNSection/DistributionChart';
+import { CustomLabel, CustomTooltip } from '@/sections/HoldingsOverviewSection/TokensChart';
+import { Typography } from '@/theme';
 
 const NetworkOwnedLiquidity = () => {
   const { data: nolData } = useNetworkOwnedLiquidityData();

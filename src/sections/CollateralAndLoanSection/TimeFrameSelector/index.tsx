@@ -3,10 +3,10 @@ import React from 'react';
 import ClickAwayListener from 'react-click-away-listener';
 import styled from 'styled-components';
 
-import { Wrap } from 'components/CollateralSelector';
-import { StyledArrowDownIcon, UnderlineText } from 'components/DropdownText';
-import { DropdownPopper } from 'components/Popover';
-import { Typography } from 'theme';
+import { Wrap } from '@/components/CollateralSelector';
+import { StyledArrowDownIcon, UnderlineText } from '@/components/DropdownText';
+import { DropdownPopper } from '@/components/Popover';
+import { Typography } from '@/theme';
 
 export type CollateralChartTimeFrame = {
   displayName: string;
@@ -15,7 +15,9 @@ export type CollateralChartTimeFrame = {
 
 export type TimeFrame = 'MONTH' | 'QUARTER_YEAR' | 'HALF_YEAR' | 'YEAR';
 
-export const timeFrames: { [key in TimeFrame]: CollateralChartTimeFrame } = Object.freeze({
+export const timeFrames: {
+  [key in TimeFrame]: CollateralChartTimeFrame;
+} = Object.freeze({
   MONTH: {
     displayName: 'month',
     days: 30,
@@ -56,8 +58,8 @@ export default function TimeFrameSelector({
   selected,
   setSelected,
 }: {
-  selected: CollateralChartTimeFrame;
-  setSelected: (CollateralChartTimeFrame) => void;
+  selected: TimeFrame;
+  setSelected: (_t: TimeFrame) => void;
 }) {
   const [anchor, setAnchor] = React.useState<HTMLElement | null>(null);
   const arrowRef = React.useRef(null);
@@ -72,22 +74,23 @@ export default function TimeFrameSelector({
     }
   };
 
-  const handleClick = (item: CollateralChartTimeFrame) => {
+  const handleClick = (item: TimeFrame) => {
     setSelected(item);
     setAnchor(null);
   };
 
+  const selectedTimeFrame = timeFrames[selected];
   return (
-    <>
-      <Wrap onClick={handleToggle} style={{ position: 'relative' }}>
-        <Typography fontSize={16}>
-          <UnderlineText>past {selected.displayName}</UnderlineText>
-          <div ref={arrowRef} style={{ display: 'inline-block', width: '19px' }}>
-            <StyledArrowDownIcon />
-          </div>
-        </Typography>
-      </Wrap>
-      <ClickAwayListener onClickAway={e => closeDropdown(e)}>
+    <ClickAwayListener onClickAway={e => closeDropdown(e)}>
+      <div>
+        <Wrap onClick={handleToggle} style={{ position: 'relative' }}>
+          <Typography fontSize={16}>
+            <UnderlineText>past {selectedTimeFrame.displayName}</UnderlineText>
+            <div ref={arrowRef} style={{ display: 'inline-block', width: '19px' }}>
+              <StyledArrowDownIcon />
+            </div>
+          </Typography>
+        </Wrap>
         <DropdownPopper
           show={Boolean(anchor)}
           anchorEl={anchor}
@@ -96,17 +99,16 @@ export default function TimeFrameSelector({
           offset={[0, 14]}
         >
           <TimeFrameItemList>
-            {Object.values(timeFrames).map(
-              item =>
-                selected.days !== item.days && (
-                  <TimeFrameItem key={item.days} onClick={() => handleClick(item)}>
-                    {item.displayName}
-                  </TimeFrameItem>
-                ),
-            )}
+            {Object.keys(timeFrames)
+              .filter(item => item !== selected)
+              .map(item => (
+                <TimeFrameItem key={item} onClick={() => handleClick(item as TimeFrame)}>
+                  {timeFrames[item].displayName}
+                </TimeFrameItem>
+              ))}
           </TimeFrameItemList>
         </DropdownPopper>
-      </ClickAwayListener>
-    </>
+      </div>
+    </ClickAwayListener>
   );
 }

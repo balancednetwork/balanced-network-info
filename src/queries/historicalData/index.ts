@@ -1,11 +1,11 @@
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import { useTokenPrices } from 'queries/backendv2';
-import { BlockDetails } from 'queries/blockDetails';
-import { useQuery, UseQueryResult } from 'react-query';
+import { useTokenPrices } from '@/queries/backendv2';
+import { BlockDetails } from '@/queries/blockDetails';
+import { useQuery, UseQueryResult } from '@tanstack/react-query';
 
-import bnJs from 'bnJs';
-import { formatUnits } from 'utils';
+import bnJs from '@/bnJs';
+import { formatUnits } from '@/utils';
 
 import { DATES, DATE_DEFAULT, DATE_STABILITY_FUND_LAUNCH, DEFAULT_GRANULARITY } from './dates';
 import { Granularity, HistoryForParams } from './types';
@@ -32,7 +32,7 @@ export default function useHistoryFor(params: HistoryForParams | undefined): Use
   } = params || {};
 
   return useQuery(
-    `useHistoryFor-${contract}-${contractAddress}-${method}-${uniqueID}-${granularity}-${startTime}-${endTime}}`,
+    [`useHistoryFor`, contract, contractAddress, method, uniqueID, granularity, startTime, endTime],
     async () => {
       if (startTime && granularity && method && transformation) {
         const fiveMinPeriod = 1000 * 300;
@@ -127,7 +127,7 @@ export function useHistoryForStabilityFund(
   });
 
   return useQuery(
-    `historyForStabilityFund-${granularity}-${startTimestamp}-${endTimestamp}`,
+    [`historyForStabilityFund`, granularity, startTimestamp, endTimestamp],
     () => {
       if (historyForIUSDC && historyForUSDS && historyForBUSD) {
         const filteredHistoryForIUSDC = historyForIUSDC.filter(
@@ -240,7 +240,7 @@ export function useHistoryForTotal(
   });
 
   return useQuery(
-    `historyForTotal${granularity}-${startTimestamp}-${endTimestamp}`,
+    [`historyForTotal`, granularity, startTimestamp, endTimestamp],
     () => {
       if (historyForStabilityFund && historyForSICX && historyForETH && historyForBTCB && tokenPrices) {
         const sICXHistoryReversed = historyForSICX.slice().reverse();
@@ -305,13 +305,13 @@ export function useHistoryForBnUSDTotalSupply(
   });
 
   return useQuery(
-    `historyForBnUSDTotal${granularity}-${startTimestamp}-${endTimestamp}`,
-    () => {
-      return historyForBnUSDTotal;
-    },
-    {
-      enabled: historyForBnUSDTotalSuccess,
-      keepPreviousData: true,
-    },
+      [`historyForBnUSDTotal`, granularity, startTimestamp,endTimestamp],
+      () => {
+          return historyForBnUSDTotal;
+      },
+      {
+          enabled: historyForBnUSDTotalSuccess,
+          keepPreviousData: true,
+      },
   );
 }

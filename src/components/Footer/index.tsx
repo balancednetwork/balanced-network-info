@@ -3,14 +3,14 @@ import React from 'react';
 import { Flex, Box, Text, Link } from 'rebass/styled-components';
 import styled from 'styled-components';
 
-import { ReactComponent as Discord } from 'assets/icons/discord.svg';
-import { ReactComponent as Logo } from 'assets/icons/logo.svg';
-import { ReactComponent as Reddit } from 'assets/icons/reddit.svg';
-import { ReactComponent as Twitter } from 'assets/icons/twitter.svg';
-import { Button } from 'components/Button';
-import AnimatedLink from 'components/Button/AnimatedLink';
-import SocialButton from 'components/Button/SocialButton';
-import { LINKS, SOCIAL_LINKS } from 'constants/links';
+import Discord from '@/assets/icons/discord.svg';
+import Logo from '@/assets/icons/logo.svg';
+import Reddit from '@/assets/icons/reddit.svg';
+import Twitter from '@/assets/icons/twitter.svg';
+import { Button } from '@/components/Button';
+import AnimatedLink from '@/components/Button/AnimatedLink';
+import SocialButton from '@/components/Button/SocialButton';
+import { LINKS, SOCIAL_LINKS } from '@/constants/links';
 
 const Grid = styled(Box)`
   display: grid;

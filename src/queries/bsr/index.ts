@@ -1,18 +1,18 @@
-import { CallData, addresses } from '@balancednetwork/balanced-js';
 import { CurrencyAmount, Token } from '@balancednetwork/sdk-core';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import bnJs from 'bnJs';
-import { NETWORK_ID } from 'constants/config';
-import { SUPPORTED_TOKENS_MAP_BY_ADDRESS } from 'constants/tokens';
-import { useTokenPrices } from 'queries/backendv2';
-import { API_ENDPOINT, BlockDetails, useBlockDetails } from 'queries/blockDetails';
-import { UseQueryResult, useQuery } from 'react-query';
-import { formatUnits } from 'utils';
+import bnJs from '@/bnJs';
+import { NETWORK_ID } from '@/constants/config';
+import { SUPPORTED_TOKENS_MAP_BY_ADDRESS } from '@/constants/tokens';
+import { useTokenPrices } from '@/queries/backendv2';
+import { API_ENDPOINT, BlockDetails, useBlockDetails } from '@/queries/blockDetails';
+import { UseQueryResult, useQuery } from '@tanstack/react-query';
+import { formatUnits } from '@/utils';
+import { addresses, CallData } from '@balancednetwork/balanced-js';
 
 export function useTotalBnUSDLocked(): UseQueryResult<CurrencyAmount<Token> | undefined> {
   return useQuery(
-    'bnUSDtotalLocked',
+    ['bnUSDtotalLocked'],
     async () => {
       try {
         const totalLocked = await bnJs.bnUSD.balanceOf(bnJs.Savings.address);
@@ -31,7 +31,7 @@ export function useTotalBnUSDLocked(): UseQueryResult<CurrencyAmount<Token> | un
 
 function useTricklerAllowedTokens(): UseQueryResult<string[] | undefined> {
   return useQuery(
-    'tricklerTokens',
+    ['tricklerTokens'],
     async () => {
       const tokens = await bnJs.Trickler.getAllowListTokens();
       return tokens;
@@ -44,7 +44,7 @@ function useTricklerAllowedTokens(): UseQueryResult<string[] | undefined> {
 
 function useTricklerDistributionPeriod(): UseQueryResult<number | undefined> {
   return useQuery(
-    'tricklerDistributionPeriod',
+    ['tricklerDistributionPeriod'],
     async () => {
       const periodInBlocks = await bnJs.Trickler.getDistributionPeriod();
       return periodInBlocks;
@@ -56,7 +56,9 @@ function useTricklerDistributionPeriod(): UseQueryResult<number | undefined> {
 }
 
 export function useSupportedCollateralTokens(): UseQueryResult<{ [key in string]: string }> {
-  return useQuery('getCollateralTokens', async () => {
+  return useQuery(
+    ['getCollateralTokens'], 
+    async () => {
     const data = await bnJs.Loans.getCollateralTokens();
 
     const cds: CallData[] = Object.keys(data).map(symbol => ({
@@ -100,9 +102,8 @@ export function useSavingsRateInfo(): UseQueryResult<
   const { data: collateralTokens } = useSupportedCollateralTokens();
 
   return useQuery(
-    `savingsRate-${blockThen?.number || ''}-${totalLocked?.toFixed() || ''}-${Object.keys(tokenPrices ?? {}).length}-${
-      tokenList?.length ?? ''
-    }-${Object.keys(collateralTokens ?? {}).length}-${periodInBlocks ?? ''}`,
+    [`savingsRate`, blockThen?.number || '', totalLocked?.toFixed() || '', Object.keys(tokenPrices ?? {}).length, 
+      tokenList?.length ?? '', Object.keys(collateralTokens ?? {}).length, periodInBlocks ?? ''],
     async () => {
       if (
         tokenPrices === undefined ||
@@ -207,7 +208,7 @@ export function useDepositsChartData(): UseQueryResult<
   const dataPointsCount = 20;
 
   return useQuery(
-    `depositsChartData`,
+    [`depositsChartData`],
     async () => {
       if (blockThen === undefined) return;
 

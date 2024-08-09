@@ -2,24 +2,24 @@ import React, { useState } from 'react';
 
 import { Currency } from '@balancednetwork/sdk-core';
 import BigNumber from 'bignumber.js';
-import { useFundLimits } from 'queries';
-import { useStabilityFundHoldings } from 'queries/blockDetails';
+import { useFundLimits } from '@/queries';
+import { useStabilityFundHoldings } from '@/queries/blockDetails';
 import DatePicker from 'react-datepicker';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
-import { BoxPanel } from 'components/Panel';
-import CurrencyLogo from 'components/shared/CurrencyLogo';
-import { DatePickerWrap, DisplayValueOrLoader, formatPercentage } from 'pages/PerformanceDetails/utils';
-import { Typography } from 'theme';
+import { BoxPanel } from '@/components/Panel';
+import CurrencyLogo from '@/components/shared/CurrencyLogo';
+import { DatePickerWrap, DisplayValueOrLoader, formatPercentage } from '@/pages/PerformanceDetails/utils';
+import { Typography } from '@/theme';
 
 import { ScrollHelper } from '../../index';
 import { StyledSkeleton } from '../EarningSection';
 import { Change, DatePickerInput } from '../HoldingsSection';
 
 import 'react-datepicker/dist/react-datepicker.css';
-import { useAssetManagerTokens } from 'queries/assetManager';
-import AssetManagerTokenBreakdown from 'components/AssetManagerTokenBreakdown';
+import { useAssetManagerTokens } from '@/queries/assetManager';
+import AssetManagerTokenBreakdown from '@/components/AssetManagerTokenBreakdown';
 
 const BalanceGrid = styled.div`
   display: grid;

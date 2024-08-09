@@ -2,11 +2,11 @@ import { useMemo } from 'react';
 
 import { addresses } from '@balancednetwork/balanced-js';
 import BigNumber from 'bignumber.js';
-import { useTokenPrices } from 'queries/backendv2';
-import { useHoldings, usePOLData } from 'queries/blockDetails';
-import { useQuery } from 'react-query';
+import { useTokenPrices } from '@/queries/backendv2';
+import { useHoldings, usePOLData } from '@/queries/blockDetails';
+import { useQuery } from '@tanstack/react-query';
 
-import { CHART_COLORS } from 'sections/BALNSection/queries';
+import { CHART_COLORS } from '@/sections/BALNSection/queries';
 
 const daoFundAddress = addresses[1].daofund;
 const reserveFundAddress = addresses[1].reserve;
@@ -85,9 +85,9 @@ export function useDAOFundHoldingsPieData() {
   const { data: holdingsData, isSuccess: isHoldingsDataSuccess } = useHoldings(now, daoFundAddress);
 
   return useQuery(
-    `daoFundHoldingsPIE${now}-tokens${tokenPrices ? Object.keys(tokenPrices).length : 0}-${
+    [`daoFundHoldingsPIE${now}-tokens${tokenPrices ? Object.keys(tokenPrices).length : 0}-${
       holdingsData ? Object.keys(holdingsData).length : 0
-    }`,
+    }`],
     () => {
       const data =
         holdingsData && tokenPrices
@@ -148,9 +148,9 @@ export function useReserveFundHoldingsPieData() {
   const { data: holdingsData, isSuccess: isHoldingsDataSuccess } = useHoldings(now, reserveFundAddress);
 
   return useQuery(
-    `reserveFundHoldingsPIE${now}-tokens${tokenPrices ? Object.keys(tokenPrices).length : 0}-${
+    [`reserveFundHoldingsPIE${now}-tokens${tokenPrices ? Object.keys(tokenPrices).length : 0}-${
       holdingsData ? Object.keys(holdingsData).length : 0
-    }`,
+    }`],
     () => {
       const data =
         holdingsData && tokenPrices
@@ -210,7 +210,7 @@ export function useDAOFundPOLPieData() {
   const { data: POLData, isSuccess: isPOLDataSuccess } = usePOLData(now);
 
   return useQuery(
-    `daoFundHoldings${now}-tokens${POLData ? POLData.length : 0}-${POLData ? Object.keys(POLData).length : 0}`,
+    [`daoFundHoldings${now}-tokens${POLData ? POLData.length : 0}-${POLData ? Object.keys(POLData).length : 0}`],
     () => {
       const data = POLData
         ? POLData.map((pool, index) => {
@@ -255,9 +255,9 @@ export function useHoldingsBreakdownPieData() {
   const { data: reserve, isSuccess: isReserveSuccess } = useHoldings(now, reserveFundAddress);
 
   return useQuery(
-    `holdingsBreakdown${now}-tokens${tokenPrices ? tokenPrices.length : 0}-${
+    [`holdingsBreakdown${now}-tokens${tokenPrices ? tokenPrices.length : 0}-${
       POLData ? Object.keys(POLData).length : 0
-    }`,
+    }`],
     () => {
       if (!tokenPrices) return;
 

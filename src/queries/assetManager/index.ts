@@ -1,7 +1,7 @@
 import { CurrencyAmount, Token } from '@balancednetwork/sdk-core';
-import bnJs from 'bnJs';
-import { SUPPORTED_TOKENS_MAP_BY_ADDRESS } from 'constants/tokens';
-import { UseQueryResult, useQuery } from 'react-query';
+import bnJs from '@/bnJs';
+import { SUPPORTED_TOKENS_MAP_BY_ADDRESS } from '@/constants/tokens';
+import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
 const networkAddressToName = {
   '0x100.icon': 'ICON',
@@ -33,7 +33,7 @@ export function useAssetManagerTokens(): UseQueryResult<AssetManagerTokenBreakdo
   const oneMinPeriod = 1000 * 60;
   const now = Math.floor(new Date().getTime() / oneMinPeriod) * oneMinPeriod;
 
-  return useQuery(`assetManagerTokens-t${now}`, async () => {
+  return useQuery([`assetManagerTokens-t`, now], async () => {
     const tokensRaw: { [key: string]: string } = await bnJs.AssetManager.getAssets();
     const tokens: { [tokenAddress: string]: string[] } =
       tokensRaw &&

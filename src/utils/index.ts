@@ -10,7 +10,7 @@ export enum NetworkId {
 
 const TEN = new BigNumber(10);
 
-export const NETWORK_ID: number = parseInt(process.env.REACT_APP_NETWORK_ID ?? '1');
+export const NETWORK_ID: number = 1;
 
 // shorten the checksummed version of the input address to have 0x + 4 characters at start and end
 export function shortenAddress(address: string, chars = 7): string {

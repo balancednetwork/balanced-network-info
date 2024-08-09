@@ -4,11 +4,11 @@ import { addresses } from '@balancednetwork/balanced-js';
 import { Currency, CurrencyAmount, Token } from '@balancednetwork/sdk-core';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import { useWhitelistedTokensList } from 'queries';
-import { useQuery } from 'react-query';
+import { useWhitelistedTokensList } from '@/queries';
+import { useQuery } from '@tanstack/react-query';
 
-import bnJs from 'bnJs';
-import { SUPPORTED_TOKENS_LIST, TOKEN_BLACKLIST } from 'constants/tokens';
+import bnJs from '@/bnJs';
+import { SUPPORTED_TOKENS_LIST, TOKEN_BLACKLIST } from '@/constants/tokens';
 
 import { useAllPairs, useAllTokens, useAllTokensByAddress } from './backendv2';
 
@@ -26,7 +26,7 @@ export const useBlockDetails = (timestamp: number) => {
     const { data } = await axios.get(`${API_ENDPOINT}blocks/timestamp/${timestamp * 1000}`);
     return data;
   };
-  return useQuery<BlockDetails>(`getBlock${timestamp}`, getBlock);
+  return useQuery<BlockDetails>([`getBlock`,timestamp], getBlock);
 };
 
 export const useHoldings = (timestamp: number, holder: string) => {
@@ -43,7 +43,7 @@ export const useHoldings = (timestamp: number, holder: string) => {
   }, [allTokens]);
 
   return useQuery<{ [key: string]: CurrencyAmount<Currency> }>(
-    `holdings-${holder}-${blockHeight}-tokens${filteredTokens.length}`,
+    [`holdings`, holder, blockHeight, `tokens`, filteredTokens.length],
     async () => {
       const currencyAmounts: CurrencyAmount<Currency>[] = await Promise.all(
         filteredTokens.map(async tokenData => {
@@ -76,7 +76,7 @@ export const useStabilityFundHoldings = (timestamp: number) => {
   const blockHeight = blockDetails?.number;
 
   return useQuery<{ [key: string]: CurrencyAmount<Currency> }>(
-    `stabilityFundHoldings${whitelistedTokens.length}${blockHeight}`,
+    [`stabilityFundHoldings`, whitelistedTokens?.length, blockHeight],
     async () => {
       const currencyAmounts: CurrencyAmount<Currency>[] = await Promise.all(
         whitelistedTokens
@@ -104,7 +104,7 @@ export const usePOLData = (timestamp: number) => {
   const pools = [2, 4, 58, 59];
 
   return useQuery(
-    `POLData${blockHeight}`,
+    [`POLData`, blockHeight],
     async () => {
       const poolDataSets = await Promise.all(
         pools.map(async poolID => {

@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
 import numbro from 'numbro';
 
-import { TimeSeries } from 'types/data';
+import { TimeSeries } from '@/types/data';
 
 const DEFAULT_CURRENCY_DECIMALS = 2;
 
@@ -49,9 +49,9 @@ export const formatPrice = (value: string | number) => {
   }
   let decimals = 0;
 
-  if (value < 0.01) {
+  if (toBigNumber(value).isLessThan(0.01)) {
     decimals = 6;
-  } else if (value < 10) {
+  } else if (toBigNumber(value).isLessThan(10)) {
     decimals = 4;
   } else {
     decimals = 2;

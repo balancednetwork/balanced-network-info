@@ -1,6 +1,6 @@
-import QuestionHelper, { QuestionWrapper } from 'components/QuestionHelper';
-import { HIGH_PRICE_ASSET_DP } from 'constants/tokens';
-import { AssetManagerToken } from 'queries/assetManager';
+import QuestionHelper, { QuestionWrapper } from '@/components/QuestionHelper';
+import { HIGH_PRICE_ASSET_DP } from '@/constants/tokens';
+import { AssetManagerToken } from '@/queries/assetManager';
 import React, { Fragment } from 'react';
 import { Box } from 'rebass';
 import styled from 'styled-components';

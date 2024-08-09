@@ -1,13 +1,13 @@
 import { Fraction } from '@balancednetwork/sdk-core';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import { useBnJsContractQuery, useIncentivisedPairs } from 'queries';
-import { UseQueryResult, useQuery } from 'react-query';
+import { useBnJsContractQuery, useIncentivisedPairs } from '@/queries';
+import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
-import bnJs from 'bnJs';
-import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
-import { formatUnits } from 'utils';
-import { TOKEN_BLACKLIST } from 'constants/tokens';
+import bnJs from '@/bnJs';
+import { predefinedCollateralTypes } from '@/components/CollateralSelector/CollateralTypeList';
+import { formatUnits } from '@/utils';
+import { TOKEN_BLACKLIST } from '@/constants/tokens';
 
 export const API_ENDPOINT = 'https://balanced.icon.community/api/v1/';
 
@@ -31,9 +31,18 @@ export const useContractMethodsDataQuery = (
   start_timestamp?: number,
   end_timestamp?: number,
 ) => {
-  return useQuery<ContractMethodsDataType[]>(
-    `historicalQuery|${skip}|${limit}|${contract}|${method}|${days_ago}|${start_timestamp}|${end_timestamp}`,
-    async () => {
+  const queryKey = [
+    'historicalQuery',
+    skip,
+    limit,
+    contract,
+    method,
+    days_ago,
+    start_timestamp,
+    end_timestamp,
+  ];
+  
+  return useQuery<ContractMethodsDataType[]>(queryKey, async () => {
       const { data } = await axios.get(
         `${API_ENDPOINT}contract-methods?skip=${skip}&limit=${limit}&address=${contract}&method=${method}${
           days_ago ? `&days_ago=${days_ago}` : ''
@@ -73,7 +82,7 @@ export function useAllTokens() {
   const MIN_LIQUIDITY_TO_INCLUDE = 500;
 
   return useQuery(
-    `allTokens`,
+    [`allTokens`],
     async () => {
       const response = await axios.get(`${API_ENDPOINT}tokens`);
 
@@ -101,7 +110,7 @@ export function useAllTokensByAddress(): UseQueryResult<{ [key in string]: Token
   const { data: allTokens, isSuccess: allTokensSuccess } = useAllTokens();
 
   return useQuery(
-    `allTokensByAddress`,
+    [`allTokensByAddress`],
     () => {
       if (!allTokens) return;
       return allTokens.reduce((tokens, item) => {
@@ -137,7 +146,7 @@ export function useAllPairs() {
   const MIN_LIQUIDITY_TO_INCLUDE = 1000;
 
   return useQuery<Pair[]>(
-    `allPairs`,
+    [`allPairs`],
     async () => {
       const response = await axios.get(`${API_ENDPOINT}pools`);
 
@@ -203,9 +212,8 @@ export function useAllPairsIncentivised() {
   const dailyDistribution = dailyDistributionRaw && new BigNumber(formatUnits(dailyDistributionRaw, 18, 4));
 
   return useQuery<Pair[] | undefined>(
-    `allPairsIncentivised-${allPairs ? allPairs.length : 0}-${incentivisedPairs ? incentivisedPairs.length : 0}-${
-      dailyDistribution ? dailyDistribution.toFixed(2) : 0
-    }-${balnPrice}`,
+    [`allPairsIncentivised`, allPairs ? allPairs.length : 0, incentivisedPairs ? incentivisedPairs.length : 0, 
+      dailyDistribution ? dailyDistribution.toFixed(2) : 0, balnPrice,],
     () => {
       if (allPairs) {
         return allPairs.map(item => {
@@ -241,7 +249,7 @@ export function useAllPairsIncentivisedById() {
   const { data: allPairs } = useAllPairsIncentivised();
 
   return useQuery<{ [key in string]: Pair } | undefined>(
-    `allPairsIncentivisedById-${allPairs ? allPairs.length : 0}`,
+    [`allPairsIncentivisedById`, allPairs ? allPairs.length : 0],
     () => {
       if (allPairs) {
         return allPairs.reduce((allPairs, item) => {
@@ -260,7 +268,7 @@ export function useAllPairsIncentivisedByName() {
   const { data: allPairs } = useAllPairsIncentivised();
 
   return useQuery<{ [key in string]: Pair } | undefined>(
-    `allPairsIncentivisedByName-${allPairs ? allPairs.length : 0}`,
+    [`allPairsIncentivisedByName`, allPairs ? allPairs.length : 0],
     () => {
       if (allPairs) {
         return allPairs.reduce((allPairs, item) => {
@@ -279,7 +287,7 @@ export function useAllPairsById() {
   const { data: allPairs, isSuccess: allPairsSuccess } = useAllPairs();
 
   return useQuery<{ [key in string]: Pair } | undefined>(
-    'allPairsById',
+    ['allPairsById'],
     () => {
       if (allPairs) {
         return allPairs.reduce((allPairs, item) => {
@@ -298,7 +306,7 @@ export function useAllPairsByName() {
   const { data: allPairs, isSuccess: allPairsSuccess } = useAllPairs();
 
   return useQuery<{ [key in string]: Pair } | undefined>(
-    'allPairsByName',
+    ['allPairsByName'],
     () => {
       if (allPairs) {
         return allPairs.reduce((allPairs, item) => {
@@ -318,7 +326,7 @@ export const useAllPairsTotal = () => {
   const { data: allPairs, isSuccess: allPairsSuccess } = useAllPairs();
 
   return useQuery<{ tvl: number; volume: number; fees: number } | undefined>(
-    'pairsTotal',
+  ['pairsTotal'],
     () => {
       if (allPairs) {
         return Object.values(allPairs).reduce(
@@ -343,7 +351,7 @@ export function useTokenPrices() {
   const { data: allTokens, isSuccess: allTokensSuccess } = useAllTokens();
 
   return useQuery<{ [key in string]: BigNumber }>(
-    `tokenPrices${allTokens}`,
+    ['tokenPrices', allTokens],
     () => {
       if (allTokens) {
         return allTokens.reduce((tokens, item) => {
@@ -385,7 +393,7 @@ export function useAllCollateralData() {
   const { data: tokenPrices, isSuccess: isTokenQuerySuccess } = useTokenPrices();
 
   return useQuery(
-    `allCollateralDataBE`,
+    [`allCollateralDataBE`],
     async () => {
       if (tokenPrices) {
         const result: CollateralData = {
@@ -533,7 +541,7 @@ export function useCollateralDataFor(daysBack: number) {
   }
 
   return useQuery(
-    `collateralDataFor-${daysBack}-days`,
+    [`collateralDataFor`, daysBack, `days`],
     () => {
       if (daysBack === -1) {
         return collateralData;
@@ -558,7 +566,7 @@ export function useCollateralDataFor(daysBack: number) {
 
 export function useAllDebtData() {
   const { data: stabilityFundInfo } = useAllCollateralData();
-  return useQuery(`allDebtDataBE-${stabilityFundInfo ? Object.keys(stabilityFundInfo).length : '-'}`, async () => {
+  return useQuery([`allDebtDataBE`, stabilityFundInfo ? Object.keys(stabilityFundInfo).length : '-'], async () => {
     const responseSICX = await axios.get(
       `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_collateral_debt_sICX_bnusd`,
     );
@@ -621,7 +629,7 @@ export function useDebtDataFor(daysBack: number) {
   }
 
   return useQuery(
-    `collateralDebtFor-${daysBack}-days`,
+    [`collateralDebtFor`, daysBack, `days`],
     () => {
       if (daysBack === -1) {
         return debtData;
@@ -646,7 +654,7 @@ export function useDebtDataFor(daysBack: number) {
 
 export function useTokenTrendData(tokenSymbol, start, end) {
   return useQuery(
-    `trend-${tokenSymbol}-${start}-${end}`,
+    [`trend`, tokenSymbol, start, end],
     async () => {
       const { data } = await axios.get(`${API_ENDPOINT}tokens/series/1h/${start}/${end}?symbol=${tokenSymbol}`);
       return data;

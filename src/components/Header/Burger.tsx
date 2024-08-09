@@ -3,9 +3,9 @@ import React from 'react';
 import { Box } from 'rebass/styled-components';
 import styled from 'styled-components';
 
-import { Button } from 'components/Button';
-import AnimatedLink from 'components/Button/AnimatedLink';
-import { LINKS } from 'constants/links';
+import { Button } from '@/components/Button';
+import AnimatedLink from '@/components/Button/AnimatedLink';
+import { LINKS } from '@/constants/links';
 
 const Container = styled(Box)<{ show: boolean }>`
   position: absolute;

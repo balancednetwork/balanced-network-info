@@ -4,12 +4,12 @@ import ClickAwayListener from 'react-click-away-listener';
 import { Flex, Box, Link } from 'rebass/styled-components';
 import styled from 'styled-components';
 
-import { ReactComponent as Logo } from 'assets/icons/logo.svg';
-import { Button } from 'components/Button';
-import AnimatedLink from 'components/Button/AnimatedLink';
-import OutlineButton from 'components/Button/OutlineButton';
-import { LINKS } from 'constants/links';
-import useBoolean from 'hooks/useBoolean';
+import Logo from '@/assets/icons/logo.svg';
+import { Button } from '@/components/Button';
+import AnimatedLink from '@/components/Button/AnimatedLink';
+import OutlineButton from '@/components/Button/OutlineButton';
+import { LINKS } from '@/constants/links';
+import useBoolean from '@/hooks/useBoolean';
 
 import BurgerMenu from './Burger';
 

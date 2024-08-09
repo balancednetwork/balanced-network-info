@@ -3,19 +3,19 @@ import React, { useMemo, useState } from 'react';
 import { addresses } from '@balancednetwork/balanced-js';
 import { Currency } from '@balancednetwork/sdk-core';
 import BigNumber from 'bignumber.js';
-import { LAUNCH_DAY } from 'queries';
-import { useTokenPrices } from 'queries/backendv2';
-import { useHoldings, usePOLData } from 'queries/blockDetails';
+import { LAUNCH_DAY } from '@/queries';
+import { useTokenPrices } from '@/queries/backendv2';
+import { useHoldings, usePOLData } from '@/queries/blockDetails';
 import DatePicker from 'react-datepicker';
 import { Box, Flex, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
-import { BoxPanel } from 'components/Panel';
-import CurrencyLogo from 'components/shared/CurrencyLogo';
-import PoolLogo from 'components/shared/PoolLogo';
-import { HIGH_PRICE_ASSET_DP } from 'constants/tokens';
-import { DatePickerWrap, DisplayValueOrLoader, formatPercentage } from 'pages/PerformanceDetails/utils';
-import { Typography } from 'theme';
+import { BoxPanel } from '@/components/Panel';
+import CurrencyLogo from '@/components/shared/CurrencyLogo';
+import PoolLogo from '@/components/shared/PoolLogo';
+import { HIGH_PRICE_ASSET_DP } from '@/constants/tokens';
+import { DatePickerWrap, DisplayValueOrLoader, formatPercentage } from '@/pages/PerformanceDetails/utils';
+import { Typography } from '@/theme';
 
 import { GridItemToken, GridItemAssetTotal, GridItemHeader, ScrollHelper } from '../../index';
 import { StyledSkeleton } from '../EarningSection';

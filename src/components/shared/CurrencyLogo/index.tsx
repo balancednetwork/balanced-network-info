@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo } from 'react';
 
 import { Currency } from '@balancednetwork/sdk-core';
-import { useAllTokensByAddress } from 'queries/backendv2';
+import { useAllTokensByAddress } from '@/queries/backendv2';
 import styled from 'styled-components';
 
-import ICONLogo from 'assets/images/icon-logo.png';
+import ICONLogo from '@/assets/images/icon-logo.png';
 
 import Logo from '../Logo1';
 

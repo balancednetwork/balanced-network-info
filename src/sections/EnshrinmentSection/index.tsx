@@ -1,11 +1,11 @@
-import { BoxPanel } from 'components/Panel';
+import { BoxPanel } from '@/components/Panel';
 import React from 'react';
 import { Box, Flex } from 'rebass';
 import NetworkOwnedLiquidity from './NetworkOwnedLiquidity';
 import ICXBurn from './ICXBurn';
-import { Typography } from 'theme';
-import QuestionHelper, { QuestionWrapper } from 'components/QuestionHelper';
-import { UnderlineText } from 'components/DropdownText';
+import { Typography } from '@/theme';
+import QuestionHelper, { QuestionWrapper } from '@/components/QuestionHelper';
+import { UnderlineText } from '@/components/DropdownText';
 import styled from 'styled-components';
 import ClickAwayListener from 'react-click-away-listener';
 import { useMedia } from 'react-use';

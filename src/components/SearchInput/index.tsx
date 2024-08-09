@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import SearchIcon from 'assets/icons/search.svg';
+import SearchIcon from '@/assets/icons/search.svg?url';
 
 export const SearchInput = styled.input`
   background-image: url(${SearchIcon});

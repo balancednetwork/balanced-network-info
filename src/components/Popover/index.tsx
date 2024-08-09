@@ -5,7 +5,7 @@ import Portal from '@reach/portal';
 import { usePopper } from 'react-popper';
 import styled from 'styled-components';
 
-import useInterval from 'hooks/useInterval';
+import useInterval from '@/hooks/useInterval';
 
 const PopoverContainer = styled.div<{ show: boolean }>`
   z-index: ${({ theme }) => theme.zIndices.tooltip};
@@ -33,7 +33,7 @@ const Arrow = styled.div`
   height: 12px;
   z-index: -1;
 
-  ::before {
+  &::before {
     position: absolute;
     width: 12px;
     height: 12px;
@@ -176,17 +176,18 @@ export function DropdownPopper({
     strategy: 'fixed',
     modifiers: customModifier,
   });
-
+  console.log('arrow', styles, `arrow-${attributes.popper?.['data-popper-placement'] ?? ''}`);
   const updateCallback = useCallback(() => {
     update && update();
   }, [update]);
   useInterval(updateCallback, show ? 100 : null);
 
-  if (containerOffset) {
+  if (containerOffset && styles.arrow) {
     const arrowX = arrowEl?.getBoundingClientRect().x || 0;
-    if (styles.arrow) {
-      styles.arrow.transform = `translate3d(${arrowX - containerOffset + 6}px,0,0)`;
-    }
+    styles.arrow = {
+      ...styles.arrow,
+      transform: `translate3d(${arrowX - containerOffset + 6}px,0,0)`,
+    };
   }
 
   return (

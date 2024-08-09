@@ -4,11 +4,11 @@ import { Link } from 'react-router-dom';
 import { Flex } from 'rebass';
 import styled from 'styled-components';
 
-import arrowIcon from 'assets/icons/arrow.svg';
-import { BoxPanel } from 'components/Panel';
-import { LINKS } from 'constants/links';
-import { ChartsWrap } from 'sections/BALNSection';
-import { Typography } from 'theme';
+import arrowIcon from '@/assets/icons/arrow.svg?url';
+import { BoxPanel } from '@/components/Panel';
+import { LINKS } from '@/constants/links';
+import { ChartsWrap } from '@/sections/BALNSection';
+import { Typography } from '@/theme';
 
 import POLChart from './POLChart';
 import TokensChart from './TokensChart';

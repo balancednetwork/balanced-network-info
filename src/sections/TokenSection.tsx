@@ -1,25 +1,25 @@
 import React, { useMemo, useState } from 'react';
 
 import { Skeleton } from '@material-ui/lab';
-import { MetaToken } from 'queries';
-import { useAllTokensByAddress, useTokenTrendData } from 'queries/backendv2';
+import { MetaToken } from '@/queries';
+import { useAllTokensByAddress, useTokenTrendData } from '@/queries/backendv2';
 import { useMedia } from 'react-use';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled, { css } from 'styled-components';
 
-import Divider from 'components/Divider';
-import DropdownLink from 'components/DropdownLink';
-import { BoxPanel } from 'components/Panel';
-import SearchInput from 'components/SearchInput';
-import { CurrencyLogoFromURI } from 'components/shared/CurrencyLogo';
-import Sparkline from 'components/Sparkline';
-import useSort from 'hooks/useSort';
-import useTimestampRounded from 'hooks/useTimestampRounded';
-import { LoaderComponent } from 'pages/PerformanceDetails/utils';
-import { Typography } from 'theme';
-import { formatPriceChange, getFormattedNumber } from 'utils/formatter';
-import { useAssetManagerTokens } from 'queries/assetManager';
-import AssetManagerTokenBreakdown from 'components/AssetManagerTokenBreakdown';
+import Divider from '@/components/Divider';
+import DropdownLink from '@/components/DropdownLink';
+import { BoxPanel } from '@/components/Panel';
+import SearchInput from '@/components/SearchInput';
+import { CurrencyLogoFromURI } from '@/components/shared/CurrencyLogo';
+import Sparkline from '@/components/Sparkline';
+import useSort from '@/hooks/useSort';
+import useTimestampRounded from '@/hooks/useTimestampRounded';
+import { LoaderComponent } from '@/pages/PerformanceDetails/utils';
+import { Typography } from '@/theme';
+import { formatPriceChange, getFormattedNumber } from '@/utils/formatter';
+import { useAssetManagerTokens } from '@/queries/assetManager';
+import AssetManagerTokenBreakdown from '@/components/AssetManagerTokenBreakdown';
 
 export const COMPACT_ITEM_COUNT = 8;
 
