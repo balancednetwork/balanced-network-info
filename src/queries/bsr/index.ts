@@ -1,14 +1,14 @@
-import { CallData, addresses } from '@balancednetwork/balanced-js';
 import { CurrencyAmount, Token } from '@balancednetwork/sdk-core';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import bnJs from 'bnJs';
-import { NETWORK_ID } from 'constants/config';
-import { SUPPORTED_TOKENS_MAP_BY_ADDRESS } from 'constants/tokens';
-import { useTokenPrices } from 'queries/backendv2';
-import { API_ENDPOINT, BlockDetails, useBlockDetails } from 'queries/blockDetails';
+import bnJs from '@/bnJs';
+import { NETWORK_ID } from '@/constants/config';
+import { SUPPORTED_TOKENS_MAP_BY_ADDRESS } from '@/constants/tokens';
+import { useTokenPrices } from '@/queries/backendv2';
+import { API_ENDPOINT, BlockDetails, useBlockDetails } from '@/queries/blockDetails';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
-import { formatUnits } from 'utils';
+import { formatUnits } from '@/utils';
+import { addresses, CallData } from '@balancednetwork/balanced-js';
 
 export function useTotalBnUSDLocked(): UseQueryResult<CurrencyAmount<Token> | undefined> {
   return useQuery(

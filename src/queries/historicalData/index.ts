@@ -1,11 +1,11 @@
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import { useTokenPrices } from 'queries/backendv2';
-import { BlockDetails } from 'queries/blockDetails';
+import { useTokenPrices } from '@/queries/backendv2';
+import { BlockDetails } from '@/queries/blockDetails';
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 
-import bnJs from 'bnJs';
-import { formatUnits } from 'utils';
+import bnJs from '@/bnJs';
+import { formatUnits } from '@/utils';
 
 import { DATES, DATE_DEFAULT, DATE_STABILITY_FUND_LAUNCH, DEFAULT_GRANULARITY } from './dates';
 import { Granularity, HistoryForParams } from './types';

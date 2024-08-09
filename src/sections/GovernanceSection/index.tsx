@@ -1,22 +1,22 @@
 import React from 'react';
 
-import { useGovernanceInfo, useLatestProposals } from 'queries';
+import { useGovernanceInfo, useLatestProposals } from '@/queries';
 import { Box, Flex } from 'rebass';
 import styled, { css } from 'styled-components';
 
-import { ReactComponent as ActiveProposalsIcon } from 'assets/icons/active-proposals.svg';
-import { ReactComponent as CalendarIcon } from 'assets/icons/calendar-small.svg';
-import { ReactComponent as EligibleVotersIcon } from 'assets/icons/eligible-voters.svg';
-import { ReactComponent as ParticipationRateIcon } from 'assets/icons/participation-rate.svg';
-import { ReactComponent as TotalProposalsIcon } from 'assets/icons/total-proposals.svg';
-import Divider from 'components/Divider';
-import { BoxPanel, FlexPanel } from 'components/Panel';
-// import { LoaderComponent } from 'pages/PerformanceDetails/utils';
-import { LoaderComponent } from 'pages/PerformanceDetails/utils';
-import { Stats, StatsItem, StatsItemData, StatsItemIcon } from 'pages/StatsPage';
-import { StyledSkeleton } from 'sections/TokenSection';
-import { Typography } from 'theme';
-import { getFormattedNumber } from 'utils/formatter';
+import ActiveProposalsIcon from '@/assets/icons/active-proposals.svg';
+import CalendarIcon from '@/assets/icons/calendar-small.svg';
+import EligibleVotersIcon from '@/assets/icons/eligible-voters.svg';
+import ParticipationRateIcon from '@/assets/icons/participation-rate.svg';
+import TotalProposalsIcon from '@/assets/icons/total-proposals.svg';
+import Divider from '@/components/Divider';
+import { BoxPanel, FlexPanel } from '@/components/Panel';
+// import { LoaderComponent } from '@/pages/PerformanceDetails/utils';
+import { LoaderComponent } from '@/pages/PerformanceDetails/utils';
+import { Stats, StatsItem, StatsItemData, StatsItemIcon } from '@/pages/StatsPage';
+import { StyledSkeleton } from '@/sections/TokenSection';
+import { Typography } from '@/theme';
+import { getFormattedNumber } from '@/utils/formatter';
 
 import { ProposalStatusIcon } from './ProposalStatusLabel';
 import { getDateFromDay, normalizeContent } from './utils';

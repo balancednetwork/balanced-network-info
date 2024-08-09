@@ -2,23 +2,23 @@ import React, { useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
-import { useCollateralInfo, useLoanInfo, useBorrowersInfo } from 'queries';
-import { useTokenPrices } from 'queries/backendv2';
+import { useCollateralInfo, useLoanInfo, useBorrowersInfo } from '@/queries';
+import { useTokenPrices } from '@/queries/backendv2';
 import { useMedia } from 'react-use';
 import { Box, Flex } from 'rebass';
 import styled from 'styled-components';
 
-import CollateralSelector from 'components/CollateralSelector';
-import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
-import { ONE } from 'constants/number';
-import useWidth from 'hooks/useWidth';
-import { LoaderComponent } from 'pages/PerformanceDetails/utils';
-import { ChartInfo, ChartInfoItem, ChartSection } from 'sections/BALNSection/DistributionChart';
-import { useStabilityFundTotal, useSupportedCollateralTokens } from 'store/collateral/hooks';
-import { Typography } from 'theme';
-import { getFormattedNumber } from 'utils/formatter';
+import CollateralSelector from '@/components/CollateralSelector';
+import { predefinedCollateralTypes } from '@/components/CollateralSelector/CollateralTypeList';
+import { ONE } from '@/constants/number';
+import useWidth from '@/hooks/useWidth';
+import { LoaderComponent } from '@/pages/PerformanceDetails/utils';
+import { ChartInfo, ChartInfoItem, ChartSection } from '@/sections/BALNSection/DistributionChart';
+import { useStabilityFundTotal, useSupportedCollateralTokens } from '@/store/collateral/hooks';
+import { Typography } from '@/theme';
+import { getFormattedNumber } from '@/utils/formatter';
 
-import { CollateralChartTimeFrame } from '../TimeFrameSelector';
+import { TimeFrame } from '../TimeFrameSelector';
 import Chart from './Chart';
 
 const CollateralControlWrap = styled(Flex)`
@@ -39,11 +39,9 @@ export default function CollateralChart({
   selectedCollateral,
   selectedTimeFrame,
   setCollateral,
-  setSelectedTimeFrame,
 }: {
   selectedCollateral: string;
-  selectedTimeFrame: CollateralChartTimeFrame;
-  setSelectedTimeFrame: (timeFrame) => void;
+  selectedTimeFrame: TimeFrame;
   setCollateral: (string) => void;
 }) {
   const { data: collateralInfo } = useCollateralInfo();
@@ -101,14 +99,14 @@ export default function CollateralChart({
             <Typography variant="h3" mr={2} mb="2px">
               Collateral
             </Typography>
-            <SelectorsWrap>
-              <CollateralSelector
-                width={width}
-                containerRef={ref.current}
-                collateral={selectedCollateral === 'sICX' ? 'ICON' : selectedCollateral}
-                setCollateral={setCollateral}
-              />
-            </SelectorsWrap>
+            {/* <SelectorsWrap> */}
+            <CollateralSelector
+              width={width}
+              containerRef={ref.current}
+              collateral={selectedCollateral === 'sICX' ? 'ICON' : selectedCollateral}
+              setCollateral={setCollateral}
+            />
+            {/* </SelectorsWrap> */}
           </CollateralControlWrap>
         </Flex>
         <Typography variant="h3">{collateralInfo && collateralTVLHover && `${collateralTVLInUSDHover}`}</Typography>

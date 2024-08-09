@@ -1,13 +1,13 @@
 import dayjs from 'dayjs';
-import { LoaderComponent } from 'pages/PerformanceDetails/utils';
-import { useBurnData } from 'queries/burn';
+import { LoaderComponent } from '@/pages/PerformanceDetails/utils';
+import { useBurnData } from '@/queries/burn';
 import React from 'react';
 import { Flex } from 'rebass';
 import { Bar, BarChart, Rectangle, ResponsiveContainer, Tooltip, YAxis } from 'recharts';
-import { ChartInfo, ChartInfoItem, ChartWrap, LegendItem } from 'sections/BALNSection/DistributionChart';
+import { ChartInfo, ChartInfoItem, ChartWrap, LegendItem } from '@/sections/BALNSection/DistributionChart';
 import styled, { useTheme } from 'styled-components';
-import { Typography } from 'theme';
-import { formatYAxisNumber, getFormattedNumber } from 'utils/formatter';
+import { Typography } from '@/theme';
+import { formatYAxisNumber, getFormattedNumber } from '@/utils/formatter';
 
 export const TooltipWrapper = styled.div`
   background: ${({ theme }) => theme.colors.bg4};

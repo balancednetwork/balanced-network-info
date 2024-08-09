@@ -3,8 +3,8 @@ import React from 'react';
 import ClickAwayListener from 'react-click-away-listener';
 import styled from 'styled-components';
 
-import { StyledArrowDownIcon, UnderlineText } from 'components/DropdownText';
-import { Typography } from 'theme';
+import { StyledArrowDownIcon, UnderlineText } from '@/components/DropdownText';
+import { Typography } from '@/theme';
 
 import { DropdownPopper } from '../Popover';
 import CollateralTypeList from './CollateralTypeList';
@@ -42,16 +42,16 @@ const CollateralSelector = ({ width, containerRef, collateral, setCollateral }) 
   };
 
   return (
-    <>
-      <Wrap onClick={handleToggle} style={{ position: 'relative', marginRight: '11px' }}>
-        <Typography fontSize={16}>
-          <UnderlineText>{collateral}</UnderlineText>
-          <div ref={arrowRef} style={{ display: 'inline-block' }}>
-            <StyledArrowDownIcon />
-          </div>
-        </Typography>
-      </Wrap>
-      <ClickAwayListener onClickAway={e => closeDropdown(e)}>
+    <ClickAwayListener onClickAway={e => closeDropdown(e)}>
+      <div>
+        <Wrap onClick={handleToggle} style={{ position: 'relative' }}>
+          <Typography fontSize={16}>
+            <UnderlineText>{collateral}</UnderlineText>
+            <div ref={arrowRef} style={{ display: 'inline-block' }}>
+              <StyledArrowDownIcon />
+            </div>
+          </Typography>
+        </Wrap>
         <DropdownPopper
           show={Boolean(anchor)}
           anchorEl={anchor}
@@ -62,8 +62,8 @@ const CollateralSelector = ({ width, containerRef, collateral, setCollateral }) 
         >
           <CollateralTypeList width={width} anchor={anchor} setAnchor={setAnchor} setCollateral={setCollateral} />
         </DropdownPopper>
-      </ClickAwayListener>
-    </>
+      </div>
+    </ClickAwayListener>
   );
 };
 

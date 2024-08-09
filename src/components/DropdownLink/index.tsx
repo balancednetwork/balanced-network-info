@@ -3,8 +3,8 @@ import React from 'react';
 import { Flex } from 'rebass';
 import styled from 'styled-components';
 
-import { UnderlineText } from 'components/DropdownText';
-import { Typography } from 'theme';
+import { UnderlineText } from '@/components/DropdownText';
+import { Typography } from '@/theme';
 
 const StyledUnderlineText = styled(UnderlineText)`
   padding-right: 17px;

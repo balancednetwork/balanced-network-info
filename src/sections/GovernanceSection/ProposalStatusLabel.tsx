@@ -5,10 +5,10 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import utc from 'dayjs/plugin/utc';
 import { Flex } from 'rebass/styled-components';
 
-import { ReactComponent as CalendarIcon } from 'assets/icons/calendar-small.svg';
-import { ReactComponent as FailureIcon } from 'assets/icons/failure.svg';
-import { ReactComponent as TickIcon } from 'assets/icons/tick.svg';
-import { Typography } from 'theme';
+import CalendarIcon from '@/assets/icons/calendar-small.svg';
+import FailureIcon from '@/assets/icons/failure.svg';
+import TickIcon from '@/assets/icons/tick.svg';
+import { Typography } from '@/theme';
 
 import { formatTimeStr } from './utils';
 

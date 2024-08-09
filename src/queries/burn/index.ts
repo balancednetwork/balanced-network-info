@@ -1,8 +1,8 @@
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import bnJs from 'bnJs';
-import { getTimestampFrom } from 'pages/PerformanceDetails/utils';
-import { API_ENDPOINT, BlockDetails, useBlockDetails } from 'queries/blockDetails';
+import bnJs from '@/bnJs';
+import { getTimestampFrom } from '@/pages/PerformanceDetails/utils';
+import { API_ENDPOINT, BlockDetails, useBlockDetails } from '@/queries/blockDetails';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
 const BURNER_CX_CREATED = 1708324683000;

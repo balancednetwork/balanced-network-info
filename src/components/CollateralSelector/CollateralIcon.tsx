@@ -1,8 +1,8 @@
 import React from 'react';
 
-import AllLogo from 'assets/icons/all.svg';
-import FundLogo from 'assets/icons/stability-white.svg';
-import ICONLogo from 'assets/images/icon-logo.png';
+import AllLogo from '@/assets/icons/all.svg?url';
+import FundLogo from '@/assets/icons/stability-white.svg?url';
+import ICONLogo from '@/assets/images/icon-logo.png?url';
 
 const TOKEN_ICON_URL = 'https://raw.githubusercontent.com/balancednetwork/icons/master/tokens/';
 

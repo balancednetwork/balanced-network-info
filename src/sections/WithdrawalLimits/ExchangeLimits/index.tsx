@@ -1,12 +1,12 @@
-import Divider from 'components/Divider';
-import { CurrencyLogoFromURI } from 'components/shared/CurrencyLogo';
-import { HIGH_PRICE_ASSET_DP } from 'constants/tokens';
-import { useWithdrawalsFloorDEXData } from 'queries';
+import Divider from '@/components/Divider';
+import { CurrencyLogoFromURI } from '@/components/shared/CurrencyLogo';
+import { HIGH_PRICE_ASSET_DP } from '@/constants/tokens';
+import { useWithdrawalsFloorDEXData } from '@/queries';
 import React, { Fragment } from 'react';
 import { Box, Flex } from 'rebass';
-import { HeaderText } from 'sections/TokenSection';
-import { Typography } from 'theme';
-import { getFormattedNumber } from 'utils/formatter';
+import { HeaderText } from '@/sections/TokenSection';
+import { Typography } from '@/theme';
+import { getFormattedNumber } from '@/utils/formatter';
 import { DashGrid, DataText, MinWidthContainer, SkeletonTokenPlaceholder } from '../CollateralLimits';
 
 const ExchangeLimits = () => {

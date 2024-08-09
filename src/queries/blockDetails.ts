@@ -4,11 +4,11 @@ import { addresses } from '@balancednetwork/balanced-js';
 import { Currency, CurrencyAmount, Token } from '@balancednetwork/sdk-core';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import { useWhitelistedTokensList } from 'queries';
+import { useWhitelistedTokensList } from '@/queries';
 import { useQuery } from '@tanstack/react-query';
 
-import bnJs from 'bnJs';
-import { SUPPORTED_TOKENS_LIST, TOKEN_BLACKLIST } from 'constants/tokens';
+import bnJs from '@/bnJs';
+import { SUPPORTED_TOKENS_LIST, TOKEN_BLACKLIST } from '@/constants/tokens';
 
 import { useAllPairs, useAllTokens, useAllTokensByAddress } from './backendv2';
 

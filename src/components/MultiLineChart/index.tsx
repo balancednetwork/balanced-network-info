@@ -2,17 +2,16 @@ import React, { Dispatch, SetStateAction, ReactNode } from 'react';
 
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import { ContractMethodsDataType } from 'queries/backendv2';
+import { ContractMethodsDataType } from '@/queries/backendv2';
 import { Box, Flex } from 'rebass';
 import { ResponsiveContainer, XAxis, YAxis, Tooltip, AreaChart, Area } from 'recharts';
-import styled, { css } from 'styled-components';
+import styled, { css, useTheme } from 'styled-components';
 
-import Card from 'components/Card';
-import { RowBetween } from 'components/Row';
-import { TooltipContainer } from 'components/Tooltip';
-import useTheme from 'hooks/useTheme';
-import { Typography } from 'theme';
-import { formatYAxisNumber, getFormattedNumber } from 'utils/formatter';
+import Card from '@/components/Card';
+import { RowBetween } from '@/components/Row';
+import { TooltipContainer } from '@/components/Tooltip';
+import { Typography } from '@/theme';
+import { formatYAxisNumber, getFormattedNumber } from '@/utils/formatter';
 
 dayjs.extend(utc);
 

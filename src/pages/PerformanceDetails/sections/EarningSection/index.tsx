@@ -1,15 +1,15 @@
 import React, { useState, useRef } from 'react';
 
 import BigNumber from 'bignumber.js';
-import { useEarningsDataQuery } from 'queries';
+import { useEarningsDataQuery } from '@/queries';
 import ClickAwayListener from 'react-click-away-listener';
 import { Flex, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
-import { UnderlineTextWithArrow } from 'components/DropdownText';
-import { MenuList, MenuItem } from 'components/Menu';
-import { BoxPanel } from 'components/Panel';
-import { DropdownPopper } from 'components/Popover';
+import { UnderlineTextWithArrow } from '@/components/DropdownText';
+import { MenuList, MenuItem } from '@/components/Menu';
+import { BoxPanel } from '@/components/Panel';
+import { DropdownPopper } from '@/components/Popover';
 import {
   TimePeriod,
   earningPeriods,
@@ -19,9 +19,9 @@ import {
   dateOptionLong,
   FormattedPeriods,
   SkeletonPlaceholder,
-} from 'pages/PerformanceDetails/utils';
-import { StyledSkeleton as Skeleton } from 'sections/TokenSection';
-import { Typography } from 'theme';
+} from '@/pages/PerformanceDetails/utils';
+import { StyledSkeleton as Skeleton } from '@/sections/TokenSection';
+import { Typography } from '@/theme';
 
 import {
   GridItemHeader,
@@ -31,8 +31,8 @@ import {
   GridItemLight,
   GridItemSubtotal,
 } from '../../index';
-import QuestionHelper, { QuestionWrapper } from 'components/QuestionHelper';
-import { EnshrinementTooltipContent } from 'sections/EnshrinmentSection';
+import QuestionHelper, { QuestionWrapper } from '@/components/QuestionHelper';
+import { EnshrinementTooltipContent } from '@/sections/EnshrinmentSection';
 
 export const IncomeGrid = styled.div`
   display: grid;
@@ -111,6 +111,7 @@ const EarningsSection = () => {
 
   const handlePeriodChange = period => {
     setTimePeriod(earningPeriods[period]);
+    closeDropdown();
   };
 
   let swapFeesTotalCurrent =

@@ -1,13 +1,13 @@
 import { Fraction } from '@balancednetwork/sdk-core';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import { useBnJsContractQuery, useIncentivisedPairs } from 'queries';
+import { useBnJsContractQuery, useIncentivisedPairs } from '@/queries';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
-import bnJs from 'bnJs';
-import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
-import { formatUnits } from 'utils';
-import { TOKEN_BLACKLIST } from 'constants/tokens';
+import bnJs from '@/bnJs';
+import { predefinedCollateralTypes } from '@/components/CollateralSelector/CollateralTypeList';
+import { formatUnits } from '@/utils';
+import { TOKEN_BLACKLIST } from '@/constants/tokens';
 
 export const API_ENDPOINT = 'https://balanced.icon.community/api/v1/';
 

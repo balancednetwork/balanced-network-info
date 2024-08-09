@@ -2,15 +2,15 @@ import { useMemo } from 'react';
 
 import { addresses, CallData } from '@balancednetwork/balanced-js';
 import BigNumber from 'bignumber.js';
-import { useFundLimits, useWhitelistedTokensList } from 'queries';
-import { useTokenPrices } from 'queries/backendv2';
-import { useStabilityFundHoldings } from 'queries/blockDetails';
+import { useFundLimits, useWhitelistedTokensList } from '@/queries';
+import { useTokenPrices } from '@/queries/backendv2';
+import { useStabilityFundHoldings } from '@/queries/blockDetails';
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 
-import bnJs from 'bnJs';
-import { NETWORK_ID } from 'constants/config';
-import { ONE } from 'constants/number';
-import { formatUnits } from 'utils';
+import bnJs from '@/bnJs';
+import { NETWORK_ID } from '@/constants/config';
+import { ONE } from '@/constants/number';
+import { formatUnits } from '@/utils';
 
 type CollateralData = {
   symbol: string;

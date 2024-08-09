@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo } from 'react';
 
-import { useDebtDataFor } from 'queries/backendv2';
+import { useDebtDataFor } from '@/queries/backendv2';
 
-import LineChart, { DEFAULT_HEIGHT } from 'components/LineChart';
-import Spinner from 'components/Spinner';
+import LineChart, { DEFAULT_HEIGHT } from '@/components/LineChart';
+import Spinner from '@/components/Spinner';
 
 import { ChartContainer } from '..';
+import { timeFrames } from '../TimeFrameSelector';
 
 const MemoizedLineChart = React.memo(LineChart);
 
@@ -19,7 +20,7 @@ export default function Chart({
   setTotalBnUSD,
   setUserHovering,
 }) {
-  const { data: debtData } = useDebtDataFor(selectedTimeFrame.days);
+  const { data: debtData } = useDebtDataFor(timeFrames[selectedTimeFrame].days);
 
   const data = useMemo(() => {
     return debtData?.[selectedCollateral];

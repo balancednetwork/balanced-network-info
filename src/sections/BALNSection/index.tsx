@@ -1,13 +1,13 @@
 import React from 'react';
 
-import { useAllTokensByAddress } from 'queries/backendv2';
+import { useAllTokensByAddress } from '@/queries/backendv2';
 import { Flex } from 'rebass';
 import styled from 'styled-components';
 
-import bnJs from 'bnJs';
-import { BoxPanel } from 'components/Panel';
-import { Typography } from 'theme';
-import { getFormattedNumber } from 'utils/formatter';
+import bnJs from '@/bnJs';
+import { BoxPanel } from '@/components/Panel';
+import { Typography } from '@/theme';
+import { getFormattedNumber } from '@/utils/formatter';
 
 import BBALNChart from './BBALNChart';
 import DistributionChart from './DistributionChart';

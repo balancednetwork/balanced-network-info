@@ -1,8 +1,8 @@
 import { CallData, addresses } from '@balancednetwork/balanced-js';
 import BigNumber from 'bignumber.js';
-import bnJs from 'bnJs';
+import bnJs from '@/bnJs';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
-import { formatUnits } from 'utils';
+import { formatUnits } from '@/utils';
 
 type DebtCeiling = {
   ceiling: BigNumber;

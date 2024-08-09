@@ -1,10 +1,10 @@
 import BigNumber from 'bignumber.js';
-import bnJs from 'bnJs';
-import { getTimestampFrom } from 'pages/PerformanceDetails/utils';
-import { useAllPairs, useAllTokensByAddress } from 'queries/backendv2';
-import { useBlockDetails } from 'queries/blockDetails';
+import bnJs from '@/bnJs';
+import { getTimestampFrom } from '@/pages/PerformanceDetails/utils';
+import { useAllPairs, useAllTokensByAddress } from '@/queries/backendv2';
+import { useBlockDetails } from '@/queries/blockDetails';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
-import { CHART_COLORS } from 'sections/BALNSection/queries';
+import { CHART_COLORS } from '@/sections/BALNSection/queries';
 
 // const NOL_LP_CHART_COLORS = {
 //   'sICX/bnUSD': '#2ca9b7',

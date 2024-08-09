@@ -27,3 +27,8 @@ template
 
 # yarn files
 .yarn/*
+
+#tsbuild
+tsconfig.tsbuildinfo
+
+dist

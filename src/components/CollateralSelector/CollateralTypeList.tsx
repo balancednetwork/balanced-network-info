@@ -1,14 +1,14 @@
 import React, { Fragment, useMemo } from 'react';
 
-import { useAllCollateralData } from 'queries/backendv2';
+import { useAllCollateralData } from '@/queries/backendv2';
 import { useMedia } from 'react-use';
 import { Box, Flex } from 'rebass';
 import styled from 'styled-components';
 
-import Divider from 'components/Divider';
-import { StyledSkeleton } from 'sections/TokenSection';
-import { Typography } from 'theme';
-import { getFormattedNumber } from 'utils/formatter';
+import Divider from '@/components/Divider';
+import { StyledSkeleton } from '@/sections/TokenSection';
+import { Typography } from '@/theme';
+import { getFormattedNumber } from '@/utils/formatter';
 
 import CollateralIcon from './CollateralIcon';
 
@@ -105,7 +105,7 @@ export const predefinedCollateralTypes = Object.freeze({
   STABILITY_FUND: 'Stability Fund',
 });
 
-const CollateralTypeList = ({ width, setAnchor, anchor, setCollateral, ...rest }) => {
+const CollateralTypeList = ({ width, setAnchor, anchor, setCollateral }) => {
   const { data: collateralData } = useAllCollateralData();
   const isSmall = useMedia('(max-width: 460px)');
   const collateralTokens = useMemo(() => {

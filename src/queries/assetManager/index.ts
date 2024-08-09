@@ -1,6 +1,6 @@
 import { CurrencyAmount, Token } from '@balancednetwork/sdk-core';
-import bnJs from 'bnJs';
-import { SUPPORTED_TOKENS_MAP_BY_ADDRESS } from 'constants/tokens';
+import bnJs from '@/bnJs';
+import { SUPPORTED_TOKENS_MAP_BY_ADDRESS } from '@/constants/tokens';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
 const networkAddressToName = {

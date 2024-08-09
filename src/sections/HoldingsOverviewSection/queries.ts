@@ -2,11 +2,11 @@ import { useMemo } from 'react';
 
 import { addresses } from '@balancednetwork/balanced-js';
 import BigNumber from 'bignumber.js';
-import { useTokenPrices } from 'queries/backendv2';
-import { useHoldings, usePOLData } from 'queries/blockDetails';
+import { useTokenPrices } from '@/queries/backendv2';
+import { useHoldings, usePOLData } from '@/queries/blockDetails';
 import { useQuery } from '@tanstack/react-query';
 
-import { CHART_COLORS } from 'sections/BALNSection/queries';
+import { CHART_COLORS } from '@/sections/BALNSection/queries';
 
 const daoFundAddress = addresses[1].daofund;
 const reserveFundAddress = addresses[1].reserve;

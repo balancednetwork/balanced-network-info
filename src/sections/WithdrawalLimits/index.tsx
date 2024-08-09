@@ -1,9 +1,9 @@
-import { BoxPanel } from 'components/Panel';
-import QuestionHelper, { QuestionWrapper } from 'components/QuestionHelper';
+import { BoxPanel } from '@/components/Panel';
+import QuestionHelper, { QuestionWrapper } from '@/components/QuestionHelper';
 import React from 'react';
 import { Box, Flex } from 'rebass';
 import styled from 'styled-components';
-import { Typography } from 'theme';
+import { Typography } from '@/theme';
 import CollateralLimits from './CollateralLimits';
 import ExchangeLimits from './ExchangeLimits';
 import StabilityFundLimits from './StabilityFundLimits';

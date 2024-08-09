@@ -3,13 +3,13 @@ import { CurrencyAmount, Token, Fraction } from '@balancednetwork/sdk-core';
 import BigNumber from 'bignumber.js';
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 
-import bnJs from 'bnJs';
-import { SUPPORTED_PAIRS } from 'constants/pairs';
-import QUERY_KEYS from 'constants/queryKeys';
-import { SUPPORTED_TOKENS_LIST, SUPPORTED_TOKENS_MAP_BY_ADDRESS } from 'constants/tokens';
-import { getTimestampFrom } from 'pages/PerformanceDetails/utils';
-import { useSupportedCollateralTokens } from 'store/collateral/hooks';
-import { formatUnits } from 'utils';
+import bnJs from '@/bnJs';
+import { SUPPORTED_PAIRS } from '@/constants/pairs';
+import QUERY_KEYS from '@/constants/queryKeys';
+import { SUPPORTED_TOKENS_LIST, SUPPORTED_TOKENS_MAP_BY_ADDRESS } from '@/constants/tokens';
+import { getTimestampFrom } from '@/pages/PerformanceDetails/utils';
+import { useSupportedCollateralTokens } from '@/store/collateral/hooks';
+import { formatUnits } from '@/utils';
 
 import {
   API_ENDPOINT,
@@ -99,7 +99,12 @@ export const useEarningsDataQuery = (
       }
     | undefined
   >(
-    [`${cacheItem}${blockStart && blockStart.number}${blockEnd && blockEnd.number}${rates && Object.keys(rates).length}`],
+    [
+      cacheItem, 
+      blockStart?.number,
+      blockEnd?.number,
+      rates && Object.keys(rates).length,
+    ],
     async () => {
       async function getEarnings(
         blockStart: number,
@@ -448,6 +453,7 @@ export const useEarningsDataQuery = (
       }
     },
     {
+      enabled: Boolean(blockStart && blockEnd && rates),
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
       refetchInterval: undefined,

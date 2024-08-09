@@ -1,9 +1,9 @@
 import { Fraction } from '@balancednetwork/sdk-core';
 import BigNumber from 'bignumber.js';
-import { useFlattenedRewardsDistribution } from 'queries';
+import { useFlattenedRewardsDistribution } from '@/queries';
 import { useQuery } from '@tanstack/react-query';
 
-import bnJs from 'bnJs';
+import bnJs from '@/bnJs';
 
 export const CHART_COLORS = ['#2ca9b7', '#217f94', '#144a68', '#1694b8', '#136aa1'];
 
