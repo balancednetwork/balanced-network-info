@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 
-import { Skeleton } from '@material-ui/lab';
 import { MetaToken } from '@/queries';
 import { useAllTokensByAddress, useTokenTrendData } from '@/queries/backendv2';
 import { useMedia } from 'react-use';
@@ -20,6 +19,7 @@ import { Typography } from '@/theme';
 import { formatPriceChange, getFormattedNumber } from '@/utils/formatter';
 import { useAssetManagerTokens } from '@/queries/assetManager';
 import AssetManagerTokenBreakdown from '@/components/AssetManagerTokenBreakdown';
+import Skeleton from '@/components/Skeleton';
 
 export const COMPACT_ITEM_COUNT = 8;
 

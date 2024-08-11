@@ -176,7 +176,6 @@ export function DropdownPopper({
     strategy: 'fixed',
     modifiers: customModifier,
   });
-  console.log('arrow', styles, `arrow-${attributes.popper?.['data-popper-placement'] ?? ''}`);
   const updateCallback = useCallback(() => {
     update && update();
   }, [update]);

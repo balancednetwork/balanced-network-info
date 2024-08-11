@@ -42,8 +42,9 @@ export const IncomeGrid = styled.div`
 `;
 
 export const StyledSkeleton = styled(Skeleton)`
-  height: 32px;
   margin-left: auto;
+  margin-top: 0;
+  margin-bottom: 0;
 `;
 
 const SectionHeader = styled(Flex)`
