@@ -84,9 +84,14 @@ export const useStabilityFundHoldings = (timestamp: number) => {
           .filter(address => SUPPORTED_TOKENS_LIST.find(token => token.address === address))
           .map(async address => {
             const token = SUPPORTED_TOKENS_LIST.filter(token => token.address === address)[0];
-            const contract = bnJs.getContract(address);
-            const balance = await contract.balanceOf(stabilityFundAddress, blockHeight);
-            return CurrencyAmount.fromRawAmount(token, balance);
+            try {
+              const contract = bnJs.getContract(address);
+              const balance = await contract.balanceOf(stabilityFundAddress, blockHeight);
+              return CurrencyAmount.fromRawAmount(token, balance);
+            } catch (e) {
+              console.error(e);
+              return CurrencyAmount.fromRawAmount(token, 0);
+            }
           }),
       );
       const holdings = {};
