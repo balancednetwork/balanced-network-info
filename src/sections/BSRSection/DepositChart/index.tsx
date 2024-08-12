@@ -1,13 +1,13 @@
-import Spinner from 'components/Spinner';
+import Spinner from '@/components/Spinner';
 import dayjs from 'dayjs';
-import { useDepositsChartData, useSavingsRateInfo } from 'queries/bsr';
+import { useDepositsChartData, useSavingsRateInfo } from '@/queries/bsr';
 import React from 'react';
 import { Box, Flex } from 'rebass';
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { TooltipWrapper } from 'sections/EnshrinmentSection/ICXBurn';
+import { TooltipWrapper } from '@/sections/EnshrinmentSection/ICXBurn';
 import styled, { useTheme } from 'styled-components';
-import { Typography } from 'theme';
-import { formatYAxisNumber, getFormattedNumber } from 'utils/formatter';
+import { Typography } from '@/theme';
+import { formatYAxisNumber, getFormattedNumber } from '@/utils/formatter';
 
 const Wrap = styled(Box)`
   margin-bottom: -10px !important;

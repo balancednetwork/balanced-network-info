@@ -3,15 +3,15 @@ import React, { useCallback, useState } from 'react';
 import { Box, Flex } from 'rebass/styled-components';
 import styled from 'styled-components';
 
-import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
-import { DEFAULT_HEIGHT } from 'components/LineChart';
-import { BoxPanel } from 'components/Panel';
-import { ChartsWrap } from 'sections/BALNSection';
-import { Typography } from 'theme';
+import { predefinedCollateralTypes } from '@/components/CollateralSelector/CollateralTypeList';
+import { DEFAULT_HEIGHT } from '@/components/LineChart';
+import { BoxPanel } from '@/components/Panel';
+import { ChartsWrap } from '@/sections/BALNSection';
+import { Typography } from '@/theme';
 
 import BnUSDChart from './BnUSDChart';
 import CollateralChart from './CollateralChart';
-import TimeFrameSelector, { CollateralChartTimeFrame, timeFrames } from './TimeFrameSelector';
+import TimeFrameSelector, { TimeFrame } from './TimeFrameSelector';
 
 export const ChartPanel = styled(BoxPanel)`
   width: 100%;
@@ -27,9 +27,8 @@ export const ChartContainer = styled(Box)`
 
 export default function CollateralAndLoanSection() {
   const [selectedCollateral, setSelectedCollateral] = useState<string>(predefinedCollateralTypes.ALL);
-  const setCollateral = useCallback(collateral => setSelectedCollateral(collateral), [setSelectedCollateral]);
 
-  const [selectedTimeFrame, setSelectedTimeFrame] = useState<CollateralChartTimeFrame>(timeFrames.YEAR);
+  const [selectedTimeFrame, setSelectedTimeFrame] = useState<TimeFrame>('YEAR');
 
   return (
     <BoxPanel bg="bg2">
@@ -44,11 +43,10 @@ export default function CollateralAndLoanSection() {
       <ChartsWrap>
         <CollateralChart
           selectedCollateral={selectedCollateral}
-          setCollateral={setCollateral}
+          setCollateral={setSelectedCollateral}
           selectedTimeFrame={selectedTimeFrame}
-          setSelectedTimeFrame={setSelectedTimeFrame}
-        ></CollateralChart>
-        <BnUSDChart selectedCollateral={selectedCollateral} selectedTimeFrame={selectedTimeFrame}></BnUSDChart>
+        />
+        <BnUSDChart selectedCollateral={selectedCollateral} selectedTimeFrame={selectedTimeFrame} />
       </ChartsWrap>
     </BoxPanel>
   );

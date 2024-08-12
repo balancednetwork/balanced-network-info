@@ -3,7 +3,7 @@ import React from 'react';
 import ClickAwayListener from 'react-click-away-listener';
 import styled from 'styled-components';
 
-import { ReactComponent as ArrowDownIcon } from 'assets/icons/arrow-down.svg';
+import ArrowDownIcon from '@/assets/icons/arrow-down.svg';
 
 import { DropdownPopper } from '../Popover';
 

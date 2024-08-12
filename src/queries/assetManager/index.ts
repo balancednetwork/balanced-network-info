@@ -1,7 +1,7 @@
 import { CurrencyAmount, Token } from '@balancednetwork/sdk-core';
-import bnJs from 'bnJs';
-import { SUPPORTED_TOKENS_MAP_BY_ADDRESS } from 'constants/tokens';
-import { UseQueryResult, useQuery } from 'react-query';
+import bnJs from '@/bnJs';
+import { SUPPORTED_TOKENS_MAP_BY_ADDRESS } from '@/constants/tokens';
+import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
 const networkAddressToName = {
   '0x100.icon': 'ICON',
@@ -33,49 +33,52 @@ export function useAssetManagerTokens(): UseQueryResult<AssetManagerTokenBreakdo
   const oneMinPeriod = 1000 * 60;
   const now = Math.floor(new Date().getTime() / oneMinPeriod) * oneMinPeriod;
 
-  return useQuery(`assetManagerTokens-t${now}`, async () => {
-    const tokensRaw: { [key: string]: string } = await bnJs.AssetManager.getAssets();
-    const tokens: { [tokenAddress: string]: string[] } =
-      tokensRaw &&
-      Object.entries(tokensRaw).reduce((tokenNetworks, [networkAddress, tokenAddress]) => {
-        if (!tokenNetworks[tokenAddress]) {
-          tokenNetworks[tokenAddress] = [networkAddress];
-        } else {
-          tokenNetworks[tokenAddress].push(networkAddress);
-        }
-        return tokenNetworks;
-      }, {});
+  return useQuery({
+    queryKey: [`assetManagerTokens-t`, now],
+    queryFn: async () => {
+      const tokensRaw: { [key: string]: string } = await bnJs.AssetManager.getAssets();
+      const tokens: { [tokenAddress: string]: string[] } =
+        tokensRaw &&
+        Object.entries(tokensRaw).reduce((tokenNetworks, [networkAddress, tokenAddress]) => {
+          if (!tokenNetworks[tokenAddress]) {
+            tokenNetworks[tokenAddress] = [networkAddress];
+          } else {
+            tokenNetworks[tokenAddress].push(networkAddress);
+          }
+          return tokenNetworks;
+        }, {});
 
-    if (!tokens) return;
+      if (!tokens) return;
 
-    const tokensBreakdown = await Promise.all(
-      Object.entries(tokens).map(async ([tokenAddress, networks]) => {
-        const token = SUPPORTED_TOKENS_MAP_BY_ADDRESS[tokenAddress];
+      const tokensBreakdown = await Promise.all(
+        Object.entries(tokens).map(async ([tokenAddress, networks]) => {
+          const token = SUPPORTED_TOKENS_MAP_BY_ADDRESS[tokenAddress];
 
-        if (!token) return [tokenAddress, []];
+          if (!token) return [tokenAddress, []];
 
-        const tokenData = await Promise.all(
-          networks.map(async networkAddress => {
-            const amount = await bnJs.AssetManager.getAssetDeposit(networkAddress);
-            const limit = await bnJs.AssetManager.getAssetChainDepositLimit(networkAddress);
+          const tokenData = await Promise.all(
+            networks.map(async networkAddress => {
+              const amount = await bnJs.AssetManager.getAssetDeposit(networkAddress);
+              const limit = await bnJs.AssetManager.getAssetChainDepositLimit(networkAddress);
 
-            const data: AssetManagerToken = {
-              networkAddress,
-              networkName: getNetworkName(networkAddress.split('/')[0]),
-              tokenAmount: CurrencyAmount.fromRawAmount(token, amount),
-              tokenLimit: CurrencyAmount.fromRawAmount(token, limit),
-            };
+              const data: AssetManagerToken = {
+                networkAddress,
+                networkName: getNetworkName(networkAddress.split('/')[0]),
+                tokenAmount: CurrencyAmount.fromRawAmount(token, amount),
+                tokenLimit: CurrencyAmount.fromRawAmount(token, limit),
+              };
 
-            return data;
-          }),
-        );
-        return [
-          tokenAddress,
-          tokenData.sort((a, b) => (a.tokenAmount.subtract(b.tokenAmount).greaterThan(0) ? -1 : 1)),
-        ];
-      }),
-    ).then(data => Object.fromEntries(data));
+              return data;
+            }),
+          );
+          return [
+            tokenAddress,
+            tokenData.sort((a, b) => (a.tokenAmount.subtract(b.tokenAmount).greaterThan(0) ? -1 : 1)),
+          ];
+        }),
+      ).then(data => Object.fromEntries(data));
 
-    return tokensBreakdown;
+      return tokensBreakdown;
+    },
   });
 }

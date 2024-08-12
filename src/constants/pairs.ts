@@ -26,7 +26,7 @@ import {
   bnUSD_SEJONG,
   BALN_SEJONG,
   FIN_SEJONG,
-} from 'constants/tokens';
+} from '@/constants/tokens';
 
 import { NETWORK_ID } from './config';
 

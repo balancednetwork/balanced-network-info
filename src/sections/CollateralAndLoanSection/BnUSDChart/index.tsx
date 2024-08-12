@@ -1,28 +1,28 @@
 import React from 'react';
 
 import dayjs from 'dayjs';
-import { useBorrowersInfo, useFundInfo, useLoanInfo } from 'queries';
+import { useBorrowersInfo, useFundInfo, useLoanInfo } from '@/queries';
 import { useMedia } from 'react-use';
 import { Box, Flex } from 'rebass';
 
-import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
-import { LoaderComponent } from 'pages/PerformanceDetails/utils';
-import { ChartInfo, ChartInfoItem, ChartSection } from 'sections/BALNSection/DistributionChart';
-import { MAX_BOOST } from 'sections/PairSection';
-import { Typography } from 'theme';
-import { getFormattedNumber } from 'utils/formatter';
+import { predefinedCollateralTypes } from '@/components/CollateralSelector/CollateralTypeList';
+import { LoaderComponent } from '@/pages/PerformanceDetails/utils';
+import { ChartInfo, ChartInfoItem, ChartSection } from '@/sections/BALNSection/DistributionChart';
+import { MAX_BOOST } from '@/sections/PairSection';
+import { Typography } from '@/theme';
+import { getFormattedNumber } from '@/utils/formatter';
 
-import { CollateralChartTimeFrame } from '../TimeFrameSelector';
+import { TimeFrame } from '../TimeFrameSelector';
 import Chart from './Chart';
-import QuestionHelper, { QuestionWrapper } from 'components/QuestionHelper';
-import { useDebtCeilings } from 'queries/bnusd';
+import QuestionHelper, { QuestionWrapper } from '@/components/QuestionHelper';
+import { useDebtCeilings } from '@/queries/bnusd';
 
 export default function BnUSDChart({
   selectedCollateral,
   selectedTimeFrame,
 }: {
   selectedCollateral: string;
-  selectedTimeFrame: CollateralChartTimeFrame;
+  selectedTimeFrame: TimeFrame;
 }) {
   const loanInfo = useLoanInfo();
   const { data: borrowersInfo } = useBorrowersInfo();

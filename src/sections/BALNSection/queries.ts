@@ -1,18 +1,18 @@
 import { Fraction } from '@balancednetwork/sdk-core';
 import BigNumber from 'bignumber.js';
-import { useFlattenedRewardsDistribution } from 'queries';
-import { useQuery } from 'react-query';
+import { useFlattenedRewardsDistribution } from '@/queries';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
-import bnJs from 'bnJs';
+import bnJs from '@/bnJs';
 
 export const CHART_COLORS = ['#2ca9b7', '#217f94', '#144a68', '#1694b8', '#136aa1'];
 
 export function useBALNDistributionQuery() {
   const { data: distribution, isSuccess: distributionQuerySuccess } = useFlattenedRewardsDistribution();
 
-  return useQuery(
-    `BALNDistribution-${distribution ? Object.keys(distribution).length : '0'}`,
-    () => {
+  return useQuery({
+    queryKey: [`BALNDistribution`, distribution],
+    queryFn: () => {
       if (!distribution) return [];
 
       const liquidityTotal = Object.entries(distribution).reduce((acc, [key, value]) => {
@@ -49,94 +49,82 @@ export function useBALNDistributionQuery() {
         },
       ];
     },
-    {
-      keepPreviousData: true,
-      enabled: distributionQuerySuccess,
-    },
-  );
+    placeholderData: keepPreviousData,
+    enabled: distributionQuerySuccess,
+  });
 }
 
 export function useEmissions() {
-  return useQuery(
-    'getEmissions',
-    async () => {
+  return useQuery({
+    queryKey: ['getEmissions'],
+    queryFn: async () => {
       const data = await bnJs.Rewards.getEmission();
       return new BigNumber(data).div(10 ** 18);
     },
-    {
-      keepPreviousData: true,
-      refetchOnReconnect: false,
-      refetchInterval: undefined,
-    },
-  );
+    placeholderData: keepPreviousData,
+    refetchOnReconnect: false,
+    refetchInterval: undefined,
+  });
 }
 
 export function useBALNTotalSupply() {
-  return useQuery(
-    'getTotalSupply',
-    async () => {
+  return useQuery({
+    queryKey: ['getTotalSupply'],
+    queryFn: async () => {
       const data = await bnJs.BALN.totalSupply();
       return new BigNumber(data).div(10 ** 18);
     },
-    {
-      keepPreviousData: true,
-      refetchOnReconnect: false,
-      refetchInterval: undefined,
-    },
-  );
+    placeholderData: keepPreviousData,
+    refetchOnReconnect: false,
+    refetchInterval: undefined,
+  });
 }
 
 export function useBALNLocked() {
-  return useQuery(
-    'getLocked',
-    async () => {
+  return useQuery({
+    queryKey: ['getLocked'],
+    queryFn: async () => {
       const data = await bnJs.BBALN.getTotalLocked();
       return new BigNumber(data).div(10 ** 18);
     },
-    {
-      keepPreviousData: true,
-    },
-  );
+    placeholderData: keepPreviousData,
+  });
 }
 
 export function useBBALNHolders() {
-  return useQuery(
-    'getBBALNHolders',
-    async () => {
+  return useQuery({
+    queryKey: ['getBBALNHolders'],
+    queryFn: async () => {
       const data = await bnJs.BBALN.activeUsersCount();
       return new BigNumber(data);
     },
-    {
-      keepPreviousData: true,
-    },
-  );
+    placeholderData: keepPreviousData,
+  });
 }
 
 export function useAverageLockUpTime() {
   const { data: totalLocked, isSuccess: isTotalLockedSuccess } = useBALNLocked();
   const maxYearsLocked = new BigNumber(4);
 
-  return useQuery(
-    `getAverageLockUpTime${totalLocked ? '' : ''}`,
-    async () => {
+  return useQuery({
+    queryKey: [`getAverageLockUpTime${totalLocked ? '' : ''}`],
+    queryFn: async () => {
       const totalSupplyRaw = await bnJs.BBALN.totalSupply();
       const totalSupply = new BigNumber(totalSupplyRaw).div(10 ** 18);
       return totalSupply && totalLocked && maxYearsLocked.times(totalSupply.div(totalLocked));
     },
-    {
-      keepPreviousData: true,
-      enabled: isTotalLockedSuccess,
-    },
-  );
+    placeholderData: keepPreviousData,
+    enabled: isTotalLockedSuccess,
+  });
 }
 
 export function useBALNRatioData() {
   const { data: totalSupply, isSuccess: isTotalSupplySuccess } = useBALNTotalSupply();
   const { data: totalLocked, isSuccess: isTotalLockedSuccess } = useBALNLocked();
 
-  return useQuery(
-    `getBALNRatioData${totalSupply ? totalSupply : ''}${totalLocked ? totalLocked : ''}`,
-    () => {
+  return useQuery({
+    queryKey: [`getBALNRatioData${totalSupply ? totalSupply : ''}${totalLocked ? totalLocked : ''}`],
+    queryFn: () => {
       if (!totalSupply || !totalLocked) return [];
       return [
         {
@@ -151,9 +139,7 @@ export function useBALNRatioData() {
         },
       ];
     },
-    {
-      keepPreviousData: true,
-      enabled: isTotalSupplySuccess && isTotalLockedSuccess,
-    },
-  );
+    placeholderData: keepPreviousData,
+    enabled: isTotalSupplySuccess && isTotalLockedSuccess,
+  });
 }

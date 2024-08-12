@@ -1,31 +1,31 @@
 import React from 'react';
 
-import { useOverviewInfo } from 'queries/index';
+import { useOverviewInfo } from '@/queries/index';
 import { Helmet } from 'react-helmet-async';
 import { Flex, Box } from 'rebass/styled-components';
 import styled, { css } from 'styled-components';
 
-import { ReactComponent as BalnStakingIcon } from 'assets/icons/balnstaking.svg';
-import { ReactComponent as CoinsIcon } from 'assets/icons/coins.svg';
-import { ReactComponent as FeesIcon } from 'assets/icons/fees.svg';
-import { ReactComponent as QuestionIcon } from 'assets/icons/question.svg';
-import vault from 'assets/icons/vault.svg';
-import Footer from 'components/Footer';
-import Header from 'components/Header';
-import { BoxPanel } from 'components/Panel';
-import { MouseoverTooltip } from 'components/Tooltip';
-import { LoaderComponent } from 'pages/PerformanceDetails/utils';
-import BALNSection from 'sections/BALNSection';
-import CollateralAndLoanSection from 'sections/CollateralAndLoanSection';
-import GovernanceSection from 'sections/GovernanceSection';
-import HoldingsOverviewSection from 'sections/HoldingsOverviewSection';
-import PairSection from 'sections/PairSection';
-import TokenSection from 'sections/TokenSection';
-import { Typography } from 'theme';
-import { getFormattedNumber } from 'utils/formatter';
-import WithdrawalLimits from 'sections/WithdrawalLimits';
-import BSRSection from 'sections/BSRSection';
-import EnshrinementSection from 'sections/EnshrinmentSection';
+import BalnStakingIcon from '@/assets/icons/balnstaking.svg';
+import CoinsIcon from '@/assets/icons/coins.svg';
+import FeesIcon from '@/assets/icons/fees.svg';
+import QuestionIcon from '@/assets/icons/question.svg';
+import VaultIconURL from '@/assets/icons/vault.svg?url';
+import Footer from '@/components/Footer';
+import Header from '@/components/Header';
+import { BoxPanel } from '@/components/Panel';
+import { MouseoverTooltip } from '@/components/Tooltip';
+import { LoaderComponent } from '@/pages/PerformanceDetails/utils';
+import BALNSection from '@/sections/BALNSection';
+import CollateralAndLoanSection from '@/sections/CollateralAndLoanSection';
+import GovernanceSection from '@/sections/GovernanceSection';
+import HoldingsOverviewSection from '@/sections/HoldingsOverviewSection';
+import PairSection from '@/sections/PairSection';
+import TokenSection from '@/sections/TokenSection';
+import { Typography } from '@/theme';
+import { getFormattedNumber } from '@/utils/formatter';
+import WithdrawalLimits from '@/sections/WithdrawalLimits';
+import BSRSection from '@/sections/BSRSection';
+import EnshrinementSection from '@/sections/EnshrinmentSection';
 import { useLocation } from 'react-router-dom';
 
 export const Container = styled(Box)`
@@ -144,7 +144,6 @@ export function StatsPage() {
 
   return (
     <Container>
-      {/* @ts-ignore */}
       <Helmet>
         <title>Statistics | Balanced</title>
       </Helmet>
@@ -167,7 +166,7 @@ export function StatsPage() {
             <StatsItem border>
               <StatsItemIcon>
                 {/* svg has issue with linear gradient, so use img here for this icon */}
-                <img src={vault} alt="value" width={53} height={55} />
+                <img src={VaultIconURL} alt="value" width={53} height={55} />
               </StatsItemIcon>
               <StatsItemData>
                 <Typography fontWeight="normal" variant="h3">

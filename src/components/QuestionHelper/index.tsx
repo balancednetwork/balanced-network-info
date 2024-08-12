@@ -3,8 +3,8 @@ import React, { ReactElement, useCallback, useState } from 'react';
 import { Box } from 'rebass';
 import styled from 'styled-components';
 
-import { ReactComponent as QuestionIcon } from 'assets/icons/question.svg';
-import Tooltip from 'components/Tooltip';
+import QuestionIcon from '@/assets/icons/question.svg';
+import Tooltip from '@/components/Tooltip';
 
 export const QuestionWrapper = styled(Box)`
   display: inline-flex;

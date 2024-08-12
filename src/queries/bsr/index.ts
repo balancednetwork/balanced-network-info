@@ -1,19 +1,19 @@
-import { CallData, addresses } from '@balancednetwork/balanced-js';
 import { CurrencyAmount, Token } from '@balancednetwork/sdk-core';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import bnJs from 'bnJs';
-import { NETWORK_ID } from 'constants/config';
-import { SUPPORTED_TOKENS_MAP_BY_ADDRESS } from 'constants/tokens';
-import { useTokenPrices } from 'queries/backendv2';
-import { API_ENDPOINT, BlockDetails, useBlockDetails } from 'queries/blockDetails';
-import { UseQueryResult, useQuery } from 'react-query';
-import { formatUnits } from 'utils';
+import bnJs from '@/bnJs';
+import { NETWORK_ID } from '@/constants/config';
+import { SUPPORTED_TOKENS_MAP_BY_ADDRESS } from '@/constants/tokens';
+import { useTokenPrices } from '@/queries/backendv2';
+import { API_ENDPOINT, BlockDetails, useBlockDetails } from '@/queries/blockDetails';
+import { UseQueryResult, keepPreviousData, useQuery } from '@tanstack/react-query';
+import { formatUnits } from '@/utils';
+import { addresses, CallData } from '@balancednetwork/balanced-js';
 
 export function useTotalBnUSDLocked(): UseQueryResult<CurrencyAmount<Token> | undefined> {
-  return useQuery(
-    'bnUSDtotalLocked',
-    async () => {
+  return useQuery({
+    queryKey: ['bnUSDtotalLocked'],
+    queryFn: async () => {
       try {
         const totalLocked = await bnJs.bnUSD.balanceOf(bnJs.Savings.address);
         return CurrencyAmount.fromRawAmount(SUPPORTED_TOKENS_MAP_BY_ADDRESS[bnJs.bnUSD.address], totalLocked);
@@ -22,61 +22,58 @@ export function useTotalBnUSDLocked(): UseQueryResult<CurrencyAmount<Token> | un
         return CurrencyAmount.fromRawAmount(SUPPORTED_TOKENS_MAP_BY_ADDRESS[bnJs.bnUSD.address], '0');
       }
     },
-    {
-      refetchInterval: 2000,
-      keepPreviousData: true,
-    },
-  );
+    refetchInterval: 2000,
+    placeholderData: keepPreviousData,
+  });
 }
 
 function useTricklerAllowedTokens(): UseQueryResult<string[] | undefined> {
-  return useQuery(
-    'tricklerTokens',
-    async () => {
+  return useQuery({
+    queryKey: ['tricklerTokens'],
+    queryFn: async () => {
       const tokens = await bnJs.Trickler.getAllowListTokens();
       return tokens;
     },
-    {
-      keepPreviousData: true,
-    },
-  );
+    placeholderData: keepPreviousData,
+  });
 }
 
 function useTricklerDistributionPeriod(): UseQueryResult<number | undefined> {
-  return useQuery(
-    'tricklerDistributionPeriod',
-    async () => {
+  return useQuery({
+    queryKey: ['tricklerDistributionPeriod'],
+    queryFn: async () => {
       const periodInBlocks = await bnJs.Trickler.getDistributionPeriod();
       return periodInBlocks;
     },
-    {
-      keepPreviousData: true,
-    },
-  );
+    placeholderData: keepPreviousData,
+  });
 }
 
 export function useSupportedCollateralTokens(): UseQueryResult<{ [key in string]: string }> {
-  return useQuery('getCollateralTokens', async () => {
-    const data = await bnJs.Loans.getCollateralTokens();
+  return useQuery({
+    queryKey: ['getCollateralTokens'],
+    queryFn: async () => {
+      const data = await bnJs.Loans.getCollateralTokens();
 
-    const cds: CallData[] = Object.keys(data).map(symbol => ({
-      target: addresses[NETWORK_ID].loans,
-      method: 'getDebtCeiling',
-      params: [symbol],
-    }));
+      const cds: CallData[] = Object.keys(data).map(symbol => ({
+        target: addresses[NETWORK_ID].loans,
+        method: 'getDebtCeiling',
+        params: [symbol],
+      }));
 
-    const debtCeilingsData = await bnJs.Multicall.getAggregateData(cds);
+      const debtCeilingsData = await bnJs.Multicall.getAggregateData(cds);
 
-    const debtCeilings = debtCeilingsData.map(ceiling => (ceiling === null ? 1 : parseInt(formatUnits(ceiling))));
+      const debtCeilings = debtCeilingsData.map(ceiling => (ceiling === null ? 1 : parseInt(formatUnits(ceiling))));
 
-    const supportedTokens = {};
-    Object.keys(data).forEach((symbol, index) => {
-      if (debtCeilings[index] > 0) {
-        supportedTokens[symbol] = data[symbol];
-      }
-    });
+      const supportedTokens = {};
+      Object.keys(data).forEach((symbol, index) => {
+        if (debtCeilings[index] > 0) {
+          supportedTokens[symbol] = data[symbol];
+        }
+      });
 
-    return supportedTokens;
+      return supportedTokens;
+    },
   });
 }
 
@@ -99,11 +96,17 @@ export function useSavingsRateInfo(): UseQueryResult<
   const { data: periodInBlocks } = useTricklerDistributionPeriod();
   const { data: collateralTokens } = useSupportedCollateralTokens();
 
-  return useQuery(
-    `savingsRate-${blockThen?.number || ''}-${totalLocked?.toFixed() || ''}-${Object.keys(tokenPrices ?? {}).length}-${
-      tokenList?.length ?? ''
-    }-${Object.keys(collateralTokens ?? {}).length}-${periodInBlocks ?? ''}`,
-    async () => {
+  return useQuery({
+    queryKey: [
+      `savingsRate`,
+      blockThen?.number || '',
+      totalLocked?.toFixed() || '',
+      Object.keys(tokenPrices ?? {}).length,
+      tokenList?.length ?? '',
+      Object.keys(collateralTokens ?? {}).length,
+      periodInBlocks ?? '',
+    ],
+    queryFn: async () => {
       if (
         tokenPrices === undefined ||
         totalLocked === undefined ||
@@ -185,11 +188,9 @@ export function useSavingsRateInfo(): UseQueryResult<
         APR,
       };
     },
-    {
-      keepPreviousData: true,
-      enabled: !!tokenPrices && !!tokenList && !!collateralTokens && !!blockThen,
-    },
-  );
+    placeholderData: keepPreviousData,
+    enabled: !!tokenPrices && !!tokenList && !!collateralTokens && !!blockThen,
+  });
 }
 
 export function useDepositsChartData(): UseQueryResult<
@@ -206,9 +207,9 @@ export function useDepositsChartData(): UseQueryResult<
 
   const dataPointsCount = 20;
 
-  return useQuery(
-    `depositsChartData`,
-    async () => {
+  return useQuery({
+    queryKey: [`depositsChartData`],
+    queryFn: async () => {
       if (blockThen === undefined) return;
 
       function generateTimestamps(start: number, end: number, n: number): number[] {
@@ -239,13 +240,11 @@ export function useDepositsChartData(): UseQueryResult<
 
       return deposits;
     },
-    {
-      keepPreviousData: true,
-      refetchInterval: false,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-      refetchIntervalInBackground: false,
-      enabled: !!blockThen,
-    },
-  );
+    placeholderData: keepPreviousData,
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchIntervalInBackground: false,
+    enabled: !!blockThen,
+  });
 }

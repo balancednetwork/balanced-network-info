@@ -1,17 +1,17 @@
 import React from 'react';
 
-import { useOverviewInfo } from 'queries';
+import { useOverviewInfo } from '@/queries';
 import { useMedia } from 'react-use';
 import { Box, Flex } from 'rebass';
 import { Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { useTheme } from 'styled-components';
 
-import { ReactComponent as QuestionIcon } from 'assets/icons/question.svg';
-import { StyledTooltipContainer } from 'components/MultiLineChart';
-import { MouseoverTooltip } from 'components/Tooltip';
-import { LoaderComponent } from 'pages/PerformanceDetails/utils';
-import { Typography } from 'theme';
-import { getFormattedNumber } from 'utils/formatter';
+import QuestionIcon from '@/assets/icons/question.svg';
+import { StyledTooltipContainer } from '@/components/MultiLineChart';
+import { MouseoverTooltip } from '@/components/Tooltip';
+import { LoaderComponent } from '@/pages/PerformanceDetails/utils';
+import { Typography } from '@/theme';
+import { getFormattedNumber } from '@/utils/formatter';
 
 import {
   ChartInfo,

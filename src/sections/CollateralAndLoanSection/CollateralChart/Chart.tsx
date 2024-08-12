@@ -1,13 +1,14 @@
 import React, { useEffect, useMemo } from 'react';
 
-import { useCollateralDataFor } from 'queries/backendv2';
+import { useCollateralDataFor } from '@/queries/backendv2';
 
-import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
-import LineChart, { DEFAULT_HEIGHT } from 'components/LineChart';
-import Spinner from 'components/Spinner';
-import useTheme from 'hooks/useTheme';
+import { predefinedCollateralTypes } from '@/components/CollateralSelector/CollateralTypeList';
+import LineChart, { DEFAULT_HEIGHT } from '@/components/LineChart';
+import Spinner from '@/components/Spinner';
 
 import { ChartContainer } from '..';
+import { timeFrames } from '../TimeFrameSelector';
+import { useTheme } from 'styled-components';
 
 export default function Chart({
   selectedCollateral,
@@ -21,7 +22,7 @@ export default function Chart({
   setTotalCollateral,
 }) {
   const theme = useTheme();
-  const { data: collateralData } = useCollateralDataFor(selectedTimeFrame.days);
+  const { data: collateralData } = useCollateralDataFor(timeFrames[selectedTimeFrame].days);
 
   const seriesData = useMemo(() => {
     if (selectedCollateral === predefinedCollateralTypes.ALL) {

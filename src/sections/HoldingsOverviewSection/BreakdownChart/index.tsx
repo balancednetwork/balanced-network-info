@@ -4,8 +4,8 @@ import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 import { Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
-import useTimestampRounded from 'hooks/useTimestampRounded';
-import { LoaderComponent } from 'pages/PerformanceDetails/utils';
+import useTimestampRounded from '@/hooks/useTimestampRounded';
+import { LoaderComponent } from '@/pages/PerformanceDetails/utils';
 import {
   ChartInfo,
   ChartInfoItem,
@@ -16,9 +16,9 @@ import {
   INNER_RADIUS_MOBILE,
   OUTER_RADIUS,
   OUTER_RADIUS_MOBILE,
-} from 'sections/BALNSection/DistributionChart';
-import { Typography } from 'theme';
-import { getFormattedNumber } from 'utils/formatter';
+} from '@/sections/BALNSection/DistributionChart';
+import { Typography } from '@/theme';
+import { getFormattedNumber } from '@/utils/formatter';
 
 import { useHoldingsBreakdownPieData, useDAOFundTotal, useReserveFundTotal } from '../queries';
 import { CustomLabel, CustomTooltip } from '../TokensChart';

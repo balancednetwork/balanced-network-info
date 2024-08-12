@@ -24,3 +24,11 @@ generated-cra-app
 template
 .env
 .eslintcache
+
+# yarn files
+.yarn/*
+
+#tsbuild
+tsconfig.tsbuildinfo
+
+dist

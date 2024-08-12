@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 
-import usePrevious from 'hooks/usePrevious';
+import usePrevious from '@/hooks/usePrevious';
 
 const calculateBoundingBoxes = children => {
   const boundingBoxes = {};

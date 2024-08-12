@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Box, Flex } from 'rebass/styled-components';
 
-import { BoxPanel } from 'components/Panel';
+import { BoxPanel } from '@/components/Panel';
 
 import RewardsOverview from './RewardsOverview';
 import DepositChart from './DepositChart';

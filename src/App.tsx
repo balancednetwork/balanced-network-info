@@ -1,19 +1,22 @@
 import React from 'react';
 
 import { Helmet } from 'react-helmet-async';
-import { useTranslation } from 'react-i18next';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { Switch, Route, BrowserRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Route, BrowserRouter, Routes } from 'react-router-dom';
 
-import ThemeProvider, { FixedGlobalStyle, ThemedGlobalStyle } from 'theme';
+import ThemeProvider, { FixedGlobalStyle, ThemedGlobalStyle } from '@/theme';
 
 import { PerformanceDetailsPage } from './pages/PerformanceDetails/Loadable';
 import { StatsPage } from './pages/StatsPage/Loadable';
 
 const queryClient = new QueryClient();
 
+const NotFound = () => {
+  window.location.href = 'https://balanced.network/404';
+  return null;
+}
+
 export function App() {
-  const { i18n } = useTranslation();
 
   return (
     <>
@@ -23,20 +26,18 @@ export function App() {
 
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
-            <Helmet htmlAttributes={{ lang: i18n.language }}>
+            <Helmet htmlAttributes={{ lang: "en"  }}>
               <meta name="description" content="A Balanced Network interface" />
             </Helmet>
 
-            <Switch>
-              <Route exact path="/" component={StatsPage} />
-              <Route exact path="/performance-details" component={PerformanceDetailsPage} />
+            <Routes>
+              <Route  path="/" element={<StatsPage />} />
+              <Route  path="/performance-details" element={<PerformanceDetailsPage />} />
               <Route
-                component={() => {
-                  window.location.href = 'https://balanced.network/404';
-                  return null;
-                }}
+              path='*'
+                element={<NotFound />}
               />
-            </Switch>
+            </Routes>
           </BrowserRouter>
         </QueryClientProvider>
       </ThemeProvider>

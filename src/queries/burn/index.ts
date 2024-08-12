@@ -1,9 +1,9 @@
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import bnJs from 'bnJs';
-import { getTimestampFrom } from 'pages/PerformanceDetails/utils';
-import { API_ENDPOINT, BlockDetails, useBlockDetails } from 'queries/blockDetails';
-import { UseQueryResult, useQuery } from 'react-query';
+import bnJs from '@/bnJs';
+import { getTimestampFrom } from '@/pages/PerformanceDetails/utils';
+import { API_ENDPOINT, BlockDetails, useBlockDetails } from '@/queries/blockDetails';
+import { UseQueryResult, keepPreviousData, useQuery } from '@tanstack/react-query';
 
 const BURNER_CX_CREATED = 1708324683000;
 
@@ -32,9 +32,9 @@ function generateWeeklyTimestamps(startTimestamp: number): [number, number][] {
 }
 
 function useBurnChartData(): UseQueryResult<BurnChartItem[] | undefined> {
-  return useQuery(
-    'burnChartData',
-    async () => {
+  return useQuery({
+    queryKey: ['burnChartData'],
+    queryFn: async () => {
       const weeklyTimestamps = generateWeeklyTimestamps(BURNER_CX_CREATED);
 
       return await Promise.all(
@@ -72,10 +72,9 @@ function useBurnChartData(): UseQueryResult<BurnChartItem[] | undefined> {
         }),
       );
     },
-    {
-      enabled: true,
-    },
-  );
+
+    enabled: true,
+  });
 }
 
 export function useBurnData(): UseQueryResult<{
@@ -88,9 +87,9 @@ export function useBurnData(): UseQueryResult<{
   const { data: blockDetails } = useBlockDetails(getTimestampFrom(30));
   const blockHeight = blockDetails?.number;
 
-  return useQuery(
-    `burnData-${chartData ? chartData.length : 0}`,
-    async () => {
+  return useQuery({
+    queryKey: [`burnData`, chartData ? chartData.length : 0],
+    queryFn: async () => {
       if (!blockHeight) return;
 
       const totalRaw = await bnJs.ICXBurner.getBurnedAmount();
@@ -111,9 +110,7 @@ export function useBurnData(): UseQueryResult<{
         awaitingBurn: pendingBurn.plus(unstakingBurn),
       };
     },
-    {
-      enabled: !!blockHeight,
-      keepPreviousData: true,
-    },
-  );
+    enabled: !!blockHeight,
+    placeholderData: keepPreviousData,
+  });
 }

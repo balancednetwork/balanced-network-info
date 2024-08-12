@@ -5,9 +5,9 @@ import { Flex } from 'rebass';
 import { Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { useTheme } from 'styled-components';
 
-import { StyledTooltipContainer } from 'components/MultiLineChart';
-import useTimestampRounded from 'hooks/useTimestampRounded';
-import { LoaderComponent } from 'pages/PerformanceDetails/utils';
+import { StyledTooltipContainer } from '@/components/MultiLineChart';
+import useTimestampRounded from '@/hooks/useTimestampRounded';
+import { LoaderComponent } from '@/pages/PerformanceDetails/utils';
 import {
   ChartInfo,
   ChartInfoItem,
@@ -19,9 +19,9 @@ import {
   LegendItem,
   OUTER_RADIUS,
   OUTER_RADIUS_MOBILE,
-} from 'sections/BALNSection/DistributionChart';
-import { Typography } from 'theme';
-import { getFormattedNumber } from 'utils/formatter';
+} from '@/sections/BALNSection/DistributionChart';
+import { Typography } from '@/theme';
+import { getFormattedNumber } from '@/utils/formatter';
 
 import { useReserveFundHoldingsPieData, useReserveFundTotal } from '../queries';
 

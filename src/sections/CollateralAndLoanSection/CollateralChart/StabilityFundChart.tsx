@@ -1,12 +1,12 @@
 import React from 'react';
 
-import { useCollateralDataFor } from 'queries/backendv2';
+import { useCollateralDataFor } from '@/queries/backendv2';
 
-import MultiLineChart, { DEFAULT_HEIGHT } from 'components/MultiLineChart';
-import Spinner from 'components/Spinner';
-import useTheme from 'hooks/useTheme';
+import MultiLineChart, { DEFAULT_HEIGHT } from '@/components/MultiLineChart';
+import Spinner from '@/components/Spinner';
 
 import { ChartContainer } from '..';
+import { useTheme } from 'styled-components';
 
 export default function Chart({
   collateralTVLHover,

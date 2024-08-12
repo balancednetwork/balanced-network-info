@@ -1,22 +1,22 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { Pair, useAllPairsIncentivisedById, useAllPairsTotal } from 'queries/backendv2';
+import { Pair, useAllPairsIncentivisedById, useAllPairsTotal } from '@/queries/backendv2';
 import { isMobile } from 'react-device-detect';
 import { useMedia } from 'react-use';
 import { Flex, Box, Text } from 'rebass/styled-components';
 import styled from 'styled-components';
 
-import { ReactComponent as QuestionIcon } from 'assets/icons/question.svg';
-import { ReactComponent as SigmaIcon } from 'assets/icons/sigma.svg';
-import Divider from 'components/Divider';
-import DropdownLink from 'components/DropdownLink';
-import { BoxPanel } from 'components/Panel';
-import SearchInput from 'components/SearchInput';
-import PoolLogo, { IconWrapper, PoolLogoWrapper } from 'components/shared/PoolLogo';
-import { MouseoverTooltip } from 'components/Tooltip';
-import useSort from 'hooks/useSort';
-import { Typography } from 'theme';
-import { getFormattedNumber } from 'utils/formatter';
+import QuestionIcon from '@/assets/icons/question.svg';
+import SigmaIcon from '@/assets/icons/sigma.svg';
+import Divider from '@/components/Divider';
+import DropdownLink from '@/components/DropdownLink';
+import { BoxPanel } from '@/components/Panel';
+import SearchInput from '@/components/SearchInput';
+import PoolLogo, { IconWrapper, PoolLogoWrapper } from '@/components/shared/PoolLogo';
+import { MouseoverTooltip } from '@/components/Tooltip';
+import useSort from '@/hooks/useSort';
+import { Typography } from '@/theme';
+import { getFormattedNumber } from '@/utils/formatter';
 
 import { COMPACT_ITEM_COUNT, HeaderText, StyledSkeleton as Skeleton } from './TokenSection';
 

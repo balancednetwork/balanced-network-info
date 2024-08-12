@@ -1,13 +1,13 @@
-import Divider from 'components/Divider';
-import { CurrencyLogoFromURI } from 'components/shared/CurrencyLogo';
-import { HIGH_PRICE_ASSET_DP } from 'constants/tokens';
-import { useWithdrawalsFloorCollateralData } from 'queries';
+import Divider from '@/components/Divider';
+import { CurrencyLogoFromURI } from '@/components/shared/CurrencyLogo';
+import { HIGH_PRICE_ASSET_DP } from '@/constants/tokens';
+import { useWithdrawalsFloorCollateralData } from '@/queries';
 import React, { Fragment } from 'react';
 import { Box, Flex } from 'rebass';
-import { HeaderText, StyledSkeleton } from 'sections/TokenSection';
+import { HeaderText, StyledSkeleton } from '@/sections/TokenSection';
 import styled from 'styled-components';
-import { Typography } from 'theme';
-import { getFormattedNumber } from 'utils/formatter';
+import { Typography } from '@/theme';
+import { getFormattedNumber } from '@/utils/formatter';
 
 export const DashGrid = styled(Box)`
   display: grid;

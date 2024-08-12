@@ -2,7 +2,7 @@ import React from 'react';
 
 import styled from 'styled-components';
 
-import LogoSrc from 'assets/images/balanced-logo.png';
+import LogoSrc from '@/assets/images/balanced-logo.png';
 
 import { MouseoverTooltip } from '../Tooltip';
 

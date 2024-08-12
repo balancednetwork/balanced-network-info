@@ -5,9 +5,9 @@ import { Box, Flex } from 'rebass';
 import { Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import styled, { css, useTheme } from 'styled-components';
 
-import { StyledTooltipContainer } from 'components/MultiLineChart';
-import { LoaderComponent } from 'pages/PerformanceDetails/utils';
-import { Typography } from 'theme';
+import { StyledTooltipContainer } from '@/components/MultiLineChart';
+import { LoaderComponent } from '@/pages/PerformanceDetails/utils';
+import { Typography } from '@/theme';
 
 import { useBALNDistributionQuery, useBALNTotalSupply, useEmissions } from '../queries';
 

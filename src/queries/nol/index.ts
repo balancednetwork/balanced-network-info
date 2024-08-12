@@ -1,10 +1,10 @@
 import BigNumber from 'bignumber.js';
-import bnJs from 'bnJs';
-import { getTimestampFrom } from 'pages/PerformanceDetails/utils';
-import { useAllPairs, useAllTokensByAddress } from 'queries/backendv2';
-import { useBlockDetails } from 'queries/blockDetails';
-import { UseQueryResult, useQuery } from 'react-query';
-import { CHART_COLORS } from 'sections/BALNSection/queries';
+import bnJs from '@/bnJs';
+import { getTimestampFrom } from '@/pages/PerformanceDetails/utils';
+import { useAllPairs, useAllTokensByAddress } from '@/queries/backendv2';
+import { useBlockDetails } from '@/queries/blockDetails';
+import { UseQueryResult, keepPreviousData, useQuery } from '@tanstack/react-query';
+import { CHART_COLORS } from '@/sections/BALNSection/queries';
 
 // const NOL_LP_CHART_COLORS = {
 //   'sICX/bnUSD': '#2ca9b7',
@@ -13,9 +13,12 @@ import { CHART_COLORS } from 'sections/BALNSection/queries';
 // };
 
 function useNOLPools(): UseQueryResult<string[] | undefined> {
-  return useQuery('nolPools', async () => {
-    const orders = await bnJs.NOL.getOrders();
-    return orders.map(order => order.pid);
+  return useQuery({
+    queryKey: ['nolPools'],
+    queryFn: async () => {
+      const orders = await bnJs.NOL.getOrders();
+      return orders.map(order => order.pid);
+    },
   });
 }
 
@@ -30,9 +33,9 @@ export function useNetworkOwnedLiquidityData(): UseQueryResult<
   const { data: allTokens, isSuccess: allTokensQuerySuccess } = useAllTokensByAddress();
   const { data: poolIDs, isSuccess: poolIDsQuerySuccess } = useNOLPools();
 
-  return useQuery(
-    `networkOwnedLiquidity`,
-    async () => {
+  return useQuery({
+    queryKey: [`networkOwnedLiquidity`],
+    queryFn: async () => {
       if (!allPairs || !allTokens || !poolIDs) return;
 
       const poolDataSets = await Promise.all(
@@ -81,11 +84,9 @@ export function useNetworkOwnedLiquidityData(): UseQueryResult<
         tvl: nolData.reduce((acc, data) => acc.plus(data.liquidity), new BigNumber(0)),
       };
     },
-    {
-      keepPreviousData: true,
-      enabled: allPairsQuerySuccess && allTokensQuerySuccess && poolIDsQuerySuccess,
-    },
-  );
+    placeholderData: keepPreviousData,
+    enabled: allPairsQuerySuccess && allTokensQuerySuccess && poolIDsQuerySuccess,
+  });
 }
 
 export function usePastMonthSupply(): UseQueryResult<any> {
@@ -94,9 +95,9 @@ export function usePastMonthSupply(): UseQueryResult<any> {
   const { data: allTokens } = useAllTokensByAddress();
   const ICXPrice = allTokens?.ICX.price;
 
-  return useQuery(
-    'pastMonthSupply',
-    async () => {
+  return useQuery({
+    queryKey: ['pastMonthSupply'],
+    queryFn: async () => {
       if (!blockHeight || !ICXPrice) return;
 
       try {
@@ -111,9 +112,7 @@ export function usePastMonthSupply(): UseQueryResult<any> {
         console.error('Failed to fetch invested emissions', e);
       }
     },
-    {
-      keepPreviousData: true,
-      enabled: !!blockHeight && !!ICXPrice,
-    },
-  );
+    placeholderData: keepPreviousData,
+    enabled: !!blockHeight && !!ICXPrice,
+  });
 }

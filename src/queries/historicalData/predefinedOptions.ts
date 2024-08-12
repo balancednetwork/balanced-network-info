@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js';
 
-import bnJs from 'bnJs';
-import { predefinedCollateralTypes } from 'components/CollateralSelector/CollateralTypeList';
-import { formatUnits } from 'utils';
+import bnJs from '@/bnJs';
+import { predefinedCollateralTypes } from '@/components/CollateralSelector/CollateralTypeList';
+import { formatUnits } from '@/utils';
 
 import { DATES, DATE_DEFAULT, DEFAULT_GRANULARITY } from './dates';
 import { Granularity, HistoryForParams } from './types';

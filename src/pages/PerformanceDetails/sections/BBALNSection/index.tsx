@@ -1,15 +1,15 @@
 import React, { useMemo, useState } from 'react';
 
-import { useDaoBBALNData } from 'queries';
+import { useDaoBBALNData } from '@/queries';
 import { Box, Flex } from 'rebass';
 import styled, { css } from 'styled-components';
 
-import { ReactComponent as QuestionIcon } from 'assets/icons/question.svg';
-import { BoxPanel, FlexPanel } from 'components/Panel';
-import QuestionHelper, { QuestionWrapper } from 'components/QuestionHelper';
-import { LoaderComponent } from 'pages/PerformanceDetails/utils';
-import { StyledSkeleton } from 'sections/TokenSection';
-import { Typography } from 'theme';
+import QuestionIcon from '@/assets/icons/question.svg';
+import { BoxPanel, FlexPanel } from '@/components/Panel';
+import QuestionHelper, { QuestionWrapper } from '@/components/QuestionHelper';
+import { LoaderComponent } from '@/pages/PerformanceDetails/utils';
+import { StyledSkeleton } from '@/sections/TokenSection';
+import { Typography } from '@/theme';
 
 const RewardsPanelLayout = styled(FlexPanel)`
   padding: 0 !important;

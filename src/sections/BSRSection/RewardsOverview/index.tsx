@@ -1,10 +1,10 @@
-import { LoaderComponent } from 'pages/PerformanceDetails/utils';
-import { useSavingsRateInfo } from 'queries/bsr';
+import { LoaderComponent } from '@/pages/PerformanceDetails/utils';
+import { useSavingsRateInfo } from '@/queries/bsr';
 import React from 'react';
 import { Box, Flex } from 'rebass';
-import { ChartInfo, ChartInfoItem } from 'sections/BALNSection/DistributionChart';
+import { ChartInfo, ChartInfoItem } from '@/sections/BALNSection/DistributionChart';
 import styled from 'styled-components';
-import { Typography } from 'theme';
+import { Typography } from '@/theme';
 
 const Wrap = styled(Box)``;
 

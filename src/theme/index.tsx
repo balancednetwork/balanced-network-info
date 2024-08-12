@@ -3,12 +3,12 @@ import React from 'react';
 import { TextProps } from 'rebass';
 import { Text } from 'rebass/styled-components';
 import { ThemeProvider as StyledComponentsThemeProvider, createGlobalStyle, MediaFunction } from 'styled-components';
-import { css, DefaultTheme } from 'styled-components/macro';
+import { css, DefaultTheme } from 'styled-components';
 
-import texGyeAdventorBoldWoff from 'assets/font/tex-gyre-adventor-bold/tex-gyre-adventor-bold.woff';
-import texGyeAdventorBoldWoff2 from 'assets/font/tex-gyre-adventor-bold/tex-gyre-adventor-bold.woff2';
-import texGyeAdventorRegularWoff from 'assets/font/tex-gyre-adventor-regular/tex-gyre-adventor-regular.woff';
-import texGyeAdventorRegularWoff2 from 'assets/font/tex-gyre-adventor-regular/tex-gyre-adventor-regular.woff2';
+import texGyeAdventorBoldWoff from '@/assets/font/tex-gyre-adventor-bold/tex-gyre-adventor-bold.woff';
+import texGyeAdventorBoldWoff2 from '@/assets/font/tex-gyre-adventor-bold/tex-gyre-adventor-bold.woff2';
+import texGyeAdventorRegularWoff from '@/assets/font/tex-gyre-adventor-regular/tex-gyre-adventor-regular.woff';
+import texGyeAdventorRegularWoff2 from '@/assets/font/tex-gyre-adventor-regular/tex-gyre-adventor-regular.woff2';
 
 // Update your breakpoints if you want
 export const sizes = {

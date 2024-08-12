@@ -3,11 +3,11 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import styled from 'styled-components';
 
-import Breadcrumbs, { BreadcrumbItem } from 'components/Breadcrumbs';
-import Footer from 'components/Footer';
-import Header from 'components/Header';
-import { Container, Divider } from 'pages/StatsPage';
-import { Typography } from 'theme';
+import Breadcrumbs, { BreadcrumbItem } from '@/components/Breadcrumbs';
+import Footer from '@/components/Footer';
+import Header from '@/components/Header';
+import { Container, Divider } from '@/pages/StatsPage';
+import { Typography } from '@/theme';
 
 // import BBALNSection from './sections/BBALNSection';
 import EarningsSection from './sections/EarningSection';
