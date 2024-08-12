@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import SearchIcon from '@/assets/icons/search.svg?url';
 
 export const SearchInput = styled.input`
-  background-image: url(${SearchIcon});
+  background-image: url("${SearchIcon}");
   background-repeat: no-repeat;
   background-size: 18px;
   background-position: 15px 10px;
@@ -27,17 +27,17 @@ export const SearchInput = styled.input`
   transition: border 0.3s ease;
   font-size: 16px;
 
-  ::placeholder {
+  &::placeholder {
     color: rgba(255, 255, 255, 0.75);
     opacity: 1;
   }
 
-  :focus {
+  &:focus {
     border: 2px solid ${({ theme }) => theme.colors.primary};
     outline: none;
   }
 
-  :hover {
+  &:hover {
     border: 2px solid ${({ theme }) => theme.colors.primary};
     outline: none;
   }
