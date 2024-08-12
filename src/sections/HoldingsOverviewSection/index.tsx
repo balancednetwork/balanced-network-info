@@ -27,7 +27,7 @@ const StyledArrowLink = styled(Link)`
     content: '';
     display: block;
     position: absolute;
-    background-image: url(${arrowIcon});
+    background-image: url("${arrowIcon}");
     height: 10px;
     width: 20px;
     background-repeat: no-repeat;
