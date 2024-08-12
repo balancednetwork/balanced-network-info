@@ -1,7 +1,7 @@
 import { CallData, addresses } from '@balancednetwork/balanced-js';
 import BigNumber from 'bignumber.js';
 import bnJs from '@/bnJs';
-import { UseQueryResult, useQuery } from '@tanstack/react-query';
+import { UseQueryResult, keepPreviousData, useQuery } from '@tanstack/react-query';
 import { formatUnits } from '@/utils';
 
 type DebtCeiling = {
@@ -13,9 +13,9 @@ export function useDebtCeilings(): UseQueryResult<{
   total: BigNumber;
   ceilings: DebtCeiling[];
 }> {
-  return useQuery(
-    ['debtCeilings'],
-    async () => {
+  return useQuery({
+    queryKey: ['debtCeilings'],
+    queryFn: async () => {
       const data = await bnJs.Loans.getCollateralTokens();
 
       const cds: CallData[] = Object.keys(data).map(symbol => ({
@@ -39,8 +39,6 @@ export function useDebtCeilings(): UseQueryResult<{
 
       return { total, ceilings };
     },
-    {
-      keepPreviousData: true,
-    },
-  );
+    placeholderData: keepPreviousData,
+  });
 }

@@ -2,7 +2,7 @@ import { Fraction } from '@balancednetwork/sdk-core';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { useBnJsContractQuery, useIncentivisedPairs } from '@/queries';
-import { UseQueryResult, useQuery } from '@tanstack/react-query';
+import { UseQueryResult, keepPreviousData, useQuery } from '@tanstack/react-query';
 
 import bnJs from '@/bnJs';
 import { predefinedCollateralTypes } from '@/components/CollateralSelector/CollateralTypeList';
@@ -31,18 +31,11 @@ export const useContractMethodsDataQuery = (
   start_timestamp?: number,
   end_timestamp?: number,
 ) => {
-  const queryKey = [
-    'historicalQuery',
-    skip,
-    limit,
-    contract,
-    method,
-    days_ago,
-    start_timestamp,
-    end_timestamp,
-  ];
-  
-  return useQuery<ContractMethodsDataType[]>(queryKey, async () => {
+  const queryKey = ['historicalQuery', skip, limit, contract, method, days_ago, start_timestamp, end_timestamp];
+
+  return useQuery<ContractMethodsDataType[]>({
+    queryKey: queryKey,
+    queryFn: async () => {
       const { data } = await axios.get(
         `${API_ENDPOINT}contract-methods?skip=${skip}&limit=${limit}&address=${contract}&method=${method}${
           days_ago ? `&days_ago=${days_ago}` : ''
@@ -56,7 +49,7 @@ export const useContractMethodsDataQuery = (
         return item;
       });
     },
-  );
+  });
 };
 
 export type TokenStats = {
@@ -81,9 +74,9 @@ export type TokenStats = {
 export function useAllTokens() {
   const MIN_LIQUIDITY_TO_INCLUDE = 500;
 
-  return useQuery(
-    [`allTokens`],
-    async () => {
+  return useQuery({
+    queryKey: [`allTokens`],
+    queryFn: async () => {
       const response = await axios.get(`${API_ENDPOINT}tokens`);
 
       if (response.status === 200) {
@@ -100,29 +93,25 @@ export function useAllTokens() {
           ) as TokenStats[];
       }
     },
-    {
-      keepPreviousData: true,
-    },
-  );
+    placeholderData: keepPreviousData,
+  });
 }
 
 export function useAllTokensByAddress(): UseQueryResult<{ [key in string]: TokenStats }> {
   const { data: allTokens, isSuccess: allTokensSuccess } = useAllTokens();
 
-  return useQuery(
-    [`allTokensByAddress`],
-    () => {
+  return useQuery({
+    queryKey: [`allTokensByAddress`],
+    queryFn: () => {
       if (!allTokens) return;
       return allTokens.reduce((tokens, item) => {
         tokens[item['address']] = item;
         return tokens;
       }, {});
     },
-    {
-      keepPreviousData: true,
-      enabled: allTokensSuccess,
-    },
-  );
+    placeholderData: keepPreviousData,
+    enabled: allTokensSuccess,
+  });
 }
 
 export type Pair = {
@@ -145,9 +134,9 @@ export type Pair = {
 export function useAllPairs() {
   const MIN_LIQUIDITY_TO_INCLUDE = 1000;
 
-  return useQuery<Pair[]>(
-    [`allPairs`],
-    async () => {
+  return useQuery<Pair[]>({
+    queryKey: [`allPairs`],
+    queryFn: async () => {
       const response = await axios.get(`${API_ENDPOINT}pools`);
 
       if (response.status === 200) {
@@ -196,11 +185,9 @@ export function useAllPairs() {
         }
       }
     },
-    {
-      keepPreviousData: true,
-      refetchInterval: 4000,
-    },
-  );
+    placeholderData: keepPreviousData,
+    refetchInterval: 4000,
+  });
 }
 
 export function useAllPairsIncentivised() {
@@ -211,10 +198,15 @@ export function useAllPairsIncentivised() {
   const balnPrice: number = allTokens ? allTokens[bnJs.BALN.address].price : 0;
   const dailyDistribution = dailyDistributionRaw && new BigNumber(formatUnits(dailyDistributionRaw, 18, 4));
 
-  return useQuery<Pair[] | undefined>(
-    [`allPairsIncentivised`, allPairs ? allPairs.length : 0, incentivisedPairs ? incentivisedPairs.length : 0, 
-      dailyDistribution ? dailyDistribution.toFixed(2) : 0, balnPrice,],
-    () => {
+  return useQuery<Pair[] | undefined>({
+    queryKey: [
+      `allPairsIncentivised`,
+      allPairs ? allPairs.length : 0,
+      incentivisedPairs ? incentivisedPairs.length : 0,
+      dailyDistribution ? dailyDistribution.toFixed(2) : 0,
+      balnPrice,
+    ],
+    queryFn: () => {
       if (allPairs) {
         return allPairs.map(item => {
           const incentivisedPair =
@@ -239,18 +231,16 @@ export function useAllPairsIncentivised() {
         });
       }
     },
-    {
-      keepPreviousData: true,
-    },
-  );
+    placeholderData: keepPreviousData,
+  });
 }
 
 export function useAllPairsIncentivisedById() {
   const { data: allPairs } = useAllPairsIncentivised();
 
-  return useQuery<{ [key in string]: Pair } | undefined>(
-    [`allPairsIncentivisedById`, allPairs ? allPairs.length : 0],
-    () => {
+  return useQuery<{ [key in string]: Pair } | undefined>({
+    queryKey: [`allPairsIncentivisedById`, allPairs ? allPairs.length : 0],
+    queryFn: () => {
       if (allPairs) {
         return allPairs.reduce((allPairs, item) => {
           allPairs[item['id']] = item;
@@ -258,18 +248,16 @@ export function useAllPairsIncentivisedById() {
         }, {});
       }
     },
-    {
-      keepPreviousData: true,
-    },
-  );
+    placeholderData: keepPreviousData,
+  });
 }
 
 export function useAllPairsIncentivisedByName() {
   const { data: allPairs } = useAllPairsIncentivised();
 
-  return useQuery<{ [key in string]: Pair } | undefined>(
-    [`allPairsIncentivisedByName`, allPairs ? allPairs.length : 0],
-    () => {
+  return useQuery<{ [key in string]: Pair } | undefined>({
+    queryKey: [`allPairsIncentivisedByName`, allPairs ? allPairs.length : 0],
+    queryFn: () => {
       if (allPairs) {
         return allPairs.reduce((allPairs, item) => {
           allPairs[item['name']] = item;
@@ -277,18 +265,16 @@ export function useAllPairsIncentivisedByName() {
         }, {});
       }
     },
-    {
-      keepPreviousData: true,
-    },
-  );
+    placeholderData: keepPreviousData,
+  });
 }
 
 export function useAllPairsById() {
   const { data: allPairs, isSuccess: allPairsSuccess } = useAllPairs();
 
-  return useQuery<{ [key in string]: Pair } | undefined>(
-    ['allPairsById'],
-    () => {
+  return useQuery<{ [key in string]: Pair } | undefined>({
+    queryKey: ['allPairsById'],
+    queryFn: () => {
       if (allPairs) {
         return allPairs.reduce((allPairs, item) => {
           allPairs[item['id']] = item;
@@ -296,18 +282,16 @@ export function useAllPairsById() {
         }, {});
       }
     },
-    {
-      keepPreviousData: true,
-      enabled: allPairsSuccess,
-    },
-  );
+    placeholderData: keepPreviousData,
+    enabled: allPairsSuccess,
+  });
 }
 export function useAllPairsByName() {
   const { data: allPairs, isSuccess: allPairsSuccess } = useAllPairs();
 
-  return useQuery<{ [key in string]: Pair } | undefined>(
-    ['allPairsByName'],
-    () => {
+  return useQuery<{ [key in string]: Pair } | undefined>({
+    queryKey: ['allPairsByName'],
+    queryFn: () => {
       if (allPairs) {
         return allPairs.reduce((allPairs, item) => {
           allPairs[item['name']] = item;
@@ -315,19 +299,17 @@ export function useAllPairsByName() {
         }, {});
       }
     },
-    {
-      keepPreviousData: true,
-      enabled: allPairsSuccess,
-    },
-  );
+    placeholderData: keepPreviousData,
+    enabled: allPairsSuccess,
+  });
 }
 
 export const useAllPairsTotal = () => {
   const { data: allPairs, isSuccess: allPairsSuccess } = useAllPairs();
 
-  return useQuery<{ tvl: number; volume: number; fees: number } | undefined>(
-  ['pairsTotal'],
-    () => {
+  return useQuery<{ tvl: number; volume: number; fees: number } | undefined>({
+    queryKey: ['pairsTotal'],
+    queryFn: () => {
       if (allPairs) {
         return Object.values(allPairs).reduce(
           (total, pair) => {
@@ -340,19 +322,17 @@ export const useAllPairsTotal = () => {
         );
       }
     },
-    {
-      keepPreviousData: true,
-      enabled: allPairsSuccess,
-    },
-  );
+    placeholderData: keepPreviousData,
+    enabled: allPairsSuccess,
+  });
 };
 
 export function useTokenPrices() {
   const { data: allTokens, isSuccess: allTokensSuccess } = useAllTokens();
 
-  return useQuery<{ [key in string]: BigNumber }>(
-    ['tokenPrices', allTokens],
-    () => {
+  return useQuery<{ [key in string]: BigNumber }>({
+    queryKey: ['tokenPrices', allTokens],
+    queryFn: () => {
       if (allTokens) {
         return allTokens.reduce((tokens, item) => {
           tokens[item['symbol']] = new BigNumber(item.price);
@@ -362,11 +342,9 @@ export function useTokenPrices() {
         return [];
       }
     },
-    {
-      keepPreviousData: true,
-      enabled: allTokensSuccess,
-    },
-  );
+    placeholderData: keepPreviousData,
+    enabled: allTokensSuccess,
+  });
 }
 
 function trimStartingZeroValues(array: any[]): any[] {
@@ -392,9 +370,9 @@ type CollateralData = {
 export function useAllCollateralData() {
   const { data: tokenPrices, isSuccess: isTokenQuerySuccess } = useTokenPrices();
 
-  return useQuery(
-    [`allCollateralDataBE`],
-    async () => {
+  return useQuery({
+    queryKey: [`allCollateralDataBE`],
+    queryFn: async () => {
       if (tokenPrices) {
         const result: CollateralData = {
           series: {},
@@ -521,12 +499,11 @@ export function useAllCollateralData() {
         }
       }
     },
-    {
-      enabled: isTokenQuerySuccess,
-      keepPreviousData: true,
-      refetchOnWindowFocus: false,
-    },
-  );
+
+    enabled: isTokenQuerySuccess,
+    placeholderData: keepPreviousData,
+    refetchOnWindowFocus: false,
+  });
 }
 
 export function useCollateralDataFor(daysBack: number) {
@@ -540,9 +517,9 @@ export function useCollateralDataFor(daysBack: number) {
     }
   }
 
-  return useQuery(
-    [`collateralDataFor`, daysBack, `days`],
-    () => {
+  return useQuery({
+    queryKey: [`collateralDataFor`, daysBack, `days`],
+    queryFn: () => {
       if (daysBack === -1) {
         return collateralData;
       } else {
@@ -557,63 +534,65 @@ export function useCollateralDataFor(daysBack: number) {
         }
       }
     },
-    {
-      enabled: collateralDataQuerySuccess,
-      keepPreviousData: true,
-    },
-  );
+
+    enabled: collateralDataQuerySuccess,
+    placeholderData: keepPreviousData,
+  });
 }
 
 export function useAllDebtData() {
   const { data: stabilityFundInfo } = useAllCollateralData();
-  return useQuery([`allDebtDataBE`, stabilityFundInfo ? Object.keys(stabilityFundInfo).length : '-'], async () => {
-    const responseSICX = await axios.get(
-      `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_collateral_debt_sICX_bnusd`,
-    );
-    const responseETH = await axios.get(
-      `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_collateral_debt_ETH_bnusd`,
-    );
-    const responseINJ = await axios.get(
-      `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_collateral_debt_INJ_bnusd`,
-    );
+  return useQuery({
+    queryKey: [`allDebtDataBE`, stabilityFundInfo ? Object.keys(stabilityFundInfo).length : '-'],
+    queryFn: async () => {
+      const responseSICX = await axios.get(
+        `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_collateral_debt_sICX_bnusd`,
+      );
+      const responseETH = await axios.get(
+        `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_collateral_debt_ETH_bnusd`,
+      );
+      const responseINJ = await axios.get(
+        `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_collateral_debt_INJ_bnusd`,
+      );
 
-    const responseBNB = await axios.get(
-      `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_collateral_debt_BNB_bnusd`,
-    );
-    const responseAVAX = await axios.get(
-      `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_collateral_debt_AVAX_bnusd`,
-    );
-    // const responseBTC = await axios.get(
-    //   `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_collateral_debt_BTC_bnusd`,
-    // );
-    const responseTotal = await axios.get(
-      `${API_ENDPOINT}contract-methods?skip=0&limit=1000&address=${bnJs.bnUSD.address}&method=totalSupply`,
-    );
+      const responseBNB = await axios.get(
+        `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_collateral_debt_BNB_bnusd`,
+      );
+      const responseAVAX = await axios.get(
+        `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_collateral_debt_AVAX_bnusd`,
+      );
+      // const responseBTC = await axios.get(
+      //   `${API_ENDPOINT}contract-methods?skip=0&limit=1000&contract_name=loans_collateral_debt_BTC_bnusd`,
+      // );
+      const responseTotal = await axios.get(
+        `${API_ENDPOINT}contract-methods?skip=0&limit=1000&address=${bnJs.bnUSD.address}&method=totalSupply`,
+      );
 
-    try {
-      const seriesSICX = responseSICX.data && setTimeToMs(trimStartingZeroValues(responseSICX.data));
-      const seriesETH = responseSICX.data && setTimeToMs(trimStartingZeroValues(responseETH.data));
-      const seriesINJ = responseINJ.data && setTimeToMs(trimStartingZeroValues(responseINJ.data));
-      const seriesBNB = responseBNB.data && setTimeToMs(trimStartingZeroValues(responseBNB.data));
-      const seriesAVAX = responseAVAX.data && setTimeToMs(trimStartingZeroValues(responseAVAX.data));
-      // const seriesBTC = responseBTC.data && setTimeToMs(trimStartingZeroValues(responseBTC.data));
-      const seriesTotal = responseTotal.data && setTimeToMs(trimStartingZeroValues(responseTotal.data));
+      try {
+        const seriesSICX = responseSICX.data && setTimeToMs(trimStartingZeroValues(responseSICX.data));
+        const seriesETH = responseSICX.data && setTimeToMs(trimStartingZeroValues(responseETH.data));
+        const seriesINJ = responseINJ.data && setTimeToMs(trimStartingZeroValues(responseINJ.data));
+        const seriesBNB = responseBNB.data && setTimeToMs(trimStartingZeroValues(responseBNB.data));
+        const seriesAVAX = responseAVAX.data && setTimeToMs(trimStartingZeroValues(responseAVAX.data));
+        // const seriesBTC = responseBTC.data && setTimeToMs(trimStartingZeroValues(responseBTC.data));
+        const seriesTotal = responseTotal.data && setTimeToMs(trimStartingZeroValues(responseTotal.data));
 
-      const seriesFund = stabilityFundInfo?.series['fundTotal'];
+        const seriesFund = stabilityFundInfo?.series['fundTotal'];
 
-      return {
-        sICX: seriesSICX.reverse(),
-        ETH: seriesETH.reverse(),
-        INJ: seriesINJ.reverse(),
-        BNB: seriesBNB.reverse(),
-        AVAX: seriesAVAX.reverse(),
-        // BTC: seriesBTC.reverse(),
-        [predefinedCollateralTypes.STABILITY_FUND]: seriesFund,
-        [predefinedCollateralTypes.ALL]: seriesTotal.reverse(),
-      };
-    } catch (e) {
-      console.error(e);
-    }
+        return {
+          sICX: seriesSICX.reverse(),
+          ETH: seriesETH.reverse(),
+          INJ: seriesINJ.reverse(),
+          BNB: seriesBNB.reverse(),
+          AVAX: seriesAVAX.reverse(),
+          // BTC: seriesBTC.reverse(),
+          [predefinedCollateralTypes.STABILITY_FUND]: seriesFund,
+          [predefinedCollateralTypes.ALL]: seriesTotal.reverse(),
+        };
+      } catch (e) {
+        console.error(e);
+      }
+    },
   });
 }
 
@@ -628,9 +607,9 @@ export function useDebtDataFor(daysBack: number) {
     }
   }
 
-  return useQuery(
-    [`collateralDebtFor`, daysBack, `days`],
-    () => {
+  return useQuery({
+    queryKey: [`collateralDebtFor`, daysBack, `days`],
+    queryFn: () => {
       if (daysBack === -1) {
         return debtData;
       } else {
@@ -645,22 +624,18 @@ export function useDebtDataFor(daysBack: number) {
         }
       }
     },
-    {
-      enabled: debtDataQuerySuccess,
-      keepPreviousData: true,
-    },
-  );
+    enabled: debtDataQuerySuccess,
+    placeholderData: keepPreviousData,
+  });
 }
 
 export function useTokenTrendData(tokenSymbol, start, end) {
-  return useQuery(
-    [`trend`, tokenSymbol, start, end],
-    async () => {
+  return useQuery({
+    queryKey: [`trend`, tokenSymbol, start, end],
+    queryFn: async () => {
       const { data } = await axios.get(`${API_ENDPOINT}tokens/series/1h/${start}/${end}?symbol=${tokenSymbol}`);
       return data;
     },
-    {
-      keepPreviousData: true,
-    },
-  );
+    placeholderData: keepPreviousData,
+  });
 }

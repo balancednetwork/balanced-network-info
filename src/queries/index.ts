@@ -1,7 +1,7 @@
 import { addresses, BalancedJs, CallData } from '@balancednetwork/balanced-js';
 import { CurrencyAmount, Token, Fraction } from '@balancednetwork/sdk-core';
 import BigNumber from 'bignumber.js';
-import { useQuery, UseQueryResult } from '@tanstack/react-query';
+import { keepPreviousData, useQuery, UseQueryResult } from '@tanstack/react-query';
 
 import bnJs from '@/bnJs';
 import { SUPPORTED_PAIRS } from '@/constants/pairs';
@@ -26,13 +26,16 @@ import axios from 'axios';
 const WEIGHT_CONST = 10 ** 18;
 
 export const useBnJsContractQuery = <T>(bnJs: BalancedJs, contract: string, method: string, args: any[]) => {
-  return useQuery<T, string>(QUERY_KEYS.BnJs(contract, method, args), async () => {
-    try {
-      return bnJs[contract][method](...args);
-    } catch (e) {
-      console.log(contract, method);
-      throw e;
-    }
+  return useQuery<T, string>({
+    queryKey: QUERY_KEYS.BnJs(contract, method, args),
+    queryFn: async () => {
+      try {
+        return bnJs[contract][method](...args);
+      } catch (e) {
+        console.log(contract, method);
+        throw e;
+      }
+    },
   });
 };
 
@@ -98,14 +101,9 @@ export const useEarningsDataQuery = (
         icxBurnFund: { [key: string]: { amount: BigNumber; value: BigNumber } };
       }
     | undefined
-  >(
-    [
-      cacheItem, 
-      blockStart?.number,
-      blockEnd?.number,
-      rates && Object.keys(rates).length,
-    ],
-    async () => {
+  >({
+    queryKey: [cacheItem, blockStart?.number, blockEnd?.number, rates && Object.keys(rates).length],
+    queryFn: async () => {
       async function getEarnings(
         blockStart: number,
         blockEnd: number,
@@ -452,14 +450,13 @@ export const useEarningsDataQuery = (
         }
       }
     },
-    {
-      enabled: Boolean(blockStart && blockEnd && rates),
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-      refetchInterval: undefined,
-      refetchIntervalInBackground: undefined,
-    },
-  );
+
+    enabled: Boolean(blockStart && blockEnd && rates),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchInterval: undefined,
+    refetchIntervalInBackground: undefined,
+  });
 };
 
 export const useStatsTVL = () => {
@@ -472,9 +469,12 @@ export const useStatsTVL = () => {
 };
 
 export const usePlatformDayQuery = () => {
-  return useQuery<number>([QUERY_KEYS.PlatformDay], async () => {
-    const res = await bnJs.Governance.getDay();
-    return parseInt(res, 16);
+  return useQuery<number>({
+    queryKey: [QUERY_KEYS.PlatformDay],
+    queryFn: async () => {
+      const res = await bnJs.Governance.getDay();
+      return parseInt(res, 16);
+    },
   });
 };
 
@@ -540,102 +540,111 @@ export const useGovernanceInfo = () => {
   const { data: platformDay } = usePlatformDayQuery();
   const proposalSampleSize = 20;
 
-  return useQuery([`governanceOverview-${platformDay ? platformDay : 0}`], async () => {
-    if (platformDay) {
-      const eligibleVotersRaw = await bnJs.BBALN.activeUsersCount();
-      const eligibleVoters = parseInt(eligibleVotersRaw);
-      const totalProposalsRaw = await bnJs.Governance.getTotalProposal();
-      const totalProposals = parseInt(totalProposalsRaw);
-      const latestProposals = await bnJs.Governance.getProposals(
-        totalProposals - (proposalSampleSize - 1),
-        proposalSampleSize,
-      );
-      const activeProposals = latestProposals.filter(
-        proposal =>
-          platformDay &&
-          proposal.status === 'Active' &&
-          parseInt(proposal['start day'], 16) <= platformDay &&
-          parseInt(proposal['end day'], 16) > platformDay,
-      ).length;
+  return useQuery({
+    queryKey: [`governanceOverview-${platformDay ? platformDay : 0}`],
+    queryFn: async () => {
+      if (platformDay) {
+        const eligibleVotersRaw = await bnJs.BBALN.activeUsersCount();
+        const eligibleVoters = parseInt(eligibleVotersRaw);
+        const totalProposalsRaw = await bnJs.Governance.getTotalProposal();
+        const totalProposals = parseInt(totalProposalsRaw);
+        const latestProposals = await bnJs.Governance.getProposals(
+          totalProposals - (proposalSampleSize - 1),
+          proposalSampleSize,
+        );
+        const activeProposals = latestProposals.filter(
+          proposal =>
+            platformDay &&
+            proposal.status === 'Active' &&
+            parseInt(proposal['start day'], 16) <= platformDay &&
+            parseInt(proposal['end day'], 16) > platformDay,
+        ).length;
 
-      const participations = latestProposals
-        .filter(proposal => proposal.status !== 'Active' && proposal.status !== 'Cancelled')
-        .sort((a, b) => b.id - a.id)
-        .splice(0, 10)
-        .map(proposal => {
-          const votedYes = parseInt(proposal['for'], 16);
-          const votedNo = parseInt(proposal['against'], 16);
-          return (votedYes + votedNo) / 10 ** 18;
-        })
-        .filter(participation => participation > 0);
+        const participations = latestProposals
+          .filter(proposal => proposal.status !== 'Active' && proposal.status !== 'Cancelled')
+          .sort((a, b) => b.id - a.id)
+          .splice(0, 10)
+          .map(proposal => {
+            const votedYes = parseInt(proposal['for'], 16);
+            const votedNo = parseInt(proposal['against'], 16);
+            return (votedYes + votedNo) / 10 ** 18;
+          })
+          .filter(participation => participation > 0);
 
-      const participationRate =
-        participations.reduce((total, participation) => total + participation, 0) / participations.length;
+        const participationRate =
+          participations.reduce((total, participation) => total + participation, 0) / participations.length;
 
-      return {
-        activeProposals,
-        totalProposals,
-        participationRate,
-        eligibleVoters,
-      };
-    }
+        return {
+          activeProposals,
+          totalProposals,
+          participationRate,
+          eligibleVoters,
+        };
+      }
+    },
   });
 };
 
 export function useLatestProposals() {
-  return useQuery([`latestProposals`], async () => {
-    const totalProposalsRaw = await bnJs.Governance.getTotalProposal();
-    const totalProposals = parseInt(totalProposalsRaw);
-    const latestProposals = await bnJs.Governance.getProposals(totalProposals - 9, 10);
-    return latestProposals
-      .filter(proposal => proposal.status !== 'Cancelled')
-      .sort((a, b) => b.id - a.id)
-      .splice(0, 3);
+  return useQuery({
+    queryKey: [`latestProposals`],
+    queryFn: async () => {
+      const totalProposalsRaw = await bnJs.Governance.getTotalProposal();
+      const totalProposals = parseInt(totalProposalsRaw);
+      const latestProposals = await bnJs.Governance.getProposals(totalProposals - 9, 10);
+      return latestProposals
+        .filter(proposal => proposal.status !== 'Cancelled')
+        .sort((a, b) => b.id - a.id)
+        .splice(0, 3);
+    },
   });
 }
 
 export function useRewardsPercentDistribution(): UseQueryResult<RewardDistribution, Error> {
-  return useQuery(['rewardDistribution'], async () => {
-    const data: RewardDistributionRaw = await bnJs.Rewards.getDistributionPercentages();
+  return useQuery({
+    queryKey: ['rewardDistribution'],
+    queryFn: async () => {
+      const data: RewardDistributionRaw = await bnJs.Rewards.getDistributionPercentages();
 
-    return {
-      Base: Object.keys(data.Base).reduce((distributions, item) => {
-        try {
-          distributions[item] = new Fraction(data.Base[item], WEIGHT_CONST);
-        } catch (e) {
-          console.error(e);
-        } finally {
-          return distributions;
-        }
-      }, {}),
-      Fixed: Object.keys(data.Fixed).reduce((distributions, item) => {
-        try {
-          distributions[item] = new Fraction(data.Fixed[item], WEIGHT_CONST);
-        } catch (e) {
-          console.error(e);
-        } finally {
-          return distributions;
-        }
-      }, {}),
-      Voting: Object.keys(data.Voting).reduce((distributions, item) => {
-        try {
-          distributions[item] = new Fraction(data.Voting[item], WEIGHT_CONST);
-        } catch (e) {
-          console.error(e);
-        } finally {
-          return distributions;
-        }
-      }, {}),
-    };
+      return {
+        Base: Object.keys(data.Base).reduce((distributions, item) => {
+          try {
+            distributions[item] = new Fraction(data.Base[item], WEIGHT_CONST);
+          } catch (e) {
+            console.error(e);
+          } finally {
+            return distributions;
+          }
+        }, {}),
+        Fixed: Object.keys(data.Fixed).reduce((distributions, item) => {
+          try {
+            distributions[item] = new Fraction(data.Fixed[item], WEIGHT_CONST);
+          } catch (e) {
+            console.error(e);
+          } finally {
+            return distributions;
+          }
+        }, {}),
+        Voting: Object.keys(data.Voting).reduce((distributions, item) => {
+          try {
+            distributions[item] = new Fraction(data.Voting[item], WEIGHT_CONST);
+          } catch (e) {
+            console.error(e);
+          } finally {
+            return distributions;
+          }
+        }, {}),
+      };
+    },
   });
 }
 
 export function useFlattenedRewardsDistribution(): UseQueryResult<Map<string, Fraction>, Error> {
   const { data: distribution } = useRewardsPercentDistribution();
 
-  return useQuery(
-    ['flattenedDistribution', distribution],
-    () => {
+  return useQuery({
+    queryKey: ['flattenedDistribution', distribution],
+    queryFn: () => {
       if (distribution) {
         return Object.values(distribution).reduce((flattened, dist) => {
           return Object.keys(dist).reduce((flattened, item) => {
@@ -649,10 +658,8 @@ export function useFlattenedRewardsDistribution(): UseQueryResult<Map<string, Fr
         }, {});
       }
     },
-    {
-      keepPreviousData: true,
-    },
-  );
+    placeholderData: keepPreviousData,
+  });
 }
 
 export const useIncentivisedPairs = (): UseQueryResult<
@@ -661,9 +668,9 @@ export const useIncentivisedPairs = (): UseQueryResult<
 > => {
   const { data: rewards } = useFlattenedRewardsDistribution();
 
-  return useQuery(
-    ['incentivisedPairs', rewards],
-    async () => {
+  return useQuery({
+    queryKey: ['incentivisedPairs', rewards],
+    queryFn: async () => {
       if (rewards) {
         const lpData = await bnJs.StakedLP.getDataSources();
         const lpSources: string[] = ['sICX/ICX', ...lpData];
@@ -690,10 +697,8 @@ export const useIncentivisedPairs = (): UseQueryResult<
         }));
       }
     },
-    {
-      keepPreviousData: true,
-    },
-  );
+    placeholderData: keepPreviousData,
+  });
 };
 
 export const useCollateralInfo = () => {
@@ -703,9 +708,9 @@ export const useCollateralInfo = () => {
   const rate = rateQuery.isSuccess ? BalancedJs.utils.toIcx(rateQuery.data) : null;
   const { data: collateralData, isSuccess: collateralDataQuerySuccess } = useAllCollateralData();
 
-  return useQuery(
-    [`collateralInfoAt${now}`],
-    async () => {
+  return useQuery({
+    queryKey: [`collateralInfoAt${now}`],
+    queryFn: async () => {
       if (collateralData) {
         const IISSInfo = await bnJs.IISS.getIISSInfo();
         const PRepsInfo = await bnJs.IISS.getPReps();
@@ -726,11 +731,9 @@ export const useCollateralInfo = () => {
         };
       }
     },
-    {
-      enabled: collateralDataQuerySuccess,
-      keepPreviousData: true,
-    },
-  );
+    placeholderData: keepPreviousData,
+    enabled: collateralDataQuerySuccess,
+  });
 };
 
 export const useLoanInfo = () => {
@@ -769,21 +772,27 @@ export const useLoanInfo = () => {
 };
 
 export const useAllPairsParticipantQuery = () => {
-  return useQuery<{ [key: string]: number }>(['useAllPairsParticipantQuery'], async () => {
-    const res: Array<string> = await Promise.all(SUPPORTED_PAIRS.map(pair => bnJs.Dex.totalDexAddresses(pair.id)));
+  return useQuery<{ [key: string]: number }>({
+    queryKey: ['useAllPairsParticipantQuery'],
+    queryFn: async () => {
+      const res: Array<string> = await Promise.all(SUPPORTED_PAIRS.map(pair => bnJs.Dex.totalDexAddresses(pair.id)));
 
-    const t = {};
-    SUPPORTED_PAIRS.forEach((pair, index) => {
-      t[pair.name] = parseInt(res[index]);
-    });
+      const t = {};
+      SUPPORTED_PAIRS.forEach((pair, index) => {
+        t[pair.name] = parseInt(res[index]);
+      });
 
-    return t;
+      return t;
+    },
   });
 };
 
 export const useWhitelistedTokensList = () => {
-  return useQuery<string[]>(['whitelistedTokens'], async () => {
-    return await bnJs.StabilityFund.getAcceptedTokens();
+  return useQuery<string[]>({
+    queryKey: ['whitelistedTokens'],
+    queryFn: async () => {
+      return await bnJs.StabilityFund.getAcceptedTokens();
+    },
   });
 };
 
@@ -791,9 +800,9 @@ export function useFundLimits(): UseQueryResult<{ [key: string]: CurrencyAmount<
   const whitelistedTokenAddressesQuery = useWhitelistedTokensList();
   const whitelistedTokenAddresses = whitelistedTokenAddressesQuery.data ?? [];
 
-  return useQuery<{ [key: string]: CurrencyAmount<Token> }>(
-    [`useFundLimitsQuery`, whitelistedTokenAddresses.length],
-    async () => {
+  return useQuery<{ [key: string]: CurrencyAmount<Token> }>({
+    queryKey: [`useFundLimitsQuery`, whitelistedTokenAddresses.length],
+    queryFn: async () => {
       const cds: CallData[] = whitelistedTokenAddresses.map(address => {
         return {
           target: bnJs.StabilityFund.address,
@@ -813,7 +822,7 @@ export function useFundLimits(): UseQueryResult<{ [key: string]: CurrencyAmount<
 
       return limits;
     },
-  );
+  });
 }
 
 export function useFundInfo() {
@@ -823,9 +832,9 @@ export function useFundInfo() {
     new Date(now).setDate(new Date().getDate() - 30),
   );
 
-  return useQuery(
-    ['fundInfo'],
-    async () => {
+  return useQuery({
+    queryKey: ['fundInfo'],
+    queryFn: async () => {
       const feeIn = await bnJs.StabilityFund.getFeeIn();
       const feeOut = await bnJs.StabilityFund.getFeeOut();
 
@@ -840,11 +849,9 @@ export function useFundInfo() {
           .toNumber(),
       };
     },
-    {
-      enabled: blockHeightSuccess,
-      keepPreviousData: true,
-    },
-  );
+    enabled: blockHeightSuccess,
+    placeholderData: keepPreviousData,
+  });
 }
 
 type Source = {
@@ -870,9 +877,9 @@ export function useDaoBBALNData(): UseQueryResult<DaoBBALNData, Error> {
   const feesDistributedIn = [bnJs.sICX.address, bnJs.bnUSD.address, bnJs.BALN.address];
   const { data: allPairs, isSuccess: allPairsQuerySuccess } = useAllPairsIncentivisedByName();
 
-  return useQuery(
-    [`daoBBALNData${now}`],
-    async () => {
+  return useQuery({
+    queryKey: [`daoBBALNData${now}`],
+    queryFn: async () => {
       let daoBBALNData = {};
 
       //total bBALN supply
@@ -938,16 +945,19 @@ export function useDaoBBALNData(): UseQueryResult<DaoBBALNData, Error> {
 
       return daoBBALNData as DaoBBALNData;
     },
-    { keepPreviousData: true, refetchOnReconnect: false, refetchInterval: undefined, enabled: allPairsQuerySuccess },
-  );
+    placeholderData: keepPreviousData,
+    refetchOnReconnect: false,
+    refetchInterval: undefined,
+    enabled: allPairsQuerySuccess,
+  });
 }
 
 export function useBorrowersInfo() {
   const { data: collateralTokens, isSuccess: collateralTokensSuccess } = useSupportedCollateralTokens();
 
-  return useQuery<{ [key in string]: number }, Error>(
-    [`borrowersInfo`],
-    async () => {
+  return useQuery<{ [key in string]: number }, Error>({
+    queryKey: [`borrowersInfo`],
+    queryFn: async () => {
       if (collateralTokens) {
         const collateralSymbols = Object.keys(collateralTokens);
         const collateralAddresses = Object.values(collateralTokens);
@@ -973,11 +983,9 @@ export function useBorrowersInfo() {
         return result;
       }
     },
-    {
-      keepPreviousData: true,
-      enabled: collateralTokensSuccess,
-    },
-  );
+    placeholderData: keepPreviousData,
+    enabled: collateralTokensSuccess,
+  });
 }
 
 type WithdrawalsFloorDataType = {
@@ -990,9 +998,9 @@ export function useWithdrawalsFloorCollateralData(): UseQueryResult<WithdrawalsF
   const { data: collateralTokens, isSuccess: collateralTokensSuccess } = useSupportedCollateralTokens();
   const { data: allTokens, isSuccess: tokensSuccess } = useAllTokensByAddress();
 
-  return useQuery(
-    [`withdrawalsFloorData-${collateralTokens && Object.keys(collateralTokens).length}-tokens`],
-    async () => {
+  return useQuery({
+    queryKey: [`withdrawalsFloorData-${collateralTokens && Object.keys(collateralTokens).length}-tokens`],
+    queryFn: async () => {
       if (collateralTokens && allTokens) {
         const collateralAddresses = Object.values(collateralTokens);
 
@@ -1051,20 +1059,18 @@ export function useWithdrawalsFloorCollateralData(): UseQueryResult<WithdrawalsF
         };
       }
     },
-    {
-      keepPreviousData: true,
-      refetchInterval: 5000,
-      enabled: collateralTokensSuccess && tokensSuccess,
-    },
-  );
+    placeholderData: keepPreviousData,
+    refetchInterval: 5000,
+    enabled: collateralTokensSuccess && tokensSuccess,
+  });
 }
 
 export function useWithdrawalsFloorDEXData(): UseQueryResult<WithdrawalsFloorDataType> {
   const { data: allTokens, isSuccess: tokensSuccess } = useAllTokensByAddress();
 
-  return useQuery(
-    [`withdrawalsFloorDEXData-${tokensSuccess ? 'tokens' : ''}`],
-    async () => {
+  return useQuery({
+    queryKey: [`withdrawalsFloorDEXData-${tokensSuccess ? 'tokens' : ''}`],
+    queryFn: async () => {
       const tokens = [bnJs.BALN.address, bnJs.sICX.address, bnJs.bnUSD.address];
 
       if (allTokens) {
@@ -1122,20 +1128,18 @@ export function useWithdrawalsFloorDEXData(): UseQueryResult<WithdrawalsFloorDat
         };
       }
     },
-    {
-      keepPreviousData: true,
-      refetchInterval: 5000,
-      enabled: tokensSuccess,
-    },
-  );
+    placeholderData: keepPreviousData,
+    refetchInterval: 5000,
+    enabled: tokensSuccess,
+  });
 }
 
 export function useWithdrawalsFloorStabilityFundData(): UseQueryResult<WithdrawalsFloorDataType> {
   const { data: supportedTokens, isSuccess: supportedTokensSuccess } = useWhitelistedTokensList();
 
-  return useQuery(
-    [`withdrawalsFloorData-${supportedTokens && Object.keys(supportedTokens).length}`],
-    async () => {
+  return useQuery({
+    queryKey: [`withdrawalsFloorData-${supportedTokens && Object.keys(supportedTokens).length}`],
+    queryFn: async () => {
       if (supportedTokens) {
         const { data: allTokens } = await axios.get(`${API_ENDPOINT}tokens`);
 
@@ -1194,10 +1198,8 @@ export function useWithdrawalsFloorStabilityFundData(): UseQueryResult<Withdrawa
         };
       }
     },
-    {
-      keepPreviousData: true,
-      refetchInterval: 5000,
-      enabled: supportedTokensSuccess,
-    },
-  );
+    placeholderData: keepPreviousData,
+    refetchInterval: 5000,
+    enabled: supportedTokensSuccess,
+  });
 }

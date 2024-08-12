@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js';
 import { useFundLimits, useWhitelistedTokensList } from '@/queries';
 import { useTokenPrices } from '@/queries/backendv2';
 import { useStabilityFundHoldings } from '@/queries/blockDetails';
-import { useQuery, UseQueryResult } from '@tanstack/react-query';
+import { keepPreviousData, useQuery, UseQueryResult } from '@tanstack/react-query';
 
 import bnJs from '@/bnJs';
 import { NETWORK_ID } from '@/constants/config';
@@ -23,9 +23,9 @@ export function useTokensCollateralData(): UseQueryResult<CollateralData[]> {
   const { data: supportedTokens } = useSupportedCollateralTokens();
   const { data: tokenPrices, isSuccess: tokenPricesQuerySuccess } = useTokenPrices();
 
-  return useQuery(
-  [`collateralData${tvls ? tvls.length : ''}`],
-    async () => {
+  return useQuery({
+    queryKey: [`collateralData${tvls ? tvls.length : ''}`],
+    queryFn: async () => {
       const data = await (tvls &&
         supportedTokens &&
         Promise.all(
@@ -43,11 +43,9 @@ export function useTokensCollateralData(): UseQueryResult<CollateralData[]> {
 
       return data;
     },
-    {
-      keepPreviousData: true,
-      enabled: tokenPricesQuerySuccess,
-    },
-  );
+    placeholderData: keepPreviousData,
+    enabled: tokenPricesQuerySuccess,
+  });
 }
 
 export function useTokensCollateralTVLs() {
@@ -59,39 +57,45 @@ export function useTokensCollateralTVLs() {
     params: [addresses[NETWORK_ID].loans],
   }));
 
-  return useQuery([`collateralAmounts${tokens.length}`], async () => {
-    const amounts = await bnJs.Multicall.getAggregateData(cds);
+  return useQuery({
+    queryKey: [`collateralAmounts${tokens.length}`],
+    queryFn: async () => {
+      const amounts = await bnJs.Multicall.getAggregateData(cds);
 
-    return tokens.length
-      ? amounts.reduce((data, tvl, index) => {
-          data[tokens[index]] = tvl;
-          return data;
-        }, {})
-      : undefined;
+      return tokens.length
+        ? amounts.reduce((data, tvl, index) => {
+            data[tokens[index]] = tvl;
+            return data;
+          }, {})
+        : undefined;
+    },
   });
 }
 
 export function useSupportedCollateralTokens(): UseQueryResult<{ [key in string]: string }> {
-  return useQuery(['getCollateralTokens'], async () => {
-    const data = await bnJs.Loans.getCollateralTokens();
+  return useQuery({
+    queryKey: ['getCollateralTokens'],
+    queryFn: async () => {
+      const data = await bnJs.Loans.getCollateralTokens();
 
-    const cds: CallData[] = Object.keys(data).map(symbol => ({
-      target: addresses[NETWORK_ID].loans,
-      method: 'getDebtCeiling',
-      params: [symbol],
-    }));
+      const cds: CallData[] = Object.keys(data).map(symbol => ({
+        target: addresses[NETWORK_ID].loans,
+        method: 'getDebtCeiling',
+        params: [symbol],
+      }));
 
-    const debtCeilingsData = await bnJs.Multicall.getAggregateData(cds);
-    const debtCeilings = debtCeilingsData.map(ceiling => parseInt(formatUnits(ceiling)));
+      const debtCeilingsData = await bnJs.Multicall.getAggregateData(cds);
+      const debtCeilings = debtCeilingsData.map(ceiling => parseInt(formatUnits(ceiling)));
 
-    const supportedTokens = {};
-    Object.keys(data).forEach((symbol, index) => {
-      if (debtCeilings[index] > 0 || symbol === 'BTCB') {
-        supportedTokens[symbol] = data[symbol];
-      }
-    });
+      const supportedTokens = {};
+      Object.keys(data).forEach((symbol, index) => {
+        if (debtCeilings[index] > 0 || symbol === 'BTCB') {
+          supportedTokens[symbol] = data[symbol];
+        }
+      });
 
-    return supportedTokens;
+      return supportedTokens;
+    },
   });
 }
 

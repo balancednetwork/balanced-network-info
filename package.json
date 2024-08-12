@@ -8,7 +8,7 @@
     "@popperjs/core": "2.8.4",
     "@reach/dialog": "0.12.1",
     "@reach/portal": "0.12.1",
-    "@tanstack/react-query": "4",
+    "@tanstack/react-query": "^5",
     "axios": "0.21.1",
     "bignumber.js": "9.0.1",
     "dayjs": "1.10.5",

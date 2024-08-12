@@ -2,7 +2,7 @@ import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { useTokenPrices } from '@/queries/backendv2';
 import { BlockDetails } from '@/queries/blockDetails';
-import { useQuery, UseQueryResult } from '@tanstack/react-query';
+import { keepPreviousData, useQuery, UseQueryResult } from '@tanstack/react-query';
 
 import bnJs from '@/bnJs';
 import { formatUnits } from '@/utils';
@@ -31,9 +31,9 @@ export default function useHistoryFor(params: HistoryForParams | undefined): Use
     transformation,
   } = params || {};
 
-  return useQuery(
-    [`useHistoryFor`, contract, contractAddress, method, uniqueID, granularity, startTime, endTime],
-    async () => {
+  return useQuery({
+    queryKey: [`useHistoryFor`, contract, contractAddress, method, uniqueID, granularity, startTime, endTime],
+    queryFn: async () => {
       if (startTime && granularity && method && transformation) {
         const fiveMinPeriod = 1000 * 300;
         const now = Math.floor(new Date().getTime() / fiveMinPeriod) * fiveMinPeriod;
@@ -79,10 +79,8 @@ export default function useHistoryFor(params: HistoryForParams | undefined): Use
         }
       }
     },
-    {
-      keepPreviousData: true,
-    },
-  );
+    placeholderData: keepPreviousData,
+  });
 }
 
 export function useHistoryForStabilityFund(
@@ -126,9 +124,9 @@ export function useHistoryForStabilityFund(
     transformation: item => new BigNumber(formatUnits(item, 18, 2)).toNumber(),
   });
 
-  return useQuery(
-    [`historyForStabilityFund`, granularity, startTimestamp, endTimestamp],
-    () => {
+  return useQuery({
+    queryKey: [`historyForStabilityFund`, granularity, startTimestamp, endTimestamp],
+    queryFn: () => {
       if (historyForIUSDC && historyForUSDS && historyForBUSD) {
         const filteredHistoryForIUSDC = historyForIUSDC.filter(
           (item, index) => item && historyForIUSDC[Math.min(index + 1, historyForIUSDC.length - 1)].value !== 0,
@@ -187,11 +185,9 @@ export function useHistoryForStabilityFund(
         };
       }
     },
-    {
-      enabled: successIUSDC && successBUSD && successUSDS,
-      keepPreviousData: true,
-    },
-  );
+    enabled: successIUSDC && successBUSD && successUSDS,
+    placeholderData: keepPreviousData,
+  });
 }
 
 export function useHistoryForTotal(
@@ -239,9 +235,9 @@ export function useHistoryForTotal(
     transformation: item => new BigNumber(formatUnits(item, 18, 10)).toNumber(),
   });
 
-  return useQuery(
-    [`historyForTotal`, granularity, startTimestamp, endTimestamp],
-    () => {
+  return useQuery({
+    queryKey: [`historyForTotal`, granularity, startTimestamp, endTimestamp],
+    queryFn: () => {
       if (historyForStabilityFund && historyForSICX && historyForETH && historyForBTCB && tokenPrices) {
         const sICXHistoryReversed = historyForSICX.slice().reverse();
         const ETHHistoryReversed = historyForETH.slice().reverse();
@@ -272,16 +268,14 @@ export function useHistoryForTotal(
         return total.reverse();
       }
     },
-    {
-      enabled:
-        historyForStabilityFundSuccess &&
-        historyForSICXSuccess &&
-        historyForBTCBSuccess &&
-        historyForETHSuccess &&
-        tokenPricesQuerySuccess,
-      keepPreviousData: true,
-    },
-  );
+    enabled:
+      historyForStabilityFundSuccess &&
+      historyForSICXSuccess &&
+      historyForBTCBSuccess &&
+      historyForETHSuccess &&
+      tokenPricesQuerySuccess,
+    placeholderData: keepPreviousData,
+  });
 }
 
 export function useHistoryForBnUSDTotalSupply(
@@ -304,14 +298,12 @@ export function useHistoryForBnUSDTotalSupply(
     transformation: item => new BigNumber(formatUnits(item, 18, 10)).toNumber(),
   });
 
-  return useQuery(
-      [`historyForBnUSDTotal`, granularity, startTimestamp,endTimestamp],
-      () => {
-          return historyForBnUSDTotal;
-      },
-      {
-          enabled: historyForBnUSDTotalSuccess,
-          keepPreviousData: true,
-      },
-  );
+  return useQuery({
+    queryKey: [`historyForBnUSDTotal`, granularity, startTimestamp, endTimestamp],
+    queryFn: () => {
+      return historyForBnUSDTotal;
+    },
+    enabled: historyForBnUSDTotalSuccess,
+    placeholderData: keepPreviousData,
+  });
 }
